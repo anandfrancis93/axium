@@ -8,8 +8,8 @@ const openai = new OpenAI({
 
 // Dynamic import for pdf-parse (CommonJS module)
 async function parsePDF(buffer: Buffer) {
-  // @ts-ignore - pdf-parse has mixed ESM/CJS exports
   const pdfParse = await import('pdf-parse')
+  // @ts-expect-error - pdf-parse has mixed ESM/CJS exports
   const pdf = pdfParse.default || pdfParse
   return await pdf(buffer)
 }
