@@ -210,39 +210,6 @@ export default async function SubjectPage({
             </Link>
           </div>
         )}
-
-        {/* How it Works */}
-        <div className="neuro-card">
-          <h3 className="text-lg font-semibold text-gray-200 mb-4">
-            How Adaptive Learning Works
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="neuro-inset p-4 rounded-lg">
-              <div className="text-blue-400 font-medium mb-2">1. RL Selects Optimal Topic</div>
-              <p className="text-sm text-gray-500">
-                Thompson Sampling chooses the best (topic, Bloom level) based on your mastery and spacing
-              </p>
-            </div>
-            <div className="neuro-inset p-4 rounded-lg">
-              <div className="text-purple-400 font-medium mb-2">2. 4-Step Question Flow</div>
-              <p className="text-sm text-gray-500">
-                Question → Confidence → Options → Recognition Method → Feedback
-              </p>
-            </div>
-            <div className="neuro-inset p-4 rounded-lg">
-              <div className="text-green-400 font-medium mb-2">3. Mastery Updates</div>
-              <p className="text-sm text-gray-500">
-                Your mastery scores update based on correctness, confidence, and retrieval strength
-              </p>
-            </div>
-            <div className="neuro-inset p-4 rounded-lg">
-              <div className="text-yellow-400 font-medium mb-2">4. Progressive Unlocking</div>
-              <p className="text-sm text-gray-500">
-                Reach 80% mastery + 3 correct answers to unlock the next Bloom level
-              </p>
-            </div>
-          </div>
-        </div>
       </main>
     </div>
   )
