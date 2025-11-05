@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { RefreshIcon, AlertTriangleIcon, CheckIcon, XIcon } from '@/components/icons'
+import { RefreshIcon, AlertTriangleIcon, CheckIcon, XIcon, ArrowLeftIcon, BarChartIcon, TrendingUpIcon, AwardIcon, TargetIcon } from '@/components/icons'
 
 export default function PerformancePage() {
   const router = useRouter()
@@ -170,14 +170,18 @@ export default function PerformancePage() {
       <header className="neuro-container mx-4 my-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center flex-wrap gap-4">
           <div className="flex items-center gap-4">
-            <Link href={`/subjects/${chapter?.subject_id}`} className="neuro-btn">
-              ← Back
+            <Link href={`/subjects/${chapter?.subject_id}`} className="neuro-btn flex items-center gap-2">
+              <ArrowLeftIcon size={18} />
+              <span>Back</span>
             </Link>
-            <div>
-              <div className="text-sm text-gray-500">{chapter?.subjects?.name}</div>
-              <h1 className="text-2xl font-bold text-gray-200">
-                {chapter?.name} - Performance
-              </h1>
+            <div className="neuro-raised px-6 py-3 flex items-center gap-3">
+              <BarChartIcon size={24} className="text-purple-400" />
+              <div>
+                <div className="text-xs text-gray-500">{chapter?.subjects?.name}</div>
+                <h1 className="text-xl font-bold text-gray-200">
+                  {chapter?.name}
+                </h1>
+              </div>
             </div>
           </div>
           <button
@@ -193,47 +197,76 @@ export default function PerformancePage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         {/* Overall Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <div className="neuro-stat group">
-            <div className="text-sm text-blue-400 font-medium mb-2">
-              Topics Started
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-sm text-blue-400 font-medium">
+                Topics Started
+              </div>
+              <TargetIcon size={20} className="text-blue-400 opacity-50 group-hover:opacity-100 transition-opacity" />
             </div>
             <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
               {progressSummary?.topics_started || 0}
             </div>
+            <div className="text-xs text-gray-600 mt-2">
+              Topics explored
+            </div>
           </div>
           <div className="neuro-stat group">
-            <div className="text-sm text-green-400 font-medium mb-2">
-              Topics Mastered
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-sm text-green-400 font-medium">
+                Topics Mastered
+              </div>
+              <AwardIcon size={20} className="text-green-400 opacity-50 group-hover:opacity-100 transition-opacity" />
             </div>
             <div className="text-4xl font-bold text-gray-200 group-hover:text-green-400 transition-colors">
               {progressSummary?.topics_mastered || 0}
             </div>
+            <div className="text-xs text-gray-600 mt-2">
+              80%+ mastery achieved
+            </div>
           </div>
           <div className="neuro-stat group">
-            <div className="text-sm text-purple-400 font-medium mb-2">
-              Questions Answered
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-sm text-purple-400 font-medium">
+                Questions Answered
+              </div>
+              <CheckIcon size={20} className="text-purple-400 opacity-50 group-hover:opacity-100 transition-opacity" />
             </div>
             <div className="text-4xl font-bold text-gray-200 group-hover:text-purple-400 transition-colors">
               {progressSummary?.total_questions_attempted || 0}
             </div>
+            <div className="text-xs text-gray-600 mt-2">
+              Total attempts made
+            </div>
           </div>
           <div className="neuro-stat group">
-            <div className="text-sm text-yellow-400 font-medium mb-2">
-              Overall Accuracy
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-sm text-yellow-400 font-medium">
+                Overall Accuracy
+              </div>
+              <TrendingUpIcon size={20} className="text-yellow-400 opacity-50 group-hover:opacity-100 transition-opacity" />
             </div>
             <div className="text-4xl font-bold text-gray-200 group-hover:text-yellow-400 transition-colors">
               {progressSummary?.overall_accuracy ? Math.round(progressSummary.overall_accuracy) : 0}%
+            </div>
+            <div className="text-xs text-gray-600 mt-2">
+              Correct answers
             </div>
           </div>
         </div>
 
         {/* Mastery Heatmap */}
         <div className="neuro-card mb-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-semibold text-gray-200">
-              Mastery Heatmap
-            </h2>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+            <div className="flex items-center gap-3">
+              <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center">
+                <BarChartIcon size={24} className="text-blue-400" />
+              </div>
+              <h2 className="text-2xl font-semibold text-gray-200">
+                Mastery Heatmap
+              </h2>
+            </div>
             <div className="flex items-center gap-2 text-xs">
               <span className="text-gray-500">Mastery:</span>
               <div className="flex items-center gap-1">
@@ -328,9 +361,14 @@ export default function PerformancePage() {
 
         {/* Recent Activity */}
         <div className="neuro-card">
-          <h2 className="text-xl font-semibold text-gray-200 mb-6">
-            Recent Activity
-          </h2>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="neuro-inset w-10 h-10 rounded-lg flex items-center justify-center">
+              <TrendingUpIcon size={20} className="text-purple-400" />
+            </div>
+            <h2 className="text-xl font-semibold text-gray-200">
+              Recent Activity
+            </h2>
+          </div>
 
           {recentActivity.length > 0 ? (
             <div className="space-y-3">
