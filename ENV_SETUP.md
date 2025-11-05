@@ -62,7 +62,7 @@ Add these in your Vercel project settings:
 ## AI Model Usage
 
 - **OpenAI `text-embedding-3-small`**: Used for generating vector embeddings of text chunks
-- **xAI `grok-beta`**: Grok 4 Fast reasoning model used for generating educational questions at various Bloom taxonomy levels
+- **xAI `grok-3`**: Latest Grok model used for generating educational questions at various Bloom taxonomy levels
 
 ## Cost Considerations
 
