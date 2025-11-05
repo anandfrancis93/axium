@@ -7,9 +7,9 @@ export const dynamic = 'force-dynamic'
 export default async function SubjectPage({
   params,
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ slug: string }>
 }) {
-  const { id: subjectId } = await params
+  const { slug } = await params
 
   let subject: any = null
   let chapters: any[] = []
@@ -25,11 +25,11 @@ export default async function SubjectPage({
       redirect('/login')
     }
 
-    // Get subject details
+    // Get subject details by slug
     const { data: subjectData, error: subjectError } = await supabase
       .from('subjects')
       .select('*')
-      .eq('id', subjectId)
+      .eq('slug', slug)
       .single()
 
     if (subjectError || !subjectData) {
@@ -48,7 +48,7 @@ export default async function SubjectPage({
         created_at,
         questions (count)
       `)
-      .eq('subject_id', subjectId)
+      .eq('subject_id', subject.id)
       .order('created_at', { ascending: true })
 
     chapters = chaptersData || []

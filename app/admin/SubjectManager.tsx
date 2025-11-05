@@ -45,11 +45,18 @@ export function SubjectManager() {
     setLoading(true)
     setMessage('')
 
+    // Generate slug from name
+    const slug = name.trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+
     const supabase = createClient()
     const { error } = await supabase
       .from('subjects')
       .insert({
         name: name.trim(),
+        slug,
         description: description.trim() || null,
       })
 

@@ -25,6 +25,7 @@ export default async function DashboardPage() {
       .select(`
         id,
         name,
+        slug,
         description,
         created_at,
         chapters (count)
@@ -83,7 +84,7 @@ export default async function DashboardPage() {
               {subjects.map((subject) => (
                 <Link
                   key={subject.id}
-                  href={`/subjects/${subject.id}`}
+                  href={`/subjects/${subject.slug}`}
                   className="neuro-raised p-6 hover:shadow-2xl transition-all duration-300 group cursor-pointer"
                 >
                   {/* Subject Icon/Badge */}
