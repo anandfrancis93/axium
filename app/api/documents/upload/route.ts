@@ -1,24 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import OpenAI from 'openai'
-import { PDFExtract } from 'pdf.js-extract'
+import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 
-const pdfExtract = new PDFExtract()
-
-// Extract text from PDF using pdf.js-extract (serverless-friendly)
+// Extract text from PDF using pdfjs-dist (serverless-friendly)
 async function parsePDF(buffer: Buffer): Promise<{ text: string }> {
-  const data = await pdfExtract.extractBuffer(buffer)
+  const data = new Uint8Array(buffer)
+  const pdf = await pdfjsLib.getDocument({ data }).promise
 
-  // Combine all text from all pages
-  const text = data.pages
-    .map(page => page.content.map(item => item.str).join(' '))
-    .join('\n\n')
+  let fullText = ''
 
-  return { text }
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i)
+    const textContent = await page.getTextContent()
+    const pageText = textContent.items
+      .map((item: any) => item.str)
+      .join(' ')
+    fullText += pageText + '\n\n'
+  }
+
+  return { text: fullText }
 }
 
 // Chunk text into smaller pieces for embeddings
