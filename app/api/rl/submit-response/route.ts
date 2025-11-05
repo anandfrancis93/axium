@@ -212,6 +212,53 @@ export async function POST(request: NextRequest) {
       console.error('Error storing response:', responseError)
     }
 
+    // Track dimension coverage for comprehensive mastery
+    if (question.dimension && question.bloom_level && question.topic) {
+      const { data: existingCoverage } = await supabase
+        .from('user_dimension_coverage')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('chapter_id', session.chapter_id)
+        .eq('topic', question.topic)
+        .eq('bloom_level', question.bloom_level)
+        .eq('dimension', question.dimension)
+        .single()
+
+      const scoreForDimension = isCorrect ? 100 : 0
+
+      if (existingCoverage) {
+        // Update existing coverage
+        const newTimesTested = existingCoverage.times_tested + 1
+        const newAvgScore = (
+          (existingCoverage.average_score * existingCoverage.times_tested) + scoreForDimension
+        ) / newTimesTested
+
+        await supabase
+          .from('user_dimension_coverage')
+          .update({
+            times_tested: newTimesTested,
+            average_score: newAvgScore,
+            last_tested_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existingCoverage.id)
+      } else {
+        // Insert new coverage record
+        await supabase
+          .from('user_dimension_coverage')
+          .insert({
+            user_id: user.id,
+            chapter_id: session.chapter_id,
+            topic: question.topic,
+            bloom_level: question.bloom_level,
+            dimension: question.dimension,
+            times_tested: 1,
+            average_score: scoreForDimension,
+            last_tested_at: new Date().toISOString()
+          })
+      }
+    }
+
     // Update session progress
     const newScore = session.score + (isCorrect ? 1 : 0)
     const newQuestionsAnswered = session.questions_answered + 1

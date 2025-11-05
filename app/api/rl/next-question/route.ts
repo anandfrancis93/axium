@@ -21,6 +21,43 @@ const BLOOM_LEVELS: { [key: number]: string } = {
   6: 'Create (produce new or original work)',
 }
 
+const DIMENSION_DESCRIPTIONS: { [key: string]: string } = {
+  'core_understanding': 'Core definitions, terminology, fundamental concepts, and basic relationships',
+  'measuring_evaluating': 'Metrics, quantification methods, assessment techniques, and measurement approaches',
+  'controls': 'Administrative controls, physical controls, technical controls, and security mechanisms',
+  'architecture_design': 'System architecture, design patterns, implementation approaches, and structural decisions',
+  'threats_failures': 'Attack vectors, threat actors, failure modes, vulnerabilities, and security risks',
+  'validation_assurance': 'Testing methods, audit techniques, verification approaches, and quality assurance',
+  'legal_compliance': 'Standards (ISO, NIST, PCI DSS, etc.), regulations (GDPR, HIPAA), and compliance frameworks',
+  'incident_response': 'Response procedures, remediation steps, investigation techniques, and recovery processes',
+  'advanced_concepts': 'Cutting-edge topics, emerging technologies, research areas, and sophisticated techniques',
+  'misconceptions': 'Common misunderstandings, incorrect assumptions, and typical pitfalls to avoid',
+  'practical_scenarios': 'Real-world application, hands-on problems, situational challenges, and case studies',
+  'strategic_policy': 'Business decisions, governance structures, organizational policies, and strategic planning'
+}
+
+/**
+ * Get dimension-specific guidance for question generation
+ */
+function getDimensionGuidance(dimension: string, bloomLevel: number): string {
+  const guidance: { [key: string]: string } = {
+    'core_understanding': 'Focus on definitions, terminology, and fundamental concepts. Ask "what is", "define", "identify".',
+    'measuring_evaluating': 'Focus on metrics, measurement techniques, and quantification. Ask "how to measure", "what metrics", "how to assess".',
+    'controls': 'Focus on specific security controls and mechanisms. Ask about implementation, configuration, or selection of controls.',
+    'architecture_design': 'Focus on system design, patterns, and architectural decisions. Ask about design choices and their implications.',
+    'threats_failures': 'Focus on attack vectors, vulnerabilities, and failure scenarios. Ask about threats, risks, and exploitation methods.',
+    'validation_assurance': 'Focus on testing, auditing, and verification methods. Ask "how to verify", "how to test", "how to audit".',
+    'legal_compliance': 'Focus on standards, regulations, and compliance requirements. Reference specific frameworks like ISO 27001, PCI DSS, GDPR, HIPAA.',
+    'incident_response': 'Focus on response procedures and remediation steps. Ask about incident handling, containment, and recovery.',
+    'advanced_concepts': 'Focus on cutting-edge techniques and sophisticated concepts. Ask about emerging technologies and advanced methodologies.',
+    'misconceptions': 'Focus on common errors and misunderstandings. Present scenarios where typical mistakes occur or frame as "why is X not sufficient".',
+    'practical_scenarios': 'Present a real-world situation or case study. Ask what actions to take or how to solve a specific problem.',
+    'strategic_policy': 'Focus on business decisions, governance, and organizational policies. Ask about high-level strategy and policy choices.'
+  }
+
+  return guidance[dimension] || 'Generate a question focused on this aspect of the topic.'
+}
+
 /**
  * Generate a question on-demand using RAG + Grok
  */
@@ -28,9 +65,10 @@ async function generateQuestionOnDemand(
   supabase: any,
   chapterId: string,
   topic: string,
-  bloomLevel: number
+  bloomLevel: number,
+  dimension: string
 ): Promise<any> {
-  console.log(`Generating question for: ${topic} at Bloom ${bloomLevel}`)
+  console.log(`Generating question for: ${topic} at Bloom ${bloomLevel}, dimension: ${dimension}`)
 
   // Step 1: Generate embedding for the topic
   const embeddingResponse = await openai.embeddings.create({
@@ -59,22 +97,30 @@ async function generateQuestionOnDemand(
 
   // Step 4: Generate question with Grok
   const bloomDescription = BLOOM_LEVELS[bloomLevel]
-  const prompt = `You are an expert educator creating assessment questions.
+  const dimensionDescription = DIMENSION_DESCRIPTIONS[dimension] || dimension
+
+  const prompt = `You are an expert educator creating comprehensive assessment questions.
 
 BLOOM'S TAXONOMY LEVEL: ${bloomLevel} - ${bloomDescription}
 TOPIC: ${topic}
+KNOWLEDGE DIMENSION: ${dimension}
+DIMENSION FOCUS: ${dimensionDescription}
 
 CONTEXT (from course materials):
 ${context}
 
-TASK: Generate 1 multiple-choice question at Bloom's level ${bloomLevel} about "${topic}".
+TASK: Generate 1 multiple-choice question at Bloom's level ${bloomLevel} about "${topic}", specifically focusing on the "${dimension}" dimension.
 
 REQUIREMENTS:
 1. Base question ONLY on the provided context
 2. Match the cognitive level of Bloom's ${bloomLevel}
-3. Provide 4 answer options (A, B, C, D)
-4. Clearly indicate the correct answer
-5. Include a brief explanation
+3. **CRITICALLY IMPORTANT**: The question MUST focus on the ${dimension} dimension - ${dimensionDescription}
+4. Provide 4 answer options (A, B, C, D)
+5. Clearly indicate the correct answer
+6. Include a brief explanation
+
+DIMENSION-SPECIFIC GUIDANCE:
+${getDimensionGuidance(dimension, bloomLevel)}
 
 ANTI-TELLTALE QUALITY CONTROLS:
 - All 4 options must have similar length
@@ -143,6 +189,7 @@ Return ONLY valid JSON, no other text.`
     explanation: q.explanation,
     bloom_level: bloomLevel,
     topic,
+    dimension,  // Track which knowledge dimension this question tests
     difficulty_estimated: bloomLevel >= 4 ? 'hard' : bloomLevel >= 3 ? 'medium' : 'easy',
     source_type: 'ai_generated_realtime',
   }
@@ -302,12 +349,24 @@ export async function POST(request: NextRequest) {
       // 70% chance to generate a new question (or if no questions ready for review)
       console.log(`Generating new question for ${selectedArm.topic} at Bloom ${selectedArm.bloomLevel}`)
 
+      // Determine which knowledge dimension to focus on for comprehensive mastery
+      const { data: dimensionResult } = await supabase.rpc('get_least_tested_dimension', {
+        p_user_id: user.id,
+        p_chapter_id: session.chapter_id,
+        p_topic: selectedArm.topic,
+        p_bloom_level: selectedArm.bloomLevel
+      })
+
+      const targetDimension = dimensionResult || 'core_understanding'
+      console.log(`Target dimension: ${targetDimension}`)
+
       try {
         selectedQuestion = await generateQuestionOnDemand(
           supabase,
           session.chapter_id,
           selectedArm.topic,
-          selectedArm.bloomLevel
+          selectedArm.bloomLevel,
+          targetDimension
         )
 
         if (!selectedQuestion) {
