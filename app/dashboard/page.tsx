@@ -9,7 +9,6 @@ export const dynamic = 'force-dynamic'
 export default async function DashboardPage() {
   let user: any = null
   let subjects: any[] = []
-  let userStats: any = null
 
   try {
     const supabase = await createClient()
@@ -35,16 +34,6 @@ export default async function DashboardPage() {
     if (!subjectsError) {
       subjects = subjectsData || []
     }
-
-    // Get user's overall stats
-    const { data: progressData } = await supabase
-      .from('user_progress_summary')
-      .select('*')
-      .eq('user_id', user.id)
-      .limit(1)
-      .single()
-
-    userStats = progressData
 
   } catch (error) {
     console.error('Error loading dashboard:', error)
@@ -82,42 +71,6 @@ export default async function DashboardPage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="neuro-stat group">
-            <div className="text-sm text-blue-400 font-medium mb-2">
-              Subjects
-            </div>
-            <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
-              {subjects.length}
-            </div>
-          </div>
-          <div className="neuro-stat group">
-            <div className="text-sm text-green-400 font-medium mb-2">
-              Questions Answered
-            </div>
-            <div className="text-4xl font-bold text-gray-200 group-hover:text-green-400 transition-colors">
-              {userStats?.total_questions_attempted || 0}
-            </div>
-          </div>
-          <div className="neuro-stat group">
-            <div className="text-sm text-purple-400 font-medium mb-2">
-              Overall Accuracy
-            </div>
-            <div className="text-4xl font-bold text-gray-200 group-hover:text-purple-400 transition-colors">
-              {userStats?.overall_accuracy ? Math.round(userStats.overall_accuracy) : 0}%
-            </div>
-          </div>
-          <div className="neuro-stat group">
-            <div className="text-sm text-yellow-400 font-medium mb-2">
-              Topics Mastered
-            </div>
-            <div className="text-4xl font-bold text-gray-200 group-hover:text-yellow-400 transition-colors">
-              {userStats?.topics_mastered || 0}
-            </div>
-          </div>
-        </div>
 
         {/* Subjects Grid */}
         {subjects.length > 0 ? (
