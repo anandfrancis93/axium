@@ -22,7 +22,9 @@
       "Bash(psql:*)",
       "Bash(taskkill:*)",
       "Bash(curl:*)",
-      "Bash(git mv:*)"
+      "Bash(git mv:*)",
+      "Bash(cat:*)",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "ask": []
