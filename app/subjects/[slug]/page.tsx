@@ -98,42 +98,23 @@ export default async function SubjectPage({
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        {/* Subject Overview Card */}
-        <div className="neuro-card mb-6">
-          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="neuro-inset w-16 h-16 rounded-2xl flex items-center justify-center">
-                  <BookIcon size={32} className="text-blue-400" />
-                </div>
-                <div>
-                  <h2 className="text-3xl font-bold text-gray-200">
-                    {subject.name}
-                  </h2>
-                  <div className="text-sm text-gray-500 mt-1">
-                    {chapters.length} {chapters.length === 1 ? 'Chapter' : 'Chapters'} Available
-                  </div>
-                </div>
-              </div>
-              {subject.description && (
-                <p className="text-gray-400 leading-relaxed">
-                  {subject.description}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-
         {/* Chapters List */}
         {chapters.length > 0 ? (
           <div className="neuro-card mb-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center">
-                <BookIcon size={20} className="text-blue-400" />
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center">
+                  <BookIcon size={20} className="text-blue-400" />
+                </div>
+                <h2 className="text-xl font-semibold text-gray-200">
+                  Chapters ({chapters.length})
+                </h2>
               </div>
-              <h3 className="text-xl font-semibold text-gray-200">
-                Chapters ({chapters.length})
-              </h3>
+              {subject.description && (
+                <div className="text-sm text-gray-500 max-w-md text-right">
+                  {subject.description}
+                </div>
+              )}
             </div>
 
             <div className="space-y-4">
