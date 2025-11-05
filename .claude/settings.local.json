@@ -1,31 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx create-next-app@latest . --typescript --tailwind --app --no-src-dir --import-alias \"@/*\" --eslint)",
-      "Bash(npm init -y)",
-      "Bash(npm install:*)",
-      "Bash(npx tailwindcss:*)",
-      "Bash(node_modules/.bin/tailwindcss init -p)",
-      "Bash(npm run dev:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(git push:*)",
-      "Bash(git pull:*)",
-      "Bash(git checkout:*)",
-      "Bash(npm uninstall:*)",
-      "Bash(npm run build:*)",
-      "Bash(npx supabase:*)",
-      "Bash(if [ -f .env.local ])",
-      "Bash(then cat .env.local)",
-      "Bash(else echo \"File not found\")",
-      "Bash(fi)",
-      "Bash(psql:*)",
-      "Bash(taskkill:*)",
-      "Bash(curl:*)",
-      "Bash(git mv:*)",
-      "Bash(cat:*)",
-      "Bash(git rm:*)",
-      "WebSearch"
+      "Bash(node -e \"\nimport(''@supabase/supabase-js'').then(async ({ createClient }) => {\n  const supabase = createClient(\n    ''https://pxtcgyvxgyffaaeugjwc.supabase.co'',\n    ''eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4dGNneXZ4Z3lmZmFhZXVnandjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjMwMzk5OSwiZXhwIjoyMDc3ODc5OTk5fQ.mmNbBksqgSCpfjFknzqNYMKHaLdgoWW9AOx8IpbMRYc''\n  )\n\n  const { data: chunks, error } = await supabase\n    .from(''knowledge_chunks'')\n    .select(''*'')\n    .eq(''chapter_id'', ''0517450a-61b2-4fa2-a425-5846b21ba4b0'')\n    .limit(1)\n\n  if (error) {\n    console.error(''Error:'', error)\n    process.exit(1)\n  }\n\n  if (chunks && chunks.length > 0) {\n    console.log(''Columns in knowledge_chunks:'')\n    console.log(Object.keys(chunks[0]))\n    console.log(''\\nFirst chunk:'', JSON.stringify(chunks[0], null, 2))\n  }\n\n  process.exit(0)\n})\n\")",
+      "Bash(node scripts/extract-all-topics.mjs:*)",
+      "Bash(node scripts/extract-all-concepts.mjs:*)"
     ],
     "deny": [],
     "ask": []
