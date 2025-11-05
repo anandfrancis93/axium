@@ -31,20 +31,30 @@ async function parsePDF(buffer: Buffer): Promise<{ text: string }> {
 // Chunk text into smaller pieces for embeddings
 function chunkText(text: string, maxChunkSize: number = 1000): string[] {
   const chunks: string[] = []
-  const paragraphs = text.split(/\n\n+/)
+
+  // Split on double newlines first (paragraphs)
+  let paragraphs = text.split(/\n\n+/)
+
+  // If we only got 1 paragraph, try splitting on single newlines
+  if (paragraphs.length === 1) {
+    paragraphs = text.split(/\n+/)
+  }
 
   let currentChunk = ''
 
   for (const paragraph of paragraphs) {
-    if ((currentChunk + paragraph).length > maxChunkSize && currentChunk.length > 0) {
+    const trimmedParagraph = paragraph.trim()
+    if (!trimmedParagraph) continue // Skip empty lines
+
+    if ((currentChunk + trimmedParagraph).length > maxChunkSize && currentChunk.length > 0) {
       chunks.push(currentChunk.trim())
-      currentChunk = paragraph
+      currentChunk = trimmedParagraph
     } else {
-      currentChunk += (currentChunk ? '\n\n' : '') + paragraph
+      currentChunk += (currentChunk ? '\n' : '') + trimmedParagraph
     }
   }
 
-  if (currentChunk) {
+  if (currentChunk.trim()) {
     chunks.push(currentChunk.trim())
   }
 
