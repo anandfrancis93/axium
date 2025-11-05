@@ -153,7 +153,7 @@ export async function POST(request: NextRequest) {
           .insert({
             chapter_id: chapterId,
             content: chunks[i],
-            embedding: JSON.stringify(embedding), // pgvector will handle the conversion
+            embedding: embedding, // pgvector expects array directly
             source_file_name: file?.name || 'text_input',
             page_number: null,
             chunk_index: i,
