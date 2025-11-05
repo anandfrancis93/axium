@@ -201,6 +201,13 @@ export function QuestionGenerator() {
       setTopic(randomTopic)
       setBloomLevel(randomBloomLevel)
 
+      // Show selection info before generating
+      const bloomLevelName = BLOOM_LEVELS.find(l => l.value === randomBloomLevel)?.label || `Level ${randomBloomLevel}`
+      setMessage(`🎲 Random selection:\n📚 ${randomTopic}\n📊 ${bloomLevelName}\n\nGenerating question...`)
+
+      // Small delay to show the selection
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
       // Generate immediately with the random values
       await handleGenerate(randomTopic, randomBloomLevel)
     } catch (error) {
@@ -320,7 +327,7 @@ export function QuestionGenerator() {
           </div>
 
           {message && (
-            <div className={`neuro-inset p-3 rounded-lg text-sm ${
+            <div className={`neuro-inset p-3 rounded-lg text-sm whitespace-pre-line ${
               message.includes('✅') ? 'text-green-400' :
               message.includes('❌') ? 'text-red-400' :
               message.includes('⚠️') ? 'text-yellow-400' :
