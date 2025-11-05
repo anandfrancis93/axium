@@ -89,8 +89,11 @@ export function QuestionGenerator() {
     }
   }
 
-  const handleGenerate = async () => {
-    if (!selectedChapter || !topic.trim()) {
+  const handleGenerate = async (customTopic?: string, customBloomLevel?: number) => {
+    const topicToUse = customTopic || topic
+    const bloomLevelToUse = customBloomLevel || bloomLevel
+
+    if (!selectedChapter || !topicToUse.trim()) {
       setMessage('Please select a chapter and enter a topic')
       return
     }
@@ -107,8 +110,8 @@ export function QuestionGenerator() {
         },
         body: JSON.stringify({
           chapter_id: selectedChapter,
-          topic: topic.trim(),
-          bloom_level: bloomLevel,
+          topic: topicToUse.trim(),
+          bloom_level: bloomLevelToUse,
           num_questions: numQuestions,
         }),
       })
@@ -142,15 +145,12 @@ export function QuestionGenerator() {
     // Pick random Bloom level (1-6)
     const randomBloomLevel = Math.floor(Math.random() * 6) + 1
 
-    // Update form fields
+    // Update form fields (for visual feedback)
     setTopic(randomTopic)
     setBloomLevel(randomBloomLevel)
-    setMessage(`🎲 Random: "${randomTopic}" at Bloom Level ${randomBloomLevel}. Click "Generate Questions" to create!`)
 
-    // Automatically generate after a short delay
-    setTimeout(() => {
-      handleGenerate()
-    }, 500)
+    // Generate immediately with the random values
+    await handleGenerate(randomTopic, randomBloomLevel)
   }
 
   return (
