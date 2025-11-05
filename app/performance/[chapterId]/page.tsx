@@ -59,25 +59,19 @@ export default function PerformancePage() {
 
       setProgressSummary(summaryData)
 
-      // Get recent responses
+      // Get recent responses for this chapter (join through learning_sessions)
       const { data: responsesData } = await supabase
         .from('user_responses')
         .select(`
           *,
-          questions(question_text, bloom_level, topic, primary_topic)
+          learning_sessions!inner(chapter_id)
         `)
         .eq('user_id', user.id)
+        .eq('learning_sessions.chapter_id', chapterId)
         .order('answered_at', { ascending: false })
         .limit(20)
 
-      // Filter to this chapter's questions
-      const chapterResponses = responsesData?.filter((r: any) => {
-        // We need to check if the question belongs to this chapter
-        // For now, we'll show all - ideally we'd join through sessions
-        return true
-      }) || []
-
-      setRecentActivity(chapterResponses)
+      setRecentActivity(responsesData || [])
 
       setLoading(false)
 
