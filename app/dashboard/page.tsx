@@ -1,12 +1,15 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { SignOutButton } from './SignOutButton'
+import Link from 'next/link'
 
 // Force dynamic rendering to access runtime environment variables
 export const dynamic = 'force-dynamic'
 
 export default async function DashboardPage() {
   let user: any = null
+  let subjects: any[] = []
+  let userStats: any = null
 
   try {
     const supabase = await createClient()
@@ -16,10 +19,37 @@ export default async function DashboardPage() {
     if (!user) {
       redirect('/login')
     }
+
+    // Fetch all subjects
+    const { data: subjectsData, error: subjectsError } = await supabase
+      .from('subjects')
+      .select(`
+        id,
+        name,
+        description,
+        created_at,
+        chapters (count)
+      `)
+      .order('created_at', { ascending: false })
+
+    if (!subjectsError) {
+      subjects = subjectsData || []
+    }
+
+    // Get user's overall stats
+    const { data: progressData } = await supabase
+      .from('user_progress_summary')
+      .select('*')
+      .eq('user_id', user.id)
+      .limit(1)
+      .single()
+
+    userStats = progressData
+
   } catch (error) {
-    console.error('Error checking user auth on dashboard:', error)
+    console.error('Error loading dashboard:', error)
     redirect('/login')
-    return null // TypeScript requires a return after redirect in catch
+    return null
   }
 
   return (
@@ -38,113 +68,200 @@ export default async function DashboardPage() {
               <p className="text-gray-300 font-medium">{user.email?.split('@')[0]}</p>
             </div>
           </div>
-          <SignOutButton />
+          <div className="flex items-center gap-3">
+            <Link
+              href="/admin"
+              className="neuro-btn text-sm"
+            >
+              Admin Panel
+            </Link>
+            <SignOutButton />
+          </div>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="neuro-card mb-6">
-          <h2 className="text-2xl font-semibold text-gray-200 mb-2">
-            Your Learning Dashboard
-          </h2>
-          <p className="text-gray-500 mb-6">
-            Track your progress across subjects, chapters, and topics using Bloom's Taxonomy.
-          </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="neuro-stat group">
-              <div className="text-sm text-blue-400 font-medium mb-2">
-                Total Questions
-              </div>
-              <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
-                0
-              </div>
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <div className="neuro-stat group">
+            <div className="text-sm text-blue-400 font-medium mb-2">
+              Subjects
             </div>
-            <div className="neuro-stat group">
-              <div className="text-sm text-green-400 font-medium mb-2">
-                Accuracy
-              </div>
-              <div className="text-4xl font-bold text-gray-200 group-hover:text-green-400 transition-colors">
-                0%
-              </div>
-            </div>
-            <div className="neuro-stat group">
-              <div className="text-sm text-purple-400 font-medium mb-2">
-                Topics Mastered
-              </div>
-              <div className="text-4xl font-bold text-gray-200 group-hover:text-purple-400 transition-colors">
-                0
-              </div>
+            <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
+              {subjects.length}
             </div>
           </div>
-
-          <div className="mt-6 pt-6 border-t border-gray-800">
-            <h3 className="text-lg font-semibold text-gray-200 mb-4">
-              Setup Required
-            </h3>
-            <div className="space-y-3">
-              <div className="neuro-raised p-4 flex items-start gap-3 hover:shadow-lg transition-all">
-                <div className="flex-shrink-0 neuro-inset w-8 h-8 rounded-full flex items-center justify-center text-yellow-400 font-bold text-sm">
-                  1
-                </div>
-                <div className="flex-1">
-                  <div className="font-medium text-gray-200 mb-1">
-                    Configure Supabase
-                  </div>
-                  <p className="text-sm text-gray-500">Follow the guide in <code className="neuro-inset px-2 py-1 text-xs rounded text-gray-400">supabase/README.md</code></p>
-                </div>
-              </div>
-              <a href="/admin" className="neuro-raised p-4 flex items-start gap-3 hover:shadow-lg transition-all cursor-pointer">
-                <div className="flex-shrink-0 neuro-inset w-8 h-8 rounded-full flex items-center justify-center text-purple-400 font-bold text-sm">
-                  2
-                </div>
-                <div className="flex-1">
-                  <div className="font-medium text-gray-200 mb-1">
-                    Create Subjects & Upload Materials →
-                  </div>
-                  <p className="text-sm text-gray-500">Create subjects, chapters, and upload PDFs for RAG-powered learning</p>
-                </div>
-              </a>
-              <div className="neuro-raised p-4 flex items-start gap-3 hover:shadow-lg transition-all">
-                <div className="flex-shrink-0 neuro-inset w-8 h-8 rounded-full flex items-center justify-center text-yellow-400 font-bold text-sm">
-                  3
-                </div>
-                <div className="flex-1">
-                  <div className="font-medium text-gray-200 mb-1">
-                    Start Learning
-                  </div>
-                  <p className="text-sm text-gray-500">Begin your adaptive learning journey through Bloom's levels</p>
-                </div>
-              </div>
+          <div className="neuro-stat group">
+            <div className="text-sm text-green-400 font-medium mb-2">
+              Questions Answered
+            </div>
+            <div className="text-4xl font-bold text-gray-200 group-hover:text-green-400 transition-colors">
+              {userStats?.total_questions_attempted || 0}
+            </div>
+          </div>
+          <div className="neuro-stat group">
+            <div className="text-sm text-purple-400 font-medium mb-2">
+              Overall Accuracy
+            </div>
+            <div className="text-4xl font-bold text-gray-200 group-hover:text-purple-400 transition-colors">
+              {userStats?.overall_accuracy ? Math.round(userStats.overall_accuracy) : 0}%
+            </div>
+          </div>
+          <div className="neuro-stat group">
+            <div className="text-sm text-yellow-400 font-medium mb-2">
+              Topics Mastered
+            </div>
+            <div className="text-4xl font-bold text-gray-200 group-hover:text-yellow-400 transition-colors">
+              {userStats?.topics_mastered || 0}
             </div>
           </div>
         </div>
 
+        {/* Subjects Grid */}
+        {subjects.length > 0 ? (
+          <div className="neuro-card mb-6">
+            <h2 className="text-2xl font-semibold text-gray-200 mb-6">
+              Your Subjects
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {subjects.map((subject) => (
+                <Link
+                  key={subject.id}
+                  href={`/subjects/${subject.id}`}
+                  className="neuro-raised p-6 hover:shadow-2xl transition-all duration-300 group cursor-pointer"
+                >
+                  {/* Subject Icon/Badge */}
+                  <div className="neuro-inset w-16 h-16 rounded-2xl flex items-center justify-center mb-4 group-hover:shadow-inner transition-all">
+                    <span className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                      {subject.name.charAt(0)}
+                    </span>
+                  </div>
+
+                  {/* Subject Name */}
+                  <h3 className="text-xl font-semibold text-gray-200 mb-2 group-hover:text-blue-400 transition-colors">
+                    {subject.name}
+                  </h3>
+
+                  {/* Description */}
+                  {subject.description && (
+                    <p className="text-sm text-gray-500 mb-4 line-clamp-2">
+                      {subject.description}
+                    </p>
+                  )}
+
+                  {/* Metadata */}
+                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 rounded-full bg-blue-400"></div>
+                      <span>{subject.chapters?.[0]?.count || 0} chapters</span>
+                    </div>
+                  </div>
+
+                  {/* Hover indicator */}
+                  <div className="mt-4 text-sm text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                    Start learning →
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        ) : (
+          // Empty state
+          <div className="neuro-card mb-6">
+            <h2 className="text-2xl font-semibold text-gray-200 mb-2">
+              Get Started with Axium
+            </h2>
+            <p className="text-gray-500 mb-6">
+              Create your first subject and start your adaptive learning journey!
+            </p>
+
+            <div className="space-y-3">
+              <Link
+                href="/admin"
+                className="neuro-raised p-4 flex items-start gap-3 hover:shadow-lg transition-all cursor-pointer"
+              >
+                <div className="flex-shrink-0 neuro-inset w-10 h-10 rounded-full flex items-center justify-center text-purple-400 font-bold">
+                  1
+                </div>
+                <div className="flex-1">
+                  <div className="font-medium text-gray-200 mb-1">
+                    Create Subject & Chapters →
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    Go to admin panel to create subjects and chapters
+                  </p>
+                </div>
+              </Link>
+
+              <div className="neuro-raised p-4 flex items-start gap-3">
+                <div className="flex-shrink-0 neuro-inset w-10 h-10 rounded-full flex items-center justify-center text-blue-400 font-bold">
+                  2
+                </div>
+                <div className="flex-1">
+                  <div className="font-medium text-gray-200 mb-1">
+                    Upload Learning Materials
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    Upload PDFs or paste text to build your knowledge base
+                  </p>
+                </div>
+              </div>
+
+              <div className="neuro-raised p-4 flex items-start gap-3">
+                <div className="flex-shrink-0 neuro-inset w-10 h-10 rounded-full flex items-center justify-center text-green-400 font-bold">
+                  3
+                </div>
+                <div className="flex-1">
+                  <div className="font-medium text-gray-200 mb-1">
+                    Generate AI Questions
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    Use AI to generate questions at all Bloom levels
+                  </p>
+                </div>
+              </div>
+
+              <div className="neuro-raised p-4 flex items-start gap-3">
+                <div className="flex-shrink-0 neuro-inset w-10 h-10 rounded-full flex items-center justify-center text-yellow-400 font-bold">
+                  4
+                </div>
+                <div className="flex-1">
+                  <div className="font-medium text-gray-200 mb-1">
+                    Start Learning with RL
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    Begin your adaptive learning journey - AI selects optimal questions for you
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* System Info */}
         <div className="neuro-card">
           <h3 className="text-lg font-semibold text-gray-200 mb-4">
-            Architecture Overview
+            Axium Learning Engine
           </h3>
-          <div className="space-y-3 text-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
             <div className="neuro-inset p-3 rounded-lg">
-              <span className="text-blue-400 font-medium">Hierarchy:</span>
-              <span className="text-gray-400 ml-2">Subject → Chapter → Topic → Bloom Level (1-6)</span>
+              <span className="text-blue-400 font-medium">Thompson Sampling:</span>
+              <span className="text-gray-400 ml-2">Contextual bandits for optimal topic selection</span>
             </div>
             <div className="neuro-inset p-3 rounded-lg">
-              <span className="text-purple-400 font-medium">Learning Engine:</span>
-              <span className="text-gray-400 ml-2">RL-based adaptive progression</span>
+              <span className="text-purple-400 font-medium">Bloom's Taxonomy:</span>
+              <span className="text-gray-400 ml-2">6 cognitive levels with prerequisites</span>
             </div>
             <div className="neuro-inset p-3 rounded-lg">
-              <span className="text-green-400 font-medium">Question Generation:</span>
-              <span className="text-gray-400 ml-2">Claude AI + RAG with your materials</span>
+              <span className="text-green-400 font-medium">Multi-Topic Questions:</span>
+              <span className="text-gray-400 ml-2">Weighted mastery across integrated concepts</span>
             </div>
             <div className="neuro-inset p-3 rounded-lg">
-              <span className="text-yellow-400 font-medium">Intelligence Types:</span>
-              <span className="text-gray-400 ml-2">Tracks fluid (reasoning) & crystallized (knowledge)</span>
-            </div>
-            <div className="neuro-inset p-3 rounded-lg">
-              <span className="text-pink-400 font-medium">Mastery Tracking:</span>
-              <span className="text-gray-400 ml-2">Per topic × Bloom level with confidence calibration</span>
+              <span className="text-yellow-400 font-medium">Confidence Calibration:</span>
+              <span className="text-gray-400 ml-2">Tracks metacognition accuracy</span>
             </div>
           </div>
         </div>
