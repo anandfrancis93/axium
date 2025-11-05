@@ -16,6 +16,7 @@ export default function LearnPage() {
 
   const [session, setSession] = useState<any>(null)
   const [question, setQuestion] = useState<any>(null)
+  const [questionMetadata, setQuestionMetadata] = useState<any>(null)
   const [armSelected, setArmSelected] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -84,6 +85,7 @@ export default function LearnPage() {
       }
 
       setQuestion(data.question)
+      setQuestionMetadata(data.question_metadata) // Store for submission
       setArmSelected(data.arm_selected)
 
       // Reset state for new question
@@ -126,7 +128,8 @@ export default function LearnPage() {
           user_answer: selectedAnswer,
           confidence,
           recognition_method: recognitionMethod,
-          arm_selected: armSelected
+          arm_selected: armSelected,
+          question_metadata: questionMetadata // Include for ephemeral questions
         })
       })
 

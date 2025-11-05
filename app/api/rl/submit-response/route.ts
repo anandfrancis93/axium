@@ -40,13 +40,22 @@ export async function POST(request: NextRequest) {
       user_answer,
       confidence: rawConfidence,
       recognition_method,
-      arm_selected
+      arm_selected,
+      question_metadata // For ephemeral questions
     } = body
 
     // Validate inputs
     if (!session_id || !question_id || !user_answer) {
       return NextResponse.json(
         { error: 'session_id, question_id, and user_answer are required' },
+        { status: 400 }
+      )
+    }
+
+    // For ephemeral questions, question_metadata is required
+    if (!question_metadata || !question_metadata.correct_answer) {
+      return NextResponse.json(
+        { error: 'question_metadata with correct_answer is required for ephemeral questions' },
         { status: 400 }
       )
     }
@@ -64,18 +73,16 @@ export async function POST(request: NextRequest) {
       confidence = rawConfidence
     }
 
-    // Get question details
-    const { data: question, error: questionError } = await supabase
-      .from('questions')
-      .select('*')
-      .eq('id', question_id)
-      .single()
-
-    if (questionError || !question) {
-      return NextResponse.json(
-        { error: 'Question not found' },
-        { status: 404 }
-      )
+    // Use question metadata from ephemeral generation
+    const question = {
+      id: question_metadata.question_id,
+      correct_answer: question_metadata.correct_answer,
+      explanation: question_metadata.explanation,
+      bloom_level: question_metadata.bloom_level,
+      topic: question_metadata.topic,
+      primary_topic: question_metadata.topic, // For compatibility
+      secondary_topics: null,
+      topic_weights: null
     }
 
     // Check if correct

@@ -133,8 +133,9 @@ Return ONLY valid JSON, no other text.`
 
   const q = questionsData.questions[0]
 
-  // Step 6: Store in database
-  const questionToInsert = {
+  // Return question without storing (ephemeral)
+  const ephemeralQuestion = {
+    id: `ephemeral-${Date.now()}-${Math.random().toString(36).substring(7)}`,
     chapter_id: chapterId,
     question_text: q.question_text,
     question_type: 'mcq',
@@ -144,35 +145,27 @@ Return ONLY valid JSON, no other text.`
     bloom_level: bloomLevel,
     topic,
     difficulty_estimated: bloomLevel >= 4 ? 'hard' : bloomLevel >= 3 ? 'medium' : 'easy',
-    source_type: 'ai_generated_on_demand',
+    source_type: 'ai_generated_realtime',
   }
 
-  const { data: insertedQuestion, error: insertError } = await supabase
-    .from('questions')
-    .insert([questionToInsert])
-    .select()
-    .single()
-
-  if (insertError) {
-    throw new Error('Failed to store question: ' + insertError.message)
-  }
-
-  console.log(`Successfully generated and stored question on-demand`)
-  return insertedQuestion
+  console.log(`Successfully generated ephemeral question in real-time`)
+  return ephemeralQuestion
 }
 
 /**
  * POST /api/rl/next-question
  *
  * Get next question using Thompson Sampling RL
+ * Questions are ALWAYS generated in real-time using RAG + Grok AI
  *
  * Body:
  * - session_id: UUID of the learning session
  *
  * Returns:
- * - question: Full question object
+ * - question: Freshly generated question object (ephemeral, not stored)
  * - session_progress: Current progress in session
- * - arm_selected: Which (topic, bloom_level) was chosen
+ * - arm_selected: Which (topic, bloom_level) was chosen by RL agent
+ * - generated_realtime: true (always)
  */
 export async function POST(request: NextRequest) {
   try {
@@ -229,98 +222,56 @@ export async function POST(request: NextRequest) {
 
     console.log('Selected arm:', selectedArm)
 
-    // Get questions for this arm
-    const { data: questions, error: questionsError } = await supabase
-      .from('questions')
-      .select('*')
-      .eq('chapter_id', session.chapter_id)
-      .eq('bloom_level', selectedArm.bloomLevel)
-      .or(`primary_topic.eq.${selectedArm.topic},topic.eq.${selectedArm.topic}`)
+    // Always generate question in real-time (no database lookup)
+    console.log(`Generating real-time question for ${selectedArm.topic} at Bloom ${selectedArm.bloomLevel}`)
 
-    if (questionsError) {
-      console.error('Error fetching questions:', questionsError)
-      return NextResponse.json(
-        { error: 'Failed to fetch questions: ' + questionsError.message },
-        { status: 500 }
+    try {
+      const generatedQuestion = await generateQuestionOnDemand(
+        supabase,
+        session.chapter_id,
+        selectedArm.topic,
+        selectedArm.bloomLevel
       )
-    }
 
-    // If no questions exist, generate one on-demand
-    if (!questions || questions.length === 0) {
-      console.log(`No questions found for ${selectedArm.topic} at Bloom ${selectedArm.bloomLevel}. Generating on-demand...`)
-
-      try {
-        const generatedQuestion = await generateQuestionOnDemand(
-          supabase,
-          session.chapter_id,
-          selectedArm.topic,
-          selectedArm.bloomLevel
-        )
-
-        if (!generatedQuestion) {
-          return NextResponse.json(
-            { error: `Failed to generate question for topic "${selectedArm.topic}" at Bloom level ${selectedArm.bloomLevel}` },
-            { status: 500 }
-          )
-        }
-
-        // Return the generated question (without correct answer)
-        const { correct_answer, ...questionWithoutAnswer } = generatedQuestion
-
-        return NextResponse.json({
-          question: questionWithoutAnswer,
-          session_progress: {
-            session_id: session.id,
-            questions_answered: session.questions_answered,
-            total_questions: session.total_questions,
-            current_score: session.score
-          },
-          arm_selected: {
-            topic: selectedArm.topic,
-            bloom_level: selectedArm.bloomLevel
-          },
-          generated_on_demand: true
-        })
-      } catch (genError) {
-        console.error('Error generating question on-demand:', genError)
+      if (!generatedQuestion) {
         return NextResponse.json(
-          { error: `Failed to generate question: ${genError instanceof Error ? genError.message : 'Unknown error'}` },
+          { error: `Failed to generate question for topic "${selectedArm.topic}" at Bloom level ${selectedArm.bloomLevel}` },
           { status: 500 }
         )
       }
+
+      // Return the generated question (without correct answer for display)
+      const { correct_answer, explanation, ...questionWithoutAnswer } = generatedQuestion
+
+      return NextResponse.json({
+        question: questionWithoutAnswer,
+        // Include answer metadata separately (frontend stores but doesn't display)
+        question_metadata: {
+          correct_answer,
+          explanation,
+          question_id: generatedQuestion.id,
+          bloom_level: generatedQuestion.bloom_level,
+          topic: generatedQuestion.topic
+        },
+        session_progress: {
+          session_id: session.id,
+          questions_answered: session.questions_answered,
+          total_questions: session.total_questions,
+          current_score: session.score
+        },
+        arm_selected: {
+          topic: selectedArm.topic,
+          bloom_level: selectedArm.bloomLevel
+        },
+        generated_realtime: true
+      })
+    } catch (genError) {
+      console.error('Error generating question in real-time:', genError)
+      return NextResponse.json(
+        { error: `Failed to generate question: ${genError instanceof Error ? genError.message : 'Unknown error'}` },
+        { status: 500 }
+      )
     }
-
-    // Filter to questions user hasn't answered yet in this session
-    const { data: previousResponses } = await supabase
-      .from('user_responses')
-      .select('question_id')
-      .eq('session_id', session_id)
-
-    const answeredQuestionIds = new Set(previousResponses?.map(r => r.question_id) || [])
-    const unansweredQuestions = questions.filter(q => !answeredQuestionIds.has(q.id))
-
-    // If all questions for this arm were answered, fall back to any question from arm
-    const availableQuestions = unansweredQuestions.length > 0 ? unansweredQuestions : questions
-
-    // Randomly select a question
-    const selectedQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)]
-
-    // Return question WITHOUT the correct answer
-    const { correct_answer, ...questionWithoutAnswer } = selectedQuestion
-
-    return NextResponse.json({
-      question: questionWithoutAnswer,
-      session_progress: {
-        session_id: session.id,
-        questions_answered: session.questions_answered,
-        total_questions: session.total_questions,
-        current_score: session.score
-      },
-      arm_selected: {
-        topic: selectedArm.topic,
-        bloom_level: selectedArm.bloomLevel
-      }
-    })
   } catch (error) {
     console.error('Error in POST /api/rl/next-question:', error)
     return NextResponse.json(
