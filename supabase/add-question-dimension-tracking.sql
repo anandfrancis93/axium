@@ -48,37 +48,47 @@ CREATE INDEX IF NOT EXISTS idx_dimension_coverage_least_tested
 -- RLS policies
 ALTER TABLE user_dimension_coverage ENABLE ROW LEVEL SECURITY;
 
--- Create policies using DO block to handle existing policies
+-- Create policies with exception handling for existing policies
 DO $$
 BEGIN
-  -- Drop and recreate SELECT policy
-  IF EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'user_dimension_coverage' AND policyname = 'Users can view their own dimension coverage') THEN
+  -- Try to drop existing policies (ignore errors if they don't exist)
+  BEGIN
     DROP POLICY "Users can view their own dimension coverage" ON user_dimension_coverage;
-  END IF;
+  EXCEPTION WHEN undefined_object THEN
+    NULL;
+  END;
+
+  BEGIN
+    DROP POLICY "Users can insert their own dimension coverage" ON user_dimension_coverage;
+  EXCEPTION WHEN undefined_object THEN
+    NULL;
+  END;
+
+  BEGIN
+    DROP POLICY "Users can update their own dimension coverage" ON user_dimension_coverage;
+  EXCEPTION WHEN undefined_object THEN
+    NULL;
+  END;
+
+  BEGIN
+    DROP POLICY "Users can delete their own dimension coverage" ON user_dimension_coverage;
+  EXCEPTION WHEN undefined_object THEN
+    NULL;
+  END;
+
+  -- Now create the policies
   CREATE POLICY "Users can view their own dimension coverage"
     ON user_dimension_coverage FOR SELECT
     USING (auth.uid() = user_id);
 
-  -- Drop and recreate INSERT policy
-  IF EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'user_dimension_coverage' AND policyname = 'Users can insert their own dimension coverage') THEN
-    DROP POLICY "Users can insert their own dimension coverage" ON user_dimension_coverage;
-  END IF;
   CREATE POLICY "Users can insert their own dimension coverage"
     ON user_dimension_coverage FOR INSERT
     WITH CHECK (auth.uid() = user_id);
 
-  -- Drop and recreate UPDATE policy
-  IF EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'user_dimension_coverage' AND policyname = 'Users can update their own dimension coverage') THEN
-    DROP POLICY "Users can update their own dimension coverage" ON user_dimension_coverage;
-  END IF;
   CREATE POLICY "Users can update their own dimension coverage"
     ON user_dimension_coverage FOR UPDATE
     USING (auth.uid() = user_id);
 
-  -- Drop and recreate DELETE policy
-  IF EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'user_dimension_coverage' AND policyname = 'Users can delete their own dimension coverage') THEN
-    DROP POLICY "Users can delete their own dimension coverage" ON user_dimension_coverage;
-  END IF;
   CREATE POLICY "Users can delete their own dimension coverage"
     ON user_dimension_coverage FOR DELETE
     USING (auth.uid() = user_id);
