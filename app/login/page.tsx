@@ -2,6 +2,9 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { GoogleSignInButton } from './GoogleSignInButton'
 
+// Force dynamic rendering to access runtime environment variables
+export const dynamic = 'force-dynamic'
+
 export default async function LoginPage() {
   // Check if user is already logged in
   try {

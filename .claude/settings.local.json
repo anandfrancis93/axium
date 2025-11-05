@@ -13,7 +13,16 @@
       "Bash(git pull:*)",
       "Bash(git checkout:*)",
       "Bash(npm uninstall:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(npx supabase:*)",
+      "Bash(if [ -f .env.local ])",
+      "Bash(then cat .env.local)",
+      "Bash(else echo \"File not found\")",
+      "Bash(fi)",
+      "Bash(psql:*)",
+      "Bash(taskkill:*)",
+      "Bash(curl:*)",
+      "Bash(git mv:*)"
     ],
     "deny": [],
     "ask": []

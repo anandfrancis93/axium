@@ -2,15 +2,24 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { SignOutButton } from './SignOutButton'
 
+// Force dynamic rendering to access runtime environment variables
+export const dynamic = 'force-dynamic'
+
 export default async function DashboardPage() {
-  const supabase = await createClient()
+  let user: any = null
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  try {
+    const supabase = await createClient()
+    const { data } = await supabase.auth.getUser()
+    user = data.user
 
-  if (!user) {
+    if (!user) {
+      redirect('/login')
+    }
+  } catch (error) {
+    console.error('Error checking user auth on dashboard:', error)
     redirect('/login')
+    return null // TypeScript requires a return after redirect in catch
   }
 
   return (
