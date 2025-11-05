@@ -132,17 +132,45 @@ body {
     background: linear-gradient(145deg, #4287f5, #3670d9);
     box-shadow: var(--elevation-1);
     color: white;
+    border: none;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    position: relative;
+    overflow: hidden;
   }
 
   .neuro-btn-primary:hover {
     box-shadow: var(--elevation-2);
     background: linear-gradient(145deg, #4f8fff, #3b7ae6);
+    transform: translateY(-2px);
+  }
+
+  .neuro-btn-primary:active {
+    box-shadow: var(--elevation-1);
+    transform: translateY(0);
   }
 
   .neuro-btn-secondary {
     background: linear-gradient(145deg, #9b6cf8, #7c51d4);
     box-shadow: var(--elevation-1);
     color: white;
+    border: none;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+  }
+
+  .neuro-btn-secondary:hover {
+    box-shadow: var(--elevation-2);
+    transform: translateY(-2px);
+  }
+
+  .neuro-btn-secondary:active {
+    box-shadow: var(--elevation-1);
+    transform: translateY(0);
   }
 
   /* Progress Bar */
@@ -182,11 +210,21 @@ body {
     box-shadow: var(--elevation-1);
     color: white;
     border: none;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
   }
 
   .neuro-btn-success:hover {
     box-shadow: var(--elevation-2);
     background: linear-gradient(145deg, #34d399, #10b981);
+    transform: translateY(-2px);
+  }
+
+  .neuro-btn-success:active {
+    box-shadow: var(--elevation-1);
+    transform: translateY(0);
   }
 
   .neuro-btn-warning {
@@ -194,11 +232,21 @@ body {
     box-shadow: var(--elevation-1);
     color: white;
     border: none;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
   }
 
   .neuro-btn-warning:hover {
     box-shadow: var(--elevation-2);
     background: linear-gradient(145deg, #fbbf24, #f59e0b);
+    transform: translateY(-2px);
+  }
+
+  .neuro-btn-warning:active {
+    box-shadow: var(--elevation-1);
+    transform: translateY(0);
   }
 
   .neuro-btn-error {
@@ -206,11 +254,21 @@ body {
     box-shadow: var(--elevation-1);
     color: white;
     border: none;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
   }
 
   .neuro-btn-error:hover {
     box-shadow: var(--elevation-2);
     background: linear-gradient(145deg, #f87171, #ef4444);
+    transform: translateY(-2px);
+  }
+
+  .neuro-btn-error:active {
+    box-shadow: var(--elevation-1);
+    transform: translateY(0);
   }
 
   /* Status Badges */
