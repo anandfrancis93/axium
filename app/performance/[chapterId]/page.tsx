@@ -101,7 +101,12 @@ export default function PerformancePage() {
         throw new Error(data.error || 'Failed to reset progress')
       }
 
-      alert('✅ Progress reset successfully!')
+      // Show deletion details
+      const details = data.deleted ?
+        `\n\nDeleted:\n• ${data.deleted.responses} responses\n• ${data.deleted.sessions} sessions\n• ${data.deleted.mastery} mastery records\n• ${data.deleted.armStats} arm stats`
+        : ''
+
+      alert(`✅ Progress reset successfully!${details}`)
 
       // Force full page reload to clear all cached data
       window.location.reload()
