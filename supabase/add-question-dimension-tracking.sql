@@ -48,6 +48,12 @@ CREATE INDEX IF NOT EXISTS idx_dimension_coverage_least_tested
 -- RLS policies
 ALTER TABLE user_dimension_coverage ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Users can view their own dimension coverage" ON user_dimension_coverage;
+DROP POLICY IF EXISTS "Users can insert their own dimension coverage" ON user_dimension_coverage;
+DROP POLICY IF EXISTS "Users can update their own dimension coverage" ON user_dimension_coverage;
+DROP POLICY IF EXISTS "Users can delete their own dimension coverage" ON user_dimension_coverage;
+
 CREATE POLICY "Users can view their own dimension coverage"
   ON user_dimension_coverage FOR SELECT
   USING (auth.uid() = user_id);
@@ -84,6 +90,9 @@ ADD COLUMN IF NOT EXISTS dimension TEXT CHECK (dimension IN (
 -- Index for filtering questions by dimension
 CREATE INDEX IF NOT EXISTS idx_questions_dimension
   ON questions(dimension);
+
+-- Drop existing function if it exists
+DROP FUNCTION IF EXISTS get_least_tested_dimension(UUID, UUID, TEXT, INT);
 
 -- Helper function to get least-tested dimension for a (topic, bloom_level)
 CREATE OR REPLACE FUNCTION get_least_tested_dimension(
