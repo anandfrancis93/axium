@@ -2,6 +2,11 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  // Temporarily disable auth middleware to debug deployment
+  // TODO: Re-enable after investigating the issue
+  return NextResponse.next()
+
+  /* Disabled for debugging
   try {
     // If Supabase is not configured, allow all requests through
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
@@ -53,6 +58,7 @@ export async function middleware(request: NextRequest) {
     console.error('Middleware error:', error)
     return NextResponse.next()
   }
+  */
 }
 
 export const config = {
