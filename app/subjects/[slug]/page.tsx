@@ -33,7 +33,7 @@ export default async function SubjectPage({
       .single()
 
     if (subjectError || !subjectData) {
-      redirect('/dashboard')
+      redirect('/home')
     }
 
     subject = subjectData
@@ -65,7 +65,7 @@ export default async function SubjectPage({
 
   } catch (error) {
     console.error('Error loading subject:', error)
-    redirect('/dashboard')
+    redirect('/home')
     return null
   }
 
@@ -75,7 +75,7 @@ export default async function SubjectPage({
       <header className="neuro-container mx-4 my-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center flex-wrap gap-4">
           <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="neuro-btn">
+            <Link href="/home" className="neuro-btn">
               ← Back
             </Link>
             <div className="neuro-raised px-6 py-3">

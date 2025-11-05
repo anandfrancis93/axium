@@ -14,7 +14,7 @@ export default async function LoginPage() {
     } = await supabase.auth.getUser()
 
     if (user) {
-      redirect('/dashboard')
+      redirect('/home')
     }
   } catch (error) {
     // If auth check fails, continue showing login page

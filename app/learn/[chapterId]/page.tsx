@@ -170,8 +170,8 @@ export default function LearnPage() {
         <div className="neuro-card max-w-md">
           <div className="text-red-400 text-lg mb-4">Error</div>
           <div className="text-gray-400 mb-6">{error}</div>
-          <button onClick={() => router.push('/dashboard')} className="neuro-btn">
-            Back to Dashboard
+          <button onClick={() => router.push('/home')} className="neuro-btn">
+            Back to Home
           </button>
         </div>
       </div>
@@ -193,7 +193,7 @@ export default function LearnPage() {
               </div>
             </div>
             <button
-              onClick={() => router.push('/dashboard')}
+              onClick={() => router.push('/home')}
               className="neuro-btn text-sm"
             >
               Exit

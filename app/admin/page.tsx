@@ -30,7 +30,7 @@ export default async function AdminPage() {
       <header className="neuro-container mx-4 my-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center flex-wrap gap-4">
           <div className="flex items-center gap-4">
-            <a href="/dashboard" className="neuro-raised px-6 py-3 hover:shadow-lg transition-all">
+            <a href="/home" className="neuro-raised px-6 py-3 hover:shadow-lg transition-all">
               <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                 Axium
               </h1>
@@ -40,8 +40,8 @@ export default async function AdminPage() {
               <p className="text-gray-300 font-medium">{user.email?.split('@')[0]}</p>
             </div>
           </div>
-          <a href="/dashboard" className="neuro-btn text-sm">
-            ← Back to Dashboard
+          <a href="/home" className="neuro-btn text-sm">
+            ← Back to Home
           </a>
         </div>
       </header>
