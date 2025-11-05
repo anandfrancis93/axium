@@ -34,6 +34,27 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    console.log('Reset progress request:', {
+      user_id: user.id,
+      chapter_id,
+      timestamp: new Date().toISOString()
+    })
+
+    // First check what data exists
+    const { data: allSessions, error: checkError } = await supabase
+      .from('learning_sessions')
+      .select('id, chapter_id, subject_id')
+      .eq('user_id', user.id)
+
+    console.log('All user sessions:', allSessions)
+
+    const { data: allMastery } = await supabase
+      .from('user_topic_mastery')
+      .select('chapter_id, topic')
+      .eq('user_id', user.id)
+
+    console.log('All user mastery records:', allMastery)
+
     // First get all sessions for this chapter (before deleting them)
     const { data: sessions, error: sessionsError } = await supabase
       .from('learning_sessions')
