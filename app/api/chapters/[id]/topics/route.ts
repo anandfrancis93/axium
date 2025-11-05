@@ -36,8 +36,9 @@ export async function GET(
       const content = chunk.content
       const lines = content.split('\n')
 
-      // Track current domain as we parse
+      // Track current domain and objective as we parse
       let currentDomain = ''
+      let currentObjective = ''
 
       for (const line of lines) {
         const trimmedLine = line.trim()
@@ -47,47 +48,49 @@ export async function GET(
           continue
         }
 
-        // Extract domain header
+        // Extract domain header (but don't add as topic)
         const domainMatch = trimmedLine.match(/^Domain (\d+\.\d+) - (.+)$/)
         if (domainMatch) {
-          currentDomain = `Domain ${domainMatch[1]} - ${domainMatch[2]}`
+          currentDomain = domainMatch[2].trim() // Just the name, e.g., "General Security Concepts"
           continue
         }
 
-        // Skip "From X.X" section headers - we'll extract the section name separately
+        // Extract objective from "From X.X" headers (but don't add section name as topic)
         if (trimmedLine.startsWith('From ')) {
-          const sectionMatch = trimmedLine.match(/From (\d+\.\d+) \((.+?)\):/)
-          if (sectionMatch) {
-            const sectionName = sectionMatch[2].trim()
-            const objective = sectionMatch[1]
-            if (currentDomain) {
-              topics.add(`[${currentDomain} | ${objective}] ${sectionName}`)
-            } else {
-              topics.add(`[Objective ${objective}] ${sectionName}`)
-            }
+          const objectiveMatch = trimmedLine.match(/From (\d+\.\d+)/)
+          if (objectiveMatch) {
+            currentObjective = objectiveMatch[1]
           }
           continue
         }
 
-        // Extract topics in format: "Topic Name (context)"
-        // Example: "Technical (control category)"
-        // Example: "Hardware security module (HSM) (key management)"
-        const topicMatch = trimmedLine.match(/^(.+?)\s+\((.+?)\)(?:\s+\((.+?)\))?$/)
+        // Extract ONLY topics in format: "Topic Name (context)"
+        // Must have at least one set of parentheses to be considered a topic
+        const topicMatch = trimmedLine.match(/^([^(]+)\s+\((.+?)\)(?:\s+\((.+?)\))?$/)
 
         if (topicMatch) {
-          // Keep the full topic with context and add domain prefix
+          const topicName = topicMatch[1].trim()
+
+          // Skip if it looks like a header or section name
+          if (topicName.match(/^(From|Domain|Objective|Section|Chapter)/i)) {
+            continue
+          }
+
+          // Keep the full topic with context
           const fullTopic = trimmedLine
 
-          // Only add if it's a reasonable length and has meaningful content
+          // Only add if it's a reasonable length
           if (fullTopic.length > 5 && fullTopic.length < 150) {
-            // Avoid adding very generic entries
-            if (!fullTopic.match(/^(From|Domain|Example|Note|See)/i)) {
-              if (currentDomain) {
-                topics.add(`[${currentDomain}] ${fullTopic}`)
-              } else {
-                topics.add(fullTopic)
-              }
+            // Build the prefixed topic
+            let prefixedTopic = fullTopic
+
+            if (currentDomain && currentObjective) {
+              prefixedTopic = `[${currentDomain} ${currentObjective}] ${fullTopic}`
+            } else if (currentDomain) {
+              prefixedTopic = `[${currentDomain}] ${fullTopic}`
             }
+
+            topics.add(prefixedTopic)
           }
         }
       }
