@@ -66,9 +66,13 @@ async function generateQuestionOnDemand(
   chapterId: string,
   topic: string,
   bloomLevel: number,
-  dimension: string
+  dimension: string,
+  dimensionDescriptionMap?: { [key: string]: string }
 ): Promise<any> {
   console.log(`Generating question for: ${topic} at Bloom ${bloomLevel}, dimension: ${dimension}`)
+
+  // Use provided map or fall back to defaults
+  const dimDescriptions = dimensionDescriptionMap || DIMENSION_DESCRIPTIONS
 
   // Step 1: Generate embedding for the topic
   const embeddingResponse = await openai.embeddings.create({
@@ -97,7 +101,7 @@ async function generateQuestionOnDemand(
 
   // Step 4: Generate question with Grok
   const bloomDescription = BLOOM_LEVELS[bloomLevel]
-  const dimensionDescription = DIMENSION_DESCRIPTIONS[dimension] || dimension
+  const dimensionDescription = dimDescriptions[dimension] || dimension
 
   const prompt = `You are an expert educator creating comprehensive assessment questions.
 
@@ -349,6 +353,29 @@ export async function POST(request: NextRequest) {
       // 70% chance to generate a new question (or if no questions ready for review)
       console.log(`Generating new question for ${selectedArm.topic} at Bloom ${selectedArm.bloomLevel}`)
 
+      // Get subject ID from chapter
+      const { data: chapterData } = await supabase
+        .from('chapters')
+        .select('subject_id')
+        .eq('id', session.chapter_id)
+        .single()
+
+      // Get available dimensions for this subject
+      const { data: subjectDimensions } = await supabase.rpc('get_subject_dimensions', {
+        p_subject_id: chapterData?.subject_id
+      })
+
+      // Build dimension descriptions map from subject config
+      const subjectDimensionMap: { [key: string]: string } = {}
+      if (subjectDimensions && subjectDimensions.length > 0) {
+        subjectDimensions.forEach((d: any) => {
+          subjectDimensionMap[d.dimension_key] = d.dimension_description
+        })
+      } else {
+        // Fallback to hardcoded defaults if subject has no custom dimensions
+        Object.assign(subjectDimensionMap, DIMENSION_DESCRIPTIONS)
+      }
+
       // Determine which knowledge dimension to focus on for comprehensive mastery
       const { data: dimensionResult } = await supabase.rpc('get_least_tested_dimension', {
         p_user_id: user.id,
@@ -366,7 +393,8 @@ export async function POST(request: NextRequest) {
           session.chapter_id,
           selectedArm.topic,
           selectedArm.bloomLevel,
-          targetDimension
+          targetDimension,
+          subjectDimensionMap
         )
 
         if (!selectedQuestion) {
