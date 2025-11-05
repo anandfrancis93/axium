@@ -219,9 +219,12 @@ Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other 
       )
     }
 
-    // Step 5: Store questions in database
-    console.log('Storing questions in database...')
-    const questionsToInsert = questionsData.questions.map((q: any) => ({
+    // Step 5: Return questions for preview (NOT stored in database)
+    console.log(`Successfully generated ${questionsData.questions.length} question(s) for preview`)
+
+    // Format questions for preview (add IDs for frontend display)
+    const previewQuestions = questionsData.questions.map((q: any, idx: number) => ({
+      id: `preview-${Date.now()}-${idx}`,
       chapter_id,
       question_text: q.question_text,
       question_type: 'mcq',
@@ -234,25 +237,11 @@ Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other 
       source_type: 'ai_generated',
     }))
 
-    const { data: insertedQuestions, error: insertError } = await supabase
-      .from('questions')
-      .insert(questionsToInsert)
-      .select()
-
-    if (insertError) {
-      console.error('Error inserting questions:', insertError)
-      return NextResponse.json(
-        { error: 'Failed to store questions: ' + insertError.message },
-        { status: 500 }
-      )
-    }
-
-    console.log(`Successfully generated and stored ${insertedQuestions.length} question(s)`)
-
     return NextResponse.json({
       success: true,
-      questions: insertedQuestions,
+      questions: previewQuestions,
       chunks_used: chunks.length,
+      note: 'Questions are for preview/testing only - not stored in database',
     })
   } catch (error) {
     console.error('Error generating questions:', error)
