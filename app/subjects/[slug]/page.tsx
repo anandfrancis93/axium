@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { PlayIcon, BarChartIcon, ArrowLeftIcon, BookIcon, TargetIcon, UserIcon } from '@/components/icons'
+import { PlayIcon, BarChartIcon, ArrowLeftIcon, BookIcon, TargetIcon, UserIcon, SettingsIcon } from '@/components/icons'
 
 export const dynamic = 'force-dynamic'
 
@@ -82,7 +82,7 @@ export default async function SubjectPage({
             </Link>
             <div className="neuro-raised px-6 py-3 flex items-center gap-3">
               <BookIcon size={24} className="text-blue-400" />
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+              <h1 className="text-2xl font-bold text-blue-400">
                 {subject.name}
               </h1>
             </div>
@@ -148,7 +148,7 @@ export default async function SubjectPage({
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                       <div className="flex-1 flex gap-4">
                         <div className="neuro-inset w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center">
-                          <span className="text-lg font-bold text-blue-400 group-hover:text-purple-400 transition-colors">
+                          <span className="text-lg font-bold text-blue-400">
                             {index + 1}
                           </span>
                         </div>
@@ -161,14 +161,9 @@ export default async function SubjectPage({
                             {chapter.description}
                           </p>
                         )}
-                          <div className="flex items-center gap-4 text-sm flex-wrap">
-                            <div className="neuro-badge neuro-badge-info flex items-center gap-1.5">
-                              <TargetIcon size={12} />
-                              <span>AI-Powered Questions</span>
-                            </div>
-                            <div className="text-gray-600">
-                              Adaptive Learning System
-                            </div>
+                          <div className="neuro-badge neuro-badge-info flex items-center gap-1.5 inline-flex">
+                            <TargetIcon size={12} />
+                            <span>AI-Powered Questions</span>
                           </div>
                         </div>
                       </div>
@@ -198,18 +193,18 @@ export default async function SubjectPage({
         ) : (
           // Empty state
           <div className="neuro-card">
-            <div className="text-center py-8">
-              <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <div className="neuro-inset p-8 rounded-lg text-center">
+              <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <BookIcon size={40} className="text-gray-600" />
               </div>
-              <h3 className="text-2xl font-semibold text-gray-200 mb-3">
+              <h3 className="text-2xl font-bold text-gray-200 mb-2">
                 No Chapters Yet
               </h3>
-              <p className="text-gray-500 mb-6 max-w-md mx-auto">
+              <p className="text-sm text-gray-500 mb-8 max-w-md mx-auto">
                 Create chapters for this subject to start your learning journey.
               </p>
               <Link href="/admin" className="neuro-btn-primary inline-flex items-center gap-2 px-6 py-3">
-                <BookIcon size={18} />
+                <SettingsIcon size={18} />
                 <span>Go to Admin Panel</span>
               </Link>
             </div>
