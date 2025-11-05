@@ -71,17 +71,78 @@ For each user, we track:
 
 **Constraints**:
 - Only select (topic, level) pairs that have questions in the database
-- Respect prerequisite structure (shouldn't give Bloom 4 if user hasn't attempted Bloom 3)
+- **Respect mastery prerequisites** (detailed below)
 - Respect the subject/chapter the user chose to study
 
+### 4.1 Mastery Prerequisites & Bloom Level Progression
+
+**Critical Rule**: Progression is **per-topic vertical**, not global horizontal.
+
+**Mastery Threshold Requirements**:
+```typescript
+// To unlock Bloom Level N for a topic, user must:
+1. Have mastery >= 80% at Level N-1 for THAT SAME TOPIC
+2. Have answered >= 3 questions correctly at Level N-1 for THAT TOPIC
+3. (Optional) Have confidence calibration >= 0.6 at Level N-1
+
+Example:
+- "CIA Triad" L1: 90% mastery, 5 correct answers → UNLOCKS "CIA Triad" L2
+- "Encryption" L1: 40% mastery → DOES NOT unlock "Encryption" L2
+- "Encryption" L1: 85% mastery → UNLOCKS "Encryption" L2
+```
+
+**Available Arms Filter**:
+```typescript
+function getAvailableArms(userId: string, chapterId: string): Arm[] {
+  const allArms = getAllTopicsInChapter(chapterId)
+  const mastery = getUserMastery(userId, chapterId)
+
+  return allArms.filter(arm => {
+    // Level 1 is always available (entry point)
+    if (arm.bloomLevel === 1) {
+      return true
+    }
+
+    // For Level N (N > 1), check prerequisite Level N-1
+    const prereqArm = {
+      topic: arm.topic,
+      bloomLevel: arm.bloomLevel - 1
+    }
+
+    const prereqMastery = mastery[`${prereqArm.topic}_${prereqArm.bloomLevel}`]
+
+    // Must have high mastery AND sufficient attempts at previous level
+    return (
+      prereqMastery?.mastery_score >= 80 &&
+      prereqMastery?.questions_correct >= 3
+    )
+  })
+}
+```
+
+**Example Progression**:
+```
+Session 1: CIA Triad L1 (correct) → mastery 30%
+Session 2: CIA Triad L1 (correct) → mastery 51%
+Session 3: CIA Triad L1 (correct) → mastery 66%
+Session 4: CIA Triad L1 (correct) → mastery 76%
+Session 5: CIA Triad L1 (correct) → mastery 83% ✅ UNLOCKS L2
+Session 6: CIA Triad L2 NOW AVAILABLE
+
+Meanwhile:
+Session 3: Encryption L1 (incorrect) → mastery 21%
+Session 7: Encryption L1 (correct) → mastery 36%
+// Encryption L2 still LOCKED (mastery < 80%)
+```
+
 **Action Selection Process**:
-1. Get all available (topic, bloom_level) pairs for current chapter
+1. Get all available (topic, bloom_level) pairs that meet mastery prerequisites
 2. For each available pair (arm):
    - Sample from its Beta(α, β) distribution
    - Apply context-based multipliers:
-     - Low mastery → higher priority
-     - Not practiced recently → higher priority
-     - Next logical Bloom level → higher priority
+     - Low mastery → higher priority (needs practice)
+     - Not practiced recently → higher priority (spacing effect)
+     - Just unlocked new level → higher priority (progressive challenge)
 3. Select arm with highest adjusted sample value
 4. Fetch a random question from that (topic, bloom_level) combination
 
@@ -366,6 +427,95 @@ Track these metrics to evaluate RL performance:
 5. **Social Learning**
    - Transfer learning from similar users
    - Cold-start problem solution
+
+---
+
+## 11. Example User Learning Journey
+
+**Week 1: Starting Fresh**
+```
+Day 1, Session 1:
+- RL selects: "CIA Triad" L1 (all L1s are available initially)
+- User answers correctly with confidence 3
+- Mastery: 0% → 30%
+- Reward: +8 (learning gain +6, calibration 0, engagement +2)
+
+Day 1, Session 2:
+- RL selects: "Security Controls" L1 (exploring different topics)
+- User answers incorrectly with confidence 2
+- Mastery: 0% → 21%
+- Reward: +2 (learning gain -2, calibration +2 for appropriate uncertainty, engagement +2)
+
+Day 2, Session 3:
+- RL selects: "CIA Triad" L1 (back to partially-learned topic)
+- User answers correctly with confidence 4
+- Mastery: 30% → 52%
+- Reward: +10 (learning gain +7, calibration +3)
+
+Day 3-5: More practice on L1 topics...
+- "CIA Triad" L1 mastery reaches 83% after 5 correct answers ✅
+- "Security Controls" L1 mastery reaches 78% (2 correct, 1 incorrect)
+- "Encryption" L1 mastery reaches 45% (started practicing)
+```
+
+**Week 2: First Bloom Level Advancement**
+```
+Day 8, Session 12:
+- RL checks: "CIA Triad" L1 has 83% mastery + 5 correct answers
+- ✅ UNLOCKS "CIA Triad" L2 (Understand)
+- RL selects: "CIA Triad" L2 (new level just unlocked - high priority)
+- User answers correctly with confidence 3
+- L2 Mastery: 0% → 30%
+- Reward: +12 (learning gain +8, calibration 0, engagement +4 for good progression)
+
+Day 9-10:
+- RL mixes "CIA Triad" L2 with other L1 topics not yet mastered
+- "Security Controls" L1 reaches 85% → unlocks L2
+- "Encryption" L1 reaches 81% → unlocks L2
+```
+
+**Week 3: Multiple Active Levels**
+```
+User now has available:
+- "CIA Triad" L1 (83% mastery - for review/spacing)
+- "CIA Triad" L2 (65% mastery - active practice)
+- "Security Controls" L1 (85% - review)
+- "Security Controls" L2 (42% - active practice)
+- "Encryption" L1 (81% - review)
+- "Encryption" L2 (38% - active practice)
+- "Authentication" L1 (12% - new topic)
+- "Malware" L1 (0% - unexplored)
+
+RL balances:
+- Spaced repetition: Occasionally tests "CIA Triad" L1 (last practiced 5 days ago)
+- Progressive challenge: Prioritizes L2 topics that are partially learned
+- Exploration: Introduces new L1 topics like "Malware"
+```
+
+**Month 2: Reaching Higher Bloom Levels**
+```
+"CIA Triad" progression:
+L1: 90% mastery (review occasionally) ✅
+L2: 88% mastery (unlocked L3) ✅
+L3: 72% mastery (active practice - Apply level)
+L4: LOCKED (need 80%+ at L3)
+
+"Encryption" progression:
+L1: 85% mastery ✅
+L2: 82% mastery (unlocked L3) ✅
+L3: 45% mastery (actively learning)
+
+RL strategy:
+- Focus on advancing L3 topics (Apply level)
+- Mix in L1/L2 reviews for spaced repetition
+- Slowly introduce new topics to maintain variety
+```
+
+**Key Insights**:
+1. **Per-topic progression**: Just because you mastered "CIA Triad" L3 doesn't mean "Encryption" L3 is available
+2. **Multiple attempts required**: Need 3+ correct answers at 80%+ mastery to advance
+3. **Balanced practice**: RL mixes new learning with spaced review
+4. **Natural curriculum**: Higher Bloom levels become available as foundations are solidified
 
 ---
 
