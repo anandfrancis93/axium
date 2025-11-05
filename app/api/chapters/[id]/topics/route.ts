@@ -34,36 +34,40 @@ export async function GET(
 
     for (const chunk of chunks) {
       const content = chunk.content
-
-      // Pattern 1: "Topic Name (category)" format
-      const pattern1Matches = content.matchAll(/^(.+?)\s+\((.+?)\)/gm)
-      for (const match of pattern1Matches) {
-        const topicName = match[1].trim()
-        if (topicName.length > 3 && topicName.length < 100) {
-          topics.add(topicName)
-        }
-      }
-
-      // Pattern 2: "From X.X (Section Name):" format - extract section names
-      const pattern2Matches = content.matchAll(/From \d+\.\d+ \((.+?)\):/g)
-      for (const match of pattern2Matches) {
-        const sectionName = match[1].trim()
-        if (sectionName.length > 3 && sectionName.length < 100) {
-          topics.add(sectionName)
-        }
-      }
-
-      // Pattern 3: Lines that end with specific keywords (more generic topics)
       const lines = content.split('\n')
+
       for (const line of lines) {
         const trimmedLine = line.trim()
-        // Extract key terms (avoid very short or very long lines)
-        if (trimmedLine.length > 5 && trimmedLine.length < 80 && !trimmedLine.includes('Domain')) {
-          // Check if it looks like a topic (capitalized, not too generic)
-          if (/^[A-Z]/.test(trimmedLine) && !trimmedLine.includes('From ')) {
-            const topic = trimmedLine.replace(/\s+\(.+?\)$/, '').trim()
-            if (topic.length > 3) {
-              topics.add(topic)
+
+        // Skip empty lines and domain headers
+        if (!trimmedLine || trimmedLine.startsWith('Domain ')) {
+          continue
+        }
+
+        // Skip "From X.X" section headers - we'll extract the section name separately
+        if (trimmedLine.startsWith('From ')) {
+          const sectionMatch = trimmedLine.match(/From \d+\.\d+ \((.+?)\):/)
+          if (sectionMatch) {
+            const sectionName = sectionMatch[1].trim()
+            topics.add(sectionName)
+          }
+          continue
+        }
+
+        // Extract topics in format: "Topic Name (context)"
+        // Example: "Technical (control category)"
+        // Example: "Hardware security module (HSM) (key management)"
+        const topicMatch = trimmedLine.match(/^(.+?)\s+\((.+?)\)(?:\s+\((.+?)\))?$/)
+
+        if (topicMatch) {
+          // Keep the full topic with context
+          const fullTopic = trimmedLine
+
+          // Only add if it's a reasonable length and has meaningful content
+          if (fullTopic.length > 5 && fullTopic.length < 150) {
+            // Avoid adding very generic entries
+            if (!fullTopic.match(/^(From|Domain|Example|Note|See)/i)) {
+              topics.add(fullTopic)
             }
           }
         }
