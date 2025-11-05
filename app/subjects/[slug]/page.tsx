@@ -136,38 +136,27 @@ export default async function SubjectPage({
                         )}
                         <div className="flex items-center gap-4 text-sm">
                           <div className="flex items-center gap-1">
-                            <div className={`w-2 h-2 rounded-full ${hasQuestions ? 'bg-green-400' : 'bg-yellow-400'}`}></div>
+                            <div className="w-2 h-2 rounded-full bg-blue-400"></div>
                             <span className="text-gray-500">
-                              {questionCount} {questionCount === 1 ? 'question' : 'questions'}
+                              AI generates questions on-demand
                             </span>
                           </div>
                         </div>
                       </div>
 
                       <div className="flex flex-col sm:flex-row gap-3">
-                        {hasQuestions ? (
-                          <>
-                            <Link
-                              href={`/learn/${chapter.id}`}
-                              className="neuro-btn-primary px-6 py-3 text-center whitespace-nowrap"
-                            >
-                              🎯 Start Learning
-                            </Link>
-                            <Link
-                              href={`/performance/${chapter.id}`}
-                              className="neuro-btn px-6 py-3 text-center whitespace-nowrap"
-                            >
-                              📊 Performance
-                            </Link>
-                          </>
-                        ) : (
-                          <Link
-                            href="/admin"
-                            className="neuro-btn px-6 py-3 text-center whitespace-nowrap"
-                          >
-                            + Add Questions
-                          </Link>
-                        )}
+                        <Link
+                          href={`/learn/${chapter.id}`}
+                          className="neuro-btn-primary px-6 py-3 text-center whitespace-nowrap"
+                        >
+                          🎯 Start Learning
+                        </Link>
+                        <Link
+                          href={`/performance/${chapter.id}`}
+                          className="neuro-btn px-6 py-3 text-center whitespace-nowrap"
+                        >
+                          📊 Performance
+                        </Link>
                       </div>
                     </div>
                   </div>
