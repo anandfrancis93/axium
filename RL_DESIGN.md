@@ -91,7 +91,7 @@ Example:
 - "Encryption" L1: 85% mastery → UNLOCKS "Encryption" L2
 ```
 
-**Available Arms Filter**:
+**Available Arms Filter (Enhanced for Multi-Topic Questions)**:
 ```typescript
 function getAvailableArms(userId: string, chapterId: string): Arm[] {
   const allArms = getAllTopicsInChapter(chapterId)
@@ -117,6 +117,46 @@ function getAvailableArms(userId: string, chapterId: string): Arm[] {
       prereqMastery?.questions_correct >= 3
     )
   })
+}
+
+async function isQuestionAvailable(
+  userId: string,
+  question: Question,
+  mastery: MasteryMap
+): Promise<boolean> {
+  const bloomLevel = question.bloom_level
+
+  // For Bloom Level 1: always available
+  if (bloomLevel === 1) {
+    return true
+  }
+
+  // Check primary topic prerequisite
+  const primaryTopic = question.primary_topic || question.topic
+  const primaryPrereq = mastery[`${primaryTopic}_${bloomLevel - 1}`]
+
+  if (!primaryPrereq ||
+      primaryPrereq.mastery_score < 80 ||
+      primaryPrereq.questions_correct < 3) {
+    return false // Primary topic not ready
+  }
+
+  // CRITICAL: For multi-topic questions, check ALL secondary topics too
+  if (question.secondary_topics && question.secondary_topics.length > 0) {
+    for (const secondaryTopic of question.secondary_topics) {
+      const secondaryPrereq = mastery[`${secondaryTopic}_${bloomLevel - 1}`]
+
+      // Every secondary topic must ALSO meet prerequisites
+      if (!secondaryPrereq ||
+          secondaryPrereq.mastery_score < 80 ||
+          secondaryPrereq.questions_correct < 3) {
+        return false // Secondary topic not ready
+      }
+    }
+  }
+
+  // All topics meet prerequisites
+  return true
 }
 ```
 
@@ -151,7 +191,109 @@ Session 7: Encryption L1 (correct) → mastery 36%
    - At higher Bloom levels (4-6): prefer multi-topic questions (more realistic)
    - At lower Bloom levels (1-3): prefer single-topic questions (clearer learning)
 
-### 4.2 Multi-Topic Question Selection Strategy
+### 4.2 Multi-Topic Question Prerequisites
+
+**Critical Rule**: For a multi-topic question at Bloom Level N, **ALL topics** (primary + secondary) must have 80%+ mastery at Level N-1.
+
+**Why?** You can't analyze relationships between concepts you haven't learned yet.
+
+**Example Scenarios**:
+
+**Scenario 1: Question Available ✅**
+```typescript
+// Question at Bloom L4:
+{
+  primary_topic: "Encryption",
+  secondary_topics: ["Authentication", "Network Security"],
+  bloom_level: 4
+}
+
+// User's mastery at L3:
+"Encryption" L3: 85% mastery, 4 correct ✅
+"Authentication" L3: 82% mastery, 5 correct ✅
+"Network Security" L3: 88% mastery, 3 correct ✅
+
+// Result: Question IS AVAILABLE
+// All 3 topics have mastered Level 3, so L4 multi-topic question is unlocked
+```
+
+**Scenario 2: Question NOT Available (Secondary Topic Blocking) ❌**
+```typescript
+// Question at Bloom L4:
+{
+  primary_topic: "Encryption",
+  secondary_topics: ["Authentication", "Network Security"],
+  bloom_level: 4
+}
+
+// User's mastery at L3:
+"Encryption" L3: 85% mastery, 4 correct ✅
+"Authentication" L3: 45% mastery, 2 correct ❌  // BLOCKER!
+"Network Security" L3: 88% mastery, 3 correct ✅
+
+// Result: Question NOT AVAILABLE
+// Even though Encryption and Network Security are ready,
+// Authentication L3 is not mastered yet (< 80%)
+// User must master Authentication L3 first
+```
+
+**Scenario 3: Different Bloom Levels Available**
+```typescript
+// User's mastery:
+"Encryption" L1: 90% ✅, L2: 85% ✅, L3: 50% ❌
+"Authentication" L1: 88% ✅, L2: 82% ✅, L3: 75% ❌
+
+// Available multi-topic questions:
+✅ L1: "Encryption" + "Authentication" (both have L0 = entry point)
+✅ L2: "Encryption" + "Authentication" (both mastered L1)
+❌ L3: "Encryption" + "Authentication" (neither mastered L2 yet)
+
+// Once Encryption L2 hits 80%:
+✅ L3: "Encryption" pure questions (no secondary topics)
+❌ L3: "Encryption" + "Authentication" (Authentication L2 not ready)
+```
+
+**Implementation in Question Selection**:
+```typescript
+async function selectQuestion(
+  userId: string,
+  selectedArm: { topic: string, bloomLevel: number }
+): Promise<Question> {
+  const mastery = await getUserMastery(userId)
+
+  // Fetch candidate questions for this arm
+  const candidates = await supabase
+    .from('questions')
+    .select('*')
+    .or(`primary_topic.eq.${selectedArm.topic},topic.eq.${selectedArm.topic}`)
+    .eq('bloom_level', selectedArm.bloomLevel)
+
+  // Filter to only available questions (all topics meet prerequisites)
+  const availableQuestions = []
+  for (const question of candidates) {
+    if (await isQuestionAvailable(userId, question, mastery)) {
+      availableQuestions.push(question)
+    }
+  }
+
+  if (availableQuestions.length === 0) {
+    // Fallback: select single-topic question only
+    return await supabase
+      .from('questions')
+      .select('*')
+      .eq('topic', selectedArm.topic)
+      .eq('bloom_level', selectedArm.bloomLevel)
+      .is('secondary_topics', null)
+      .limit(1)
+      .single()
+  }
+
+  // Randomly select from available questions
+  return availableQuestions[Math.floor(Math.random() * availableQuestions.length)]
+}
+```
+
+### 4.3 Multi-Topic Question Selection Strategy
 
 **When RL selects "Encryption" at Bloom L4**:
 
@@ -798,8 +940,9 @@ RL strategy:
 3. **Multi-Component Reward**: Learning gain + confidence calibration + engagement + spacing
 4. **Multi-Topic Questions**: Higher Bloom levels integrate multiple concepts with weighted mastery distribution
 5. **Bloom Level Gating**: Cannot access Level N without mastering Level N-1 for that topic
-6. **Spaced Repetition**: Days since last practice affects RL selection priority
-7. **Confidence Calibration**: Tracks and rewards accurate self-assessment
+6. **Multi-Topic Prerequisites**: ALL topics (primary + secondary) must meet Bloom prerequisites to unlock a question
+7. **Spaced Repetition**: Days since last practice affects RL selection priority
+8. **Confidence Calibration**: Tracks and rewards accurate self-assessment
 
 **Weight Distribution**:
 - Primary topic: 1.0 (100% of mastery gain)
@@ -811,6 +954,11 @@ RL strategy:
 - L1-2: Single-topic questions (clear concept learning)
 - L3-4: Mixed single and multi-topic (50/50)
 - L5-6: Primarily multi-topic (synthesis and evaluation)
+
+**Multi-Topic Prerequisite Rule**:
+- A multi-topic question at Bloom L4 requires ALL involved topics to have 80%+ mastery at L3
+- Example: "Encryption + Authentication + Network Security" at L4 requires all 3 topics mastered at L3
+- Prevents questions about relationships between concepts you haven't learned yet
 
 ---
 
