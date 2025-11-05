@@ -189,9 +189,9 @@ export default function PerformancePage() {
           <button
             onClick={handleResetProgress}
             disabled={resetting}
-            className="neuro-btn-error text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="neuro-btn text-xs flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-red-400 hover:text-red-300 px-4 py-2"
           >
-            <RefreshIcon size={16} className={resetting ? 'animate-spin' : ''} />
+            <RefreshIcon size={14} className={resetting ? 'animate-spin' : ''} />
             {resetting ? 'Resetting...' : 'Reset Progress'}
           </button>
         </div>
