@@ -1,6 +1,10 @@
 -- Make knowledge dimensions configurable per subject/domain
 -- This allows different subjects to have custom dimension sets
 
+-- Drop existing functions to avoid conflicts
+DROP FUNCTION IF EXISTS get_subject_dimensions(UUID);
+DROP FUNCTION IF EXISTS get_least_tested_dimension(UUID, UUID, TEXT, INT);
+
 CREATE TABLE IF NOT EXISTS subject_dimension_config (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   subject_id UUID REFERENCES subjects(id) ON DELETE CASCADE,
