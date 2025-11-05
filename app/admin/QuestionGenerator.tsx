@@ -130,9 +130,9 @@ export function QuestionGenerator() {
     setLoading(false)
   }
 
-  const handleRandomGenerate = () => {
+  const handleRandomGenerate = async () => {
     if (!selectedChapter) {
-      setMessage('Please select a chapter first')
+      setMessage('⚠️ Please select a chapter first')
       return
     }
 
@@ -145,7 +145,12 @@ export function QuestionGenerator() {
     // Update form fields
     setTopic(randomTopic)
     setBloomLevel(randomBloomLevel)
-    setMessage(`🎲 Random selection: "${randomTopic}" at Bloom Level ${randomBloomLevel}`)
+    setMessage(`🎲 Random: "${randomTopic}" at Bloom Level ${randomBloomLevel}. Click "Generate Questions" to create!`)
+
+    // Automatically generate after a short delay
+    setTimeout(() => {
+      handleGenerate()
+    }, 500)
   }
 
   return (
