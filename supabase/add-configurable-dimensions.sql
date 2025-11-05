@@ -183,16 +183,15 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- RLS Policies
 ALTER TABLE subject_dimension_config ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policy if it exists
+DROP POLICY IF EXISTS "Anyone can view subject dimensions" ON subject_dimension_config;
+
 CREATE POLICY "Anyone can view subject dimensions"
   ON subject_dimension_config FOR SELECT
   USING (true);
 
--- Only admins can modify (you can adjust this based on your admin role system)
-CREATE POLICY "Admins can manage dimensions"
-  ON subject_dimension_config FOR ALL
-  USING (auth.uid() IN (
-    SELECT user_id FROM subjects WHERE id = subject_dimension_config.subject_id
-  ));
+-- Note: INSERT/UPDATE/DELETE are restricted to service role by default
+-- No additional policy needed - only backend API with service role can modify dimensions
 
 COMMENT ON TABLE subject_dimension_config IS 'Configurable knowledge dimensions per subject for comprehensive mastery tracking';
 
