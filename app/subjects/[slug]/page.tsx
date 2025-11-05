@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { PlayIcon, BarChartIcon, ArrowLeftIcon, BookIcon, TargetIcon } from '@/components/icons'
+import { PlayIcon, BarChartIcon, ArrowLeftIcon, BookIcon, TargetIcon, UserIcon } from '@/components/icons'
 
 export const dynamic = 'force-dynamic'
 
@@ -87,8 +87,11 @@ export default async function SubjectPage({
               </h1>
             </div>
           </div>
-          <div className="text-sm text-gray-500">
-            {user.email?.split('@')[0]}
+          <div className="neuro-inset px-4 py-2 rounded-lg flex items-center gap-2">
+            <UserIcon size={16} className="text-gray-500" />
+            <span className="text-sm text-gray-400 font-medium">
+              {user.email?.split('@')[0]}
+            </span>
           </div>
         </div>
       </header>
@@ -123,9 +126,9 @@ export default async function SubjectPage({
         {/* Chapters List */}
         {chapters.length > 0 ? (
           <div className="neuro-card mb-6">
-            <div className="flex items-center gap-2 mb-6">
-              <div className="neuro-inset w-10 h-10 rounded-lg flex items-center justify-center">
-                <BookIcon size={20} className="text-purple-400" />
+            <div className="flex items-center gap-3 mb-6">
+              <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center">
+                <BookIcon size={20} className="text-blue-400" />
               </div>
               <h3 className="text-xl font-semibold text-gray-200">
                 Chapters ({chapters.length})
@@ -195,15 +198,21 @@ export default async function SubjectPage({
         ) : (
           // Empty state
           <div className="neuro-card">
-            <h3 className="text-xl font-semibold text-gray-200 mb-4">
-              No Chapters Yet
-            </h3>
-            <p className="text-gray-500 mb-6">
-              Create chapters for this subject to start learning.
-            </p>
-            <Link href="/admin" className="neuro-btn-primary inline-block">
-              Go to Admin Panel
-            </Link>
+            <div className="text-center py-8">
+              <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <BookIcon size={40} className="text-gray-600" />
+              </div>
+              <h3 className="text-2xl font-semibold text-gray-200 mb-3">
+                No Chapters Yet
+              </h3>
+              <p className="text-gray-500 mb-6 max-w-md mx-auto">
+                Create chapters for this subject to start your learning journey.
+              </p>
+              <Link href="/admin" className="neuro-btn-primary inline-flex items-center gap-2 px-6 py-3">
+                <BookIcon size={18} />
+                <span>Go to Admin Panel</span>
+              </Link>
+            </div>
           </div>
         )}
       </main>
