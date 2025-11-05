@@ -133,6 +133,29 @@ REQUIREMENTS:
 4. Clearly indicate the correct answer
 5. Include a brief explanation for the correct answer
 
+ANTI-TELLTALE QUALITY CONTROLS (CRITICAL):
+These measures prevent obvious answer giveaways and test-taking tricks:
+
+a) Length Variation: All 4 options must have similar length (within 10-20 characters of each other)
+   ❌ BAD: A) "CIA" B) "Confidentiality, Integrity, and Availability ensuring data protection" C) "Security" D) "Info"
+   ✅ GOOD: All options are 40-60 characters, similarly detailed
+
+b) Plausible Distractors: Wrong answers must be from the same domain and sound believable
+   ❌ BAD: If correct answer is "Preventive (control type)", wrong answers shouldn't be "Apple" or "Database"
+   ✅ GOOD: Wrong answers should be other control types like "Detective", "Corrective", "Compensating"
+
+c) Keyword Avoidance: Don't repeat exact keywords from question in only the correct answer
+   ❌ BAD: Q: "Which control TYPE prevents incidents?" A: "Preventive control TYPE"
+   ✅ GOOD: Q: "Which control prevents incidents?" A: "Preventive"
+
+d) Balanced Technical Depth: All options must be equally professional and technical
+   ❌ BAD: A) "Hardware security module providing cryptographic key management" B) "A thing" C) "Something" D) "IDK"
+   ✅ GOOD: All options are specific, technical terms from the same category
+
+e) Subtle Incorrectness: Wrong answers should be "close but not quite right" - not obviously absurd
+   ❌ BAD: Mixing malware types with food items as distractors
+   ✅ GOOD: All distractors are real security terms, just not the correct answer for this specific question
+
 FORMAT YOUR RESPONSE AS VALID JSON:
 {
   "questions": [
