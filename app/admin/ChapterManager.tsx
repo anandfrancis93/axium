@@ -24,6 +24,8 @@ export function ChapterManager() {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [file, setFile] = useState<File | null>(null)
+  const [contentText, setContentText] = useState('')
+  const [useTextInput, setUseTextInput] = useState(false)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
 
@@ -105,13 +107,21 @@ export function ChapterManager() {
       return
     }
 
-    // If file is selected, upload it
-    if (file) {
-      setMessage('✅ Chapter created! Now uploading document...')
+    // If content is provided (text or file), upload it
+    if (contentText.trim() || file) {
+      setMessage('✅ Chapter created! Now processing content...')
 
       try {
         const formData = new FormData()
-        formData.append('file', file)
+
+        if (contentText.trim()) {
+          // Use text input
+          formData.append('text', contentText.trim())
+        } else if (file) {
+          // Use file upload
+          formData.append('file', file)
+        }
+
         formData.append('chapter_id', newChapter.id)
 
         const response = await fetch('/api/documents/upload', {
@@ -122,13 +132,13 @@ export function ChapterManager() {
         const result = await response.json()
 
         if (response.ok) {
-          setMessage(`✅ Chapter created and document uploaded! Processed ${result.chunks_created} chunks.`)
+          setMessage(`✅ Chapter created and content processed! Created ${result.chunks_created} chunks.`)
         } else {
-          setMessage(`✅ Chapter created but document upload failed: ${result.error}`)
+          setMessage(`✅ Chapter created but content processing failed: ${result.error}`)
         }
       } catch (uploadError) {
         console.error('Upload error:', uploadError)
-        setMessage('✅ Chapter created but document upload failed')
+        setMessage('✅ Chapter created but content processing failed')
       }
     } else {
       setMessage('✅ Chapter created successfully!')
@@ -138,6 +148,8 @@ export function ChapterManager() {
     setName('')
     setDescription('')
     setFile(null)
+    setContentText('')
+    setUseTextInput(false)
     const fileInput = document.getElementById('chapter-file-input') as HTMLInputElement
     if (fileInput) fileInput.value = ''
 
@@ -222,35 +234,84 @@ export function ChapterManager() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">
-            Upload Document (optional)
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Add Content (optional)
           </label>
-          <input
-            id="chapter-file-input"
-            type="file"
-            accept="application/pdf"
-            onChange={(e) => {
-              if (e.target.files && e.target.files[0]) {
-                const selectedFile = e.target.files[0]
-                if (selectedFile.type === 'application/pdf') {
-                  setFile(selectedFile)
-                } else {
-                  setFile(null)
-                  setMessage('Please select a PDF file')
-                }
-              }
-            }}
-            disabled={loading}
-            className="neuro-input w-full"
-          />
-          {file && (
-            <p className="text-sm text-green-400 mt-1">
-              Selected: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
-            </p>
+
+          <div className="flex gap-2 mb-3">
+            <button
+              type="button"
+              onClick={() => {
+                setUseTextInput(false)
+                setContentText('')
+              }}
+              className={`neuro-btn text-xs px-3 py-1 ${!useTextInput ? 'ring-2 ring-blue-400' : ''}`}
+              disabled={loading}
+            >
+              Upload PDF
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setUseTextInput(true)
+                setFile(null)
+              }}
+              className={`neuro-btn text-xs px-3 py-1 ${useTextInput ? 'ring-2 ring-blue-400' : ''}`}
+              disabled={loading}
+            >
+              Paste Text
+            </button>
+          </div>
+
+          {!useTextInput ? (
+            <>
+              <input
+                id="chapter-file-input"
+                type="file"
+                accept="application/pdf"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    const selectedFile = e.target.files[0]
+                    if (selectedFile.type === 'application/pdf') {
+                      setFile(selectedFile)
+                    } else {
+                      setFile(null)
+                      setMessage('Please select a PDF file')
+                    }
+                  }
+                }}
+                disabled={loading}
+                className="neuro-input w-full"
+              />
+              {file && (
+                <p className="text-sm text-green-400 mt-1">
+                  Selected: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                </p>
+              )}
+              <p className="text-xs text-gray-500 mt-1">
+                Note: PDF upload currently has issues in production. Use "Paste Text" instead.
+              </p>
+            </>
+          ) : (
+            <>
+              <textarea
+                value={contentText}
+                onChange={(e) => setContentText(e.target.value)}
+                placeholder="Paste your content here (objectives, syllabus, study notes, etc.)"
+                className="neuro-input w-full"
+                rows={6}
+                disabled={loading}
+              />
+              {contentText && (
+                <p className="text-sm text-green-400 mt-1">
+                  {contentText.length} characters
+                </p>
+              )}
+              <p className="text-xs text-gray-500 mt-1">
+                Paste the text content from your PDFs or documents
+              </p>
+            </>
           )}
-          <p className="text-xs text-gray-500 mt-1">
-            Upload a PDF to automatically process and extract knowledge chunks
-          </p>
         </div>
 
         <button
@@ -258,7 +319,7 @@ export function ChapterManager() {
           disabled={loading || !selectedSubject || !name.trim()}
           className="neuro-btn-primary w-full"
         >
-          {loading ? 'Processing...' : file ? 'Create Chapter & Upload Document' : 'Create Chapter'}
+          {loading ? 'Processing...' : (file || contentText) ? 'Create Chapter & Process Content' : 'Create Chapter'}
         </button>
 
         {message && (

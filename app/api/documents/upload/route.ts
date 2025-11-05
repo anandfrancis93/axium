@@ -63,32 +63,53 @@ export async function POST(request: NextRequest) {
 
     // Parse form data
     const formData = await request.formData()
-    const file = formData.get('file') as File
+    const file = formData.get('file') as File | null
+    const textInput = formData.get('text') as string | null
     const chapterId = formData.get('chapter_id') as string
 
-    if (!file || !chapterId) {
+    if (!chapterId) {
       return NextResponse.json(
-        { error: 'File and chapter_id are required' },
+        { error: 'chapter_id is required' },
         { status: 400 }
       )
     }
 
-    // Convert file to buffer
-    const buffer = Buffer.from(await file.arrayBuffer())
+    if (!file && !textInput) {
+      return NextResponse.json(
+        { error: 'Either file or text is required' },
+        { status: 400 }
+      )
+    }
 
-    // Parse PDF
-    console.log('Parsing PDF...')
-    const pdfData = await parsePDF(buffer)
-    const text = pdfData.text
+    let text: string
+
+    // Process based on input type
+    if (textInput) {
+      console.log('Using text input...')
+      text = textInput
+    } else if (file) {
+      // Convert file to buffer
+      const buffer = Buffer.from(await file.arrayBuffer())
+
+      // Parse PDF
+      console.log('Parsing PDF...')
+      const pdfData = await parsePDF(buffer)
+      text = pdfData.text
+    } else {
+      return NextResponse.json(
+        { error: 'No content provided' },
+        { status: 400 }
+      )
+    }
 
     if (!text || text.trim().length === 0) {
       return NextResponse.json(
-        { error: 'No text could be extracted from PDF' },
+        { error: 'No text content provided' },
         { status: 400 }
       )
     }
 
-    console.log(`Extracted ${text.length} characters from PDF`)
+    console.log(`Processing ${text.length} characters`)
 
     // Chunk the text
     console.log('Chunking text...')
@@ -123,7 +144,7 @@ export async function POST(request: NextRequest) {
             chapter_id: chapterId,
             content: chunks[i],
             embedding: JSON.stringify(embedding), // pgvector will handle the conversion
-            source_file_name: file.name,
+            source_file_name: file?.name || 'text_input',
             page_number: null,
             chunk_index: i,
           })
@@ -149,7 +170,7 @@ export async function POST(request: NextRequest) {
       success: true,
       chunks_created: successCount,
       total_chunks: chunks.length,
-      file_name: file.name,
+      source: file?.name || 'text_input',
     })
   } catch (error) {
     console.error('Error processing document:', error)
