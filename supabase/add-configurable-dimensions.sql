@@ -95,9 +95,11 @@ BEGIN
       (v_subject_id, 'strategic_policy', 'Strategic & Policy', 'Business decisions, governance structures, organizational policies, and strategic planning', 12)
     ON CONFLICT (subject_id, dimension_key) DO NOTHING;
 
-    RAISE NOTICE 'Initialized 12 default dimensions for Security+ subject (ID: %)', v_subject_id;
+    -- Initialized 12 default dimensions for Security+ subject
+    NULL;
   ELSE
-    RAISE NOTICE 'Security+ subject not found. Dimensions can be configured later per subject.';
+    -- Security+ subject not found. Dimensions can be configured later per subject.
+    NULL;
   END IF;
 END $$;
 
@@ -199,10 +201,7 @@ CREATE POLICY "Anyone can view subject dimensions"
 
 COMMENT ON TABLE subject_dimension_config IS 'Configurable knowledge dimensions per subject for comprehensive mastery tracking';
 
--- Confirmation
-DO $$
-BEGIN
-  RAISE NOTICE 'Subject-specific dimension configuration system created';
-  RAISE NOTICE 'Each subject can now have custom knowledge dimensions';
-  RAISE NOTICE 'Default: 12 security dimensions for CompTIA Security+';
-END $$;
+-- Migration complete:
+-- Subject-specific dimension configuration system created
+-- Each subject can now have custom knowledge dimensions
+-- Default: 12 security dimensions for CompTIA Security+

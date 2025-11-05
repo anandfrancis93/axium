@@ -185,9 +185,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Confirmation
-DO $$
-BEGIN
-  RAISE NOTICE 'Question dimension tracking system created';
-  RAISE NOTICE '12 dimensions: core_understanding, measuring_evaluating, controls, architecture_design, threats_failures, validation_assurance, legal_compliance, incident_response, advanced_concepts, misconceptions, practical_scenarios, strategic_policy';
-END $$;
+-- Migration complete:
+-- Question dimension tracking system created
+-- 12 dimensions: core_understanding, measuring_evaluating, controls, architecture_design, threats_failures, validation_assurance, legal_compliance, incident_response, advanced_concepts, misconceptions, practical_scenarios, strategic_policy
