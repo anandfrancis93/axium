@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
+import { RefreshIcon, AlertTriangleIcon, CheckIcon, XIcon } from '@/components/icons'
 
 export default function PerformancePage() {
   const router = useRouter()
@@ -91,7 +92,7 @@ export default function PerformancePage() {
   }
 
   const handleResetProgress = async () => {
-    if (!confirm('⚠️ Reset all progress for this chapter?\n\nThis will permanently delete:\n• All mastery scores\n• Learning history\n• RL statistics\n• Session data\n\nThis action cannot be undone.')) {
+    if (!confirm('WARNING: Reset all progress for this chapter?\n\nThis will permanently delete:\n• All mastery scores\n• Learning history\n• RL statistics\n• Session data\n\nThis action cannot be undone.')) {
       return
     }
 
@@ -115,13 +116,13 @@ export default function PerformancePage() {
         `\n\nDeleted:\n• ${data.deleted.responses} responses\n• ${data.deleted.sessions} sessions\n• ${data.deleted.mastery} mastery records\n• ${data.deleted.armStats} arm stats`
         : ''
 
-      alert(`✅ Progress reset successfully!${details}`)
+      alert(`SUCCESS: Progress reset successfully!${details}`)
 
       // Force full page reload to clear all cached data
       window.location.reload()
     } catch (error: any) {
       console.error('Error resetting progress:', error)
-      alert(`❌ Error: ${error.message}`)
+      alert(`ERROR: ${error.message}`)
       setResetting(false)
     }
   }
@@ -182,9 +183,10 @@ export default function PerformancePage() {
           <button
             onClick={handleResetProgress}
             disabled={resetting}
-            className="neuro-btn text-sm text-red-400 hover:text-red-300 disabled:opacity-50"
+            className="neuro-btn-error text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {resetting ? 'Resetting...' : '🔄 Reset Progress'}
+            <RefreshIcon size={16} className={resetting ? 'animate-spin' : ''} />
+            {resetting ? 'Resetting...' : 'Reset Progress'}
           </button>
         </div>
       </header>
@@ -345,9 +347,13 @@ export default function PerformancePage() {
                   >
                     <div className="flex items-start gap-3">
                       <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                        response.is_correct ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                        response.is_correct ? 'bg-green-500/20' : 'bg-red-500/20'
                       }`}>
-                        {response.is_correct ? '✓' : '✗'}
+                        {response.is_correct ? (
+                          <CheckIcon size={18} className="text-green-400" />
+                        ) : (
+                          <XIcon size={18} className="text-red-400" />
+                        )}
                       </div>
                       <div className="flex-1">
                         <div className="flex flex-wrap items-center gap-2 text-xs mb-2">
@@ -367,11 +373,11 @@ export default function PerformancePage() {
                             </span>
                           )}
                           {response.recognition_method && (
-                            <span className="text-gray-500">
-                              {response.recognition_method === 'memory' && '🧠 Memory'}
-                              {response.recognition_method === 'recognition' && '👀 Recognition'}
-                              {response.recognition_method === 'educated_guess' && '🎯 Educated Guess'}
-                              {response.recognition_method === 'random' && '🎲 Random'}
+                            <span className="neuro-badge neuro-badge-info text-xs">
+                              {response.recognition_method === 'memory' && 'Memory'}
+                              {response.recognition_method === 'recognition' && 'Recognition'}
+                              {response.recognition_method === 'educated_guess' && 'Educated Guess'}
+                              {response.recognition_method === 'random' && 'Random Guess'}
                             </span>
                           )}
                           {response.reward_received !== null && (

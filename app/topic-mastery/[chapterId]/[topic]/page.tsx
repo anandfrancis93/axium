@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
+import { StarIcon, ArrowLeftIcon } from '@/components/icons'
 
 const BLOOM_LEVELS = [
   { num: 1, name: 'Remember' },
@@ -180,7 +181,7 @@ export default function TopicMasteryPage() {
               </div>
               <div className="neuro-stat">
                 <div className="text-sm text-yellow-400 mb-1 flex items-center gap-1">
-                  Deep Mastery <span className="text-lg">★</span>
+                  Deep Mastery <StarIcon size={16} filled className="text-yellow-400" />
                 </div>
                 <div className="text-3xl font-bold text-gray-200">
                   {summary.deep_mastery_cells || 0}
@@ -222,8 +223,8 @@ export default function TopicMasteryPage() {
               <span className="text-gray-500">Initial Mastery (3+ unique, 80%+)</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-gradient-to-br from-green-600 to-green-400 relative">
-                <span className="absolute -top-0.5 -right-0.5 text-yellow-300 text-xs">★</span>
+              <div className="w-4 h-4 rounded bg-gradient-to-br from-green-600 to-green-400 relative flex items-center justify-center">
+                <StarIcon size={10} filled className="text-yellow-300" />
               </div>
               <span className="text-gray-500">Deep Mastery (5+ unique, 80%+)</span>
             </div>
@@ -288,7 +289,7 @@ export default function TopicMasteryPage() {
                                 </div>
                                 {masteryLevel === 'deep' && (
                                   <div className="absolute top-0.5 right-0.5">
-                                    <span className="text-yellow-300 text-lg">★</span>
+                                    <StarIcon size={14} filled className="text-yellow-300" />
                                   </div>
                                 )}
                               </>

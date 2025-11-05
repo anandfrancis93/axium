@@ -176,6 +176,72 @@ body {
     transform: translateY(-4px);
   }
 
+  /* Status Buttons - Color Coded */
+  .neuro-btn-success {
+    background: linear-gradient(145deg, #10b981, #059669);
+    box-shadow: var(--elevation-1);
+    color: white;
+    border: none;
+  }
+
+  .neuro-btn-success:hover {
+    box-shadow: var(--elevation-2);
+    background: linear-gradient(145deg, #34d399, #10b981);
+  }
+
+  .neuro-btn-warning {
+    background: linear-gradient(145deg, #f59e0b, #d97706);
+    box-shadow: var(--elevation-1);
+    color: white;
+    border: none;
+  }
+
+  .neuro-btn-warning:hover {
+    box-shadow: var(--elevation-2);
+    background: linear-gradient(145deg, #fbbf24, #f59e0b);
+  }
+
+  .neuro-btn-error {
+    background: linear-gradient(145deg, #ef4444, #dc2626);
+    box-shadow: var(--elevation-1);
+    color: white;
+    border: none;
+  }
+
+  .neuro-btn-error:hover {
+    box-shadow: var(--elevation-2);
+    background: linear-gradient(145deg, #f87171, #ef4444);
+  }
+
+  /* Status Badges */
+  .neuro-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    box-shadow: var(--elevation-1);
+  }
+
+  .neuro-badge-success {
+    background: linear-gradient(145deg, #10b981, #059669);
+    color: white;
+  }
+
+  .neuro-badge-warning {
+    background: linear-gradient(145deg, #f59e0b, #d97706);
+    color: white;
+  }
+
+  .neuro-badge-error {
+    background: linear-gradient(145deg, #ef4444, #dc2626);
+    color: white;
+  }
+
+  .neuro-badge-info {
+    background: linear-gradient(145deg, #3b82f6, #2563eb);
+    color: white;
+  }
+
   /* Toggle Switch */
   .neuro-toggle {
     width: 3rem;

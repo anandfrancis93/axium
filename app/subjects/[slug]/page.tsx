@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import { PlayIcon, BarChartIcon } from '@/components/icons'
 
 export const dynamic = 'force-dynamic'
 
@@ -147,15 +148,17 @@ export default async function SubjectPage({
                       <div className="flex flex-col sm:flex-row gap-3">
                         <Link
                           href={`/learn/${chapter.id}`}
-                          className="neuro-btn-primary px-6 py-3 text-center whitespace-nowrap"
+                          className="neuro-btn-primary px-6 py-3 text-center whitespace-nowrap flex items-center justify-center gap-2"
                         >
-                          🎯 Start Learning
+                          <PlayIcon size={18} />
+                          Start Learning
                         </Link>
                         <Link
                           href={`/performance/${chapter.id}`}
-                          className="neuro-btn px-6 py-3 text-center whitespace-nowrap"
+                          className="neuro-btn px-6 py-3 text-center whitespace-nowrap flex items-center justify-center gap-2"
                         >
-                          📊 Performance
+                          <BarChartIcon size={18} />
+                          Performance
                         </Link>
                       </div>
                     </div>

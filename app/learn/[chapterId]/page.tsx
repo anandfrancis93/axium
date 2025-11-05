@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { CheckIcon, XIcon } from '@/components/icons'
 
 type ConfidenceLevel = 'low' | 'medium' | 'high'
 type RecognitionMethod = 'memory' | 'recognition' | 'educated_guess' | 'random'
@@ -292,19 +293,18 @@ export default function LearnPage() {
               </h3>
               <div className="space-y-3 mb-6">
                 {[
-                  { value: 'memory', label: 'I knew the answer from memory before seeing the options', emoji: '🧠' },
-                  { value: 'recognition', label: "I wasn't sure, but recognized the right answer in the options", emoji: '👀' },
-                  { value: 'educated_guess', label: 'I narrowed it down and made an educated guess', emoji: '🎯' },
-                  { value: 'random', label: 'I guessed randomly', emoji: '🎲' }
+                  { value: 'memory', label: 'I knew the answer from memory before seeing the options' },
+                  { value: 'recognition', label: "I wasn't sure, but recognized the right answer in the options" },
+                  { value: 'educated_guess', label: 'I narrowed it down and made an educated guess' },
+                  { value: 'random', label: 'I guessed randomly' }
                 ].map((method) => (
                   <button
                     key={method.value}
                     onClick={() => setRecognitionMethod(method.value as RecognitionMethod)}
-                    className={`neuro-raised p-4 w-full text-left transition-all ${
-                      recognitionMethod === method.value ? 'ring-2 ring-purple-400' : ''
+                    className={`neuro-raised p-4 w-full text-left transition-all hover:shadow-lg ${
+                      recognitionMethod === method.value ? 'ring-2 ring-purple-400 bg-purple-500/10' : ''
                     }`}
                   >
-                    <span className="text-2xl mr-3">{method.emoji}</span>
                     <span className="text-gray-200">{method.label}</span>
                   </button>
                 ))}
@@ -327,8 +327,14 @@ export default function LearnPage() {
                 feedback.is_correct ? 'ring-2 ring-green-400' : 'ring-2 ring-red-400'
               }`}>
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="text-4xl">
-                    {feedback.is_correct ? '✅' : '❌'}
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                    feedback.is_correct ? 'bg-green-500/20' : 'bg-red-500/20'
+                  }`}>
+                    {feedback.is_correct ? (
+                      <CheckIcon size={28} className="text-green-400" />
+                    ) : (
+                      <XIcon size={28} className="text-red-400" />
+                    )}
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-gray-200">
