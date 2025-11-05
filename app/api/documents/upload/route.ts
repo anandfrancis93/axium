@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import pdf from 'pdf-parse'
 import OpenAI from 'openai'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
+
+// Dynamic import for pdf-parse (CommonJS module)
+async function parsePDF(buffer: Buffer) {
+  const pdf = (await import('pdf-parse')).default
+  return await pdf(buffer)
+}
 
 // Chunk text into smaller pieces for embeddings
 function chunkText(text: string, maxChunkSize: number = 1000): string[] {
@@ -57,7 +62,7 @@ export async function POST(request: NextRequest) {
 
     // Parse PDF
     console.log('Parsing PDF...')
-    const pdfData = await pdf(buffer)
+    const pdfData = await parsePDF(buffer)
     const text = pdfData.text
 
     if (!text || text.trim().length === 0) {
