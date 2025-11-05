@@ -33,6 +33,30 @@ const BLOOM_LEVELS = [
   { value: 6, label: 'Level 6: Create', description: 'Produce new or original work' },
 ]
 
+// Common cybersecurity topics for random selection
+const COMMON_TOPICS = [
+  'security controls',
+  'CIA triad',
+  'threat actors',
+  'vulnerabilities',
+  'authentication',
+  'encryption',
+  'access control',
+  'network security',
+  'malware',
+  'incident response',
+  'risk management',
+  'cryptography',
+  'firewalls',
+  'intrusion detection',
+  'security policies',
+  'physical security',
+  'social engineering',
+  'penetration testing',
+  'security monitoring',
+  'disaster recovery',
+]
+
 export function QuestionGenerator() {
   const [chapters, setChapters] = useState<Chapter[]>([])
   const [selectedChapter, setSelectedChapter] = useState('')
@@ -104,6 +128,24 @@ export function QuestionGenerator() {
     }
 
     setLoading(false)
+  }
+
+  const handleRandomGenerate = () => {
+    if (!selectedChapter) {
+      setMessage('Please select a chapter first')
+      return
+    }
+
+    // Pick random topic from list
+    const randomTopic = COMMON_TOPICS[Math.floor(Math.random() * COMMON_TOPICS.length)]
+
+    // Pick random Bloom level (1-6)
+    const randomBloomLevel = Math.floor(Math.random() * 6) + 1
+
+    // Update form fields
+    setTopic(randomTopic)
+    setBloomLevel(randomBloomLevel)
+    setMessage(`🎲 Random selection: "${randomTopic}" at Bloom Level ${randomBloomLevel}`)
   }
 
   return (
@@ -189,18 +231,28 @@ export function QuestionGenerator() {
             />
           </div>
 
-          <button
-            onClick={handleGenerate}
-            disabled={loading || !selectedChapter || !topic.trim()}
-            className="neuro-btn-primary w-full"
-          >
-            {loading ? '🤖 Generating...' : '✨ Generate Questions'}
-          </button>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={handleRandomGenerate}
+              disabled={loading || !selectedChapter}
+              className="neuro-btn"
+            >
+              🎲 Random Question
+            </button>
+            <button
+              onClick={handleGenerate}
+              disabled={loading || !selectedChapter || !topic.trim()}
+              className="neuro-btn-primary"
+            >
+              {loading ? '🤖 Generating...' : '✨ Generate Questions'}
+            </button>
+          </div>
 
           {message && (
             <div className={`neuro-inset p-3 rounded-lg text-sm ${
               message.includes('✅') ? 'text-green-400' :
               message.includes('❌') ? 'text-red-400' :
+              message.includes('🎲') ? 'text-yellow-400' :
               'text-blue-400'
             }`}>
               {message}
