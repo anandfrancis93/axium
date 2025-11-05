@@ -101,25 +101,14 @@ export default async function DashboardPage() {
                 </div>
                 <div className="flex-1">
                   <div className="font-medium text-gray-200 mb-1">
-                    Add Your First Subject →
+                    Create Subjects & Upload Materials →
                   </div>
-                  <p className="text-sm text-gray-500">Create subjects, chapters, and topics to start learning</p>
-                </div>
-              </a>
-              <a href="/documents" className="neuro-raised p-4 flex items-start gap-3 hover:shadow-lg transition-all cursor-pointer">
-                <div className="flex-shrink-0 neuro-inset w-8 h-8 rounded-full flex items-center justify-center text-green-400 font-bold text-sm">
-                  3
-                </div>
-                <div className="flex-1">
-                  <div className="font-medium text-gray-200 mb-1">
-                    Upload Learning Materials →
-                  </div>
-                  <p className="text-sm text-gray-500">Upload PDFs and documents for RAG-powered question generation</p>
+                  <p className="text-sm text-gray-500">Create subjects, chapters, and upload PDFs for RAG-powered learning</p>
                 </div>
               </a>
               <div className="neuro-raised p-4 flex items-start gap-3 hover:shadow-lg transition-all">
                 <div className="flex-shrink-0 neuro-inset w-8 h-8 rounded-full flex items-center justify-center text-yellow-400 font-bold text-sm">
-                  4
+                  3
                 </div>
                 <div className="flex-1">
                   <div className="font-medium text-gray-200 mb-1">
