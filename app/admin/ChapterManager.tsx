@@ -23,6 +23,7 @@ export function ChapterManager() {
   const [selectedSubject, setSelectedSubject] = useState('')
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
 
@@ -70,7 +71,7 @@ export function ChapterManager() {
     }
 
     setLoading(true)
-    setMessage('')
+    setMessage('Creating chapter...')
 
     const supabase = createClient()
 
@@ -86,7 +87,7 @@ export function ChapterManager() {
       ? existingChapters[0].sequence_order + 1
       : 1
 
-    const { error } = await supabase
+    const { data: newChapter, error } = await supabase
       .from('chapters')
       .insert({
         subject_id: selectedSubject,
@@ -94,17 +95,53 @@ export function ChapterManager() {
         description: description.trim() || null,
         sequence_order: nextOrder,
       })
+      .select()
+      .single()
 
     if (error) {
       console.error('Error creating chapter:', error)
       setMessage(`Error: ${error.message}`)
-    } else {
-      setMessage('✅ Chapter created successfully!')
-      setName('')
-      setDescription('')
-      loadChapters()
+      setLoading(false)
+      return
     }
 
+    // If file is selected, upload it
+    if (file) {
+      setMessage('✅ Chapter created! Now uploading document...')
+
+      try {
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('chapter_id', newChapter.id)
+
+        const response = await fetch('/api/documents/upload', {
+          method: 'POST',
+          body: formData,
+        })
+
+        const result = await response.json()
+
+        if (response.ok) {
+          setMessage(`✅ Chapter created and document uploaded! Processed ${result.chunks_created} chunks.`)
+        } else {
+          setMessage(`✅ Chapter created but document upload failed: ${result.error}`)
+        }
+      } catch (uploadError) {
+        console.error('Upload error:', uploadError)
+        setMessage('✅ Chapter created but document upload failed')
+      }
+    } else {
+      setMessage('✅ Chapter created successfully!')
+    }
+
+    // Reset form
+    setName('')
+    setDescription('')
+    setFile(null)
+    const fileInput = document.getElementById('chapter-file-input') as HTMLInputElement
+    if (fileInput) fileInput.value = ''
+
+    loadChapters()
     setLoading(false)
   }
 
@@ -184,12 +221,44 @@ export function ChapterManager() {
           />
         </div>
 
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-1">
+            Upload Document (optional)
+          </label>
+          <input
+            id="chapter-file-input"
+            type="file"
+            accept="application/pdf"
+            onChange={(e) => {
+              if (e.target.files && e.target.files[0]) {
+                const selectedFile = e.target.files[0]
+                if (selectedFile.type === 'application/pdf') {
+                  setFile(selectedFile)
+                } else {
+                  setFile(null)
+                  setMessage('Please select a PDF file')
+                }
+              }
+            }}
+            disabled={loading}
+            className="neuro-input w-full"
+          />
+          {file && (
+            <p className="text-sm text-green-400 mt-1">
+              Selected: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+            </p>
+          )}
+          <p className="text-xs text-gray-500 mt-1">
+            Upload a PDF to automatically process and extract knowledge chunks
+          </p>
+        </div>
+
         <button
           onClick={handleCreate}
           disabled={loading || !selectedSubject || !name.trim()}
           className="neuro-btn-primary w-full"
         >
-          {loading ? 'Creating...' : 'Create Chapter'}
+          {loading ? 'Processing...' : file ? 'Create Chapter & Upload Document' : 'Create Chapter'}
         </button>
 
         {message && (
