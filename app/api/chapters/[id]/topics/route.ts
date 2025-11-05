@@ -29,27 +29,42 @@ export async function GET(
       return NextResponse.json({ topics: [] })
     }
 
-    // Extract topics from content
+    // Extract topics from content with domain context
     const topics = new Set<string>()
 
     for (const chunk of chunks) {
       const content = chunk.content
       const lines = content.split('\n')
 
+      // Track current domain as we parse
+      let currentDomain = ''
+
       for (const line of lines) {
         const trimmedLine = line.trim()
 
-        // Skip empty lines and domain headers
-        if (!trimmedLine || trimmedLine.startsWith('Domain ')) {
+        // Skip empty lines
+        if (!trimmedLine) {
+          continue
+        }
+
+        // Extract domain header
+        const domainMatch = trimmedLine.match(/^Domain (\d+\.\d+) - (.+)$/)
+        if (domainMatch) {
+          currentDomain = `Domain ${domainMatch[1]} - ${domainMatch[2]}`
           continue
         }
 
         // Skip "From X.X" section headers - we'll extract the section name separately
         if (trimmedLine.startsWith('From ')) {
-          const sectionMatch = trimmedLine.match(/From \d+\.\d+ \((.+?)\):/)
+          const sectionMatch = trimmedLine.match(/From (\d+\.\d+) \((.+?)\):/)
           if (sectionMatch) {
-            const sectionName = sectionMatch[1].trim()
-            topics.add(sectionName)
+            const sectionName = sectionMatch[2].trim()
+            const objective = sectionMatch[1]
+            if (currentDomain) {
+              topics.add(`[${currentDomain} | ${objective}] ${sectionName}`)
+            } else {
+              topics.add(`[Objective ${objective}] ${sectionName}`)
+            }
           }
           continue
         }
@@ -60,14 +75,18 @@ export async function GET(
         const topicMatch = trimmedLine.match(/^(.+?)\s+\((.+?)\)(?:\s+\((.+?)\))?$/)
 
         if (topicMatch) {
-          // Keep the full topic with context
+          // Keep the full topic with context and add domain prefix
           const fullTopic = trimmedLine
 
           // Only add if it's a reasonable length and has meaningful content
           if (fullTopic.length > 5 && fullTopic.length < 150) {
             // Avoid adding very generic entries
             if (!fullTopic.match(/^(From|Domain|Example|Note|See)/i)) {
-              topics.add(fullTopic)
+              if (currentDomain) {
+                topics.add(`[${currentDomain}] ${fullTopic}`)
+              } else {
+                topics.add(fullTopic)
+              }
             }
           }
         }
