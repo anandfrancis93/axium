@@ -95,17 +95,17 @@ export default async function DashboardPage() {
                   <p className="text-sm text-gray-500">Follow the guide in <code className="neuro-inset px-2 py-1 text-xs rounded text-gray-400">supabase/README.md</code></p>
                 </div>
               </div>
-              <div className="neuro-raised p-4 flex items-start gap-3 hover:shadow-lg transition-all">
-                <div className="flex-shrink-0 neuro-inset w-8 h-8 rounded-full flex items-center justify-center text-yellow-400 font-bold text-sm">
+              <a href="/admin" className="neuro-raised p-4 flex items-start gap-3 hover:shadow-lg transition-all cursor-pointer">
+                <div className="flex-shrink-0 neuro-inset w-8 h-8 rounded-full flex items-center justify-center text-purple-400 font-bold text-sm">
                   2
                 </div>
                 <div className="flex-1">
                   <div className="font-medium text-gray-200 mb-1">
-                    Add Your First Subject
+                    Add Your First Subject →
                   </div>
                   <p className="text-sm text-gray-500">Create subjects, chapters, and topics to start learning</p>
                 </div>
-              </div>
+              </a>
               <a href="/documents" className="neuro-raised p-4 flex items-start gap-3 hover:shadow-lg transition-all cursor-pointer">
                 <div className="flex-shrink-0 neuro-inset w-8 h-8 rounded-full flex items-center justify-center text-green-400 font-bold text-sm">
                   3
