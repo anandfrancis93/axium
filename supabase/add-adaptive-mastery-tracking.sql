@@ -177,11 +177,8 @@ $$ LANGUAGE plpgsql STABLE SECURITY DEFINER;
 COMMENT ON FUNCTION get_topic_dimension_matrix IS 'Returns full (Bloom × Dimension) matrix with adaptive mastery calculation based on unique questions answered';
 COMMENT ON FUNCTION get_topic_dimension_summary IS 'Returns summary statistics with adaptive mastery tracking';
 
--- Confirmation
-DO $$
-BEGIN
-  RAISE NOTICE 'Adaptive mastery tracking implemented';
-  RAISE NOTICE 'Mastery now requires 3+ unique questions at 80%+ average';
-  RAISE NOTICE 'Deep mastery awarded for 5+ unique questions at 80%+';
-  RAISE NOTICE 'Spaced repetition repeats do not inflate unique question count';
-END $$;
+-- Migration complete:
+-- - Adaptive mastery tracking implemented
+-- - Mastery now requires 3+ unique questions at 80%+ average
+-- - Deep mastery awarded for 5+ unique questions at 80%+
+-- - Spaced repetition repeats do not inflate unique question count
