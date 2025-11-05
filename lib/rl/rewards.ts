@@ -6,13 +6,17 @@
  * 2. Confidence calibration
  * 3. Engagement (appropriate difficulty)
  * 4. Spaced repetition (retention)
+ * 5. Recognition method (retrieval strength)
  */
+
+export type RecognitionMethod = 'memory' | 'recognition' | 'educated_guess' | 'random'
 
 export interface RewardComponents {
   learningGain: number
   calibration: number
   engagement: number
   spacing: number
+  recognition: number
   total: number
 }
 
@@ -113,6 +117,53 @@ function calculateSpacingReward(
 }
 
 /**
+ * Calculate recognition method reward
+ * Rewards stronger retrieval methods (memory > recognition > guess)
+ *
+ * @param recognitionMethod - How user arrived at answer
+ * @param isCorrect - Whether answer was correct
+ * @returns Reward component (-3 to +5)
+ */
+function calculateRecognitionReward(
+  recognitionMethod: RecognitionMethod | null,
+  isCorrect: boolean
+): number {
+  if (!recognitionMethod) {
+    return 0  // No recognition method recorded
+  }
+
+  if (isCorrect) {
+    // Correct answer: reward based on retrieval strength
+    switch (recognitionMethod) {
+      case 'memory':
+        return 5  // Best: Knew from memory (strong retrieval)
+      case 'recognition':
+        return 3  // Good: Recognized correct answer
+      case 'educated_guess':
+        return 1  // Fair: Narrowed down options
+      case 'random':
+        return -1  // Lucky guess (not real knowledge)
+      default:
+        return 0
+    }
+  } else {
+    // Incorrect answer: penalty for overconfidence in method
+    switch (recognitionMethod) {
+      case 'memory':
+        return -3  // Thought they knew but were wrong (false memory)
+      case 'recognition':
+        return -2  // Thought they recognized but were wrong
+      case 'educated_guess':
+        return -1  // Guess was wrong
+      case 'random':
+        return 0  // Expected (honest about not knowing)
+      default:
+        return 0
+    }
+  }
+}
+
+/**
  * Calculate total reward for a user response
  *
  * @param params - Reward calculation parameters
@@ -124,13 +175,15 @@ export function calculateReward(params: {
   confidence: number
   currentMastery: number
   daysSinceLastPractice: number
+  recognitionMethod?: RecognitionMethod | null
 }): RewardComponents {
   const {
     learningGain,
     isCorrect,
     confidence,
     currentMastery,
-    daysSinceLastPractice
+    daysSinceLastPractice,
+    recognitionMethod = null
   } = params
 
   // Calculate each component
@@ -138,30 +191,32 @@ export function calculateReward(params: {
   const calibrationReward = calculateCalibrationReward(isCorrect, confidence)
   const engagementReward = calculateEngagementReward(currentMastery, isCorrect)
   const spacingReward = calculateSpacingReward(daysSinceLastPractice, isCorrect)
+  const recognitionReward = calculateRecognitionReward(recognitionMethod, isCorrect)
 
-  // Total reward (range: approximately -18 to +23)
-  // Typically: -10 to +20 for normal cases
-  const total = learningGainReward + calibrationReward + engagementReward + spacingReward
+  // Total reward (range: approximately -21 to +28)
+  // Typically: -15 to +25 for normal cases
+  const total = learningGainReward + calibrationReward + engagementReward + spacingReward + recognitionReward
 
   return {
     learningGain: learningGainReward,
     calibration: calibrationReward,
     engagement: engagementReward,
     spacing: spacingReward,
+    recognition: recognitionReward,
     total
   }
 }
 
 /**
  * Normalize reward to [0, 1] range for Thompson Sampling
- * Assumes reward range of [-10, 20]
+ * Assumes reward range of [-15, 25]
  *
  * @param reward - Raw reward value
  * @returns Normalized reward in [0, 1]
  */
 export function normalizeReward(reward: number): number {
-  // Map [-10, 20] → [0, 1]
-  const normalized = (reward + 10) / 30
+  // Map [-15, 25] → [0, 1]
+  const normalized = (reward + 15) / 40
   return Math.max(0, Math.min(1, normalized))
 }
 
@@ -207,6 +262,14 @@ export function describeReward(components: RewardComponents): string {
     parts.push('Excellent calibration')
   } else if (components.calibration < -3) {
     parts.push('Calibration needs work')
+  }
+
+  if (components.recognition === 5) {
+    parts.push('Strong retrieval from memory!')
+  } else if (components.recognition === 3) {
+    parts.push('Good recognition')
+  } else if (components.recognition < -2) {
+    parts.push('False memory - review this topic')
   }
 
   if (components.engagement < -2) {
