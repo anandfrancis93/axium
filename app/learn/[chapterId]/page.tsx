@@ -218,17 +218,6 @@ export default function LearnPage() {
                 </p>
               </div>
             </div>
-
-            {armSelected && (
-              <div className="flex gap-2 text-xs">
-                <span className="neuro-inset px-3 py-1 rounded-full text-purple-400">
-                  Bloom Level {armSelected.bloom_level}
-                </span>
-                <span className="neuro-inset px-3 py-1 rounded-full text-blue-400">
-                  {armSelected.topic}
-                </span>
-              </div>
-            )}
           </div>
 
           {/* STEP 1: Confidence Selection */}
