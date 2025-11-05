@@ -35,41 +35,69 @@ export async function POST(request: NextRequest) {
     }
 
     // First get all sessions for this chapter (before deleting them)
-    const { data: sessions } = await supabase
+    const { data: sessions, error: sessionsError } = await supabase
       .from('learning_sessions')
       .select('id')
       .eq('user_id', user.id)
       .eq('chapter_id', chapter_id)
 
+    console.log(`Found ${sessions?.length || 0} sessions to delete`)
+
     // Delete user_responses for this chapter's sessions
     if (sessions && sessions.length > 0) {
       const sessionIds = sessions.map(s => s.id)
-      await supabase
+      const { error: responsesError } = await supabase
         .from('user_responses')
         .delete()
         .in('session_id', sessionIds)
+
+      if (responsesError) {
+        console.error('Error deleting responses:', responsesError)
+      } else {
+        console.log('Deleted user_responses')
+      }
     }
 
     // Delete learning_sessions for this chapter
-    await supabase
+    const { error: sessionsDeleteError } = await supabase
       .from('learning_sessions')
       .delete()
       .eq('user_id', user.id)
       .eq('chapter_id', chapter_id)
 
+    if (sessionsDeleteError) {
+      console.error('Error deleting sessions:', sessionsDeleteError)
+    } else {
+      console.log('Deleted learning_sessions')
+    }
+
     // Delete user_topic_mastery for this chapter
-    await supabase
+    const { error: masteryError } = await supabase
       .from('user_topic_mastery')
       .delete()
       .eq('user_id', user.id)
       .eq('chapter_id', chapter_id)
 
+    if (masteryError) {
+      console.error('Error deleting mastery:', masteryError)
+    } else {
+      console.log('Deleted user_topic_mastery')
+    }
+
     // Delete rl_arm_stats for this chapter
-    await supabase
+    const { error: armStatsError } = await supabase
       .from('rl_arm_stats')
       .delete()
       .eq('user_id', user.id)
       .eq('chapter_id', chapter_id)
+
+    if (armStatsError) {
+      console.error('Error deleting arm stats:', armStatsError)
+    } else {
+      console.log('Deleted rl_arm_stats')
+    }
+
+    console.log('Reset progress complete')
 
     return NextResponse.json({
       success: true,

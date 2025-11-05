@@ -101,18 +101,19 @@ export default function PerformancePage() {
         body: JSON.stringify({ chapter_id: chapterId })
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        const data = await response.json()
         throw new Error(data.error || 'Failed to reset progress')
       }
 
-      // Reload data to show fresh state
-      await loadPerformanceData()
       alert('✅ Progress reset successfully!')
+
+      // Force full page reload to clear all cached data
+      window.location.reload()
     } catch (error: any) {
       console.error('Error resetting progress:', error)
       alert(`❌ Error: ${error.message}`)
-    } finally {
       setResetting(false)
     }
   }
