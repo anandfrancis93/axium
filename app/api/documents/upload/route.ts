@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import OpenAI from 'openai'
-import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -9,6 +8,9 @@ const openai = new OpenAI({
 
 // Extract text from PDF using pdfjs-dist (serverless-friendly)
 async function parsePDF(buffer: Buffer): Promise<{ text: string }> {
+  // Dynamic import to avoid build issues
+  const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs')
+
   const data = new Uint8Array(buffer)
   const pdf = await pdfjsLib.getDocument({ data }).promise
 
