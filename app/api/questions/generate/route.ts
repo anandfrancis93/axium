@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
       'match_knowledge_chunks',
       {
         query_embedding: topicEmbedding,
-        match_threshold: 0.5,
+        match_threshold: 0.1,
         match_count: 5,
         filter_chapter_id: chapter_id,
       }
@@ -81,9 +81,21 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Debug: Check what we got back
+    console.log('Search results:', { chunks, chunksLength: chunks?.length })
+
     if (!chunks || chunks.length === 0) {
+      // Try to get total count of chunks for this chapter
+      const { count } = await supabase
+        .from('knowledge_chunks')
+        .select('*', { count: 'exact', head: true })
+        .eq('chapter_id', chapter_id)
+
       return NextResponse.json(
-        { error: 'No relevant content found for this topic. Try a different topic or add more content.' },
+        {
+          error: `No relevant content found for topic "${topic}". Found ${count || 0} total chunks in this chapter. Try a broader topic or check if embeddings are stored correctly.`,
+          debug: { chapter_id, topic, total_chunks: count }
+        },
         { status: 404 }
       )
     }
