@@ -93,37 +93,16 @@ export default async function SubjectPage({
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         {/* Subject Overview Card */}
         <div className="neuro-card mb-6">
-          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 mb-6">
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
             <div className="flex-1">
               <h2 className="text-3xl font-bold text-gray-200 mb-2">
                 {subject.name}
               </h2>
               {subject.description && (
-                <p className="text-gray-400 mb-4">
+                <p className="text-gray-400">
                   {subject.description}
                 </p>
               )}
-
-              <div className="flex flex-wrap gap-3">
-                <div className="neuro-inset px-4 py-2 rounded-lg">
-                  <span className="text-blue-400 font-medium">{chapters.length}</span>
-                  <span className="text-gray-500 ml-2">Chapters</span>
-                </div>
-                <div className="neuro-inset px-4 py-2 rounded-lg">
-                  <span className="text-green-400 font-medium">
-                    {chapters.reduce((sum, ch) => sum + (ch.questions?.[0]?.count || 0), 0)}
-                  </span>
-                  <span className="text-gray-500 ml-2">Questions</span>
-                </div>
-                {subjectMastery && (
-                  <div className="neuro-inset px-4 py-2 rounded-lg">
-                    <span className="text-purple-400 font-medium">
-                      {Math.round(subjectMastery.overall_mastery || 0)}%
-                    </span>
-                    <span className="text-gray-500 ml-2">Mastery</span>
-                  </div>
-                )}
-              </div>
             </div>
           </div>
         </div>
