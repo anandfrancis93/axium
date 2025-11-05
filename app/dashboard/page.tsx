@@ -193,31 +193,6 @@ export default async function DashboardPage() {
             </div>
           </div>
         )}
-
-        {/* System Info */}
-        <div className="neuro-card">
-          <h3 className="text-lg font-semibold text-gray-200 mb-4">
-            Axium Learning Engine
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-            <div className="neuro-inset p-3 rounded-lg">
-              <span className="text-blue-400 font-medium">Thompson Sampling:</span>
-              <span className="text-gray-400 ml-2">Contextual bandits for optimal topic selection</span>
-            </div>
-            <div className="neuro-inset p-3 rounded-lg">
-              <span className="text-purple-400 font-medium">Bloom's Taxonomy:</span>
-              <span className="text-gray-400 ml-2">6 cognitive levels with prerequisites</span>
-            </div>
-            <div className="neuro-inset p-3 rounded-lg">
-              <span className="text-green-400 font-medium">Multi-Topic Questions:</span>
-              <span className="text-gray-400 ml-2">Weighted mastery across integrated concepts</span>
-            </div>
-            <div className="neuro-inset p-3 rounded-lg">
-              <span className="text-yellow-400 font-medium">Confidence Calibration:</span>
-              <span className="text-gray-400 ml-2">Tracks metacognition accuracy</span>
-            </div>
-          </div>
-        </div>
       </main>
     </div>
   )
