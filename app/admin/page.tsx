@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { SubjectManager } from './SubjectManager'
 import { ChapterManager } from './ChapterManager'
+import { QuestionGenerator } from './QuestionGenerator'
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
@@ -63,6 +64,11 @@ export default async function AdminPage() {
             </h2>
             <ChapterManager />
           </div>
+        </div>
+
+        {/* Question Generator */}
+        <div className="mt-6">
+          <QuestionGenerator />
         </div>
 
         <div className="neuro-card mt-6">
