@@ -59,19 +59,28 @@ export default function PerformancePage() {
 
       setProgressSummary(summaryData)
 
-      // Get recent responses for this chapter (join through learning_sessions)
-      const { data: responsesData } = await supabase
-        .from('user_responses')
-        .select(`
-          *,
-          learning_sessions!inner(chapter_id)
-        `)
+      // Get sessions for this chapter to filter responses
+      const { data: chapterSessions } = await supabase
+        .from('learning_sessions')
+        .select('id')
         .eq('user_id', user.id)
-        .eq('learning_sessions.chapter_id', chapterId)
-        .order('answered_at', { ascending: false })
-        .limit(20)
+        .eq('chapter_id', chapterId)
 
-      setRecentActivity(responsesData || [])
+      // Get recent responses for this chapter's sessions
+      if (chapterSessions && chapterSessions.length > 0) {
+        const sessionIds = chapterSessions.map(s => s.id)
+        const { data: responsesData } = await supabase
+          .from('user_responses')
+          .select('*')
+          .eq('user_id', user.id)
+          .in('session_id', sessionIds)
+          .order('answered_at', { ascending: false })
+          .limit(20)
+
+        setRecentActivity(responsesData || [])
+      } else {
+        setRecentActivity([])
+      }
 
       setLoading(false)
 
@@ -315,58 +324,72 @@ export default function PerformancePage() {
 
           {recentActivity.length > 0 ? (
             <div className="space-y-3">
-              {recentActivity.slice(0, 10).map((response: any) => (
-                <div
-                  key={response.id}
-                  className="neuro-inset p-4 rounded-lg"
-                >
-                  <div className="flex items-start gap-3">
-                    <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                      response.is_correct ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
-                    }`}>
-                      {response.is_correct ? '✓' : '✗'}
-                    </div>
-                    <div className="flex-1">
-                      <div className="text-gray-300 mb-1 line-clamp-2">
-                        {response.questions?.question_text || 'Question'}
+              {recentActivity.slice(0, 10).map((response: any) => {
+                // Parse arm_selected to get topic and bloom level
+                const armParts = response.arm_selected?.split('_') || []
+                const bloomLevel = armParts.length > 0 ? armParts[armParts.length - 1] : null
+                const topic = armParts.length > 1 ? armParts.slice(0, -1).join('_') : null
+
+                return (
+                  <div
+                    key={response.id}
+                    className="neuro-inset p-4 rounded-lg"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                        response.is_correct ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                      }`}>
+                        {response.is_correct ? '✓' : '✗'}
                       </div>
-                      <div className="flex flex-wrap items-center gap-2 text-xs">
-                        <span className="neuro-raised px-2 py-1 rounded text-purple-400">
-                          Bloom L{response.questions?.bloom_level}
-                        </span>
-                        {response.questions?.primary_topic || response.questions?.topic ? (
-                          <span className="neuro-raised px-2 py-1 rounded text-blue-400 truncate max-w-xs">
-                            {response.questions.primary_topic || response.questions.topic}
-                          </span>
-                        ) : null}
-                        {response.confidence_level && (
-                          <span className="text-gray-500">
-                            Confidence: {response.confidence_level}/5
-                          </span>
-                        )}
-                        {response.recognition_method && (
-                          <span className="text-gray-500">
-                            {response.recognition_method === 'memory' && '🧠 Memory'}
-                            {response.recognition_method === 'recognition' && '👀 Recognition'}
-                            {response.recognition_method === 'educated_guess' && '🎯 Educated Guess'}
-                            {response.recognition_method === 'random' && '🎲 Random'}
-                          </span>
-                        )}
-                        {response.reward_received !== null && (
-                          <span className={`font-medium ${
-                            response.reward_received >= 0 ? 'text-green-400' : 'text-red-400'
-                          }`}>
-                            Reward: {response.reward_received >= 0 ? '+' : ''}{response.reward_received?.toFixed(1)}
-                          </span>
-                        )}
+                      <div className="flex-1">
+                        <div className="flex flex-wrap items-center gap-2 text-xs mb-2">
+                          {bloomLevel && (
+                            <span className="neuro-raised px-2 py-1 rounded text-purple-400">
+                              Bloom L{bloomLevel}
+                            </span>
+                          )}
+                          {topic && (
+                            <span className="neuro-raised px-2 py-1 rounded text-blue-400 truncate max-w-xs">
+                              {topic}
+                            </span>
+                          )}
+                          {response.confidence_level && (
+                            <span className="text-gray-500">
+                              Confidence: {response.confidence_level}/5
+                            </span>
+                          )}
+                          {response.recognition_method && (
+                            <span className="text-gray-500">
+                              {response.recognition_method === 'memory' && '🧠 Memory'}
+                              {response.recognition_method === 'recognition' && '👀 Recognition'}
+                              {response.recognition_method === 'educated_guess' && '🎯 Educated Guess'}
+                              {response.recognition_method === 'random' && '🎲 Random'}
+                            </span>
+                          )}
+                          {response.reward_received !== null && (
+                            <span className={`font-medium ${
+                              response.reward_received >= 0 ? 'text-green-400' : 'text-red-400'
+                            }`}>
+                              Reward: {response.reward_received >= 0 ? '+' : ''}{response.reward_received?.toFixed(1)}
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-gray-400 text-xs">
+                          Mastery: {response.mastery_before?.toFixed(0)}% → {response.mastery_after?.toFixed(0)}%
+                          {response.learning_gain !== null && (
+                            <span className={response.learning_gain >= 0 ? 'text-green-400' : 'text-red-400'}>
+                              {' '}({response.learning_gain >= 0 ? '+' : ''}{response.learning_gain?.toFixed(1)})
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex-shrink-0 text-xs text-gray-600">
-                      {new Date(response.answered_at).toLocaleDateString()}
+                      <div className="flex-shrink-0 text-xs text-gray-600">
+                        {new Date(response.answered_at).toLocaleDateString()}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           ) : (
             <div className="neuro-inset p-8 rounded-lg text-center">
