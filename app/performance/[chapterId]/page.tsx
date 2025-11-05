@@ -15,6 +15,7 @@ export default function PerformancePage() {
   const [masteryHeatmap, setMasteryHeatmap] = useState<any[]>([])
   const [progressSummary, setProgressSummary] = useState<any>(null)
   const [recentActivity, setRecentActivity] = useState<any[]>([])
+  const [resetting, setResetting] = useState(false)
 
   useEffect(() => {
     loadPerformanceData()
@@ -86,6 +87,36 @@ export default function PerformancePage() {
     }
   }
 
+  const handleResetProgress = async () => {
+    if (!confirm('⚠️ Reset all progress for this chapter?\n\nThis will permanently delete:\n• All mastery scores\n• Learning history\n• RL statistics\n• Session data\n\nThis action cannot be undone.')) {
+      return
+    }
+
+    try {
+      setResetting(true)
+
+      const response = await fetch('/api/rl/reset-progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chapter_id: chapterId })
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to reset progress')
+      }
+
+      // Reload data to show fresh state
+      await loadPerformanceData()
+      alert('✅ Progress reset successfully!')
+    } catch (error: any) {
+      console.error('Error resetting progress:', error)
+      alert(`❌ Error: ${error.message}`)
+    } finally {
+      setResetting(false)
+    }
+  }
+
   const getMasteryColor = (mastery: number | null) => {
     if (mastery === null || mastery === undefined) return 'bg-gray-800'
     if (mastery >= 80) return 'bg-green-500'
@@ -139,6 +170,13 @@ export default function PerformancePage() {
               </h1>
             </div>
           </div>
+          <button
+            onClick={handleResetProgress}
+            disabled={resetting}
+            className="neuro-btn text-sm text-red-400 hover:text-red-300 disabled:opacity-50"
+          >
+            {resetting ? 'Resetting...' : '🔄 Reset Progress'}
+          </button>
         </div>
       </header>
 
