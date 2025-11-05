@@ -9,7 +9,7 @@ import { RefreshIcon, AlertTriangleIcon, CheckIcon, XIcon, ArrowLeftIcon, BarCha
 export default function PerformancePage() {
   const router = useRouter()
   const params = useParams()
-  const chapterId = params.chapterId as string
+  const slug = params.slug as string
 
   const [loading, setLoading] = useState(true)
   const [chapter, setChapter] = useState<any>(null)
@@ -32,21 +32,23 @@ export default function PerformancePage() {
         return
       }
 
-      // Get chapter details
+      // Get chapter details by slug
       const { data: chapterData } = await supabase
         .from('chapters')
-        .select('id, name, subject_id, subjects(name)')
-        .eq('id', chapterId)
+        .select('id, name, slug, subject_id, subjects(name, slug)')
+        .eq('slug', slug)
         .single()
 
       setChapter(chapterData)
+
+      if (!chapterData) return
 
       // Get mastery heatmap
       const { data: heatmapData } = await supabase
         .from('user_mastery_heatmap')
         .select('*')
         .eq('user_id', user.id)
-        .eq('chapter_id', chapterId)
+        .eq('chapter_id', chapterData.id)
 
       setMasteryHeatmap(heatmapData || [])
 
@@ -55,7 +57,7 @@ export default function PerformancePage() {
         .from('user_progress_summary')
         .select('*')
         .eq('user_id', user.id)
-        .eq('chapter_id', chapterId)
+        .eq('chapter_id', chapterData.id)
         .single()
 
       setProgressSummary(summaryData)
@@ -65,7 +67,7 @@ export default function PerformancePage() {
         .from('learning_sessions')
         .select('id')
         .eq('user_id', user.id)
-        .eq('chapter_id', chapterId)
+        .eq('chapter_id', chapterData.id)
 
       // Get recent responses for this chapter's sessions
       if (chapterSessions && chapterSessions.length > 0) {
@@ -102,7 +104,7 @@ export default function PerformancePage() {
       const response = await fetch('/api/rl/reset-progress', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chapter_id: chapterId })
+        body: JSON.stringify({ chapter_id: chapter?.id })
       })
 
       const data = await response.json()
@@ -170,7 +172,7 @@ export default function PerformancePage() {
       <header className="neuro-container mx-4 my-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center flex-wrap gap-4">
           <div className="flex items-center gap-4">
-            <Link href={`/subjects/${chapter?.subject_id}`} className="neuro-btn flex items-center gap-2">
+            <Link href={`/subjects/${chapter?.subjects?.slug}`} className="neuro-btn flex items-center gap-2">
               <ArrowLeftIcon size={18} />
               <span>Back</span>
             </Link>
@@ -312,7 +314,7 @@ export default function PerformancePage() {
                     <tr key={idx} className="border-t border-gray-800 hover:bg-gray-900/30 transition-colors">
                       <td className="p-3 text-gray-300 font-medium max-w-xs">
                         <Link
-                          href={`/topic-mastery/${chapterId}/${encodeURIComponent(row.topic)}`}
+                          href={`/topic-mastery/${slug}/${encodeURIComponent(row.topic)}`}
                           className="hover:text-blue-400 transition-colors flex items-center gap-2 group"
                         >
                           <span className="truncate">{row.topic}</span>
@@ -353,7 +355,7 @@ export default function PerformancePage() {
               <div className="text-gray-400 text-lg mb-2 font-semibold">No mastery data yet</div>
               <div className="text-sm text-gray-600 mb-6">Start learning to see your progress!</div>
               <Link
-                href={`/learn/${chapterId}`}
+                href={`/learn/${slug}`}
                 className="neuro-btn-primary inline-flex items-center gap-2 px-6 py-3"
               >
                 <PlayIcon size={18} />
@@ -455,7 +457,7 @@ export default function PerformancePage() {
               <div className="text-gray-400 text-lg mb-2 font-semibold">No activity yet</div>
               <div className="text-sm text-gray-600 mb-6">Answer some questions to see your history!</div>
               <Link
-                href={`/learn/${chapterId}`}
+                href={`/learn/${slug}`}
                 className="neuro-btn-primary inline-flex items-center gap-2 px-6 py-3"
               >
                 <PlayIcon size={18} />

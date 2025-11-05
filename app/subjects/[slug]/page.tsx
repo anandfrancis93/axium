@@ -45,6 +45,7 @@ export default async function SubjectPage({
       .select(`
         id,
         name,
+        slug,
         description,
         created_at,
         questions (count)
@@ -170,14 +171,14 @@ export default async function SubjectPage({
 
                       <div className="flex flex-col sm:flex-row gap-3 md:ml-16">
                         <Link
-                          href={`/learn/${chapter.id}`}
+                          href={`/learn/${chapter.slug}`}
                           className="neuro-btn-primary px-6 py-3 text-center whitespace-nowrap flex items-center justify-center gap-2"
                         >
                           <PlayIcon size={18} />
                           Start Learning
                         </Link>
                         <Link
-                          href={`/performance/${chapter.id}`}
+                          href={`/performance/${chapter.slug}`}
                           className="neuro-btn px-6 py-3 text-center whitespace-nowrap flex items-center justify-center gap-2"
                         >
                           <BarChartIcon size={18} />

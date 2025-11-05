@@ -23,13 +23,15 @@ CREATE TABLE chapters (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   subject_id UUID NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
+  slug TEXT NOT NULL,
   description TEXT,
   sequence_order INTEGER NOT NULL DEFAULT 0,
   -- Prerequisites: array of chapter IDs that must be mastered first
   prerequisites UUID[] DEFAULT '{}',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  UNIQUE(subject_id, name)
+  UNIQUE(subject_id, name),
+  UNIQUE(subject_id, slug)
 );
 
 -- Index for faster queries

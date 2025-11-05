@@ -18,7 +18,7 @@ const BLOOM_LEVELS = [
 export default function TopicMasteryPage() {
   const router = useRouter()
   const params = useParams()
-  const chapterId = params.chapterId as string
+  const slug = params.slug as string
   const topic = decodeURIComponent(params.topic as string)
 
   const [loading, setLoading] = useState(true)
@@ -40,19 +40,21 @@ export default function TopicMasteryPage() {
         return
       }
 
-      // Get chapter details
+      // Get chapter details by slug
       const { data: chapterData } = await supabase
         .from('chapters')
-        .select('id, name, subject_id, subjects(name)')
-        .eq('id', chapterId)
+        .select('id, name, slug, subject_id, subjects(name)')
+        .eq('slug', slug)
         .single()
 
       setChapter(chapterData)
 
+      if (!chapterData) return
+
       // Get dimension matrix
       const { data: matrixData } = await supabase.rpc('get_topic_dimension_matrix', {
         p_user_id: user.id,
-        p_chapter_id: chapterId,
+        p_chapter_id: chapterData.id,
         p_topic: topic
       })
 
@@ -61,7 +63,7 @@ export default function TopicMasteryPage() {
       // Get summary statistics
       const { data: summaryData } = await supabase.rpc('get_topic_dimension_summary', {
         p_user_id: user.id,
-        p_chapter_id: chapterId,
+        p_chapter_id: chapterData.id,
         p_topic: topic
       })
 
@@ -145,7 +147,7 @@ export default function TopicMasteryPage() {
       <header className="neuro-container mx-4 my-4">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-4 mb-4">
-            <Link href={`/performance/${chapterId}`} className="neuro-btn">
+            <Link href={`/performance/${slug}`} className="neuro-btn">
               ← Back to Performance
             </Link>
             <div>
@@ -309,7 +311,7 @@ export default function TopicMasteryPage() {
               <div className="text-lg mb-2">No data yet</div>
               <div className="text-sm">Start learning to see your mastery matrix!</div>
               <Link
-                href={`/learn/${chapterId}`}
+                href={`/learn/${slug}`}
                 className="neuro-btn-primary inline-block mt-4"
               >
                 Start Learning

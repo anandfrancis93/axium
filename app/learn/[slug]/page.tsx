@@ -13,8 +13,9 @@ type Step = 'confidence' | 'options' | 'recognition' | 'feedback'
 export default function LearnPage() {
   const router = useRouter()
   const params = useParams()
-  const chapterId = params.chapterId as string
+  const slug = params.slug as string
 
+  const [chapterId, setChapterId] = useState<string | null>(null)
   const [session, setSession] = useState<any>(null)
   const [question, setQuestion] = useState<any>(null)
   const [questionMetadata, setQuestionMetadata] = useState<any>(null)
@@ -30,10 +31,34 @@ export default function LearnPage() {
   const [feedback, setFeedback] = useState<any>(null)
 
   useEffect(() => {
-    startSession()
+    fetchChapterAndStart()
   }, [])
 
-  const startSession = async () => {
+  const fetchChapterAndStart = async () => {
+    try {
+      const supabase = createClient()
+      const { data: chapterData } = await supabase
+        .from('chapters')
+        .select('id')
+        .eq('slug', slug)
+        .single()
+
+      if (!chapterData) {
+        setError('Chapter not found')
+        setLoading(false)
+        return
+      }
+
+      setChapterId(chapterData.id)
+      await startSession(chapterData.id)
+    } catch (err: any) {
+      console.error('Error fetching chapter:', err)
+      setError(err.message)
+      setLoading(false)
+    }
+  }
+
+  const startSession = async (chapId: string) => {
     try {
       setLoading(true)
       setError('')
@@ -43,7 +68,7 @@ export default function LearnPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          chapter_id: chapterId,
+          chapter_id: chapId,
           num_questions: 10
         })
       })
