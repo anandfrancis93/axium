@@ -1,6 +1,12 @@
 -- Add DELETE policies to allow users to delete their own data
 -- This is needed for the reset progress functionality
 
+-- Drop existing policies if they exist to make this migration idempotent
+DROP POLICY IF EXISTS "Users can delete their own responses" ON user_responses;
+DROP POLICY IF EXISTS "Users can delete their own sessions" ON learning_sessions;
+DROP POLICY IF EXISTS "Users can delete their own mastery records" ON user_topic_mastery;
+DROP POLICY IF EXISTS "Users can delete their own arm stats" ON rl_arm_stats;
+
 -- User Responses: Allow users to delete their own responses
 CREATE POLICY "Users can delete their own responses"
   ON user_responses FOR DELETE
