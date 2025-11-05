@@ -66,14 +66,22 @@ export function QuestionGenerator() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [generatedQuestions, setGeneratedQuestions] = useState<GeneratedQuestion[]>([])
+  const [extractedTopics, setExtractedTopics] = useState<string[]>([])
+  const [loadingTopics, setLoadingTopics] = useState(false)
 
   useEffect(() => {
     loadChapters()
   }, [])
 
+  useEffect(() => {
+    if (selectedChapter) {
+      loadTopicsFromChapter()
+    }
+  }, [selectedChapter])
+
   const loadChapters = async () => {
     const supabase = createClient()
-    const { data, error } = await supabase
+    const { data, error} = await supabase
       .from('chapters')
       .select(`
         id,
@@ -87,6 +95,33 @@ export function QuestionGenerator() {
     } else {
       setChapters((data as any) || [])
     }
+  }
+
+  const loadTopicsFromChapter = async () => {
+    if (!selectedChapter) return
+
+    setLoadingTopics(true)
+    setExtractedTopics([])
+
+    try {
+      const response = await fetch(`/api/chapters/${selectedChapter}/topics`)
+      const result = await response.json()
+
+      if (response.ok && result.topics) {
+        setExtractedTopics(result.topics)
+        console.log(`Loaded ${result.topics.length} topics from chapter`)
+      } else {
+        console.error('Failed to load topics:', result.error)
+        // Fall back to common topics if extraction fails
+        setExtractedTopics(COMMON_TOPICS)
+      }
+    } catch (error) {
+      console.error('Error loading topics:', error)
+      // Fall back to common topics
+      setExtractedTopics(COMMON_TOPICS)
+    }
+
+    setLoadingTopics(false)
   }
 
   const handleGenerate = async (customTopic?: string, customBloomLevel?: number) => {
@@ -141,14 +176,26 @@ export function QuestionGenerator() {
       return
     }
 
+    if (loadingTopics) {
+      setMessage('⏳ Loading topics from your content...')
+      return
+    }
+
+    const topicsToUse = extractedTopics.length > 0 ? extractedTopics : COMMON_TOPICS
+
+    if (topicsToUse.length === 0) {
+      setMessage('⚠️ No topics found. Upload content to this chapter first.')
+      return
+    }
+
     try {
-      // Pick random topic from list
-      const randomTopic = COMMON_TOPICS[Math.floor(Math.random() * COMMON_TOPICS.length)]
+      // Pick random topic from extracted topics
+      const randomTopic = topicsToUse[Math.floor(Math.random() * topicsToUse.length)]
 
       // Pick random Bloom level (1-6)
       const randomBloomLevel = Math.floor(Math.random() * 6) + 1
 
-      console.log('Random values:', { randomTopic, randomBloomLevel })
+      console.log('Random values:', { randomTopic, randomBloomLevel, topicsSource: extractedTopics.length > 0 ? 'chapter content' : 'fallback' })
 
       // Update form fields (for visual feedback)
       setTopic(randomTopic)
@@ -191,6 +238,16 @@ export function QuestionGenerator() {
             {chapters.length === 0 && (
               <p className="text-xs text-yellow-400 mt-1">
                 Create a chapter and upload content first
+              </p>
+            )}
+            {loadingTopics && (
+              <p className="text-xs text-blue-400 mt-1">
+                ⏳ Extracting topics from chapter content...
+              </p>
+            )}
+            {!loadingTopics && extractedTopics.length > 0 && (
+              <p className="text-xs text-green-400 mt-1">
+                ✓ Found {extractedTopics.length} topics from your content
               </p>
             )}
           </div>
