@@ -137,7 +137,7 @@ FORMAT YOUR RESPONSE AS VALID JSON:
 Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other text.`
 
     const completion = await grok.chat.completions.create({
-      model: 'grok-2-latest',
+      model: 'grok-beta',
       messages: [
         {
           role: 'system',
