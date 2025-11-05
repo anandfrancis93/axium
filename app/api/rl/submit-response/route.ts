@@ -52,14 +52,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // For ephemeral questions, question_metadata is required
-    if (!question_metadata || !question_metadata.correct_answer) {
-      return NextResponse.json(
-        { error: 'question_metadata with correct_answer is required for ephemeral questions' },
-        { status: 400 }
-      )
-    }
-
     // Convert confidence to numeric (1-5)
     let confidence: number
     if (typeof rawConfidence === 'string') {
@@ -73,16 +65,34 @@ export async function POST(request: NextRequest) {
       confidence = rawConfidence
     }
 
-    // Use question metadata from ephemeral generation
-    const question = {
-      id: question_metadata.question_id,
-      correct_answer: question_metadata.correct_answer,
-      explanation: question_metadata.explanation,
-      bloom_level: question_metadata.bloom_level,
-      topic: question_metadata.topic,
-      primary_topic: question_metadata.topic, // For compatibility
-      secondary_topics: null,
-      topic_weights: null
+    // Try to get question from database first (for stored questions)
+    let question: any = null
+    const { data: dbQuestion } = await supabase
+      .from('questions')
+      .select('*')
+      .eq('id', question_id)
+      .single()
+
+    if (dbQuestion) {
+      // Question exists in database (stored question)
+      question = dbQuestion
+    } else if (question_metadata && question_metadata.correct_answer) {
+      // Fallback to question_metadata (for ephemeral questions)
+      question = {
+        id: question_metadata.question_id,
+        correct_answer: question_metadata.correct_answer,
+        explanation: question_metadata.explanation,
+        bloom_level: question_metadata.bloom_level,
+        topic: question_metadata.topic,
+        primary_topic: question_metadata.topic,
+        secondary_topics: null,
+        topic_weights: null
+      }
+    } else {
+      return NextResponse.json(
+        { error: 'Question not found in database and no question_metadata provided' },
+        { status: 404 }
+      )
     }
 
     // Check if correct

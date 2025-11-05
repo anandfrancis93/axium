@@ -133,9 +133,8 @@ Return ONLY valid JSON, no other text.`
 
   const q = questionsData.questions[0]
 
-  // Return question without storing (ephemeral)
-  const ephemeralQuestion = {
-    id: `ephemeral-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+  // Store question for spaced repetition
+  const questionToInsert = {
     chapter_id: chapterId,
     question_text: q.question_text,
     question_type: 'mcq',
@@ -148,24 +147,49 @@ Return ONLY valid JSON, no other text.`
     source_type: 'ai_generated_realtime',
   }
 
-  console.log(`Successfully generated ephemeral question in real-time`)
-  return ephemeralQuestion
+  const { data: insertedQuestion, error: insertError } = await supabase
+    .from('questions')
+    .insert([questionToInsert])
+    .select()
+    .single()
+
+  if (insertError) {
+    console.error('Error storing question for spaced repetition:', insertError)
+    // Return ephemeral question if storage fails
+    return {
+      id: `ephemeral-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+      ...questionToInsert
+    }
+  }
+
+  console.log(`Successfully generated and stored question for spaced repetition`)
+  return insertedQuestion
 }
 
 /**
  * POST /api/rl/next-question
  *
- * Get next question using Thompson Sampling RL
- * Questions are ALWAYS generated in real-time using RAG + Grok AI
+ * Get next question using Thompson Sampling RL with Spaced Repetition
+ *
+ * Algorithm:
+ * 1. RL agent selects optimal (topic, bloom_level)
+ * 2. Check for existing questions ready for spaced repetition review
+ * 3. 30% chance to review an existing question (memory consolidation)
+ * 4. 70% chance to generate a new question (learning breadth)
+ * 5. Store new questions for future spaced repetition
+ *
+ * Spaced repetition intervals: 1 day, 3 days, 7 days, 14 days, 30 days
  *
  * Body:
  * - session_id: UUID of the learning session
  *
  * Returns:
- * - question: Freshly generated question object (ephemeral, not stored)
+ * - question: Question object (review or newly generated)
+ * - question_metadata: Correct answer and explanation
  * - session_progress: Current progress in session
  * - arm_selected: Which (topic, bloom_level) was chosen by RL agent
- * - generated_realtime: true (always)
+ * - is_review: Boolean indicating if this is a review question
+ * - spaced_repetition: Boolean indicating if spaced repetition was applied
  */
 export async function POST(request: NextRequest) {
   try {
@@ -222,56 +246,110 @@ export async function POST(request: NextRequest) {
 
     console.log('Selected arm:', selectedArm)
 
-    // Always generate question in real-time (no database lookup)
-    console.log(`Generating real-time question for ${selectedArm.topic} at Bloom ${selectedArm.bloomLevel}`)
+    // Step 1: Check for existing questions for spaced repetition
+    const { data: existingQuestions } = await supabase
+      .from('questions')
+      .select('*')
+      .eq('chapter_id', session.chapter_id)
+      .eq('bloom_level', selectedArm.bloomLevel)
+      .or(`primary_topic.eq.${selectedArm.topic},topic.eq.${selectedArm.topic}`)
 
-    try {
-      const generatedQuestion = await generateQuestionOnDemand(
-        supabase,
-        session.chapter_id,
-        selectedArm.topic,
-        selectedArm.bloomLevel
-      )
+    // Step 2: Check which questions user has answered and when
+    const { data: userResponses } = await supabase
+      .from('user_responses')
+      .select('question_id, answered_at')
+      .eq('user_id', user.id)
+      .in('question_id', existingQuestions?.map(q => q.id) || [])
+      .order('answered_at', { ascending: false })
 
-      if (!generatedQuestion) {
+    // Build map of question_id -> last answered time and count
+    const responseMap = new Map<string, { lastAnswered: Date, count: number }>()
+    userResponses?.forEach(r => {
+      if (!responseMap.has(r.question_id)) {
+        const count = userResponses.filter(ur => ur.question_id === r.question_id).length
+        responseMap.set(r.question_id, {
+          lastAnswered: new Date(r.answered_at),
+          count
+        })
+      }
+    })
+
+    // Step 3: Find questions ready for spaced repetition
+    const now = new Date()
+    const readyForReview = existingQuestions?.filter(q => {
+      const response = responseMap.get(q.id)
+      if (!response) return true // Never answered - ready to ask
+
+      // Spaced repetition intervals (in days): 1, 3, 7, 14, 30
+      const intervals = [1, 3, 7, 14, 30]
+      const repetitionNumber = Math.min(response.count, intervals.length) - 1
+      const interval = intervals[repetitionNumber] || 30
+
+      const daysSinceLastAnswer = (now.getTime() - response.lastAnswered.getTime()) / (1000 * 60 * 60 * 24)
+      return daysSinceLastAnswer >= interval
+    }) || []
+
+    let selectedQuestion: any = null
+    let isReview = false
+
+    // Step 4: Decide whether to review or generate new
+    if (readyForReview.length > 0 && Math.random() < 0.3) {
+      // 30% chance to review an existing question (spaced repetition)
+      selectedQuestion = readyForReview[Math.floor(Math.random() * readyForReview.length)]
+      isReview = true
+      console.log(`Selected existing question for spaced repetition review`)
+    } else {
+      // 70% chance to generate a new question (or if no questions ready for review)
+      console.log(`Generating new question for ${selectedArm.topic} at Bloom ${selectedArm.bloomLevel}`)
+
+      try {
+        selectedQuestion = await generateQuestionOnDemand(
+          supabase,
+          session.chapter_id,
+          selectedArm.topic,
+          selectedArm.bloomLevel
+        )
+
+        if (!selectedQuestion) {
+          return NextResponse.json(
+            { error: `Failed to generate question for topic "${selectedArm.topic}" at Bloom level ${selectedArm.bloomLevel}` },
+            { status: 500 }
+          )
+        }
+      } catch (genError) {
+        console.error('Error generating question:', genError)
         return NextResponse.json(
-          { error: `Failed to generate question for topic "${selectedArm.topic}" at Bloom level ${selectedArm.bloomLevel}` },
+          { error: `Failed to generate question: ${genError instanceof Error ? genError.message : 'Unknown error'}` },
           { status: 500 }
         )
       }
-
-      // Return the generated question (without correct answer for display)
-      const { correct_answer, explanation, ...questionWithoutAnswer } = generatedQuestion
-
-      return NextResponse.json({
-        question: questionWithoutAnswer,
-        // Include answer metadata separately (frontend stores but doesn't display)
-        question_metadata: {
-          correct_answer,
-          explanation,
-          question_id: generatedQuestion.id,
-          bloom_level: generatedQuestion.bloom_level,
-          topic: generatedQuestion.topic
-        },
-        session_progress: {
-          session_id: session.id,
-          questions_answered: session.questions_answered,
-          total_questions: session.total_questions,
-          current_score: session.score
-        },
-        arm_selected: {
-          topic: selectedArm.topic,
-          bloom_level: selectedArm.bloomLevel
-        },
-        generated_realtime: true
-      })
-    } catch (genError) {
-      console.error('Error generating question in real-time:', genError)
-      return NextResponse.json(
-        { error: `Failed to generate question: ${genError instanceof Error ? genError.message : 'Unknown error'}` },
-        { status: 500 }
-      )
     }
+
+    // Return the question (without correct answer for display)
+    const { correct_answer, explanation, ...questionWithoutAnswer } = selectedQuestion
+
+    return NextResponse.json({
+      question: questionWithoutAnswer,
+      question_metadata: {
+        correct_answer,
+        explanation,
+        question_id: selectedQuestion.id,
+        bloom_level: selectedQuestion.bloom_level,
+        topic: selectedQuestion.topic
+      },
+      session_progress: {
+        session_id: session.id,
+        questions_answered: session.questions_answered,
+        total_questions: session.total_questions,
+        current_score: session.score
+      },
+      arm_selected: {
+        topic: selectedArm.topic,
+        bloom_level: selectedArm.bloomLevel
+      },
+      is_review: isReview,
+      spaced_repetition: isReview
+    })
   } catch (error) {
     console.error('Error in POST /api/rl/next-question:', error)
     return NextResponse.json(
