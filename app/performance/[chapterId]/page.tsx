@@ -274,9 +274,17 @@ export default function PerformancePage() {
                 </thead>
                 <tbody>
                   {masteryHeatmap.map((row, idx) => (
-                    <tr key={idx} className="border-t border-gray-800">
-                      <td className="p-3 text-gray-300 font-medium max-w-xs truncate">
-                        {row.topic}
+                    <tr key={idx} className="border-t border-gray-800 hover:bg-gray-900/30 transition-colors">
+                      <td className="p-3 text-gray-300 font-medium max-w-xs">
+                        <Link
+                          href={`/topic-mastery/${chapterId}/${encodeURIComponent(row.topic)}`}
+                          className="hover:text-blue-400 transition-colors flex items-center gap-2 group"
+                        >
+                          <span className="truncate">{row.topic}</span>
+                          <span className="opacity-0 group-hover:opacity-100 text-blue-400 text-xs">
+                            →
+                          </span>
+                        </Link>
                       </td>
                       {bloomLevels.map(level => {
                         const masteryKey = `bloom_${level.num}` as keyof typeof row
