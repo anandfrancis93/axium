@@ -245,7 +245,7 @@ export function QuestionGenerator() {
               🎲 Random Question
             </button>
             <button
-              onClick={handleGenerate}
+              onClick={() => handleGenerate()}
               disabled={loading || !selectedChapter || !topic.trim()}
               className="neuro-btn-primary"
             >
