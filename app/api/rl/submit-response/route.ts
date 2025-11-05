@@ -212,7 +212,7 @@ export async function POST(request: NextRequest) {
       console.error('Error storing response:', responseError)
     }
 
-    // Track dimension coverage for comprehensive mastery
+    // Track dimension coverage for comprehensive mastery with unique question tracking
     if (question.dimension && question.bloom_level && question.topic) {
       const { data: existingCoverage } = await supabase
         .from('user_dimension_coverage')
@@ -225,10 +225,24 @@ export async function POST(request: NextRequest) {
         .single()
 
       const scoreForDimension = isCorrect ? 100 : 0
+      const questionId = question.id.toString()
 
       if (existingCoverage) {
-        // Update existing coverage
+        // Check if this is a unique question (not a spaced repetition repeat)
+        const uniqueQuestions = existingCoverage.unique_questions_answered || []
+        const isNewQuestion = !uniqueQuestions.includes(questionId)
+
+        // Add to unique questions array if new
+        const updatedUniqueQuestions = isNewQuestion
+          ? [...uniqueQuestions, questionId]
+          : uniqueQuestions
+
+        // Calculate new average score (only count unique questions for mastery)
         const newTimesTested = existingCoverage.times_tested + 1
+        const newTotalAttempts = (existingCoverage.total_attempts || existingCoverage.times_tested) + 1
+
+        // For average score, we want to track performance across unique questions
+        // If this is a repeat, we still update the average to reflect current performance
         const newAvgScore = (
           (existingCoverage.average_score * existingCoverage.times_tested) + scoreForDimension
         ) / newTimesTested
@@ -237,6 +251,8 @@ export async function POST(request: NextRequest) {
           .from('user_dimension_coverage')
           .update({
             times_tested: newTimesTested,
+            total_attempts: newTotalAttempts,
+            unique_questions_answered: updatedUniqueQuestions,
             average_score: newAvgScore,
             last_tested_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
@@ -253,6 +269,8 @@ export async function POST(request: NextRequest) {
             bloom_level: question.bloom_level,
             dimension: question.dimension,
             times_tested: 1,
+            total_attempts: 1,
+            unique_questions_answered: [questionId],
             average_score: scoreForDimension,
             last_tested_at: new Date().toISOString()
           })

@@ -73,7 +73,19 @@ export default function TopicMasteryPage() {
     }
   }
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string, masteryLevel: string, uniqueCount: number) => {
+    // Special handling for deep mastery
+    if (status === 'mastered' && masteryLevel === 'deep') {
+      return 'bg-gradient-to-br from-green-600 to-green-400'
+    }
+
+    // Insufficient data (< 3 unique questions)
+    if (status === 'insufficient_data' || uniqueCount < 3) {
+      if (uniqueCount === 0) return 'bg-gray-800'
+      return 'bg-gray-700 border border-yellow-500/30'
+    }
+
+    // Normal mastery statuses
     switch (status) {
       case 'mastered': return 'bg-green-500'
       case 'proficient': return 'bg-blue-500'
@@ -84,15 +96,24 @@ export default function TopicMasteryPage() {
     }
   }
 
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'mastered': return 'Mastered'
-      case 'proficient': return 'Proficient'
-      case 'developing': return 'Developing'
-      case 'struggling': return 'Struggling'
-      case 'not_tested': return 'Not Tested'
-      default: return 'Unknown'
+  const getStatusLabel = (status: string, masteryLevel: string, uniqueCount: number, totalAttempts: number) => {
+    if (uniqueCount === 0) return 'Not Tested'
+    if (uniqueCount < 3) return `Need More (${uniqueCount}/3 min)`
+
+    if (status === 'mastered') {
+      if (masteryLevel === 'deep') {
+        return `Deep Mastery (${uniqueCount} unique)`
+      }
+      return `Mastered (${uniqueCount} unique)`
     }
+
+    const labels: {[key: string]: string} = {
+      'proficient': 'Proficient',
+      'developing': 'Developing',
+      'struggling': 'Struggling',
+    }
+
+    return `${labels[status] || status} (${uniqueCount} unique)`
   }
 
   if (loading) {
@@ -136,7 +157,7 @@ export default function TopicMasteryPage() {
 
           {/* Summary Stats */}
           {summary && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <div className="neuro-stat">
                 <div className="text-sm text-blue-400 mb-1">Total Cells</div>
                 <div className="text-3xl font-bold text-gray-200">{summary.total_cells}</div>
@@ -148,16 +169,23 @@ export default function TopicMasteryPage() {
                 <div className="text-xs text-gray-600">{summary.tested_cells}/{summary.total_cells} tested</div>
               </div>
               <div className="neuro-stat">
-                <div className="text-sm text-green-400 mb-1">Mastery</div>
-                <div className="text-3xl font-bold text-gray-200">{summary.mastery_percentage}%</div>
-                <div className="text-xs text-gray-600">{summary.mastered_cells}/{summary.total_cells} mastered</div>
+                <div className="text-sm text-cyan-400 mb-1">Min Questions</div>
+                <div className="text-3xl font-bold text-gray-200">{summary.cells_with_min_questions}</div>
+                <div className="text-xs text-gray-600">cells with 3+ unique</div>
               </div>
               <div className="neuro-stat">
-                <div className="text-sm text-yellow-400 mb-1">Remaining</div>
-                <div className="text-3xl font-bold text-gray-200">
-                  {summary.total_cells - summary.mastered_cells}
+                <div className="text-sm text-green-400 mb-1">Initial Mastery</div>
+                <div className="text-3xl font-bold text-gray-200">{summary.mastered_cells}</div>
+                <div className="text-xs text-gray-600">{summary.mastery_percentage}% of total</div>
+              </div>
+              <div className="neuro-stat">
+                <div className="text-sm text-yellow-400 mb-1 flex items-center gap-1">
+                  Deep Mastery <span className="text-lg">★</span>
                 </div>
-                <div className="text-xs text-gray-600">cells to master</div>
+                <div className="text-3xl font-bold text-gray-200">
+                  {summary.deep_mastery_cells || 0}
+                </div>
+                <div className="text-xs text-gray-600">5+ unique questions</div>
               </div>
             </div>
           )}
@@ -167,28 +195,41 @@ export default function TopicMasteryPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         {/* Legend */}
         <div className="neuro-card mb-6">
-          <h3 className="text-sm font-medium text-gray-400 mb-3">Mastery Levels:</h3>
+          <h3 className="text-sm font-medium text-gray-400 mb-3">Adaptive Mastery Levels:</h3>
           <div className="flex flex-wrap gap-3 text-xs">
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded bg-gray-800"></div>
-              <span className="text-gray-500">Not Tested</span>
+              <span className="text-gray-500">Not Tested (0 unique)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-gray-700 border border-yellow-500/30"></div>
+              <span className="text-gray-500">Insufficient Data (&lt;3 unique)</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded bg-red-500"></div>
-              <span className="text-gray-500">&lt;40% Struggling</span>
+              <span className="text-gray-500">Struggling (3+ unique, &lt;40%)</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded bg-yellow-500"></div>
-              <span className="text-gray-500">40-59% Developing</span>
+              <span className="text-gray-500">Developing (3+ unique, 40-59%)</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded bg-blue-500"></div>
-              <span className="text-gray-500">60-79% Proficient</span>
+              <span className="text-gray-500">Proficient (3+ unique, 60-79%)</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded bg-green-500"></div>
-              <span className="text-gray-500">80%+ Mastered</span>
+              <span className="text-gray-500">Initial Mastery (3+ unique, 80%+)</span>
             </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-gradient-to-br from-green-600 to-green-400 relative">
+                <span className="absolute -top-0.5 -right-0.5 text-yellow-300 text-xs">★</span>
+              </div>
+              <span className="text-gray-500">Deep Mastery (5+ unique, 80%+)</span>
+            </div>
+          </div>
+          <div className="mt-3 text-xs text-gray-600">
+            <strong>Note:</strong> Spaced repetition repeats do not count toward unique questions. Only new questions count for mastery progress.
           </div>
         </div>
 
@@ -223,19 +264,36 @@ export default function TopicMasteryPage() {
                     </td>
                     {dimensions.map(dim => {
                       const cell = bloomLevel.dimensions.find(d => d.dimension === dim.key)
+                      const uniqueCount = cell?.unique_questions_count || 0
+                      const totalAttempts = cell?.total_attempts || 0
+                      const status = cell?.mastery_status || 'not_tested'
+                      const masteryLevel = cell?.mastery_level || 'none'
+
                       return (
                         <td key={`${bloomLevel.num}-${dim.key}`} className="p-2">
                           <div
-                            className={`w-full h-16 rounded ${getStatusColor(cell?.mastery_status || 'not_tested')} flex flex-col items-center justify-center text-white text-xs transition-all hover:scale-105 cursor-help`}
-                            title={`${topic} - ${bloomLevel.name} - ${dim.name}\nScore: ${cell?.average_score || 0}%\nTested: ${cell?.times_tested || 0} times\nStatus: ${getStatusLabel(cell?.mastery_status || 'not_tested')}`}
+                            className={`w-full h-16 rounded ${getStatusColor(status, masteryLevel, uniqueCount)} flex flex-col items-center justify-center text-white text-xs transition-all hover:scale-105 cursor-help relative`}
+                            title={`${topic} - ${bloomLevel.name} - ${dim.name}\nScore: ${cell?.average_score || 0}%\nUnique Questions: ${uniqueCount}\nTotal Attempts: ${totalAttempts} (${totalAttempts - uniqueCount} repeats)\nStatus: ${getStatusLabel(status, masteryLevel, uniqueCount, totalAttempts)}`}
                           >
-                            <div className="font-bold text-lg">
-                              {cell?.times_tested > 0 ? Math.round(cell.average_score) : '-'}
-                            </div>
-                            {cell?.times_tested > 0 && (
-                              <div className="text-[10px] opacity-75">
-                                {cell.times_tested}x
-                              </div>
+                            {uniqueCount > 0 ? (
+                              <>
+                                <div className="font-bold text-lg">
+                                  {Math.round(cell.average_score)}%
+                                </div>
+                                <div className="text-[10px] opacity-75 flex items-center gap-1">
+                                  <span>{uniqueCount} unique</span>
+                                  {totalAttempts > uniqueCount && (
+                                    <span className="text-blue-200">+{totalAttempts - uniqueCount}</span>
+                                  )}
+                                </div>
+                                {masteryLevel === 'deep' && (
+                                  <div className="absolute top-0.5 right-0.5">
+                                    <span className="text-yellow-300 text-lg">★</span>
+                                  </div>
+                                )}
+                              </>
+                            ) : (
+                              <div className="text-gray-500 text-2xl">-</div>
                             )}
                           </div>
                         </td>
