@@ -134,23 +134,32 @@ export function QuestionGenerator() {
   }
 
   const handleRandomGenerate = async () => {
+    console.log('Random button clicked, selectedChapter:', selectedChapter)
+
     if (!selectedChapter) {
       setMessage('⚠️ Please select a chapter first')
       return
     }
 
-    // Pick random topic from list
-    const randomTopic = COMMON_TOPICS[Math.floor(Math.random() * COMMON_TOPICS.length)]
+    try {
+      // Pick random topic from list
+      const randomTopic = COMMON_TOPICS[Math.floor(Math.random() * COMMON_TOPICS.length)]
 
-    // Pick random Bloom level (1-6)
-    const randomBloomLevel = Math.floor(Math.random() * 6) + 1
+      // Pick random Bloom level (1-6)
+      const randomBloomLevel = Math.floor(Math.random() * 6) + 1
 
-    // Update form fields (for visual feedback)
-    setTopic(randomTopic)
-    setBloomLevel(randomBloomLevel)
+      console.log('Random values:', { randomTopic, randomBloomLevel })
 
-    // Generate immediately with the random values
-    await handleGenerate(randomTopic, randomBloomLevel)
+      // Update form fields (for visual feedback)
+      setTopic(randomTopic)
+      setBloomLevel(randomBloomLevel)
+
+      // Generate immediately with the random values
+      await handleGenerate(randomTopic, randomBloomLevel)
+    } catch (error) {
+      console.error('Error in handleRandomGenerate:', error)
+      setMessage('❌ Error generating random question')
+    }
   }
 
   return (
@@ -257,6 +266,7 @@ export function QuestionGenerator() {
             <div className={`neuro-inset p-3 rounded-lg text-sm ${
               message.includes('✅') ? 'text-green-400' :
               message.includes('❌') ? 'text-red-400' :
+              message.includes('⚠️') ? 'text-yellow-400' :
               message.includes('🎲') ? 'text-yellow-400' :
               'text-blue-400'
             }`}>
