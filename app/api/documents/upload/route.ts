@@ -1,17 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import OpenAI from 'openai'
+import { PDFExtract } from 'pdf.js-extract'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 
-// Dynamic import for pdf-parse (CommonJS module)
-async function parsePDF(buffer: Buffer) {
-  const pdfParse = await import('pdf-parse')
-  // @ts-expect-error - pdf-parse has mixed ESM/CJS exports
-  const pdf = pdfParse.default || pdfParse
-  return await pdf(buffer)
+const pdfExtract = new PDFExtract()
+
+// Extract text from PDF using pdf.js-extract (serverless-friendly)
+async function parsePDF(buffer: Buffer): Promise<{ text: string }> {
+  const data = await pdfExtract.extractBuffer(buffer)
+
+  // Combine all text from all pages
+  const text = data.pages
+    .map(page => page.content.map(item => item.str).join(' '))
+    .join('\n\n')
+
+  return { text }
 }
 
 // Chunk text into smaller pieces for embeddings
