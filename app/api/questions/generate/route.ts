@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import OpenAI from 'openai'
-import Anthropic from '@anthropic-ai/sdk'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+// xAI Grok API (OpenAI-compatible)
+const grok = new OpenAI({
+  apiKey: process.env.XAI_API_KEY,
+  baseURL: 'https://api.x.ai/v1',
 })
 
 // Bloom's Taxonomy levels
@@ -94,8 +95,8 @@ export async function POST(request: NextRequest) {
       `[Chunk ${idx + 1}]\n${chunk.content}`
     ).join('\n\n---\n\n')
 
-    // Step 4: Generate questions using Claude AI
-    console.log('Generating questions with Claude AI...')
+    // Step 4: Generate questions using Grok AI
+    console.log('Generating questions with Grok AI...')
     const bloomDescription = BLOOM_LEVELS[bloomLevelNum as keyof typeof BLOOM_LEVELS]
 
     const prompt = `You are an expert educator creating assessment questions for students studying cybersecurity.
@@ -135,19 +136,24 @@ FORMAT YOUR RESPONSE AS VALID JSON:
 
 Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other text.`
 
-    const message = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 2000,
+    const completion = await grok.chat.completions.create({
+      model: 'grok-2-latest',
       messages: [
+        {
+          role: 'system',
+          content: 'You are an expert educator. Always respond with valid JSON only, no markdown or other formatting.',
+        },
         {
           role: 'user',
           content: prompt,
         },
       ],
+      temperature: 0.7,
+      max_tokens: 2000,
     })
 
-    // Extract JSON from Claude's response
-    const responseText = message.content[0].type === 'text' ? message.content[0].text : ''
+    // Extract JSON from Grok's response
+    const responseText = completion.choices[0]?.message?.content || ''
     let questionsData
 
     try {
@@ -159,7 +165,7 @@ Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other 
       if (jsonMatch) {
         questionsData = JSON.parse(jsonMatch[1])
       } else {
-        console.error('Failed to parse Claude response:', responseText)
+        console.error('Failed to parse Grok response:', responseText)
         return NextResponse.json(
           { error: 'Failed to parse AI response', raw_response: responseText },
           { status: 500 }
