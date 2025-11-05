@@ -201,6 +201,7 @@ Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other 
     const questionsToInsert = questionsData.questions.map((q: any) => ({
       chapter_id,
       question_text: q.question_text,
+      question_type: 'mcq',
       options: q.options,
       correct_answer: q.correct_answer,
       explanation: q.explanation,
