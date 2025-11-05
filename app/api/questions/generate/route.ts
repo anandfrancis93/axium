@@ -63,10 +63,14 @@ export async function POST(request: NextRequest) {
 
     // Step 2: Vector similarity search to find relevant chunks
     console.log('Searching for relevant chunks...')
+
+    // Format embedding as PostgreSQL vector string
+    const embeddingString = `[${topicEmbedding.join(',')}]`
+
     const { data: chunks, error: searchError } = await supabase.rpc(
       'match_knowledge_chunks',
       {
-        query_embedding: topicEmbedding,
+        query_embedding: embeddingString,
         match_threshold: 0.1,
         match_count: 5,
         filter_chapter_id: chapter_id,
