@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { RefreshIcon, AlertTriangleIcon, CheckIcon, XIcon, ArrowLeftIcon, BarChartIcon, TrendingUpIcon, AwardIcon, TargetIcon } from '@/components/icons'
+import { RefreshIcon, AlertTriangleIcon, CheckIcon, XIcon, ArrowLeftIcon, BarChartIcon, TrendingUpIcon, AwardIcon, TargetIcon, PlayIcon } from '@/components/icons'
 
 export default function PerformancePage() {
   const router = useRouter()
@@ -261,7 +261,7 @@ export default function PerformancePage() {
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
             <div className="flex items-center gap-3">
               <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center">
-                <BarChartIcon size={24} className="text-blue-400" />
+                <BarChartIcon size={20} className="text-blue-400" />
               </div>
               <h2 className="text-2xl font-semibold text-gray-200">
                 Mastery Heatmap
@@ -347,13 +347,17 @@ export default function PerformancePage() {
             </div>
           ) : (
             <div className="neuro-inset p-8 rounded-lg text-center">
-              <div className="text-gray-500 mb-2">No mastery data yet</div>
-              <div className="text-sm text-gray-600">Start learning to see your progress!</div>
+              <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <BarChartIcon size={40} className="text-gray-600" />
+              </div>
+              <div className="text-gray-400 text-lg mb-2 font-semibold">No mastery data yet</div>
+              <div className="text-sm text-gray-600 mb-6">Start learning to see your progress!</div>
               <Link
                 href={`/learn/${chapterId}`}
-                className="neuro-btn-primary inline-block mt-4"
+                className="neuro-btn-primary inline-flex items-center gap-2 px-6 py-3"
               >
-                Start Learning
+                <PlayIcon size={18} />
+                <span>Start Learning</span>
               </Link>
             </div>
           )}
@@ -362,7 +366,7 @@ export default function PerformancePage() {
         {/* Recent Activity */}
         <div className="neuro-card">
           <div className="flex items-center gap-3 mb-6">
-            <div className="neuro-inset w-10 h-10 rounded-lg flex items-center justify-center">
+            <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center">
               <TrendingUpIcon size={20} className="text-purple-400" />
             </div>
             <h2 className="text-xl font-semibold text-gray-200">
@@ -445,8 +449,18 @@ export default function PerformancePage() {
             </div>
           ) : (
             <div className="neuro-inset p-8 rounded-lg text-center">
-              <div className="text-gray-500 mb-2">No activity yet</div>
-              <div className="text-sm text-gray-600">Answer some questions to see your history!</div>
+              <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <TrendingUpIcon size={40} className="text-gray-600" />
+              </div>
+              <div className="text-gray-400 text-lg mb-2 font-semibold">No activity yet</div>
+              <div className="text-sm text-gray-600 mb-6">Answer some questions to see your history!</div>
+              <Link
+                href={`/learn/${chapterId}`}
+                className="neuro-btn-primary inline-flex items-center gap-2 px-6 py-3"
+              >
+                <PlayIcon size={18} />
+                <span>Start Learning</span>
+              </Link>
             </div>
           )}
         </div>

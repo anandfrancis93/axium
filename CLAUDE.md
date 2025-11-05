@@ -860,10 +860,204 @@ chore: Update dependencies
 
 ---
 
+### 17. UI/UX Design System - Minimal Neumorphic
+
+**Philosophy**: Clean neumorphic design with essential elements only. Minimize cognitive load.
+
+#### Core Principles
+1. **One primary action per view** - Clear next step
+2. **Progressive disclosure** - Show only what's needed now
+3. **Consistent patterns** - Learn once, use everywhere
+4. **Scannable hierarchy** - F-pattern friendly
+5. **Generous whitespace** - Reduce visual overwhelm
+
+#### Color Palette (Minimal)
+```typescript
+// Base
+--background: #0a0a0a
+
+// Actions & Feedback
+--primary: #3b82f6        // Blue (single action color)
+--success: #10b981        // Green
+--warning: #f59e0b        // Yellow
+--error: #ef4444          // Red
+
+// Text (Only 2 levels)
+--text-primary: gray-200
+--text-secondary: gray-500
+```
+
+#### Icons (Functional Only)
+```typescript
+// Import from components/icons.tsx - NO EMOJIS EVER
+
+// Size hierarchy:
+18px - Button icons
+20px - Section header icons
+40px - Empty state icons
+
+// Usage rules:
+- Use only when they reduce comprehension time
+- Max 1 icon per UI element
+- NO decorative icons
+```
+
+#### Components (Essential Set)
+```typescript
+// Containers
+.neuro-card           // Main content containers
+.neuro-inset          // Inputs, sunken surfaces
+
+// Actions
+.neuro-btn-primary    // Primary action (limit 1 per section)
+.neuro-btn            // Secondary actions
+.neuro-btn-error      // Destructive actions
+
+// Avoid: Nested cards, excessive badges
+```
+
+#### Typography (3-Level Max)
+```typescript
+// Page title → Section → Body
+text-2xl font-bold        // Page titles
+text-xl font-semibold     // Section headers
+text-sm                   // Body/metadata
+
+// Max 3 levels per page
+```
+
+#### Spacing (Generous Whitespace)
+```typescript
+// Gaps - Clear separation
+gap-4, gap-6              // Not gap-2/3 (too cramped)
+
+// Padding - Breathing room
+p-6, p-8                  // Never cramped
+
+// Between sections
+mb-6, mb-8                // Clear breaks
+```
+
+#### Responsiveness (Mobile-First, Fluid)
+```typescript
+// Breakpoints
+sm:  640px   (mobile landscape)
+md:  768px   (tablet)
+lg:  1024px  (desktop)
+xl:  1280px  (large desktop)
+2xl: 1536px  (extra large)
+
+// Custom: 1440px, 1920px (FHD), 2560px (QHD), 3840px (4K)
+
+// Scaling: 320px → 4K (3840px)
+Mobile:    1 column
+Tablet:    2 columns
+Desktop:   3-4 columns
+4K:        Max-width centered (7xl: 1280px)
+
+// Pattern
+<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+// Grid scaling
+grid-cols-1 sm:grid-cols-2 lg:grid-cols-4
+
+// NO horizontal scroll at any breakpoint
+// Touch targets: 44×44px minimum on mobile
+```
+
+#### Interactive (Predictable)
+```typescript
+// Buttons - Consistent hover
+hover:translateY(-2px)    // Subtle lift
+active:translateY(0)      // Press down
+transition-all duration-200
+
+// Selection
+ring-2 ring-blue-400
+
+// NO excessive animations
+```
+
+#### Common Patterns
+
+**Section Header**
+```tsx
+<div className="flex items-center gap-3">
+  <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center">
+    <IconName size={20} className="text-blue-400" />
+  </div>
+  <h2 className="text-xl font-semibold text-gray-200">
+    Section Title
+  </h2>
+</div>
+```
+
+**Empty State**
+```tsx
+<div className="neuro-inset p-8 rounded-lg text-center">
+  <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+    <IconName size={40} className="text-gray-600" />
+  </div>
+  <div className="text-gray-400 text-lg font-semibold mb-2">
+    No data yet
+  </div>
+  <div className="text-sm text-gray-600 mb-6">
+    Description text here
+  </div>
+  <Link href="/action" className="neuro-btn-primary inline-flex items-center gap-2 px-6 py-3">
+    <IconName size={18} />
+    <span>Primary Action</span>
+  </Link>
+</div>
+```
+
+**Stats Card**
+```tsx
+<div className="neuro-stat group">
+  <div className="flex items-center justify-between mb-3">
+    <div className="text-sm text-blue-400 font-medium">Label</div>
+    <IconName size={20} className="text-blue-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+  </div>
+  <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
+    {value}
+  </div>
+  <div className="text-xs text-gray-600 mt-2">
+    Subtitle
+  </div>
+</div>
+```
+
+#### Reduce Cognitive Load Checklist
+- ✅ Same button styles everywhere
+- ✅ Same header pattern on all pages
+- ✅ Same empty state pattern
+- ✅ Limit choices (1-3 actions max)
+- ✅ Hide advanced features until needed
+- ❌ No redundant information
+- ❌ No decorative elements
+- ❌ No ambiguous actions
+- ❌ NO EMOJIS - Use SVG icons only
+
+#### Information Display
+```typescript
+// Progressive disclosure
+Start with summary → Drill down for details
+
+// Data tables
+Max 10 rows → Paginate
+Horizontal scroll on mobile if needed
+
+// Stats grid
+Max 4 cards per row (1→2→4 scaling)
+```
+
+---
+
 ## Quick Reference Checklist
 
 Before committing code, verify:
 
+**Code Quality**
 - [ ] **Task checklist updated** (marked completed tasks as done)
 - [ ] No duplicated logic (DRY)
 - [ ] Single source of truth maintained
@@ -880,6 +1074,18 @@ Before committing code, verify:
 - [ ] Database queries are centralized
 - [ ] AI calls have retry logic
 - [ ] Performance considered (N+1 queries avoided)
+
+**UI/UX Design**
+- [ ] NO EMOJIS - SVG icons only (from components/icons.tsx)
+- [ ] Max 1 primary action per section (neuro-btn-primary)
+- [ ] Consistent header pattern (w-12 h-12 icon container)
+- [ ] Empty states follow pattern (w-20 h-20 icon, centered)
+- [ ] Generous spacing (gap-4/6, p-6/8, mb-6/8)
+- [ ] Mobile-first responsive (grid-cols-1 sm:... lg:...)
+- [ ] Max 3 typography levels per page
+- [ ] Semantic colors (blue=primary, green=success, yellow=warning, red=error)
+- [ ] Minimal cognitive load (no visual clutter)
+- [ ] Predictable interactions (consistent hover/active states)
 
 ---
 
