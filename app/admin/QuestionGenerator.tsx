@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 type Chapter = {
   id: string
   name: string
-  subjects: { name: string }
+  subjects: { name: string } | null
 }
 
 type GeneratedQuestion = {
@@ -61,7 +61,7 @@ export function QuestionGenerator() {
     if (error) {
       console.error('Error loading chapters:', error)
     } else {
-      setChapters(data || [])
+      setChapters((data as any) || [])
     }
   }
 
@@ -128,7 +128,7 @@ export function QuestionGenerator() {
               <option value="">Select a chapter...</option>
               {chapters.map((chapter) => (
                 <option key={chapter.id} value={chapter.id}>
-                  {chapter.subjects.name} - {chapter.name}
+                  {chapter.subjects?.name || 'Unknown'} - {chapter.name}
                 </option>
               ))}
             </select>
