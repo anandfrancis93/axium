@@ -81,7 +81,7 @@ export default function PerformancePage() {
         const sessionIds = chapterSessions.map(s => s.id)
         const { data: responsesData } = await supabase
           .from('user_responses')
-          .select('*')
+          .select('*, topics(name)')
           .eq('user_id', user.id)
           .in('session_id', sessionIds)
           .order('created_at', { ascending: false })
@@ -481,50 +481,59 @@ Mastery grows with correct answers and high confidence`
               {recentActivity.length > 0 ? (
                 <div className="space-y-4">
                   {recentActivity.slice(0, 10).map((response: any) => {
-                    // Parse arm_selected to get topic and bloom level
-                    const armParts = response.arm_selected?.split('_') || []
-                    const bloomLevel = armParts.length > 0 ? armParts[armParts.length - 1] : null
-                    const topic = armParts.length > 1 ? armParts.slice(0, -1).join('_') : null
+                    const topicName = response.topics?.name || 'Unknown Topic'
 
                     return (
                       <div
                         key={response.id}
                         className="neuro-inset p-4 rounded-lg"
                       >
-                        <div className="flex items-start gap-4">
-                          <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                            response.is_correct ? 'bg-green-500/20' : 'bg-red-500/20'
-                          }`}>
-                            {response.is_correct ? (
-                              <CheckIcon size={18} className="text-green-400" />
-                            ) : (
-                              <XIcon size={18} className="text-red-400" />
-                            )}
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex flex-wrap items-center gap-3 text-sm mb-3">
-                              {response.bloom_level && (
-                                <span className="neuro-raised px-2 py-1 rounded text-blue-400">
-                                  Bloom L{response.bloom_level}
-                                </span>
-                              )}
-                              {response.confidence !== null && response.confidence !== undefined && (
-                                <span className="text-gray-500">
-                                  Confidence: {response.confidence}/5
-                                </span>
-                              )}
-                              {response.reward !== null && response.reward !== undefined && (
-                                <span className={`font-medium ${
-                                  response.reward >= 0 ? 'text-green-400' : 'text-red-400'
-                                }`}>
-                                  Reward: {response.reward >= 0 ? '+' : ''}{response.reward.toFixed(2)}
-                                </span>
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-center gap-3">
+                            <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                              response.is_correct ? 'bg-green-500/20' : 'bg-red-500/20'
+                            }`}>
+                              {response.is_correct ? (
+                                <CheckIcon size={18} className="text-green-400" />
+                              ) : (
+                                <XIcon size={18} className="text-red-400" />
                               )}
                             </div>
+                            <div>
+                              <div className="font-medium text-gray-200">{topicName}</div>
+                              <div className="text-sm text-gray-500">
+                                {response.is_correct ? 'Correct answer' : 'Incorrect answer'}
+                              </div>
+                            </div>
                           </div>
-                          <div className="flex-shrink-0 text-sm text-gray-500">
+                          <div className="text-sm text-gray-500">
                             {new Date(response.created_at).toLocaleDateString()}
                           </div>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-3 text-sm">
+                          {response.bloom_level && (
+                            <Tooltip content="Bloom's Taxonomy difficulty level (1=Remember to 6=Create)">
+                              <span className="neuro-raised px-2 py-1 rounded text-blue-400">
+                                Level {response.bloom_level}
+                              </span>
+                            </Tooltip>
+                          )}
+                          {response.confidence !== null && response.confidence !== undefined && (
+                            <Tooltip content="How confident you felt when answering (1=Not confident to 5=Very confident)">
+                              <span className="text-gray-500">
+                                Confidence: {response.confidence}/5
+                              </span>
+                            </Tooltip>
+                          )}
+                          {response.reward !== null && response.reward !== undefined && (
+                            <Tooltip content="Learning reward based on correctness, confidence calibration, and other factors. Higher rewards = better learning progress">
+                              <span className={`font-medium ${
+                                response.reward >= 0 ? 'text-green-400' : 'text-red-400'
+                              }`}>
+                                Score: {response.reward >= 0 ? '+' : ''}{response.reward.toFixed(1)}
+                              </span>
+                            </Tooltip>
+                          )}
                         </div>
                       </div>
                     )
