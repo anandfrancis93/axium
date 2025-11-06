@@ -8,6 +8,7 @@ import HamburgerMenu from '@/components/HamburgerMenu'
 import { RLPhaseBadge } from '@/components/RLPhaseBadge'
 import { getAllRLPhasesData } from '@/lib/utils/rl-phase'
 import { Tooltip } from '@/components/Tooltip'
+import { LockIcon, LockOpenIcon } from '@/components/icons'
 
 const BLOOM_LEVELS = [
   { num: 1, name: 'Remember' },
@@ -30,6 +31,7 @@ export default function TopicMasteryPage() {
   const [summary, setSummary] = useState<any>(null)
   const [chapterData, setChapterData] = useState<any>(null)
   const [rlPhase, setRlPhase] = useState<string | null>(null)
+  const [currentBloomLevel, setCurrentBloomLevel] = useState<number>(1)
   const [statsExpanded, setStatsExpanded] = useState(true)
   const [matrixExpanded, setMatrixExpanded] = useState(true)
   const [bloomExpanded, setBloomExpanded] = useState(false)
@@ -88,12 +90,13 @@ export default function TopicMasteryPage() {
       if (topicData) {
         const { data: progressData } = await supabase
           .from('user_progress')
-          .select('rl_phase')
+          .select('rl_phase, current_bloom_level')
           .eq('user_id', user.id)
           .eq('topic_id', topicData.id)
           .single()
 
         setRlPhase(progressData?.rl_phase || null)
+        setCurrentBloomLevel(progressData?.current_bloom_level || 1)
       }
 
       setLoading(false)
@@ -350,10 +353,28 @@ export default function TopicMasteryPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {matrixByBloom.map(bloomLevel => (
+                      {matrixByBloom.map(bloomLevel => {
+                        const isLocked = bloomLevel.num > currentBloomLevel
+                        const hasAnyData = bloomLevel.dimensions.some(d => (d.unique_questions_count || 0) > 0)
+                        const isUnlockedNoData = !isLocked && !hasAnyData
+
+                        return (
                         <tr key={bloomLevel.num} className="border-t border-gray-800">
                           <td className="sticky left-0 z-10 bg-[#0a0a0a] p-4 font-medium text-gray-200 border-r border-gray-800">
                             <div className="flex items-center gap-2">
+                              {isLocked ? (
+                                <Tooltip content={`Locked - Complete Level ${bloomLevel.num - 1} to unlock`}>
+                                  <div className="inline-flex">
+                                    <LockIcon size={16} className="text-gray-600" />
+                                  </div>
+                                </Tooltip>
+                              ) : isUnlockedNoData ? (
+                                <Tooltip content={`Unlocked, no attempts yet`}>
+                                  <div className="inline-flex">
+                                    <LockOpenIcon size={16} className="text-gray-500" />
+                                  </div>
+                                </Tooltip>
+                              ) : null}
                               <span className="text-white">L{bloomLevel.num}</span>
                               <span className="text-sm text-gray-500">{bloomLevel.name}</span>
                             </div>
@@ -384,7 +405,8 @@ export default function TopicMasteryPage() {
                             )
                           })}
                         </tr>
-                      ))}
+                        )
+                      })}
                     </tbody>
                   </table>
                 </div>
