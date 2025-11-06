@@ -184,17 +184,31 @@ Return ONLY valid JSON, no other text.`
   const q = questionsData.questions[0]
 
   // Look up topic_id from topics table
+  console.log(`[TOPIC LOOKUP] Searching for topic: "${topic}" in chapter: ${chapterId}`)
+
   const { data: topicRecord, error: topicError } = await supabase
     .from('topics')
-    .select('id')
+    .select('id, name')
     .eq('chapter_id', chapterId)
     .eq('name', topic)
     .single()
 
   if (topicError || !topicRecord) {
-    console.error('Topic not found:', topic, topicError)
-    // Fallback: return ephemeral question without storing
-    return {
+    console.error(`[TOPIC LOOKUP FAILED] Topic: "${topic}"`)
+    console.error('[TOPIC ERROR]', topicError)
+
+    // Try to find similar topics to help debug
+    const { data: similarTopics } = await supabase
+      .from('topics')
+      .select('name')
+      .eq('chapter_id', chapterId)
+      .limit(5)
+
+    console.log('[FIRST 5 TOPICS IN DB]', similarTopics?.map(t => t.name))
+
+    // Fallback: Store question anyway with null topic_id (will fail foreign key constraint)
+    // This will surface the error properly instead of silently returning ephemeral
+    const questionWithoutTopic = {
       id: `ephemeral-${Date.now()}-${Math.random().toString(36).substring(7)}`,
       chapter_id: chapterId,
       question_text: q.question_text,
@@ -324,7 +338,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('Selected arm:', selectedArm)
+    console.log('[THOMPSON SAMPLING] Selected arm:', {
+      topic: selectedArm.topic,
+      bloomLevel: selectedArm.bloomLevel
+    })
 
     // Step 1: Check for existing questions for spaced repetition
     const { data: existingQuestions } = await supabase
