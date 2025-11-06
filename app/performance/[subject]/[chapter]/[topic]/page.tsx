@@ -7,6 +7,7 @@ import Link from 'next/link'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import { RLPhaseBadge } from '@/components/RLPhaseBadge'
 import { getRLPhaseContext } from '@/lib/utils/rl-phase'
+import { TargetIcon, CheckIcon, TrendingUpIcon, AwardIcon, BarChartIcon, InfoIcon, PlayIcon } from '@/components/icons'
 
 const BLOOM_LEVELS = [
   { num: 1, name: 'Remember' },
@@ -29,6 +30,9 @@ export default function TopicMasteryPage() {
   const [summary, setSummary] = useState<any>(null)
   const [chapterData, setChapterData] = useState<any>(null)
   const [rlPhase, setRlPhase] = useState<string | null>(null)
+  const [statsExpanded, setStatsExpanded] = useState(true)
+  const [matrixExpanded, setMatrixExpanded] = useState(true)
+  const [bloomExpanded, setBloomExpanded] = useState(false)
 
   useEffect(() => {
     loadData()
@@ -100,18 +104,15 @@ export default function TopicMasteryPage() {
   }
 
   const getStatusColor = (status: string, masteryLevel: string, uniqueCount: number) => {
-    // Special handling for deep mastery
     if (status === 'mastered' && masteryLevel === 'deep') {
       return 'text-green-700'
     }
 
-    // Insufficient data (< 3 unique questions)
     if (status === 'insufficient_data' || uniqueCount < 3) {
       if (uniqueCount === 0) return 'text-gray-500'
       return 'text-yellow-500'
     }
 
-    // Normal mastery statuses
     switch (status) {
       case 'mastered': return 'text-green-500'
       case 'proficient': return 'text-blue-500'
@@ -146,7 +147,7 @@ export default function TopicMasteryPage() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#0a0a0a' }}>
         <div className="neuro-card max-w-md text-center">
-          <div className="text-blue-400 text-lg">Loading dimension matrix...</div>
+          <div className="text-blue-400 text-lg">Loading...</div>
         </div>
       </div>
     )
@@ -166,210 +167,324 @@ export default function TopicMasteryPage() {
 
   return (
     <div className="min-h-screen" style={{ background: '#0a0a0a' }}>
-      {/* Header */}
-      <header className="neuro-container mx-4 my-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between gap-3 mb-4">
-            <div className="min-w-0 flex-shrink">
-              <div className="text-sm text-gray-500 truncate">{chapterData?.subjects?.name} • {chapterData?.name}</div>
-              <h1 className="text-2xl font-bold text-gray-200 truncate">
-                {topic}
-              </h1>
-              {rlPhase && (
-                <div className="mt-3">
-                  <RLPhaseBadge phase={rlPhase} showDescription={false} />
-                  <div className="mt-2 neuro-inset p-3 rounded-lg max-w-2xl">
-                    <div className="flex items-start gap-2">
-                      <div className="text-blue-400 text-lg flex-shrink-0">ℹ️</div>
-                      <div className="text-sm text-gray-400 leading-relaxed">
-                        {getRLPhaseContext(rlPhase)}
-                      </div>
-                    </div>
-                  </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="neuro-card mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4 min-w-0 flex-1">
+              <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0">
+                <TargetIcon size={20} className="text-blue-400" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm text-gray-500 truncate">
+                  {chapterData?.subjects?.name} • {chapterData?.name}
                 </div>
-              )}
+                <h1 className="text-2xl font-semibold text-gray-200 truncate">
+                  {topic}
+                </h1>
+              </div>
             </div>
-            <div className="flex-shrink-0">
-              <HamburgerMenu />
-            </div>
+            <HamburgerMenu />
           </div>
 
-          {/* Summary Stats */}
-          {summary && (
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <div className="neuro-stat cursor-help" title="6 Bloom × {dimensions.length} Dimensions">
-                <div className="text-sm text-blue-400 mb-1">Total Cells</div>
-                <div className="text-3xl font-bold text-gray-200">{summary.total_cells}</div>
-              </div>
-              <div className="neuro-stat cursor-help" title={`${summary.tested_cells}/${summary.total_cells} tested`}>
-                <div className="text-sm text-cyan-400 mb-1">Coverage</div>
-                <div className="text-3xl font-bold text-gray-200">{summary.coverage_percentage}%</div>
-              </div>
-              <div className="neuro-stat cursor-help" title="cells with 3+ unique">
-                <div className="text-sm text-blue-400 mb-1">Min Questions</div>
-                <div className="text-3xl font-bold text-gray-200">{summary.cells_with_min_questions}</div>
-              </div>
-              <div className="neuro-stat cursor-help" title={`${summary.mastery_percentage}% of total`}>
-                <div className="text-sm text-green-400 mb-1">Initial Mastery</div>
-                <div className="text-3xl font-bold text-gray-200">{summary.mastered_cells}</div>
-              </div>
-              <div className="neuro-stat cursor-help" title="5+ unique questions">
-                <div className="text-sm text-cyan-400 mb-1">Deep Mastery</div>
-                <div className="text-3xl font-bold text-gray-200">
-                  {summary.deep_mastery_cells || 0}
+          {/* RL Phase Badge */}
+          {rlPhase && (
+            <div className="mb-6">
+              <RLPhaseBadge phase={rlPhase} showDescription={false} />
+              <div className="mt-4 neuro-inset p-4 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <div className="neuro-inset w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <InfoIcon size={16} className="text-blue-400" />
+                  </div>
+                  <div className="text-sm text-gray-400 leading-relaxed">
+                    {getRLPhaseContext(rlPhase)}
+                  </div>
                 </div>
               </div>
             </div>
           )}
-        </div>
-      </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        {/* Legend */}
-        <div className="neuro-card mb-6">
-          <h3 className="text-sm font-medium text-gray-400 mb-4">Adaptive Mastery Levels:</h3>
-          <div className="flex flex-wrap gap-4 text-sm">
-            <div className="flex items-center gap-2 cursor-help" title="0 unique questions">
-              <div className="w-4 h-4 rounded bg-gray-800"></div>
-              <span className="text-gray-500">Not Tested</span>
-            </div>
-            <div className="flex items-center gap-2 cursor-help" title="<3 unique questions">
-              <div className="w-4 h-4 rounded bg-gray-700 border border-yellow-500/30"></div>
-              <span className="text-gray-500">Insufficient Data</span>
-            </div>
-            <div className="flex items-center gap-2 cursor-help" title="3+ unique, <40%">
-              <div className="w-4 h-4 rounded bg-red-500"></div>
-              <span className="text-gray-500">Struggling</span>
-            </div>
-            <div className="flex items-center gap-2 cursor-help" title="3+ unique, 40-59%">
-              <div className="w-4 h-4 rounded bg-yellow-500"></div>
-              <span className="text-gray-500">Developing</span>
-            </div>
-            <div className="flex items-center gap-2 cursor-help" title="3+ unique, 60-79%">
-              <div className="w-4 h-4 rounded bg-blue-500"></div>
-              <span className="text-gray-500">Proficient</span>
-            </div>
-            <div className="flex items-center gap-2 cursor-help" title="3+ unique, 80%+">
-              <div className="w-4 h-4 rounded bg-green-500"></div>
-              <span className="text-gray-500">Initial Mastery</span>
-            </div>
-            <div className="flex items-center gap-2 cursor-help" title="5+ unique, 80%+">
-              <div className="w-4 h-4 rounded bg-green-700"></div>
-              <span className="text-gray-500">Deep Mastery</span>
-            </div>
-          </div>
-          <div className="mt-4 text-sm text-gray-500">
-            <strong>Note:</strong> Spaced repetition repeats do not count toward unique questions. Only new questions count for mastery progress.
-          </div>
+          {/* Primary Action */}
+          <Link
+            href={`/subjects/${subject}/${chapter}/quiz`}
+            className="neuro-btn text-blue-400 inline-flex items-center gap-2"
+          >
+            <PlayIcon size={18} />
+            <span>Continue Learning</span>
+          </Link>
         </div>
 
-        {/* Dimension Matrix */}
-        <div className="neuro-card overflow-x-auto scrollbar-custom pb-6">
-          <h2 className="text-xl font-semibold text-gray-200 mb-6">
-            Comprehensive Mastery Matrix (Bloom × Dimension)
-          </h2>
+        {/* Summary Stats Section */}
+        {summary && (
+          <div className="neuro-card mb-8">
+            <button
+              type="button"
+              onClick={() => setStatsExpanded(!statsExpanded)}
+              className="w-full flex items-center justify-between mb-6"
+            >
+              <div className="flex items-center gap-4">
+                <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center">
+                  <BarChartIcon size={20} className="text-blue-400" />
+                </div>
+                <h2 className="text-xl font-semibold text-gray-200">
+                  Mastery Overview
+                </h2>
+              </div>
+              <span className="text-gray-400 text-xl">
+                {statsExpanded ? '▼' : '▶'}
+              </span>
+            </button>
 
-          {dimensions.length > 0 ? (
-            <table className="w-full text-sm">
-              <thead>
-                <tr>
-                  <th className="sticky left-0 z-10 bg-[#0a0a0a] text-left p-4 text-gray-400 font-medium border-r border-gray-800">
-                    Bloom Level
-                  </th>
-                  {dimensions.map(dim => (
-                    <th key={dim.key} className="p-4 text-center text-gray-400 font-medium min-w-[120px]">
-                      <div className="text-sm">{dim.name}</div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {matrixByBloom.map(bloomLevel => (
-                  <tr key={bloomLevel.num} className="border-t border-gray-800">
-                    <td className="sticky left-0 z-10 bg-[#0a0a0a] p-4 font-medium text-gray-200 border-r border-gray-800">
-                      <div className="flex items-center gap-2">
-                        <span className="text-white">L{bloomLevel.num}</span>
-                        <span className="text-sm text-gray-500">{bloomLevel.name}</span>
-                      </div>
-                    </td>
-                    {dimensions.map(dim => {
-                      const cell = bloomLevel.dimensions.find(d => d.dimension === dim.key)
-                      const uniqueCount = cell?.unique_questions_count || 0
-                      const totalAttempts = cell?.total_attempts || 0
-                      const status = cell?.mastery_status || 'not_tested'
-                      const masteryLevel = cell?.mastery_level || 'none'
-
-                      return (
-                        <td key={`${bloomLevel.num}-${dim.key}`} className="p-4 text-center">
-                          <div
-                            className={`${getStatusColor(status, masteryLevel, uniqueCount)} cursor-help relative inline-block`}
-                            title={`${topic} - ${bloomLevel.name} - ${dim.name}\nScore: ${cell?.average_score || 0}%\nUnique Questions: ${uniqueCount}\nTotal Attempts: ${totalAttempts} (${totalAttempts - uniqueCount} repeats)\nStatus: ${getStatusLabel(status, masteryLevel, uniqueCount, totalAttempts)}`}
-                          >
-                            {uniqueCount > 0 ? (
-                              <>
-                                <div className="font-bold text-lg">
-                                  {Math.round(cell.average_score)}%
-                                </div>
-                                <div className="text-xs opacity-75 flex items-center gap-1 justify-center">
-                                  <span>{uniqueCount}</span>
-                                  {totalAttempts > uniqueCount && (
-                                    <span>+{totalAttempts - uniqueCount}</span>
-                                  )}
-                                </div>
-                              </>
-                            ) : (
-                              <div className="text-lg">-</div>
-                            )}
-                          </div>
-                        </td>
-                      )
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <div className="text-center text-gray-500 py-12">
-              <div className="text-lg mb-2">No data yet</div>
-              <div className="text-sm">Start learning to see your mastery matrix!</div>
-              <Link
-                href={`/subjects/${subject}/${chapter}/quiz`}
-                className="neuro-btn inline-block mt-4 text-blue-400"
-              >
-                Start Learning
-              </Link>
-            </div>
-          )}
-        </div>
-
-        {/* Bloom Level Breakdown */}
-        {summary?.dimensions_per_bloom && (
-          <div className="neuro-card mt-6">
-            <h3 className="text-lg font-semibold text-gray-200 mb-4">Progress by Bloom Level</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {BLOOM_LEVELS.map(level => {
-                const stats = summary.dimensions_per_bloom[level.num.toString()]
-                return (
-                  <div key={level.num} className="neuro-inset p-4 rounded-lg">
-                    <div className="text-blue-400 font-bold mb-2">Level {level.num}</div>
-                    <div className="text-sm text-gray-500 mb-3">{level.name}</div>
-                    <div className="space-y-1 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Tested:</span>
-                        <span className="text-cyan-400">{stats?.tested || 0}/{stats?.total || 0}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Mastered:</span>
-                        <span className="text-green-400">{stats?.mastered || 0}/{stats?.total || 0}</span>
-                      </div>
-                    </div>
+            {statsExpanded && (
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+                <div className="neuro-stat group cursor-help" title={`6 Bloom levels × ${dimensions.length} Dimensions`}>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-sm text-blue-400 font-medium">Total Cells</div>
+                    <TargetIcon size={20} className="text-blue-400 opacity-50 group-hover:opacity-100 transition-opacity" />
                   </div>
-                )
-              })}
-            </div>
+                  <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
+                    {summary.total_cells}
+                  </div>
+                </div>
+
+                <div className="neuro-stat group cursor-help" title={`${summary.tested_cells}/${summary.total_cells} cells tested`}>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-sm text-cyan-400 font-medium">Coverage</div>
+                    <TrendingUpIcon size={20} className="text-cyan-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <div className="text-4xl font-bold text-gray-200 group-hover:text-cyan-400 transition-colors">
+                    {summary.coverage_percentage}%
+                  </div>
+                </div>
+
+                <div className="neuro-stat group cursor-help" title="Cells with 3+ unique questions">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-sm text-blue-400 font-medium">Min Questions</div>
+                    <CheckIcon size={20} className="text-blue-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
+                    {summary.cells_with_min_questions}
+                  </div>
+                </div>
+
+                <div className="neuro-stat group cursor-help" title={`${summary.mastery_percentage}% of total cells`}>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-sm text-green-400 font-medium">Mastered</div>
+                    <AwardIcon size={20} className="text-green-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <div className="text-4xl font-bold text-gray-200 group-hover:text-green-400 transition-colors">
+                    {summary.mastered_cells}
+                  </div>
+                </div>
+
+                <div className="neuro-stat group cursor-help" title="5+ unique questions at 80%+">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-sm text-green-400 font-medium">Deep Mastery</div>
+                    <AwardIcon size={20} className="text-green-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <div className="text-4xl font-bold text-gray-200 group-hover:text-green-400 transition-colors">
+                    {summary.deep_mastery_cells || 0}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
-      </main>
+
+        {/* Mastery Matrix Section */}
+        <div className="neuro-card mb-8">
+          <button
+            type="button"
+            onClick={() => setMatrixExpanded(!matrixExpanded)}
+            className="w-full flex items-center justify-between mb-6"
+          >
+            <div className="flex items-center gap-4">
+              <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center">
+                <TargetIcon size={20} className="text-blue-400" />
+              </div>
+              <h2 className="text-xl font-semibold text-gray-200">
+                Comprehensive Mastery Matrix
+              </h2>
+            </div>
+            <span className="text-gray-400 text-xl">
+              {matrixExpanded ? '▼' : '▶'}
+            </span>
+          </button>
+
+          {matrixExpanded && (
+            <>
+              {/* Legend */}
+              <div className="mb-6 p-4 neuro-inset rounded-lg">
+                <h3 className="text-sm font-medium text-gray-400 mb-4">Mastery Levels:</h3>
+                <div className="flex flex-wrap gap-4 text-sm">
+                  <div className="flex items-center gap-2 cursor-help" title="0 unique questions">
+                    <div className="w-4 h-4 rounded bg-gray-800"></div>
+                    <span className="text-gray-500">Not Tested</span>
+                  </div>
+                  <div className="flex items-center gap-2 cursor-help" title="<3 unique questions">
+                    <div className="w-4 h-4 rounded bg-gray-700 border border-yellow-500/30"></div>
+                    <span className="text-gray-500">Insufficient</span>
+                  </div>
+                  <div className="flex items-center gap-2 cursor-help" title="3+ unique, <40%">
+                    <div className="w-4 h-4 rounded bg-red-500"></div>
+                    <span className="text-gray-500">Struggling</span>
+                  </div>
+                  <div className="flex items-center gap-2 cursor-help" title="3+ unique, 40-59%">
+                    <div className="w-4 h-4 rounded bg-yellow-500"></div>
+                    <span className="text-gray-500">Developing</span>
+                  </div>
+                  <div className="flex items-center gap-2 cursor-help" title="3+ unique, 60-79%">
+                    <div className="w-4 h-4 rounded bg-blue-500"></div>
+                    <span className="text-gray-500">Proficient</span>
+                  </div>
+                  <div className="flex items-center gap-2 cursor-help" title="3+ unique, 80%+">
+                    <div className="w-4 h-4 rounded bg-green-500"></div>
+                    <span className="text-gray-500">Mastered</span>
+                  </div>
+                  <div className="flex items-center gap-2 cursor-help" title="5+ unique, 80%+">
+                    <div className="w-4 h-4 rounded bg-green-700"></div>
+                    <span className="text-gray-500">Deep Mastery</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Matrix Table */}
+              {dimensions.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr>
+                        <th className="sticky left-0 z-10 bg-[#0a0a0a] text-left p-4 text-gray-400 font-medium border-r border-gray-800">
+                          Bloom Level
+                        </th>
+                        {dimensions.map(dim => (
+                          <th key={dim.key} className="p-4 text-center text-gray-400 font-medium min-w-[120px]">
+                            <div className="text-sm">{dim.name}</div>
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {matrixByBloom.map(bloomLevel => (
+                        <tr key={bloomLevel.num} className="border-t border-gray-800">
+                          <td className="sticky left-0 z-10 bg-[#0a0a0a] p-4 font-medium text-gray-200 border-r border-gray-800">
+                            <div className="flex items-center gap-2">
+                              <span className="text-white">L{bloomLevel.num}</span>
+                              <span className="text-sm text-gray-500">{bloomLevel.name}</span>
+                            </div>
+                          </td>
+                          {dimensions.map(dim => {
+                            const cell = bloomLevel.dimensions.find(d => d.dimension === dim.key)
+                            const uniqueCount = cell?.unique_questions_count || 0
+                            const totalAttempts = cell?.total_attempts || 0
+                            const status = cell?.mastery_status || 'not_tested'
+                            const masteryLevel = cell?.mastery_level || 'none'
+
+                            return (
+                              <td key={`${bloomLevel.num}-${dim.key}`} className="p-4 text-center">
+                                <div
+                                  className={`${getStatusColor(status, masteryLevel, uniqueCount)} cursor-help relative inline-block`}
+                                  title={`${topic} - ${bloomLevel.name} - ${dim.name}\nScore: ${cell?.average_score || 0}%\nUnique Questions: ${uniqueCount}\nTotal Attempts: ${totalAttempts} (${totalAttempts - uniqueCount} repeats)\nStatus: ${getStatusLabel(status, masteryLevel, uniqueCount, totalAttempts)}`}
+                                >
+                                  {uniqueCount > 0 ? (
+                                    <>
+                                      <div className="font-bold text-lg">
+                                        {Math.round(cell.average_score)}%
+                                      </div>
+                                      <div className="text-xs opacity-75 flex items-center gap-1 justify-center">
+                                        <span>{uniqueCount}</span>
+                                        {totalAttempts > uniqueCount && (
+                                          <span>+{totalAttempts - uniqueCount}</span>
+                                        )}
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <div className="text-lg">-</div>
+                                  )}
+                                </div>
+                              </td>
+                            )
+                          })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="neuro-inset p-8 rounded-lg text-center">
+                  <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <TargetIcon size={40} className="text-gray-600" />
+                  </div>
+                  <div className="text-gray-400 text-lg font-semibold mb-2">
+                    No data yet
+                  </div>
+                  <div className="text-sm text-gray-600 mb-6">
+                    Start learning to see your mastery matrix
+                  </div>
+                  <Link
+                    href={`/subjects/${subject}/${chapter}/quiz`}
+                    className="neuro-btn text-blue-400 inline-flex items-center gap-2"
+                  >
+                    <PlayIcon size={18} />
+                    <span>Start Learning</span>
+                  </Link>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Bloom Level Breakdown Section */}
+        {summary?.dimensions_per_bloom && (
+          <div className="neuro-card">
+            <button
+              type="button"
+              onClick={() => setBloomExpanded(!bloomExpanded)}
+              className="w-full flex items-center justify-between mb-6"
+            >
+              <div className="flex items-center gap-4">
+                <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center">
+                  <TrendingUpIcon size={20} className="text-blue-400" />
+                </div>
+                <h2 className="text-xl font-semibold text-gray-200">
+                  Progress by Bloom Level
+                </h2>
+              </div>
+              <span className="text-gray-400 text-xl">
+                {bloomExpanded ? '▼' : '▶'}
+              </span>
+            </button>
+
+            {bloomExpanded && (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+                {BLOOM_LEVELS.map(level => {
+                  const stats = summary.dimensions_per_bloom[level.num.toString()]
+                  return (
+                    <div key={level.num} className="neuro-stat group">
+                      <div className="text-blue-400 font-bold mb-2">Level {level.num}</div>
+                      <div className="text-sm text-gray-500 mb-4">{level.name}</div>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Tested:</span>
+                          <span className="text-cyan-400 group-hover:text-cyan-300 transition-colors">
+                            {stats?.tested || 0}/{stats?.total || 0}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Mastered:</span>
+                          <span className="text-green-400 group-hover:text-green-300 transition-colors">
+                            {stats?.mastered || 0}/{stats?.total || 0}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
