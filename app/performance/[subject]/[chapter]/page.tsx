@@ -479,28 +479,28 @@ Mastery grows with correct answers and high confidence`
           {activityExpanded && (
             <div className="mt-6 pt-6 border-t border-gray-800">
               {recentActivity.length > 0 ? (
-                <div className="space-y-4">
+                <div className="space-y-6">
                   {recentActivity.slice(0, 10).map((response: any) => {
                     const topicName = response.topics?.name || 'Unknown Topic'
 
                     return (
                       <div
                         key={response.id}
-                        className="neuro-inset p-4 rounded-lg"
+                        className="neuro-inset p-6 rounded-lg"
                       >
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex items-center gap-3">
-                            <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                        <div className="flex items-start justify-between mb-6">
+                          <div className="flex items-center gap-4">
+                            <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
                               response.is_correct ? 'bg-green-500/20' : 'bg-red-500/20'
                             }`}>
                               {response.is_correct ? (
-                                <CheckIcon size={18} className="text-green-400" />
+                                <CheckIcon size={20} className="text-green-400" />
                               ) : (
-                                <XIcon size={18} className="text-red-400" />
+                                <XIcon size={20} className="text-red-400" />
                               )}
                             </div>
                             <div>
-                              <div className="font-medium text-gray-200">{topicName}</div>
+                              <div className="font-medium text-gray-200 mb-1">{topicName}</div>
                               <div className="text-sm text-gray-500">
                                 {response.is_correct ? 'Correct answer' : 'Incorrect answer'}
                               </div>
@@ -510,7 +510,7 @@ Mastery grows with correct answers and high confidence`
                             {new Date(response.created_at).toLocaleDateString()}
                           </div>
                         </div>
-                        <div className="flex flex-wrap items-center gap-3 text-sm">
+                        <div className="flex flex-wrap items-center gap-4 text-sm">
                           {response.bloom_level && (
                             <Tooltip content="Bloom's Taxonomy difficulty level (1=Remember to 6=Create)">
                               <span className="neuro-raised px-2 py-1 rounded text-blue-400">
