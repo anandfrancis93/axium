@@ -281,11 +281,19 @@ export function ChapterManager() {
                   }
                 }}
                 disabled={loading}
-                className="neuro-input w-full"
+                className="hidden"
               />
+              <button
+                type="button"
+                onClick={() => document.getElementById('chapter-file-input')?.click()}
+                disabled={loading}
+                className="neuro-btn w-full text-gray-300"
+              >
+                {file ? file.name : 'Choose PDF File'}
+              </button>
               {file && (
                 <p className="text-sm text-green-400 mt-1">
-                  Selected: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                  {(file.size / 1024 / 1024).toFixed(2)} MB
                 </p>
               )}
               <p className="text-xs text-gray-500 mt-1">
