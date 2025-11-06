@@ -291,43 +291,43 @@ export default function TopicMasteryPage() {
               <div className="mb-6 p-4 neuro-inset rounded-lg">
                 <h3 className="text-sm font-medium text-gray-400 mb-4">Mastery Levels:</h3>
                 <div className="flex flex-wrap gap-4 text-sm">
-                  <Tooltip content="Not Tested\n\nNo questions answered yet for this combination">
+                  <Tooltip content={`Not Tested\n\nNo questions answered yet for this combination`}>
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded bg-gray-800"></div>
                       <span className="text-gray-500">Not Tested</span>
                     </div>
                   </Tooltip>
-                  <Tooltip content="Insufficient Data\n\nLess than 3 unique questions answered\n\nNeed more data to determine mastery level">
+                  <Tooltip content={`Insufficient Data\n\nLess than 3 unique questions answered\n\nNeed more data to determine mastery level`}>
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded bg-gray-700 border border-yellow-500/30"></div>
                       <span className="text-gray-500">Insufficient</span>
                     </div>
                   </Tooltip>
-                  <Tooltip content="Struggling\n\n3 or more unique questions answered\n\nAverage score: Less than 40%\n\nRecommendation: Review fundamentals and practice more">
+                  <Tooltip content={`Struggling\n\n3 or more unique questions answered\n\nAverage score: Less than 40%\n\nRecommendation: Review fundamentals and practice more`}>
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded bg-red-500"></div>
                       <span className="text-gray-500">Struggling</span>
                     </div>
                   </Tooltip>
-                  <Tooltip content="Developing\n\n3 or more unique questions answered\n\nAverage score: 40-59%\n\nRecommendation: Continue practicing to improve mastery">
+                  <Tooltip content={`Developing\n\n3 or more unique questions answered\n\nAverage score: 40-59%\n\nRecommendation: Continue practicing to improve mastery`}>
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded bg-yellow-500"></div>
                       <span className="text-gray-500">Developing</span>
                     </div>
                   </Tooltip>
-                  <Tooltip content="Proficient\n\n3 or more unique questions answered\n\nAverage score: 60-79%\n\nRecommendation: Good progress, almost ready to advance">
+                  <Tooltip content={`Proficient\n\n3 or more unique questions answered\n\nAverage score: 60-79%\n\nRecommendation: Good progress, almost ready to advance`}>
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded bg-blue-500"></div>
                       <span className="text-gray-500">Proficient</span>
                     </div>
                   </Tooltip>
-                  <Tooltip content="Mastered\n\n3 or more unique questions answered\n\nAverage score: 80% or higher\n\nRecommendation: Ready to advance to next level">
+                  <Tooltip content={`Mastered\n\n3 or more unique questions answered\n\nAverage score: 80% or higher\n\nRecommendation: Ready to advance to next level`}>
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded bg-green-500"></div>
                       <span className="text-gray-500">Mastered</span>
                     </div>
                   </Tooltip>
-                  <Tooltip content="Deep Mastery\n\n5 or more unique questions answered\n\nAverage score: 80% or higher\n\nRecommendation: Excellent mastery, ready for advanced topics">
+                  <Tooltip content={`Deep Mastery\n\n5 or more unique questions answered\n\nAverage score: 80% or higher\n\nRecommendation: Excellent mastery, ready for advanced topics`}>
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded bg-green-700"></div>
                       <span className="text-gray-500">Deep Mastery</span>
