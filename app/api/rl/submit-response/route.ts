@@ -200,31 +200,27 @@ export async function POST(request: NextRequest) {
       console.warn(`Topic not found in topics table: ${topicName}`)
     }
 
-    // Store user response
+    // Store user response (only columns that exist in schema)
     const { data: response, error: responseError } = await supabase
       .from('user_responses')
       .insert({
         session_id,
         question_id,
         user_id: user.id,
-        topic_id: topicRecord?.id || null,  // ✅ Add topic_id
-        bloom_level: question.bloom_level,   // ✅ Add bloom_level
+        topic_id: topicRecord?.id || null,
+        bloom_level: question.bloom_level,
         user_answer,
         is_correct: isCorrect,
-        confidence: confidence,  // ✅ Fixed: was confidence_level
-        recognition_method,
-        mastery_before: masteryUpdates[0].oldMastery,
-        mastery_after: masteryUpdates[0].newMastery,
-        learning_gain: masteryUpdates[0].learningGain,
-        reward_received: rewardComponents.total,
-        arm_selected: arm_selected ? `${arm_selected.topic}_${arm_selected.bloom_level}` : null,
-        answered_at: new Date().toISOString()
+        confidence: confidence,
+        reward: rewardComponents.total,
+        // created_at will be set by database default
       })
       .select()
       .single()
 
     if (responseError) {
       console.error('Error storing response:', responseError)
+      throw new Error(`Failed to store response: ${responseError.message}`)
     }
 
     // Track dimension coverage for comprehensive mastery with unique question tracking
