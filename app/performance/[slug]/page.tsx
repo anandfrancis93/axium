@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { RefreshIcon, AlertTriangleIcon, CheckIcon, XIcon, ArrowLeftIcon, BarChartIcon, TrendingUpIcon, AwardIcon, TargetIcon, PlayIcon } from '@/components/icons'
+import { RefreshIcon, AlertTriangleIcon, CheckIcon, XIcon, BarChartIcon, TrendingUpIcon, AwardIcon, TargetIcon, PlayIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 
 export default function PerformancePage() {
@@ -172,19 +172,13 @@ export default function PerformancePage() {
       {/* Header */}
       <header className="neuro-container mx-4 my-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center flex-wrap gap-4">
-          <div className="flex items-center gap-4">
-            <Link href={`/subjects/${chapter?.subjects?.slug}`} className="neuro-btn flex items-center gap-2">
-              <ArrowLeftIcon size={18} />
-              <span>Back</span>
-            </Link>
-            <div className="neuro-raised px-6 py-3 flex items-center gap-3">
-              <BarChartIcon size={24} className="text-blue-400" />
-              <div>
-                <div className="text-xs text-gray-500">{chapter?.subjects?.name}</div>
-                <h1 className="text-xl font-bold text-gray-200">
-                  {chapter?.name}
-                </h1>
-              </div>
+          <div className="neuro-raised px-6 py-3 flex items-center gap-3">
+            <BarChartIcon size={24} className="text-blue-400" />
+            <div>
+              <div className="text-xs text-gray-500">{chapter?.subjects?.name}</div>
+              <h1 className="text-xl font-bold text-gray-200">
+                {chapter?.name}
+              </h1>
             </div>
           </div>
           <div className="flex items-center gap-3">

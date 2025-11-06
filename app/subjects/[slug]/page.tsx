@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { PlayIcon, BarChartIcon, ArrowLeftIcon, BookIcon, SettingsIcon } from '@/components/icons'
+import { PlayIcon, BarChartIcon, BookIcon, SettingsIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 
 export const dynamic = 'force-dynamic'
@@ -77,17 +77,11 @@ export default async function SubjectPage({
       {/* Header */}
       <header className="neuro-container mx-4 my-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center flex-wrap gap-4">
-          <div className="flex items-center gap-4">
-            <Link href="/home" className="neuro-btn flex items-center gap-2">
-              <ArrowLeftIcon size={18} />
-              <span>Back</span>
-            </Link>
-            <div className="neuro-raised px-6 py-3 flex items-center gap-3">
-              <BookIcon size={24} className="text-blue-400" />
-              <h1 className="text-2xl font-bold text-blue-400">
-                {subject.name}
-              </h1>
-            </div>
+          <div className="neuro-raised px-6 py-3 flex items-center gap-3">
+            <BookIcon size={24} className="text-blue-400" />
+            <h1 className="text-2xl font-bold text-blue-400">
+              {subject.name}
+            </h1>
           </div>
           <HamburgerMenu />
         </div>

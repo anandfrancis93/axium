@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { StarIcon, ArrowLeftIcon } from '@/components/icons'
+import { StarIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 
 const BLOOM_LEVELS = [
@@ -148,16 +148,11 @@ export default function TopicMasteryPage() {
       <header className="neuro-container mx-4 my-4">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between gap-4 mb-4">
-            <div className="flex items-center gap-4">
-              <Link href={`/performance/${slug}`} className="neuro-btn">
-                ← Back to Performance
-              </Link>
-              <div>
-                <div className="text-sm text-gray-500">{chapter?.subjects?.name} • {chapter?.name}</div>
-                <h1 className="text-2xl font-bold text-gray-200">
-                  {topic}
-                </h1>
-              </div>
+            <div>
+              <div className="text-sm text-gray-500">{chapter?.subjects?.name} • {chapter?.name}</div>
+              <h1 className="text-2xl font-bold text-gray-200">
+                {topic}
+              </h1>
             </div>
             <HamburgerMenu />
           </div>
