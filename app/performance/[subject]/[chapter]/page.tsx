@@ -158,8 +158,8 @@ export default function PerformancePage() {
     if (mastery >= 80) return 'text-green-500'
     if (mastery >= 60) return 'text-blue-500'
     if (mastery >= 40) return 'text-yellow-500'
-    if (mastery >= 20) return 'text-yellow-600'
-    return 'text-red-500'
+    if (mastery >= 20) return 'text-red-500'
+    return 'text-gray-500'
   }
 
   const getMasteryLabel = (mastery: number | null) => {
