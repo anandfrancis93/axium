@@ -204,7 +204,7 @@ Return ONLY valid JSON, no other text.`
       .eq('chapter_id', chapterId)
       .limit(5)
 
-    console.log('[FIRST 5 TOPICS IN DB]', similarTopics?.map(t => t.name))
+    console.log('[FIRST 5 TOPICS IN DB]', similarTopics?.map((t: any) => t.name))
 
     // Fallback: Store question anyway with null topic_id (will fail foreign key constraint)
     // This will surface the error properly instead of silently returning ephemeral
