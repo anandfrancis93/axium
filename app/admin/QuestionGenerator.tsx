@@ -325,7 +325,7 @@ export function QuestionGenerator() {
             >
               {recommendedFormats.map((format) => (
                 <option key={format.key} value={format.key}>
-                  {format.icon} {format.name} - {format.description}
+                  {format.name} - {format.description}
                 </option>
               ))}
             </select>
