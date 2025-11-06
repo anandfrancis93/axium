@@ -902,18 +902,90 @@ chore: Update dependencies
 - NO decorative icons
 ```
 
+#### Buttons (Dark with Colored Text)
+```typescript
+// ALL buttons use dark neumorphic background with colored text
+// NO colored background buttons (no neuro-btn-primary, neuro-btn-success, etc.)
+
+// Primary action
+<button className="neuro-btn text-blue-400">
+  Primary Action
+</button>
+
+// Secondary/default actions
+<button className="neuro-btn text-gray-300">
+  Secondary Action
+</button>
+
+// Success actions
+<button className="neuro-btn text-green-400">
+  Confirm
+</button>
+
+// Warning actions
+<button className="neuro-btn text-yellow-400">
+  Review
+</button>
+
+// Destructive actions
+<button className="neuro-btn text-red-400">
+  Delete
+</button>
+
+// Rules:
+// - Always use neuro-btn base class
+// - Color conveys meaning through TEXT color only
+// - No gradient backgrounds
+// - Max 1 primary (blue) action per section
+```
+
+#### Form Controls (Neumorphic Design)
+```typescript
+// Text inputs
+<input className="neuro-input w-full" />
+
+// Select dropdowns
+<select className="neuro-input w-full">
+  <option>Choose...</option>
+</select>
+
+// Textareas
+<textarea className="neuro-input w-full" rows={4} />
+
+// File inputs - Custom styled with neuro-btn
+<input type="file" id="file" className="hidden" />
+<button
+  onClick={() => document.getElementById('file')?.click()}
+  className="neuro-btn text-gray-300"
+>
+  Choose File
+</button>
+
+// Checkboxes/Radio - Minimal styling
+// Use default with custom neuro styling when needed
+
+// Rules:
+// - All form controls use neuro-input
+// - Consistent inset/sunken appearance
+// - No browser default styling
+// - File inputs always use custom button trigger
+```
+
 #### Components (Essential Set)
 ```typescript
 // Containers
 .neuro-card           // Main content containers
+.neuro-container      // Page-level containers
+.neuro-raised         // Slightly elevated surfaces
 .neuro-inset          // Inputs, sunken surfaces
 
-// Actions
-.neuro-btn-primary    // Primary action (limit 1 per section)
-.neuro-btn            // Secondary actions
-.neuro-btn-error      // Destructive actions
+// Actions (see Buttons section above)
+.neuro-btn            // Base button class (always use with text-color)
 
-// Avoid: Nested cards, excessive badges
+// Stats
+.neuro-stat           // Stat cards with hover effects
+
+// Avoid: Nested cards, excessive badges, colored background buttons
 ```
 
 #### Typography (3-Level Max)
@@ -979,6 +1051,32 @@ ring-2 ring-blue-400
 ```
 
 #### Common Patterns
+
+**Collapsible Section**
+```tsx
+// Use for grouping content that can be hidden
+const [isExpanded, setIsExpanded] = useState(true)
+
+<div className="neuro-card">
+  <button
+    type="button"
+    onClick={() => setIsExpanded(!isExpanded)}
+    className="w-full flex items-center justify-between mb-4"
+  >
+    <h2 className="text-2xl font-semibold text-gray-200">
+      Section Title
+    </h2>
+    <span className="text-gray-400 text-xl">
+      {isExpanded ? '▼' : '▶'}
+    </span>
+  </button>
+  {isExpanded && (
+    <div>
+      {/* Section content */}
+    </div>
+  )}
+</div>
+```
 
 **Section Header**
 ```tsx
@@ -1054,11 +1152,14 @@ ring-2 ring-blue-400
 ```
 
 #### Reduce Cognitive Load Checklist
-- ✅ Same button styles everywhere
+- ✅ Same button styles everywhere (neuro-btn + text-color)
+- ✅ Same form control styles (neuro-input for all inputs/selects/textareas)
 - ✅ Same header pattern on all pages
 - ✅ Same empty state pattern
 - ✅ Limit choices (1-3 actions max)
 - ✅ Hide advanced features until needed
+- ❌ No colored background buttons (text color only)
+- ❌ No browser default form controls
 - ❌ No redundant information
 - ❌ No decorative elements
 - ❌ No ambiguous actions
@@ -1103,13 +1204,17 @@ Before committing code, verify:
 
 **UI/UX Design**
 - [ ] NO EMOJIS - SVG icons only (from components/icons.tsx)
-- [ ] Max 1 primary action per section (neuro-btn-primary)
+- [ ] All buttons use neuro-btn with colored text (NO colored backgrounds)
+- [ ] Max 1 primary action per section (neuro-btn text-blue-400)
+- [ ] All form controls use neuro-input (inputs, selects, textareas)
+- [ ] File inputs use custom neuro-btn trigger (hide default input)
+- [ ] Dropdown lists follow neumorphic design (neuro-input)
 - [ ] Consistent header pattern (w-12 h-12 icon container)
 - [ ] Empty states follow pattern (w-20 h-20 icon, centered)
 - [ ] Generous spacing (gap-4/6, p-6/8, mb-6/8)
 - [ ] Mobile-first responsive (grid-cols-1 sm:... lg:...)
 - [ ] Max 3 typography levels per page
-- [ ] Semantic colors (blue=primary, green=success, yellow=warning, red=error)
+- [ ] Semantic colors via TEXT (blue=primary, green=success, yellow=warning, red=error)
 - [ ] Minimal cognitive load (no visual clutter)
 - [ ] Predictable interactions (consistent hover/active states)
 
