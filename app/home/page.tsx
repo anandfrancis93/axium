@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { SignOutButton } from './SignOutButton'
 import Link from 'next/link'
-import { BookIcon, UserIcon, SettingsIcon } from '@/components/icons'
+import { BookIcon, SettingsIcon } from '@/components/icons'
+import HamburgerMenu from '@/components/HamburgerMenu'
 
 // Force dynamic rendering to access runtime environment variables
 export const dynamic = 'force-dynamic'
@@ -48,19 +48,11 @@ export default async function DashboardPage() {
       {/* Header */}
       <header className="neuro-container mx-4 my-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center flex-wrap gap-4">
-          <div className="flex items-center gap-4">
-            <div className="neuro-raised px-6 py-3 flex items-center gap-3">
-              <BookIcon size={24} className="text-blue-400" />
-              <h1 className="text-2xl font-bold text-blue-400">
-                Axium
-              </h1>
-            </div>
-            <div className="neuro-inset px-4 py-2 rounded-lg flex items-center gap-2">
-              <UserIcon size={16} className="text-gray-500" />
-              <span className="text-sm text-gray-400 font-medium">
-                {user.email?.split('@')[0]}
-              </span>
-            </div>
+          <div className="neuro-raised px-6 py-3 flex items-center gap-3">
+            <BookIcon size={24} className="text-blue-400" />
+            <h1 className="text-2xl font-bold text-blue-400">
+              Axium
+            </h1>
           </div>
           <div className="flex items-center gap-3">
             <Link
@@ -70,7 +62,7 @@ export default async function DashboardPage() {
               <SettingsIcon size={16} />
               <span>Admin</span>
             </Link>
-            <SignOutButton />
+            <HamburgerMenu />
           </div>
         </div>
       </header>

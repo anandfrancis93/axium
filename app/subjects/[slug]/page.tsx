@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { PlayIcon, BarChartIcon, ArrowLeftIcon, BookIcon, TargetIcon, UserIcon, SettingsIcon } from '@/components/icons'
+import { PlayIcon, BarChartIcon, ArrowLeftIcon, BookIcon, SettingsIcon } from '@/components/icons'
+import HamburgerMenu from '@/components/HamburgerMenu'
 
 export const dynamic = 'force-dynamic'
 
@@ -88,12 +89,7 @@ export default async function SubjectPage({
               </h1>
             </div>
           </div>
-          <div className="neuro-inset px-4 py-2 rounded-lg flex items-center gap-2">
-            <UserIcon size={16} className="text-gray-500" />
-            <span className="text-sm text-gray-400 font-medium">
-              {user.email?.split('@')[0]}
-            </span>
-          </div>
+          <HamburgerMenu />
         </div>
       </header>
 
@@ -139,14 +135,10 @@ export default async function SubjectPage({
                             {chapter.name}
                           </h4>
                         {chapter.description && (
-                          <p className="text-sm text-gray-500 mb-3">
+                          <p className="text-sm text-gray-500">
                             {chapter.description}
                           </p>
                         )}
-                          <div className="neuro-badge neuro-badge-info flex items-center gap-1.5 inline-flex">
-                            <TargetIcon size={12} />
-                            <span>AI-Powered Questions</span>
-                          </div>
                         </div>
                       </div>
 

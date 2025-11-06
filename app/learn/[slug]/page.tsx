@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { CheckIcon, XIcon } from '@/components/icons'
+import HamburgerMenu from '@/components/HamburgerMenu'
 
 type ConfidenceLevel = 'low' | 'medium' | 'high'
 type RecognitionMethod = 'memory' | 'recognition' | 'educated_guess' | 'random'
@@ -221,12 +222,7 @@ export default function LearnPage() {
                 Score: {feedback?.session_progress?.current_score || 0}/{feedback?.session_progress?.questions_answered || 0}
               </div>
             </div>
-            <button
-              onClick={() => router.push('/home')}
-              className="neuro-btn text-sm"
-            >
-              Exit
-            </button>
+            <HamburgerMenu />
           </div>
         </div>
 
