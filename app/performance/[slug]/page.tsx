@@ -213,7 +213,7 @@ export default function PerformancePage() {
 
           {statsExpanded && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6 pt-6 border-t border-gray-800">
-              <div className="neuro-inset p-4 rounded-lg group">
+              <div className="neuro-inset p-4 rounded-lg group cursor-help" title="Topics explored">
                 <div className="flex items-center justify-between mb-3">
                   <div className="text-sm text-blue-400 font-medium">
                     Topics Started
@@ -223,11 +223,8 @@ export default function PerformancePage() {
                 <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
                   {progressSummary?.topics_started || 0}
                 </div>
-                <div className="text-xs text-gray-500 mt-2">
-                  Topics explored
-                </div>
               </div>
-              <div className="neuro-inset p-4 rounded-lg group">
+              <div className="neuro-inset p-4 rounded-lg group cursor-help" title="80%+ mastery achieved">
                 <div className="flex items-center justify-between mb-3">
                   <div className="text-sm text-green-400 font-medium">
                     Topics Mastered
@@ -237,11 +234,8 @@ export default function PerformancePage() {
                 <div className="text-4xl font-bold text-gray-200 group-hover:text-green-400 transition-colors">
                   {progressSummary?.topics_mastered || 0}
                 </div>
-                <div className="text-xs text-gray-500 mt-2">
-                  80%+ mastery achieved
-                </div>
               </div>
-              <div className="neuro-inset p-4 rounded-lg group">
+              <div className="neuro-inset p-4 rounded-lg group cursor-help" title="Total attempts made">
                 <div className="flex items-center justify-between mb-3">
                   <div className="text-sm text-cyan-400 font-medium">
                     Questions Answered
@@ -251,11 +245,8 @@ export default function PerformancePage() {
                 <div className="text-4xl font-bold text-gray-200 group-hover:text-cyan-400 transition-colors">
                   {progressSummary?.total_questions_attempted || 0}
                 </div>
-                <div className="text-xs text-gray-500 mt-2">
-                  Total attempts made
-                </div>
               </div>
-              <div className="neuro-inset p-4 rounded-lg group">
+              <div className="neuro-inset p-4 rounded-lg group cursor-help" title="Correct answers">
                 <div className="flex items-center justify-between mb-3">
                   <div className="text-sm text-blue-400 font-medium">
                     Overall Accuracy
@@ -264,9 +255,6 @@ export default function PerformancePage() {
                 </div>
                 <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
                   {progressSummary?.overall_accuracy ? Math.round(progressSummary.overall_accuracy) : 0}%
-                </div>
-                <div className="text-xs text-gray-500 mt-2">
-                  Correct answers
                 </div>
               </div>
             </div>
