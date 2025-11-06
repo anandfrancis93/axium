@@ -73,7 +73,7 @@ export function Tooltip({ content, children, className = '' }: TooltipProps) {
         onMouseEnter={handleMouseEnter}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
-        className={`cursor-help ${className}`}
+        className={`cursor-help inline-block ${className}`}
       >
         {children}
       </div>
