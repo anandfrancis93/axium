@@ -11,16 +11,20 @@ interface TooltipProps {
 export function Tooltip({ content, children, className = '' }: TooltipProps) {
   const [isVisible, setIsVisible] = useState(false)
   const [position, setPosition] = useState({ top: 0, left: 0 })
+  const [mouseX, setMouseX] = useState(0)
   const triggerRef = useRef<HTMLDivElement>(null)
   const tooltipRef = useRef<HTMLDivElement>(null)
 
-  const updatePosition = () => {
+  const updatePosition = (clientX?: number) => {
     if (triggerRef.current && tooltipRef.current) {
       const triggerRect = triggerRef.current.getBoundingClientRect()
       const tooltipRect = tooltipRef.current.getBoundingClientRect()
 
+      // Use mouse X position if available, otherwise use element center
+      const centerX = clientX || triggerRect.left + triggerRect.width / 2
+
       let top = triggerRect.top - tooltipRect.height - 8
-      let left = triggerRect.left + triggerRect.width / 2
+      let left = centerX
 
       // If tooltip goes off top, show below
       if (top < 8) {
@@ -43,12 +47,19 @@ export function Tooltip({ content, children, className = '' }: TooltipProps) {
 
   useEffect(() => {
     if (isVisible) {
-      updatePosition()
+      updatePosition(mouseX)
     }
-  }, [isVisible])
+  }, [isVisible, mouseX])
 
-  const handleMouseEnter = () => {
+  const handleMouseEnter = (e: React.MouseEvent) => {
+    setMouseX(e.clientX)
     setIsVisible(true)
+  }
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isVisible) {
+      setMouseX(e.clientX)
+    }
   }
 
   const handleMouseLeave = () => {
@@ -60,6 +71,7 @@ export function Tooltip({ content, children, className = '' }: TooltipProps) {
       <div
         ref={triggerRef}
         onMouseEnter={handleMouseEnter}
+        onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
         className={`cursor-help ${className}`}
       >
