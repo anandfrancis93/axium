@@ -245,7 +245,7 @@ export function ChapterManager() {
                 setUseTextInput(false)
                 setContentText('')
               }}
-              className={`neuro-btn text-xs px-3 py-1 ${!useTextInput ? 'ring-2 ring-blue-400' : ''}`}
+              className={`neuro-btn text-xs px-3 py-1 ${!useTextInput ? 'text-blue-400' : ''}`}
               disabled={loading}
             >
               Upload PDF
@@ -256,7 +256,7 @@ export function ChapterManager() {
                 setUseTextInput(true)
                 setFile(null)
               }}
-              className={`neuro-btn text-xs px-3 py-1 ${useTextInput ? 'ring-2 ring-blue-400' : ''}`}
+              className={`neuro-btn text-xs px-3 py-1 ${useTextInput ? 'text-blue-400' : ''}`}
               disabled={loading}
             >
               Paste Text
