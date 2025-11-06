@@ -242,7 +242,7 @@ export default function TopicMasteryPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr>
-                  <th className="sticky left-0 bg-[#1a1a1a] text-left p-4 text-gray-400 font-medium border-r border-gray-800">
+                  <th className="sticky left-0 bg-[#0a0a0a] text-left p-4 text-gray-400 font-medium border-r border-gray-800">
                     Bloom Level
                   </th>
                   {dimensions.map(dim => (
@@ -255,7 +255,7 @@ export default function TopicMasteryPage() {
               <tbody>
                 {matrixByBloom.map(bloomLevel => (
                   <tr key={bloomLevel.num} className="border-t border-gray-800">
-                    <td className="sticky left-0 bg-[#1a1a1a] p-4 font-medium text-gray-200 border-r border-gray-800">
+                    <td className="sticky left-0 bg-[#0a0a0a] p-4 font-medium text-gray-200 border-r border-gray-800">
                       <div className="flex items-center gap-2">
                         <span className="text-blue-400">L{bloomLevel.num}</span>
                         <span className="text-sm text-gray-500">{bloomLevel.name}</span>
