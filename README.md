@@ -1,125 +1,156 @@
-# Axium - Intelligent Self-Learning App
+# Axium - Intelligent Adaptive Learning Platform
 
-A personalized AI learning platform that helps you progress through any subject by dynamically generating questions, adapting difficulty using reinforcement learning (RL), and tracking cognitive and metacognitive growth — based on Bloom's Taxonomy, fluid/crystallized intelligence, and smart feedback loops.
+A personalized AI learning platform that uses reinforcement learning, Bloom's Taxonomy, and knowledge dimensions to create adaptive learning paths. Built with Next.js, Supabase, and Claude AI.
 
-## Features
+## 🚀 Current Status
 
-### 🔄 Adaptive Learning Engine
-- **Subject → Chapter → Topic → Bloom Level** hierarchy for structured learning
-- **Bloom's Taxonomy Framework**: Progress from Level 1 (Remember) to Level 6 (Create)
-- **RL-Based Progression** (future): Reinforcement Learning chooses the next topic and Bloom level based on performance, confidence, and response time
-- **Rule-Based Progression** (current MVP): Systematic progression with mastery thresholds
+**Fully operational MVP** with advanced RL-based adaptive learning, comprehensive performance tracking, and AI-powered question generation.
 
-### 🧪 AI-Powered Question Generation
-- **Claude AI**: Generates questions dynamically based on topic, Bloom level, and retrieved content
-- **RAG (Retrieval-Augmented Generation)**: Injects your personal notes, PDFs, and curated content into Claude's prompt
-- **Multiple Question Types**: MCQs, open-ended, scenario-based, analogies, and more
+## ✨ Key Features
 
-### 📈 Smart Progress Tracking
-- **Mastery Scores**: Per topic × Bloom level tracking (0-100)
-- **Confidence Calibration**: Detects overconfidence/underconfidence (Dunning-Kruger patterns)
-- **Response Metrics**: Time taken, accuracy, and improvement trends
-- **Intelligence Types**: Tracks both fluid (reasoning) and crystallized (knowledge) intelligence
+### 🎯 Adaptive Learning Engine
+- **Thompson Sampling (Multi-Armed Bandit)**: Optimizes topic and Bloom level selection based on learning potential
+- **Progressive Bloom Unlocking**: Master Level N to unlock Level N+1
+- **12 Knowledge Dimensions**: Orthogonal categories (Core Understanding, Methods & Techniques, Risk Management, etc.)
+- **6 RL Phases**: Tracks learning journey from Cold Start → Meta-Learning
+- **Multi-Component Reward System**: Learning Gain, Calibration, Recognition, Spacing, Engagement
 
-### 🧠 Cognitive Development
-- Scaffolded learning from basic recall to creative synthesis
-- Metacognitive feedback and self-assessment
-- Spaced repetition for long-term retention (future)
+### 🧠 Cognitive Framework
+- **Bloom's Taxonomy (6 Levels)**: Remember → Understand → Apply → Analyze → Evaluate → Create
+- **Exponential Moving Average (EMA)**: Confidence-weighted mastery calculation
+- **Confidence Calibration**: Detects overconfidence/underconfidence patterns
+- **Recognition Method Tracking**: Memory vs. Recognition vs. Educated Guess vs. Random
 
-## Tech Stack
+### 🤖 AI-Powered Question Generation
+- **Claude 3.5 Sonnet**: Generates contextual questions based on RAG-retrieved content
+- **RAG (Retrieval-Augmented Generation)**: Semantic search over your uploaded PDFs and documents
+- **Dimension-Aware**: Questions target specific knowledge dimensions at specific Bloom levels
+- **Multiple Choice Questions**: With AI-generated distractors and explanations
 
-- **Frontend**: Next.js 14+ (App Router), React 19, TypeScript
-- **Styling**: Tailwind CSS
-- **Database**: Supabase (Postgres + pgvector for RAG)
-- **Authentication**: Supabase Auth with Google SSO
+### 📊 Performance Analytics
+- **Mastery Heatmaps**: Per-topic Bloom level progress visualization
+- **Comprehensive Mastery Matrix**: Bloom × Dimension performance tracking
+- **Recent Activity Feeds**: Detailed response history with context
+- **RL Phase Indicators**: Visual progression through learning phases
+- **Dimension Coverage**: Track exploration across knowledge dimensions
+
+### 🎨 User Experience
+- **Neumorphic Dark Theme**: Custom design system with raised/inset elements
+- **4-Step Learning Flow**: Confidence → Answer → Recognition → Feedback
+- **Contextual Tooltips**: Dynamic explanations for all metrics and values
+- **Collapsible Sections**: Minimal cognitive load with progressive disclosure
+- **Mobile Responsive**: Fluid scaling from 320px to 4K displays
+
+## 🏗️ Architecture
+
+### Tech Stack
+
+- **Framework**: Next.js 15 with Turbopack (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS + Custom Neumorphic System
+- **Database**: Supabase (PostgreSQL + pgvector)
+- **Auth**: Supabase Auth with Google SSO
 - **LLM**: Claude 3.5 Sonnet (Anthropic API)
-- **Embeddings**: OpenAI text-embedding-3-small (for RAG)
+- **Embeddings**: OpenAI text-embedding-3-small
 - **Deployment**: Vercel (recommended)
-
-## Architecture
 
 ### Data Model
 
 ```
 subjects
-├── id, name, description
-└── chapters[]
-    ├── id, name, description, sequence_order, prerequisites[]
-    └── topics[]
-        ├── id, name, description, sequence_order, prerequisites[]
-        └── bloom_levels[] (1-6)
-
+├── chapters[]
+│   ├── topics[]
+│   │   └── knowledge dimensions (12)
+│   └── subject_dimension_config
+│
 user_progress
-├── user_id, topic_id
-├── current_bloom_level
-├── mastery_scores{1-6}
-├── total_attempts, correct_answers
-├── avg_confidence, confidence_calibration_error
-└── avg_response_time_seconds
+├── current_bloom_level (1-6)
+├── mastery_scores{1-6} (EMA-based)
+├── rl_phase (cold_start → meta_learning)
+├── total_attempts, mastery_variance
+└── confidence_calibration_error
 
-knowledge_chunks (for RAG)
-├── chapter_id, topic_id (optional)
-├── content
-├── embedding (vector)
-└── source_file_name, page_number
+user_dimension_coverage
+├── topic × bloom_level × dimension
+├── unique_questions_answered[]
+├── times_tested, total_attempts
+└── average_score (0-100)
 
-questions
-├── topic_id, bloom_level
-├── question_text, question_type
-├── options (for MCQ), correct_answer
-└── explanation, rag_context
+arm_stats (Thompson Sampling)
+├── topic × bloom_level (arms)
+├── successes, failures (Beta distribution)
+└── last_selected_at
+
+learning_sessions
+├── chapter_id, user_id
+├── questions_answered, score
+└── completed_at
 
 user_responses
-├── user_id, question_id, topic_id, bloom_level
-├── user_answer, is_correct
-├── confidence (1-5), time_taken_seconds
-└── reward (calculated), ai_feedback
+├── question_id, is_correct
+├── confidence (1-5)
+├── recognition_method
+└── reward (multi-component)
+
+questions (ephemeral + stored)
+├── topic, bloom_level, dimension
+├── question_text, options[]
+├── correct_answer, explanation
+└── generated via Claude + RAG
 ```
 
 ### Learning Flow
 
-1. **RL/Rule Engine** selects topic × Bloom level
-2. **RAG Retrieval** finds relevant chunks from your materials
-3. **Claude Generates** a question using retrieved context
-4. **User Answers** and rates confidence
-5. **System Evaluates** and calculates reward
-6. **Progress Updates** mastery scores, checks for Bloom level unlock
-7. **Repeat** with adaptive selection
+```
+1. Thompson Sampling selects optimal (topic, bloom_level) arm
+2. Check prerequisites and unlock status
+3. RAG retrieves relevant chunks from knowledge base
+4. Claude generates dimension-specific question
+5. User answers with confidence and recognition method
+6. System calculates multi-component reward:
+   - Learning Gain (-10 to +10)
+   - Calibration (-5 to +5)
+   - Recognition (-3 to +5)
+   - Spacing (0 to +5)
+   - Engagement (-3 to 0)
+7. Update mastery scores (EMA with confidence weighting)
+8. Update Thompson Sampling statistics (Beta distribution)
+9. Track dimension coverage and RL phase progression
+10. Check Bloom level unlock conditions
+11. Repeat with improved arm selection
+```
 
-## Getting Started
+## 🚦 Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ and npm
-- A Supabase account (free tier works)
-- Anthropic API key (for Claude)
-- OpenAI API key (for embeddings)
-- Google Cloud Console account (for Google SSO)
+- **Node.js** 18+ and npm
+- **Supabase account** (free tier sufficient)
+- **Anthropic API key** (Claude 3.5 Sonnet)
+- **OpenAI API key** (text-embedding-3-small)
+- **Google Cloud Console** (OAuth 2.0 credentials)
 
 ### Installation
 
-1. **Clone the repository**
+1. **Clone and install**
    ```bash
    git clone https://github.com/yourusername/axium.git
    cd axium
-   ```
-
-2. **Install dependencies**
-   ```bash
    npm install
    ```
 
-3. **Set up Supabase**
-   - Follow the detailed guide in [`supabase/README.md`](./supabase/README.md)
-   - Create project, enable pgvector, run schema.sql
-   - Configure Google SSO
+2. **Set up Supabase**
+   - Create project at https://supabase.com
+   - Enable pgvector extension
+   - Run migrations from `supabase/migrations/` in order
+   - Configure Google OAuth in Supabase Auth settings
 
-4. **Configure environment variables**
+3. **Configure environment variables**
    ```bash
    cp .env.local.example .env.local
    ```
 
-   Fill in your values:
+   Required variables:
    ```env
    NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
@@ -128,125 +159,191 @@ user_responses
    OPENAI_API_KEY=sk-...
    ```
 
-5. **Run the development server**
+4. **Run development server**
    ```bash
    npm run dev
    ```
 
-6. **Open [http://localhost:3000](http://localhost:3000)**
+5. **Open http://localhost:3000**
 
-### Initial Setup After Installation
+### Initial Setup
 
-1. **Sign in with Google** at `/login`
-2. **Add your first subject** (via SQL for now, admin UI coming soon):
-   ```sql
-   INSERT INTO subjects (name, description)
-   VALUES ('Computer Science', 'Fundamentals of Computer Science');
+1. **Sign in** at `/login` with Google
+2. **Go to Admin** at `/admin` to:
+   - Add subjects and chapters
+   - Upload PDFs (will be chunked and embedded)
+   - Generate questions for chapters
+3. **Start Learning** at `/subjects/[subject]/[chapter]/quiz`
+4. **Track Progress** at `/performance/[subject]/[chapter]` or `/[topic]`
 
-   INSERT INTO chapters (subject_id, name, sequence_order)
-   VALUES ('subject-uuid', 'Data Structures', 1);
-
-   INSERT INTO topics (chapter_id, name, sequence_order)
-   VALUES ('chapter-uuid', 'Arrays and Lists', 1);
-   ```
-3. **Upload learning materials** (document upload UI coming soon)
-4. **Start learning** at `/learn`
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 axium/
-├── app/                          # Next.js App Router
-│   ├── page.tsx                 # Home (redirects to login/dashboard)
-│   ├── login/                   # Google SSO login page
-│   ├── auth/callback/           # OAuth callback handler
-│   ├── dashboard/               # Main dashboard
-│   ├── learn/                   # Learning session (coming soon)
-│   └── layout.tsx               # Root layout
+├── app/
+│   ├── admin/                    # Admin UI for content management
+│   ├── subjects/[subject]/[chapter]/
+│   │   └── quiz/                # 4-step learning interface
+│   ├── performance/[subject]/[chapter]/
+│   │   ├── page.tsx             # Chapter performance analytics
+│   │   └── [topic]/page.tsx     # Topic dimension matrix
+│   ├── api/
+│   │   └── rl/
+│   │       ├── next-question/   # Thompson Sampling selection
+│   │       ├── submit-response/ # Reward calculation
+│   │       └── sessions/        # Session management
+│   └── layout.tsx               # Root layout with auth
+│
 ├── lib/
-│   ├── supabase/                # Supabase client utilities
-│   │   ├── client.ts            # Browser client
-│   │   ├── server.ts            # Server client
-│   │   └── middleware.ts        # Auth middleware
+│   ├── supabase/                # Client/server utilities
+│   ├── rl/
+│   │   ├── rewards.ts           # Multi-component reward system
+│   │   ├── mastery.ts           # EMA mastery calculation
+│   │   └── thompson-sampling.ts # Arm selection logic
+│   ├── utils/
+│   │   ├── rl-phase.ts          # RL phase tracking
+│   │   └── question-format.ts   # Question type handling
 │   └── types/
-│       └── database.ts          # TypeScript database types
+│       └── database.ts          # TypeScript types
+│
+├── components/
+│   ├── HamburgerMenu.tsx        # Navigation
+│   ├── Tooltip.tsx              # Custom tooltip with cursor tracking
+│   ├── RLPhaseBadge.tsx         # RL phase indicator
+│   └── icons.tsx                # SVG icon library
+│
 ├── supabase/
-│   ├── schema.sql               # Database schema
-│   └── README.md                # Supabase setup guide
-├── middleware.ts                # Next.js middleware for auth
+│   ├── schema.sql               # Complete database schema
+│   └── migrations/              # Incremental migrations
+│
+├── scripts/
+│   ├── extract-all-topics.mjs   # Topic extraction from PDFs
+│   └── extract-all-concepts.mjs # Concept extraction
+│
+├── CLAUDE.md                    # Development guidelines (CRITICAL)
 └── README.md                    # This file
 ```
 
-## Development Roadmap
+## 🎓 Key Concepts
 
-### Phase 1: MVP Core (Current) ✅
-- [x] Next.js + Supabase setup
-- [x] Database schema (Subject → Chapter → Topic → Bloom)
-- [x] Google SSO authentication
-- [x] Basic dashboard UI
-- [ ] Document upload & chunking
-- [ ] RAG integration (embeddings + vector search)
-- [ ] Claude question generation (Bloom 1-3)
-- [ ] Simple rule-based progression
-- [ ] Basic progress tracking
+### Thompson Sampling (Multi-Armed Bandit)
+Each (topic, bloom_level) combination is an "arm" in a multi-armed bandit. The system maintains Beta distributions for each arm and samples to balance exploration (trying new topics) vs. exploitation (focusing on high-reward topics).
 
-### Phase 2: Enhanced Learning
-- [ ] Bloom 4-6 questions with AI grading
-- [ ] Confidence calibration tracking
-- [ ] Multiple question types
-- [ ] Mastery heatmaps & analytics
-- [ ] Learning session history
+### Multi-Component Rewards
+- **Learning Gain**: Mastery improvement (primary signal)
+- **Calibration**: Confidence vs. performance alignment
+- **Recognition**: Retrieval strength (memory > recognition > guess)
+- **Spacing**: Retention over time (rewards long gaps)
+- **Engagement**: Difficulty appropriateness (penalty only)
 
-### Phase 3: RL Integration
-- [ ] Data collection & reward calculation
-- [ ] Contextual bandit implementation
-- [ ] A/B test RL vs rule-based
-- [ ] Fine-tune reward function
+### Knowledge Dimensions (12)
+1. Core Understanding (definitions, fundamentals)
+2. Methods & Techniques (procedures, algorithms)
+3. Risk & Threats (vulnerabilities, threat modeling)
+4. Security & Controls (protection mechanisms)
+5. Tools & Technologies (software, platforms)
+6. Architecture & Design (system design, patterns)
+7. Legal & Compliance (standards, regulations)
+8. Incident Management (response, remediation)
+9. Integration & Interoperability (cross-domain connections)
+10. Common Pitfalls (misconceptions, mistakes)
+11. Real-World Scenarios (practical application)
+12. Strategic Planning (governance, policies)
 
-### Phase 4: Advanced Features
-- [ ] Spaced repetition system
-- [ ] Metacognition prompts
-- [ ] Fluid vs crystallized tracking
-- [ ] Multi-user support
-- [ ] Admin UI for content management
+### RL Learning Phases (6)
+1. **Cold Start** (< 10 attempts): Random exploration
+2. **Exploration** (10-50): Testing strategies
+3. **Optimization** (50-150): Refining approach
+4. **Stabilization** (150+, low variance): Converged policy
+5. **Adaptation** (150+, changing): Responding to shifts
+6. **Meta-Learning** (500+, excellent): Learning how to learn
 
-## Development Guidelines
+## 📈 Performance Tracking
 
-### For Developers
+### Chapter Performance Page (`/performance/[subject]/[chapter]`)
+- Overall statistics (total attempts, average mastery, Bloom distribution)
+- Mastery heatmap (topic × Bloom level)
+- Recent activity with contextual information
+- Collapsible sections for reduced cognitive load
 
-Before contributing or making changes:
+### Topic Performance Page (`/performance/[subject]/[chapter]/[topic]`)
+- RL phase badge with tooltip
+- Comprehensive mastery matrix (Bloom × Dimension)
+- Per-dimension statistics
+- Progress by Bloom level breakdown
+- Lock icons for locked levels
 
-1. **Read `CLAUDE.md`** - Complete development best practices and patterns
-2. **Check `TODO.md`** - Current task list and priorities
-3. **Follow the workflow**:
-   - Pick a task from TODO.md
-   - Mark it as "In Progress"
-   - Follow patterns in CLAUDE.md
-   - Update TODO.md when complete
-   - Commit with conventional commit message
+## 🛠️ Development
 
-### Key Documents
+### Guidelines
+- **Read `CLAUDE.md`** - Comprehensive development best practices
+- **Follow design system** - Neumorphic dark theme with `neuro-btn`, `neuro-card`, etc.
+- **Use tooltips** - All metrics need contextual explanations
+- **No emojis** - Use SVG icons from `components/icons.tsx`
+- **Button style** - Always `neuro-btn text-[color]`, never colored backgrounds
 
-- **`CLAUDE.md`** - Development best practices, coding standards, architecture patterns
-- **`TODO.md`** - Current task list, progress tracking, blockers
-- **`QUICKSTART.md`** - Setup instructions for new developers
-- **`supabase/README.md`** - Supabase configuration guide
+### Common Commands
+```bash
+npm run dev          # Start dev server with Turbopack
+npm run build        # Production build
+npm run lint         # ESLint check
+npm run type-check   # TypeScript check
+```
 
-## Contributing
+### Database Migrations
+All migrations are in `supabase/migrations/` with timestamps. Apply in order via Supabase Studio or CLI.
 
-This is currently a personal project. If you'd like to contribute or have suggestions, feel free to open an issue!
+## 🚧 Known Limitations
 
-## License
+- Response time not yet tracked or rewarded
+- Engagement component not displayed in UI (calculated but hidden)
+- Prior exposure tracking exists but not yet used in rewards
+- No answer revision tracking
+- No hint system
+- Admin UI needs more features (bulk question generation, content management)
+
+## 🔮 Future Enhancements
+
+### High Priority
+1. **Transfer Learning Bonus**: Reward multi-topic question success
+2. **Prior Exposure Tracking**: Track question repeats properly
+3. **Answer Revision Tracking**: Capture self-correction patterns
+4. **Response Time Integration**: Fluency bonus for L1-L2 only
+5. **Streak/Fatigue Detection**: Session position tracking
+
+### Medium Priority
+- Difficulty gap optimization (better than binary engagement)
+- Prerequisite violation detection
+- Interleaving vs. blocking rewards
+- Sleep/consolidation bonuses
+- Distractor analysis for misconception detection
+
+### Long-Term
+- Open-ended question support with AI grading
+- Hint system with scaffolded support
+- Multi-user collaboration features
+- Spaced repetition scheduler
+- Learning analytics dashboard
+- Mobile app (React Native)
+
+## 📝 Contributing
+
+This is currently a personal project. For suggestions or issues, please open a GitHub issue.
+
+## 📄 License
 
 MIT
 
-## Acknowledgments
+## 🙏 Acknowledgments
 
 - Built with [Claude Code](https://claude.com/claude-code)
 - Powered by Claude AI (Anthropic)
-- Infrastructure by Supabase
+- Database & Auth by Supabase
+- Embeddings by OpenAI
 - Deployed on Vercel
 
 ---
 
-**Note**: This is an early-stage MVP. Many features are still in development. See the roadmap above for what's coming next!
+**Status**: Production-ready MVP with advanced RL features. Active development ongoing.
+
+**Last Updated**: January 2025
