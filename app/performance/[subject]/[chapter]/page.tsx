@@ -375,7 +375,7 @@ export default function PerformancePage() {
                             return (
                               <td key={level.num} className="p-4 text-center">
                                 {isLocked ? (
-                                  <Tooltip content={`Locked - Complete Level ${currentBloomLevel} to unlock`}>
+                                  <Tooltip content={`Locked - Complete Level ${level.num - 1} to unlock`}>
                                     <div className="inline-flex">
                                       <LockIcon size={16} className="text-gray-600" />
                                     </div>
