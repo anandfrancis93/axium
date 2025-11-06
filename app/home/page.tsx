@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { BookIcon, SettingsIcon } from '@/components/icons'
+import { BookIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 
 // Force dynamic rendering to access runtime environment variables
@@ -54,14 +54,7 @@ export default async function DashboardPage() {
               Axium
             </h1>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <Link
-              href="/admin"
-              className="neuro-btn text-sm flex items-center gap-2"
-            >
-              <SettingsIcon size={16} />
-              <span className="hidden sm:inline">Admin</span>
-            </Link>
+          <div className="flex-shrink-0">
             <HamburgerMenu />
           </div>
         </div>

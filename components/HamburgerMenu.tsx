@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { MenuIcon, LogOutIcon, UserIcon } from '@/components/icons'
+import { MenuIcon, LogOutIcon, UserIcon, SettingsIcon } from '@/components/icons'
 
 export default function HamburgerMenu() {
   const [isOpen, setIsOpen] = useState(false)
@@ -70,6 +71,16 @@ export default function HamburgerMenu() {
               </div>
             </div>
           </div>
+
+          {/* Admin Link */}
+          <Link
+            href="/admin"
+            onClick={() => setIsOpen(false)}
+            className="neuro-btn w-full flex items-center gap-3 px-4 py-3 text-blue-400 hover:text-blue-300 transition-colors mb-2"
+          >
+            <SettingsIcon size={18} />
+            <span>Admin</span>
+          </Link>
 
           {/* Sign Out Button */}
           <button

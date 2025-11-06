@@ -223,7 +223,7 @@ export default function PerformancePage() {
                 <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
                   {progressSummary?.topics_started || 0}
                 </div>
-                <div className="text-xs text-gray-600 mt-2">
+                <div className="text-xs text-gray-500 mt-2">
                   Topics explored
                 </div>
               </div>
@@ -237,7 +237,7 @@ export default function PerformancePage() {
                 <div className="text-4xl font-bold text-gray-200 group-hover:text-green-400 transition-colors">
                   {progressSummary?.topics_mastered || 0}
                 </div>
-                <div className="text-xs text-gray-600 mt-2">
+                <div className="text-xs text-gray-500 mt-2">
                   80%+ mastery achieved
                 </div>
               </div>
@@ -251,7 +251,7 @@ export default function PerformancePage() {
                 <div className="text-4xl font-bold text-gray-200 group-hover:text-cyan-400 transition-colors">
                   {progressSummary?.total_questions_attempted || 0}
                 </div>
-                <div className="text-xs text-gray-600 mt-2">
+                <div className="text-xs text-gray-500 mt-2">
                   Total attempts made
                 </div>
               </div>
@@ -265,7 +265,7 @@ export default function PerformancePage() {
                 <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
                   {progressSummary?.overall_accuracy ? Math.round(progressSummary.overall_accuracy) : 0}%
                 </div>
-                <div className="text-xs text-gray-600 mt-2">
+                <div className="text-xs text-gray-500 mt-2">
                   Correct answers
                 </div>
               </div>
@@ -296,27 +296,27 @@ export default function PerformancePage() {
           {heatmapExpanded && (
             <div className="mt-6 pt-6 border-t border-gray-800">
               {/* Legend */}
-              <div className="flex items-center gap-2 text-xs mb-6 flex-wrap">
-                <span className="text-gray-500">Mastery:</span>
-                <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 rounded bg-gray-800"></div>
-                  <span className="text-gray-600">0%</span>
+              <div className="flex items-center gap-4 text-sm mb-6 flex-wrap">
+                <span className="text-gray-400 font-medium">Mastery Levels:</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded bg-gray-800"></div>
+                  <span className="text-gray-500">0%</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 rounded bg-red-500"></div>
-                  <span className="text-gray-600">20%</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded bg-red-500"></div>
+                  <span className="text-gray-500">20%</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 rounded bg-yellow-500"></div>
-                  <span className="text-gray-600">40%</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded bg-yellow-500"></div>
+                  <span className="text-gray-500">40%</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 rounded bg-blue-500"></div>
-                  <span className="text-gray-600">60%</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded bg-blue-500"></div>
+                  <span className="text-gray-500">60%</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 rounded bg-green-500"></div>
-                  <span className="text-gray-600">80%+</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded bg-green-500"></div>
+                  <span className="text-gray-500">80%+</span>
                 </div>
               </div>
 
@@ -325,20 +325,20 @@ export default function PerformancePage() {
                   <table className="w-full text-sm">
                     <thead>
                       <tr>
-                        <th className="text-left p-3 text-gray-400 font-medium">Topic</th>
+                        <th className="text-left p-4 text-gray-400 font-medium">Topic</th>
                         {bloomLevels.map(level => (
-                          <th key={level.num} className="p-3 text-center text-gray-400 font-medium">
+                          <th key={level.num} className="p-4 text-center text-gray-400 font-medium">
                             <div>L{level.num}</div>
-                            <div className="text-xs text-gray-600">{level.name}</div>
+                            <div className="text-xs text-gray-500">{level.name}</div>
                           </th>
                         ))}
-                        <th className="p-3 text-center text-gray-400 font-medium">Avg</th>
+                        <th className="p-4 text-center text-gray-400 font-medium">Avg</th>
                       </tr>
                     </thead>
                     <tbody>
                       {masteryHeatmap.map((row, idx) => (
                         <tr key={idx} className="border-t border-gray-800 hover:bg-gray-900/30 transition-colors">
-                          <td className="p-3 text-gray-300 font-medium max-w-xs">
+                          <td className="p-4 text-gray-200 font-medium max-w-xs">
                             <Link
                               href={`/topic-mastery/${slug}/${encodeURIComponent(row.topic)}`}
                               className="hover:text-blue-400 transition-colors flex items-center gap-2 group"
@@ -353,9 +353,9 @@ export default function PerformancePage() {
                             const masteryKey = `bloom_${level.num}` as keyof typeof row
                             const mastery = row[masteryKey] as number | null
                             return (
-                              <td key={level.num} className="p-3">
+                              <td key={level.num} className="p-4">
                                 <div
-                                  className={`w-full h-12 rounded ${getMasteryColor(mastery)} flex items-center justify-center text-white font-medium text-xs transition-all hover:scale-105 cursor-help`}
+                                  className={`w-full h-12 rounded ${getMasteryColor(mastery)} flex items-center justify-center text-white font-medium text-sm transition-all hover:scale-105 cursor-help`}
                                   title={`${row.topic} - Level ${level.num}: ${mastery !== null && mastery !== undefined ? Math.round(mastery) : 0}% (${getMasteryLabel(mastery)})`}
                                 >
                                   {mastery !== null && mastery !== undefined ? Math.round(mastery) : '-'}
@@ -363,8 +363,8 @@ export default function PerformancePage() {
                               </td>
                             )
                           })}
-                          <td className="p-3 text-center">
-                            <div className="text-gray-300 font-medium">
+                          <td className="p-4 text-center">
+                            <div className="text-gray-200 font-medium">
                               {row.avg_mastery ? Math.round(row.avg_mastery) : 0}%
                             </div>
                           </td>
@@ -416,7 +416,7 @@ export default function PerformancePage() {
           {activityExpanded && (
             <div className="mt-6 pt-6 border-t border-gray-800">
               {recentActivity.length > 0 ? (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {recentActivity.slice(0, 10).map((response: any) => {
                     // Parse arm_selected to get topic and bloom level
                     const armParts = response.arm_selected?.split('_') || []
@@ -428,7 +428,7 @@ export default function PerformancePage() {
                         key={response.id}
                         className="neuro-inset p-4 rounded-lg"
                       >
-                        <div className="flex items-start gap-3">
+                        <div className="flex items-start gap-4">
                           <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
                             response.is_correct ? 'bg-green-500/20' : 'bg-red-500/20'
                           }`}>
@@ -439,7 +439,7 @@ export default function PerformancePage() {
                             )}
                           </div>
                           <div className="flex-1">
-                            <div className="flex flex-wrap items-center gap-2 text-xs mb-2">
+                            <div className="flex flex-wrap items-center gap-3 text-sm mb-3">
                               {bloomLevel && (
                                 <span className="neuro-raised px-2 py-1 rounded text-blue-400">
                                   Bloom L{bloomLevel}
@@ -471,7 +471,7 @@ export default function PerformancePage() {
                                 </span>
                               )}
                             </div>
-                            <div className="text-gray-400 text-xs">
+                            <div className="text-gray-500 text-sm">
                               Mastery: {response.mastery_before?.toFixed(0)}% → {response.mastery_after?.toFixed(0)}%
                               {response.learning_gain !== null && (
                                 <span className={response.learning_gain >= 0 ? 'text-green-400' : 'text-red-400'}>
@@ -480,7 +480,7 @@ export default function PerformancePage() {
                               )}
                             </div>
                           </div>
-                          <div className="flex-shrink-0 text-xs text-gray-600">
+                          <div className="flex-shrink-0 text-sm text-gray-500">
                             {new Date(response.answered_at).toLocaleDateString()}
                           </div>
                         </div>
