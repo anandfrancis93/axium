@@ -98,3 +98,46 @@ export function getRLPhaseContext(phase: RLPhase | string | null | undefined): s
 
   return contexts[phaseKey] || contexts.cold_start
 }
+
+// Get all RL phases with their descriptions for tooltip display
+export function getAllRLPhasesInfo(currentPhase?: RLPhase | string | null): string {
+  const phases: Array<{ key: RLPhase; name: string; description: string }> = [
+    {
+      key: 'cold_start',
+      name: 'Cold Start',
+      description: 'Building initial understanding - gathering first data points'
+    },
+    {
+      key: 'exploration',
+      name: 'Exploration',
+      description: 'Testing different approaches to find what works best'
+    },
+    {
+      key: 'optimization',
+      name: 'Optimization',
+      description: 'Focusing on high-value learning strategies'
+    },
+    {
+      key: 'stabilization',
+      name: 'Stabilization',
+      description: 'Performance is stable and consistent'
+    },
+    {
+      key: 'adaptation',
+      name: 'Adaptation',
+      description: 'Continuously adjusting to maintain performance'
+    },
+    {
+      key: 'meta_learning',
+      name: 'Meta-Learning',
+      description: 'Mastered how to learn - optimal learning patterns established'
+    }
+  ]
+
+  return phases
+    .map(phase => {
+      const current = currentPhase === phase.key ? ' (Current)' : ''
+      return `${phase.name}${current}\n${phase.description}`
+    })
+    .join('\n\n')
+}
