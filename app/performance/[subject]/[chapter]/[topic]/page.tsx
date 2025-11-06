@@ -182,9 +182,9 @@ export default function TopicMasteryPage() {
           {/* RL Phase Badge */}
           {rlPhase && (
             <Tooltip content={getRLPhaseContext(rlPhase)}>
-              <div>
+              <span className="inline-block">
                 <RLPhaseBadge phase={rlPhase} showDescription={false} showIcon={false} />
-              </div>
+              </span>
             </Tooltip>
           )}
         </div>
