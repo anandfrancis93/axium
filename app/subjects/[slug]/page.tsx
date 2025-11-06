@@ -141,7 +141,7 @@ export default async function SubjectPage({
                       <div className="flex flex-col sm:flex-row gap-3 md:ml-16">
                         <Link
                           href={`/learn/${chapter.slug}`}
-                          className="neuro-btn-primary px-6 py-3 text-center whitespace-nowrap flex items-center justify-center gap-2"
+                          className="neuro-btn px-6 py-3 text-center whitespace-nowrap flex items-center justify-center gap-2 text-blue-400"
                         >
                           <PlayIcon size={18} />
                           Start Learning
