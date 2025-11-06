@@ -7,6 +7,7 @@ import Link from 'next/link'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import { RLPhaseBadge } from '@/components/RLPhaseBadge'
 import { getRLPhaseContext } from '@/lib/utils/rl-phase'
+import { Tooltip } from '@/components/Tooltip'
 
 const BLOOM_LEVELS = [
   { num: 1, name: 'Remember' },
@@ -180,9 +181,11 @@ export default function TopicMasteryPage() {
 
           {/* RL Phase Badge */}
           {rlPhase && (
-            <div className="cursor-help" title={getRLPhaseContext(rlPhase)}>
-              <RLPhaseBadge phase={rlPhase} showDescription={false} showIcon={false} />
-            </div>
+            <Tooltip content={getRLPhaseContext(rlPhase)}>
+              <div>
+                <RLPhaseBadge phase={rlPhase} showDescription={false} showIcon={false} />
+              </div>
+            </Tooltip>
           )}
         </div>
 
@@ -204,40 +207,50 @@ export default function TopicMasteryPage() {
 
             {statsExpanded && (
               <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
-                <div className="neuro-stat group cursor-help" title={`6 Bloom levels × ${dimensions.length} Dimensions`}>
-                  <div className="text-sm text-blue-400 font-medium mb-3">Total Cells</div>
-                  <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
-                    {summary.total_cells}
+                <Tooltip content={`6 Bloom levels × ${dimensions.length} Dimensions`}>
+                  <div className="neuro-stat group">
+                    <div className="text-sm text-blue-400 font-medium mb-3">Total Cells</div>
+                    <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
+                      {summary.total_cells}
+                    </div>
                   </div>
-                </div>
+                </Tooltip>
 
-                <div className="neuro-stat group cursor-help" title={`${summary.tested_cells}/${summary.total_cells} cells tested`}>
-                  <div className="text-sm text-cyan-400 font-medium mb-3">Coverage</div>
-                  <div className="text-4xl font-bold text-gray-200 group-hover:text-cyan-400 transition-colors">
-                    {summary.coverage_percentage}%
+                <Tooltip content={`${summary.tested_cells}/${summary.total_cells} cells tested`}>
+                  <div className="neuro-stat group">
+                    <div className="text-sm text-cyan-400 font-medium mb-3">Coverage</div>
+                    <div className="text-4xl font-bold text-gray-200 group-hover:text-cyan-400 transition-colors">
+                      {summary.coverage_percentage}%
+                    </div>
                   </div>
-                </div>
+                </Tooltip>
 
-                <div className="neuro-stat group cursor-help" title="Cells with 3+ unique questions">
-                  <div className="text-sm text-blue-400 font-medium mb-3">Min Questions</div>
-                  <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
-                    {summary.cells_with_min_questions}
+                <Tooltip content="Cells with 3+ unique questions">
+                  <div className="neuro-stat group">
+                    <div className="text-sm text-blue-400 font-medium mb-3">Min Questions</div>
+                    <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
+                      {summary.cells_with_min_questions}
+                    </div>
                   </div>
-                </div>
+                </Tooltip>
 
-                <div className="neuro-stat group cursor-help" title={`${summary.mastery_percentage}% of total cells`}>
-                  <div className="text-sm text-green-400 font-medium mb-3">Mastered</div>
-                  <div className="text-4xl font-bold text-gray-200 group-hover:text-green-400 transition-colors">
-                    {summary.mastered_cells}
+                <Tooltip content={`${summary.mastery_percentage}% of total cells`}>
+                  <div className="neuro-stat group">
+                    <div className="text-sm text-green-400 font-medium mb-3">Mastered</div>
+                    <div className="text-4xl font-bold text-gray-200 group-hover:text-green-400 transition-colors">
+                      {summary.mastered_cells}
+                    </div>
                   </div>
-                </div>
+                </Tooltip>
 
-                <div className="neuro-stat group cursor-help" title="5+ unique questions at 80%+">
-                  <div className="text-sm text-green-400 font-medium mb-3">Deep Mastery</div>
-                  <div className="text-4xl font-bold text-gray-200 group-hover:text-green-400 transition-colors">
-                    {summary.deep_mastery_cells || 0}
+                <Tooltip content="5+ unique questions at 80%+">
+                  <div className="neuro-stat group">
+                    <div className="text-sm text-green-400 font-medium mb-3">Deep Mastery</div>
+                    <div className="text-4xl font-bold text-gray-200 group-hover:text-green-400 transition-colors">
+                      {summary.deep_mastery_cells || 0}
+                    </div>
                   </div>
-                </div>
+                </Tooltip>
               </div>
             )}
           </div>
@@ -264,34 +277,48 @@ export default function TopicMasteryPage() {
               <div className="mb-6 p-4 neuro-inset rounded-lg">
                 <h3 className="text-sm font-medium text-gray-400 mb-4">Mastery Levels:</h3>
                 <div className="flex flex-wrap gap-4 text-sm">
-                  <div className="flex items-center gap-2 cursor-help" title="0 unique questions">
-                    <div className="w-4 h-4 rounded bg-gray-800"></div>
-                    <span className="text-gray-500">Not Tested</span>
-                  </div>
-                  <div className="flex items-center gap-2 cursor-help" title="<3 unique questions">
-                    <div className="w-4 h-4 rounded bg-gray-700 border border-yellow-500/30"></div>
-                    <span className="text-gray-500">Insufficient</span>
-                  </div>
-                  <div className="flex items-center gap-2 cursor-help" title="3+ unique, <40%">
-                    <div className="w-4 h-4 rounded bg-red-500"></div>
-                    <span className="text-gray-500">Struggling</span>
-                  </div>
-                  <div className="flex items-center gap-2 cursor-help" title="3+ unique, 40-59%">
-                    <div className="w-4 h-4 rounded bg-yellow-500"></div>
-                    <span className="text-gray-500">Developing</span>
-                  </div>
-                  <div className="flex items-center gap-2 cursor-help" title="3+ unique, 60-79%">
-                    <div className="w-4 h-4 rounded bg-blue-500"></div>
-                    <span className="text-gray-500">Proficient</span>
-                  </div>
-                  <div className="flex items-center gap-2 cursor-help" title="3+ unique, 80%+">
-                    <div className="w-4 h-4 rounded bg-green-500"></div>
-                    <span className="text-gray-500">Mastered</span>
-                  </div>
-                  <div className="flex items-center gap-2 cursor-help" title="5+ unique, 80%+">
-                    <div className="w-4 h-4 rounded bg-green-700"></div>
-                    <span className="text-gray-500">Deep Mastery</span>
-                  </div>
+                  <Tooltip content="0 unique questions">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded bg-gray-800"></div>
+                      <span className="text-gray-500">Not Tested</span>
+                    </div>
+                  </Tooltip>
+                  <Tooltip content="<3 unique questions">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded bg-gray-700 border border-yellow-500/30"></div>
+                      <span className="text-gray-500">Insufficient</span>
+                    </div>
+                  </Tooltip>
+                  <Tooltip content="3+ unique, <40%">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded bg-red-500"></div>
+                      <span className="text-gray-500">Struggling</span>
+                    </div>
+                  </Tooltip>
+                  <Tooltip content="3+ unique, 40-59%">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded bg-yellow-500"></div>
+                      <span className="text-gray-500">Developing</span>
+                    </div>
+                  </Tooltip>
+                  <Tooltip content="3+ unique, 60-79%">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded bg-blue-500"></div>
+                      <span className="text-gray-500">Proficient</span>
+                    </div>
+                  </Tooltip>
+                  <Tooltip content="3+ unique, 80%+">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded bg-green-500"></div>
+                      <span className="text-gray-500">Mastered</span>
+                    </div>
+                  </Tooltip>
+                  <Tooltip content="5+ unique, 80%+">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded bg-green-700"></div>
+                      <span className="text-gray-500">Deep Mastery</span>
+                    </div>
+                  </Tooltip>
                 </div>
               </div>
 
@@ -329,26 +356,27 @@ export default function TopicMasteryPage() {
 
                             return (
                               <td key={`${bloomLevel.num}-${dim.key}`} className="p-4 text-center">
-                                <div
-                                  className={`${getStatusColor(status, masteryLevel, uniqueCount)} cursor-help relative inline-block`}
-                                  title={`${topic} - ${bloomLevel.name} - ${dim.name}\nScore: ${cell?.average_score || 0}%\nUnique Questions: ${uniqueCount}\nTotal Attempts: ${totalAttempts} (${totalAttempts - uniqueCount} repeats)\nStatus: ${getStatusLabel(status, masteryLevel, uniqueCount, totalAttempts)}`}
+                                <Tooltip
+                                  content={`${topic} - ${bloomLevel.name} - ${dim.name}\nScore: ${cell?.average_score || 0}%\nUnique Questions: ${uniqueCount}\nTotal Attempts: ${totalAttempts} (${totalAttempts - uniqueCount} repeats)\nStatus: ${getStatusLabel(status, masteryLevel, uniqueCount, totalAttempts)}`}
                                 >
-                                  {uniqueCount > 0 ? (
-                                    <>
-                                      <div className="font-bold text-lg">
-                                        {Math.round(cell.average_score)}%
-                                      </div>
-                                      <div className="text-xs opacity-75 flex items-center gap-1 justify-center">
-                                        <span>{uniqueCount}</span>
-                                        {totalAttempts > uniqueCount && (
-                                          <span>+{totalAttempts - uniqueCount}</span>
-                                        )}
-                                      </div>
-                                    </>
-                                  ) : (
-                                    <div className="text-lg">-</div>
-                                  )}
-                                </div>
+                                  <div className={`${getStatusColor(status, masteryLevel, uniqueCount)} relative inline-block`}>
+                                    {uniqueCount > 0 ? (
+                                      <>
+                                        <div className="font-bold text-lg">
+                                          {Math.round(cell.average_score)}%
+                                        </div>
+                                        <div className="text-xs opacity-75 flex items-center gap-1 justify-center">
+                                          <span>{uniqueCount}</span>
+                                          {totalAttempts > uniqueCount && (
+                                            <span>+{totalAttempts - uniqueCount}</span>
+                                          )}
+                                        </div>
+                                      </>
+                                    ) : (
+                                      <div className="text-lg">-</div>
+                                    )}
+                                  </div>
+                                </Tooltip>
                               </td>
                             )
                           })}
