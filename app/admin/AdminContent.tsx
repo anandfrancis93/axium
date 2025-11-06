@@ -38,7 +38,7 @@ export function AdminContent() {
               Subjects
             </h2>
             <span className="text-gray-400 text-xl">
-              {expandedSections.subjects ? '−' : '+'}
+              {expandedSections.subjects ? '▼' : '▶'}
             </span>
           </button>
           {expandedSections.subjects && <SubjectManager />}
@@ -54,7 +54,7 @@ export function AdminContent() {
               Chapters
             </h2>
             <span className="text-gray-400 text-xl">
-              {expandedSections.chapters ? '−' : '+'}
+              {expandedSections.chapters ? '▼' : '▶'}
             </span>
           </button>
           {expandedSections.chapters && <ChapterManager />}
@@ -71,7 +71,7 @@ export function AdminContent() {
             Generate AI Questions
           </h2>
           <span className="text-gray-400 text-xl">
-            {expandedSections.questions ? '−' : '+'}
+            {expandedSections.questions ? '▼' : '▶'}
           </span>
         </button>
         {expandedSections.questions && <QuestionGenerator />}
@@ -87,7 +87,7 @@ export function AdminContent() {
             Content Hierarchy
           </h3>
           <span className="text-gray-400 text-xl">
-            {expandedSections.hierarchy ? '−' : '+'}
+            {expandedSections.hierarchy ? '▼' : '▶'}
           </span>
         </button>
         {expandedSections.hierarchy && (
