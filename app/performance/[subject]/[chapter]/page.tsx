@@ -201,6 +201,48 @@ ${meaning}
 Mastery grows with correct answers and high confidence`
   }
 
+  const getBloomLevelTooltip = (level: number) => {
+    const levels: Record<number, { name: string, description: string }> = {
+      1: { name: 'Remember', description: 'Recalling facts and basic concepts' },
+      2: { name: 'Understand', description: 'Explaining ideas or concepts' },
+      3: { name: 'Apply', description: 'Using information in new situations' },
+      4: { name: 'Analyze', description: 'Drawing connections and finding patterns' },
+      5: { name: 'Evaluate', description: 'Justifying decisions and making judgments' },
+      6: { name: 'Create', description: 'Producing new or original work' }
+    }
+    const info = levels[level] || { name: 'Unknown', description: 'Unknown level' }
+    return `Level ${level}: ${info.name}\n${info.description}`
+  }
+
+  const getConfidenceTooltip = (confidence: number) => {
+    const meanings: Record<number, string> = {
+      1: 'Not confident - You were very unsure about your answer',
+      2: 'Slightly confident - You had some doubts about your answer',
+      3: 'Moderately confident - You felt somewhat sure about your answer',
+      4: 'Confident - You felt quite sure about your answer',
+      5: 'Very confident - You were certain about your answer'
+    }
+    return `Confidence ${confidence}/5: ${meanings[confidence] || 'Unknown confidence level'}`
+  }
+
+  const getScoreTooltip = (score: number) => {
+    let interpretation = ''
+    if (score >= 15) {
+      interpretation = 'Excellent! Strong learning with good confidence calibration'
+    } else if (score >= 10) {
+      interpretation = 'Very good learning progress'
+    } else if (score >= 5) {
+      interpretation = 'Good progress, keep going'
+    } else if (score >= 0) {
+      interpretation = 'Positive progress'
+    } else if (score >= -5) {
+      interpretation = 'Room for improvement in accuracy or confidence calibration'
+    } else {
+      interpretation = 'Consider reviewing the material'
+    }
+    return `Score ${score >= 0 ? '+' : ''}${score.toFixed(1)}: ${interpretation}\n\nBased on correctness, confidence calibration, timing, and retention`
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#0a0a0a' }}>
@@ -512,21 +554,21 @@ Mastery grows with correct answers and high confidence`
                         </div>
                         <div className="flex flex-wrap items-center gap-6 text-sm">
                           {response.bloom_level && (
-                            <Tooltip content="Bloom's Taxonomy difficulty level (1=Remember to 6=Create)">
+                            <Tooltip content={getBloomLevelTooltip(response.bloom_level)}>
                               <span className="neuro-raised px-2 py-1 rounded text-blue-400">
                                 Level {response.bloom_level}
                               </span>
                             </Tooltip>
                           )}
                           {response.confidence !== null && response.confidence !== undefined && (
-                            <Tooltip content="How confident you felt when answering (1=Not confident to 5=Very confident)">
+                            <Tooltip content={getConfidenceTooltip(response.confidence)}>
                               <span className="text-gray-500">
                                 Confidence: {response.confidence}/5
                               </span>
                             </Tooltip>
                           )}
                           {response.reward !== null && response.reward !== undefined && (
-                            <Tooltip content="Learning reward based on correctness, confidence calibration, and other factors. Higher rewards = better learning progress">
+                            <Tooltip content={getScoreTooltip(response.reward)}>
                               <span className={`font-medium ${
                                 response.reward >= 0 ? 'text-green-400' : 'text-red-400'
                               }`}>
