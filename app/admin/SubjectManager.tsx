@@ -64,7 +64,7 @@ export function SubjectManager() {
       console.error('Error creating subject:', error)
       setMessage(`Error: ${error.message}`)
     } else {
-      setMessage('✅ Subject created successfully!')
+      setMessage('Subject created successfully')
       setName('')
       setDescription('')
       loadSubjects()
@@ -88,7 +88,7 @@ export function SubjectManager() {
       console.error('Error deleting subject:', error)
       setMessage(`Error: ${error.message}`)
     } else {
-      setMessage(`✅ Deleted subject "${name}"`)
+      setMessage(`Deleted subject "${name}"`)
       loadSubjects()
     }
   }
@@ -135,7 +135,7 @@ export function SubjectManager() {
 
         {message && (
           <div className={`neuro-inset p-3 rounded-lg text-sm ${
-            message.includes('✅') ? 'text-green-400' : 'text-red-400'
+            message.startsWith('Error') ? 'text-red-400' : 'text-green-400'
           }`}>
             {message}
           </div>
@@ -147,7 +147,7 @@ export function SubjectManager() {
         <h3 className="text-sm font-medium text-gray-400 mb-3">
           Existing Subjects ({subjects.length})
         </h3>
-        <div className="space-y-2 max-h-96 overflow-y-auto">
+        <div className="space-y-2 max-h-96 overflow-y-auto scrollbar-custom">
           {subjects.length === 0 ? (
             <p className="text-sm text-gray-500 text-center py-4">
               No subjects yet. Create one above.

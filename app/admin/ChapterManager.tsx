@@ -109,7 +109,7 @@ export function ChapterManager() {
 
     // If content is provided (text or file), upload it
     if (contentText.trim() || file) {
-      setMessage('✅ Chapter created! Now processing content...')
+      setMessage('Chapter created! Now processing content...')
 
       try {
         const formData = new FormData()
@@ -132,16 +132,16 @@ export function ChapterManager() {
         const result = await response.json()
 
         if (response.ok) {
-          setMessage(`✅ Chapter created and content processed! Created ${result.chunks_created} chunks.`)
+          setMessage(`Chapter created and content processed! Created ${result.chunks_created} chunks.`)
         } else {
-          setMessage(`✅ Chapter created but content processing failed: ${result.error}`)
+          setMessage(`Chapter created but content processing failed: ${result.error}`)
         }
       } catch (uploadError) {
         console.error('Upload error:', uploadError)
-        setMessage('✅ Chapter created but content processing failed')
+        setMessage('Chapter created but content processing failed')
       }
     } else {
-      setMessage('✅ Chapter created successfully!')
+      setMessage('Chapter created successfully')
     }
 
     // Reset form
@@ -172,7 +172,7 @@ export function ChapterManager() {
       console.error('Error deleting chapter:', error)
       setMessage(`Error: ${error.message}`)
     } else {
-      setMessage(`✅ Deleted chapter "${name}"`)
+      setMessage(`Deleted chapter "${name}"`)
       loadChapters()
     }
   }
@@ -324,7 +324,7 @@ export function ChapterManager() {
 
         {message && (
           <div className={`neuro-inset p-3 rounded-lg text-sm ${
-            message.includes('✅') ? 'text-green-400' : 'text-red-400'
+            message.startsWith('Error') || message.includes('failed') ? 'text-red-400' : 'text-green-400'
           }`}>
             {message}
           </div>
@@ -336,7 +336,7 @@ export function ChapterManager() {
         <h3 className="text-sm font-medium text-gray-400 mb-3">
           Existing Chapters ({chapters.length})
         </h3>
-        <div className="space-y-2 max-h-96 overflow-y-auto">
+        <div className="space-y-2 max-h-96 overflow-y-auto scrollbar-custom">
           {chapters.length === 0 ? (
             <p className="text-sm text-gray-500 text-center py-4">
               No chapters yet. Create one above.

@@ -134,7 +134,7 @@ export function QuestionGenerator() {
     }
 
     setLoading(true)
-    setMessage('🤖 Generating questions with AI...')
+    setMessage('Generating questions with AI...')
     setGeneratedQuestions([])
 
     try {
@@ -154,15 +154,15 @@ export function QuestionGenerator() {
       const result = await response.json()
 
       if (response.ok) {
-        setMessage(`✅ Generated ${result.questions.length} question(s) using ${result.chunks_used} knowledge chunks!`)
+        setMessage(`Generated ${result.questions.length} question(s) using ${result.chunks_used} knowledge chunks`)
         setGeneratedQuestions(result.questions)
       } else {
-        setMessage(`❌ Error: ${result.error}`)
+        setMessage(`Error: ${result.error}`)
         console.error('Generation error:', result)
       }
     } catch (error) {
       console.error('Error generating questions:', error)
-      setMessage('❌ Failed to generate questions. Check console for details.')
+      setMessage('Failed to generate questions. Check console for details.')
     }
 
     setLoading(false)
@@ -172,19 +172,19 @@ export function QuestionGenerator() {
     console.log('Random button clicked, selectedChapter:', selectedChapter)
 
     if (!selectedChapter) {
-      setMessage('⚠️ Please select a chapter first')
+      setMessage('Please select a chapter first')
       return
     }
 
     if (loadingTopics) {
-      setMessage('⏳ Loading topics from your content...')
+      setMessage('Loading topics from your content...')
       return
     }
 
     const topicsToUse = extractedTopics.length > 0 ? extractedTopics : COMMON_TOPICS
 
     if (topicsToUse.length === 0) {
-      setMessage('⚠️ No topics found. Upload content to this chapter first.')
+      setMessage('No topics found. Upload content to this chapter first.')
       return
     }
 
@@ -203,7 +203,7 @@ export function QuestionGenerator() {
 
       // Show selection info before generating
       const bloomLevelName = BLOOM_LEVELS.find(l => l.value === randomBloomLevel)?.label || `Level ${randomBloomLevel}`
-      setMessage(`🎲 Random selection:\n📚 ${randomTopic}\n📊 ${bloomLevelName}\n\nGenerating question...`)
+      setMessage(`Random selection: ${randomTopic} - ${bloomLevelName}\n\nGenerating question...`)
 
       // Small delay to show the selection
       await new Promise(resolve => setTimeout(resolve, 1000))
@@ -212,7 +212,7 @@ export function QuestionGenerator() {
       await handleGenerate(randomTopic, randomBloomLevel)
     } catch (error) {
       console.error('Error in handleRandomGenerate:', error)
-      setMessage('❌ Error generating random question')
+      setMessage('Error generating random question')
     }
   }
 
@@ -249,12 +249,12 @@ export function QuestionGenerator() {
             )}
             {loadingTopics && (
               <p className="text-xs text-blue-400 mt-1">
-                ⏳ Extracting topics from chapter content...
+                Extracting topics from chapter content...
               </p>
             )}
             {!loadingTopics && extractedTopics.length > 0 && (
               <p className="text-xs text-green-400 mt-1">
-                ✓ Found {extractedTopics.length} topics from your content
+                Found {extractedTopics.length} topics from your content
               </p>
             )}
           </div>
@@ -315,23 +315,23 @@ export function QuestionGenerator() {
               disabled={loading || !selectedChapter}
               className="neuro-btn"
             >
-              🎲 Random Question
+              Random Question
             </button>
             <button
               onClick={() => handleGenerate()}
               disabled={loading || !selectedChapter || !topic.trim()}
               className="neuro-btn-primary"
             >
-              {loading ? '🤖 Generating...' : '✨ Generate Questions'}
+              {loading ? 'Generating...' : 'Generate Questions'}
             </button>
           </div>
 
           {message && (
             <div className={`neuro-inset p-3 rounded-lg text-sm whitespace-pre-line ${
-              message.includes('✅') ? 'text-green-400' :
-              message.includes('❌') ? 'text-red-400' :
-              message.includes('⚠️') ? 'text-yellow-400' :
-              message.includes('🎲') ? 'text-yellow-400' :
+              message.startsWith('Error') || message.includes('Failed') ? 'text-red-400' :
+              message.includes('Please select') || message.includes('No topics') ? 'text-yellow-400' :
+              message.includes('Random selection') ? 'text-blue-400' :
+              message.includes('Generated') ? 'text-green-400' :
               'text-blue-400'
             }`}>
               {message}
@@ -378,7 +378,7 @@ export function QuestionGenerator() {
                           }`}
                         >
                           <span className="font-bold">{key}.</span> {value}
-                          {key === q.correct_answer && ' ✓'}
+                          {key === q.correct_answer && ' (correct)'}
                         </div>
                       ))}
                     </div>
