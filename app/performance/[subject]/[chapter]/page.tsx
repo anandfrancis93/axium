@@ -53,7 +53,7 @@ export default function PerformancePage() {
         .from('user_mastery_heatmap')
         .select('*')
         .eq('user_id', user.id)
-        .eq('chapter_id', chapterData.id)
+        .eq('chapter_id', fetchedChapter.id)
 
       setMasteryHeatmap(heatmapData || [])
 
@@ -62,7 +62,7 @@ export default function PerformancePage() {
         .from('user_progress_summary')
         .select('*')
         .eq('user_id', user.id)
-        .eq('chapter_id', chapterData.id)
+        .eq('chapter_id', fetchedChapter.id)
         .single()
 
       setProgressSummary(summaryData)
@@ -72,7 +72,7 @@ export default function PerformancePage() {
         .from('learning_sessions')
         .select('id')
         .eq('user_id', user.id)
-        .eq('chapter_id', chapterData.id)
+        .eq('chapter_id', fetchedChapter.id)
 
       // Get recent responses for this chapter's sessions
       if (chapterSessions && chapterSessions.length > 0) {
@@ -82,7 +82,7 @@ export default function PerformancePage() {
           .select('*')
           .eq('user_id', user.id)
           .in('session_id', sessionIds)
-          .order('answered_at', { ascending: false })
+          .order('created_at', { ascending: false })
           .limit(20)
 
         setRecentActivity(responsesData || [])
