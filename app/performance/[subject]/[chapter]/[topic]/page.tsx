@@ -380,11 +380,7 @@ export default function TopicMasteryPage() {
                                     </div>
                                   </Tooltip>
                                 ) : uniqueCount === 0 ? (
-                                  <Tooltip content={`${topic} - ${bloomLevel.name} - ${dim.name}\n\nNo attempts yet`}>
-                                    <div className="inline-flex">
-                                      <LockOpenIcon size={16} className="text-gray-500" />
-                                    </div>
-                                  </Tooltip>
+                                  <div></div>
                                 ) : (
                                   <Tooltip
                                     content={`${topic} - ${bloomLevel.name} - ${dim.name}\n\nScore: ${cell?.average_score || 0}%\n\nUnique Questions: ${uniqueCount}\n\nTotal Attempts: ${totalAttempts} (${totalAttempts - uniqueCount} repeats)\n\nStatus: ${getStatusLabel(status, masteryLevel, uniqueCount, totalAttempts)}`}
