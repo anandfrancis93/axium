@@ -315,19 +315,19 @@ export default function PerformancePage() {
                 <span className="text-gray-400 font-medium">Mastery Levels:</span>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded bg-gray-800"></div>
-                  <span className="text-gray-500">0%</span>
+                  <span className="text-gray-500">0-19%</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded bg-red-500"></div>
-                  <span className="text-gray-500">20%</span>
+                  <span className="text-gray-500">20-39%</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded bg-yellow-500"></div>
-                  <span className="text-gray-500">40%</span>
+                  <span className="text-gray-500">40-59%</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded bg-blue-500"></div>
-                  <span className="text-gray-500">60%</span>
+                  <span className="text-gray-500">60-79%</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded bg-green-500"></div>
