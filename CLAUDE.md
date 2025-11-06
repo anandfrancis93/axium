@@ -1027,6 +1027,32 @@ ring-2 ring-blue-400
 </div>
 ```
 
+**Tooltips (Progressive Disclosure)**
+```tsx
+// Use native title attribute for simplicity
+// Move detailed/helper text to tooltips to reduce clutter
+
+// Stats with tooltips instead of visible helper text
+<div className="neuro-stat cursor-help" title="Helper text details">
+  <div className="text-sm text-blue-400 font-medium">Label</div>
+  <div className="text-4xl font-bold text-gray-200">{value}</div>
+  {/* NO visible helper text here */}
+</div>
+
+// Legend items with tooltips
+<div className="flex items-center gap-2 cursor-help" title="3+ unique, 40-59%">
+  <div className="w-4 h-4 rounded bg-yellow-500"></div>
+  <span className="text-gray-500">Developing</span>
+  {/* Details in tooltip, not visible */}
+</div>
+
+// Guidelines:
+// - Always add cursor-help to indicate tooltip
+// - Keep labels short and scannable
+// - Move technical details/ranges to tooltips
+// - Tooltips reveal on hover, reducing cognitive load
+```
+
 #### Reduce Cognitive Load Checklist
 - ✅ Same button styles everywhere
 - ✅ Same header pattern on all pages
