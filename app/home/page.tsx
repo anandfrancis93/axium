@@ -47,20 +47,20 @@ export default async function DashboardPage() {
     <div className="min-h-screen" style={{ background: '#0a0a0a' }}>
       {/* Header */}
       <header className="neuro-container mx-4 my-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center flex-wrap gap-4">
-          <div className="neuro-raised px-6 py-3 flex items-center gap-3">
-            <BookIcon size={24} className="text-blue-400" />
-            <h1 className="text-2xl font-bold text-blue-400">
+        <div className="max-w-7xl mx-auto flex justify-between items-center gap-3">
+          <div className="neuro-raised px-6 py-3 flex items-center gap-3 min-w-0 flex-shrink">
+            <BookIcon size={24} className="text-blue-400 flex-shrink-0" />
+            <h1 className="text-2xl font-bold text-blue-400 truncate">
               Axium
             </h1>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <Link
               href="/admin"
               className="neuro-btn text-sm flex items-center gap-2"
             >
               <SettingsIcon size={16} />
-              <span>Admin</span>
+              <span className="hidden sm:inline">Admin</span>
             </Link>
             <HamburgerMenu />
           </div>

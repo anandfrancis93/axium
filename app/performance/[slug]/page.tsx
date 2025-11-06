@@ -171,24 +171,24 @@ export default function PerformancePage() {
     <div className="min-h-screen" style={{ background: '#0a0a0a' }}>
       {/* Header */}
       <header className="neuro-container mx-4 my-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center flex-wrap gap-4">
-          <div className="neuro-raised px-6 py-3 flex items-center gap-3">
-            <BarChartIcon size={24} className="text-blue-400" />
-            <div>
-              <div className="text-xs text-gray-500">{chapter?.subjects?.name}</div>
-              <h1 className="text-xl font-bold text-gray-200">
+        <div className="max-w-7xl mx-auto flex justify-between items-center gap-3">
+          <div className="neuro-raised px-6 py-3 flex items-center gap-3 min-w-0 flex-shrink">
+            <BarChartIcon size={24} className="text-blue-400 flex-shrink-0" />
+            <div className="min-w-0">
+              <div className="text-xs text-gray-500 truncate">{chapter?.subjects?.name}</div>
+              <h1 className="text-xl font-bold text-gray-200 truncate">
                 {chapter?.name}
               </h1>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onClick={handleResetProgress}
               disabled={resetting}
-              className="neuro-btn text-xs flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-red-400 hover:text-red-300 px-4 py-2"
+              className="neuro-btn text-xs flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-red-400 hover:text-red-300 px-3 py-2"
             >
               <RefreshIcon size={14} className={resetting ? 'animate-spin' : ''} />
-              {resetting ? 'Resetting...' : 'Reset Progress'}
+              <span className="hidden sm:inline">{resetting ? 'Resetting...' : 'Reset'}</span>
             </button>
             <HamburgerMenu />
           </div>

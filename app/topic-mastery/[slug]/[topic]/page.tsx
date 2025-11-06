@@ -147,14 +147,16 @@ export default function TopicMasteryPage() {
       {/* Header */}
       <header className="neuro-container mx-4 my-4">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between gap-4 mb-4">
-            <div>
-              <div className="text-sm text-gray-500">{chapter?.subjects?.name} • {chapter?.name}</div>
-              <h1 className="text-2xl font-bold text-gray-200">
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <div className="min-w-0 flex-shrink">
+              <div className="text-sm text-gray-500 truncate">{chapter?.subjects?.name} • {chapter?.name}</div>
+              <h1 className="text-2xl font-bold text-gray-200 truncate">
                 {topic}
               </h1>
             </div>
-            <HamburgerMenu />
+            <div className="flex-shrink-0">
+              <HamburgerMenu />
+            </div>
           </div>
 
           {/* Summary Stats */}

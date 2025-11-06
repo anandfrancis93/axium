@@ -215,14 +215,16 @@ export default function LearnPage() {
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Progress Header */}
         <div className="neuro-card mb-6">
-          <div className="flex justify-between items-center">
-            <div>
+          <div className="flex justify-between items-center gap-3">
+            <div className="min-w-0 flex-shrink">
               <div className="text-sm text-gray-500 mb-1">Question {feedback?.session_progress?.questions_answered || 0 + 1} of {session?.questions_remaining || 10}</div>
               <div className="text-2xl font-bold text-gray-200">
                 Score: {feedback?.session_progress?.current_score || 0}/{feedback?.session_progress?.questions_answered || 0}
               </div>
             </div>
-            <HamburgerMenu />
+            <div className="flex-shrink-0">
+              <HamburgerMenu />
+            </div>
           </div>
         </div>
 
