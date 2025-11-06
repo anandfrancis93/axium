@@ -171,6 +171,37 @@ export default function PerformancePage() {
     return 'Novice'
   }
 
+  const getMasteryTooltip = (topic: string, level: number, mastery: number) => {
+    const label = getMasteryLabel(mastery)
+    let range = ''
+    let meaning = ''
+
+    if (mastery >= 80) {
+      range = '80%+'
+      meaning = 'Ready to advance to next level'
+    } else if (mastery >= 60) {
+      range = '60-79%'
+      meaning = 'Good progress, keep practicing'
+    } else if (mastery >= 40) {
+      range = '40-59%'
+      meaning = 'Building understanding'
+    } else if (mastery >= 20) {
+      range = '20-39%'
+      meaning = 'Early stages of learning'
+    } else {
+      range = '0-19%'
+      meaning = 'Just getting started'
+    }
+
+    return `${topic} - Level ${level}
+${Math.round(mastery)}% Mastery (${label})
+
+Range: ${range}
+${meaning}
+
+Mastery grows with correct answers and high confidence`
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#0a0a0a' }}>
@@ -387,7 +418,7 @@ export default function PerformancePage() {
                                     </div>
                                   </Tooltip>
                                 ) : (
-                                  <Tooltip content={`${row.topic} - Level ${level.num}: ${Math.round(mastery || 0)}% (${getMasteryLabel(mastery)})`}>
+                                  <Tooltip content={getMasteryTooltip(row.topic, level.num, mastery || 0)}>
                                     <div className={`${getMasteryColor(mastery)} font-medium text-sm`}>
                                       {Math.round(mastery || 0)}
                                     </div>
