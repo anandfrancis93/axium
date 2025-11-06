@@ -196,35 +196,35 @@ export default function TopicMasteryPage() {
         <div className="neuro-card mb-6">
           <h3 className="text-sm font-medium text-gray-400 mb-4">Adaptive Mastery Levels:</h3>
           <div className="flex flex-wrap gap-4 text-sm">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 cursor-help" title="0 unique questions">
               <div className="w-4 h-4 rounded bg-gray-800"></div>
-              <span className="text-gray-500">Not Tested (0 unique)</span>
+              <span className="text-gray-500">Not Tested</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 cursor-help" title="<3 unique questions">
               <div className="w-4 h-4 rounded bg-gray-700 border border-yellow-500/30"></div>
-              <span className="text-gray-500">Insufficient Data (&lt;3 unique)</span>
+              <span className="text-gray-500">Insufficient Data</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 cursor-help" title="3+ unique, <40%">
               <div className="w-4 h-4 rounded bg-red-500"></div>
-              <span className="text-gray-500">Struggling (3+ unique, &lt;40%)</span>
+              <span className="text-gray-500">Struggling</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 cursor-help" title="3+ unique, 40-59%">
               <div className="w-4 h-4 rounded bg-yellow-500"></div>
-              <span className="text-gray-500">Developing (3+ unique, 40-59%)</span>
+              <span className="text-gray-500">Developing</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 cursor-help" title="3+ unique, 60-79%">
               <div className="w-4 h-4 rounded bg-blue-500"></div>
-              <span className="text-gray-500">Proficient (3+ unique, 60-79%)</span>
+              <span className="text-gray-500">Proficient</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 cursor-help" title="3+ unique, 80%+">
               <div className="w-4 h-4 rounded bg-green-500"></div>
-              <span className="text-gray-500">Initial Mastery (3+ unique, 80%+)</span>
+              <span className="text-gray-500">Initial Mastery</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 cursor-help" title="5+ unique, 80%+">
               <div className="w-4 h-4 rounded bg-gradient-to-br from-green-600 to-green-400 relative flex items-center justify-center">
                 <StarIcon size={10} filled className="text-yellow-300" />
               </div>
-              <span className="text-gray-500">Deep Mastery (5+ unique, 80%+)</span>
+              <span className="text-gray-500">Deep Mastery</span>
             </div>
           </div>
           <div className="mt-4 text-sm text-gray-500">
