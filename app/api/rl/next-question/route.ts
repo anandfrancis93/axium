@@ -206,11 +206,10 @@ Return ONLY valid JSON, no other text.`
 
     console.log('[FIRST 5 TOPICS IN DB]', similarTopics?.map((t: any) => t.name))
 
-    // Fallback: Store question anyway with null topic_id (will fail foreign key constraint)
-    // This will surface the error properly instead of silently returning ephemeral
+    // Fallback: Return ephemeral question when topic lookup fails
     const questionWithoutTopic = {
       id: `ephemeral-${Date.now()}-${Math.random().toString(36).substring(7)}`,
-      chapter_id: chapterId,
+      // NOTE: Cannot store in DB without topic_id due to foreign key constraint
       question_text: q.question_text,
       question_type: 'mcq',
       options: q.options,
@@ -226,8 +225,11 @@ Return ONLY valid JSON, no other text.`
   }
 
   // Store question for spaced repetition with topic_id
+  // NOTE: questions table has constraint "questions_chapter_or_topic_check"
+  // which requires EITHER chapter_id OR topic_id, not both
+  // We use topic_id since topics already reference chapters
   const questionToInsert = {
-    chapter_id: chapterId,
+    // chapter_id: chapterId,  // ❌ Removed - causes constraint violation when topic_id is set
     question_text: q.question_text,
     question_type: 'mcq',
     options: q.options,
@@ -235,7 +237,7 @@ Return ONLY valid JSON, no other text.`
     explanation: q.explanation,
     bloom_level: bloomLevel,
     topic,
-    topic_id: topicRecord.id,  // ✅ Assign topic_id foreign key
+    topic_id: topicRecord.id,  // ✅ Use topic_id (topics table has chapter_id foreign key)
     dimension,  // Track which knowledge dimension this question tests
     difficulty_estimated: bloomLevel >= 4 ? 'hard' : bloomLevel >= 3 ? 'medium' : 'easy',
     source_type: 'ai_generated_realtime',
