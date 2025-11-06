@@ -22,6 +22,68 @@ const BLOOM_LEVELS = {
   6: 'Create (produce new or original work)',
 }
 
+// Question format instructions
+const FORMAT_INSTRUCTIONS: Record<string, string> = {
+  mcq_single: `QUESTION FORMAT: Multiple Choice Question (Single Select)
+- Provide 4 answer options (A, B, C, D)
+- EXACTLY ONE correct answer
+- Three plausible distractors`,
+
+  mcq_multi: `QUESTION FORMAT: Multiple Choice Question (Multi Select)
+- Provide 4-6 answer options (A, B, C, D, E, F)
+- MULTIPLE correct answers (typically 2-3)
+- Remaining options are plausible distractors
+- Indicate in correct_answer field as array: ["B", "D"] or comma-separated: "B,D"
+- This tests deeper understanding - students must identify ALL correct options`,
+
+  true_false: `QUESTION FORMAT: True/False
+- Provide exactly 2 options: "True" and "False"
+- The statement should be clearly true or false based on the context
+- Avoid ambiguous wording`,
+
+  fill_blank: `QUESTION FORMAT: Fill in the Blank
+- Create a statement with a missing key term or concept (use _____)
+- Provide 4 possible answers to complete the blank
+- The correct answer should fit naturally in the sentence`,
+
+  matching: `QUESTION FORMAT: Matching
+- Present the question as "Match the following:"
+- Provide 4 items that need to be matched
+- Options should be the correct matches labeled A, B, C, D
+- Indicate all correct pairings in the explanation`,
+
+  code: `QUESTION FORMAT: Code Writing
+- Ask student to write or complete code
+- Provide 4 different code solutions (some correct, some with subtle bugs)
+- Test understanding of implementation, not just theory
+- Include working code as the correct answer`,
+
+  code_trace: `QUESTION FORMAT: Code Trace
+- Provide a code snippet
+- Ask what the output or result will be
+- Provide 4 possible outputs/results
+- Test ability to trace execution mentally`,
+
+  code_debug: `QUESTION FORMAT: Code Debug
+- Provide code with a bug or error
+- Ask what the bug is or how to fix it
+- Provide 4 possible fixes (one correct, three that seem plausible but wrong)
+- Test ability to identify and fix issues`,
+
+  diagram: `QUESTION FORMAT: Diagram-based
+- Describe a scenario that would typically be shown as a diagram
+- Ask about relationships, flow, or structure
+- Provide 4 possible answers about the diagram/visual concept
+- Test visual-spatial understanding`,
+
+  open_ended: `QUESTION FORMAT: Open-ended (with rubric)
+- Ask for explanation, analysis, or opinion
+- Don't provide multiple choice options
+- Instead, provide a detailed rubric with key points that should be included
+- Explain what makes a good vs. excellent answer
+- Format as: {"question_text": "...", "rubric": {...}, "sample_answer": "...", "key_points": [...]}`
+}
+
 export async function POST(request: NextRequest) {
   try {
     // Check authentication
@@ -33,7 +95,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { chapter_id, topic, bloom_level, num_questions = 1 } = body
+    const { chapter_id, topic, bloom_level, question_format = 'mcq', num_questions = 1 } = body
 
     // Validate inputs
     if (!chapter_id || !topic) {
@@ -51,7 +113,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log(`Generating ${num_questions} question(s) for topic: "${topic}" at Bloom level ${bloomLevelNum}`)
+    const formatInstructions = FORMAT_INSTRUCTIONS[question_format] || FORMAT_INSTRUCTIONS.mcq_single
+
+    console.log(`Generating ${num_questions} ${question_format} question(s) for topic: "${topic}" at Bloom level ${bloomLevelNum}`)
 
     // Step 1: Generate embedding for the topic
     console.log('Generating topic embedding...')
@@ -121,15 +185,17 @@ BLOOM'S TAXONOMY LEVEL: ${bloomLevelNum} - ${bloomDescription}
 
 TOPIC: ${topic}
 
+${formatInstructions}
+
 CONTEXT (from course materials):
 ${context}
 
-TASK: Generate ${num_questions} multiple-choice question(s) at Bloom's level ${bloomLevelNum} about "${topic}".
+TASK: Generate ${num_questions} question(s) at Bloom's level ${bloomLevelNum} about "${topic}".
 
 REQUIREMENTS:
 1. Base questions ONLY on the provided context
 2. Match the cognitive level of Bloom's ${bloomLevelNum} (${bloomDescription})
-3. Provide 4 answer options (A, B, C, D)
+3. Follow the question format instructions above exactly
 4. Clearly indicate the correct answer
 5. Include a brief explanation for the correct answer
 
@@ -228,6 +294,7 @@ Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other 
       chapter_id,
       question_text: q.question_text,
       question_type: 'mcq',
+      question_format,
       options: q.options,
       correct_answer: q.correct_answer,
       explanation: q.explanation,

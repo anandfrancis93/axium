@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { getRecommendedFormats, type QuestionFormat } from '@/lib/utils/question-format'
 
 type Chapter = {
   id: string
@@ -22,6 +23,7 @@ type GeneratedQuestion = {
   explanation: string
   bloom_level: number
   topic: string
+  question_format?: string
 }
 
 const BLOOM_LEVELS = [
@@ -62,12 +64,14 @@ export function QuestionGenerator() {
   const [selectedChapter, setSelectedChapter] = useState('')
   const [topic, setTopic] = useState('')
   const [bloomLevel, setBloomLevel] = useState(1)
+  const [questionFormat, setQuestionFormat] = useState<QuestionFormat>('mcq_single')
   const [numQuestions, setNumQuestions] = useState(1)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [generatedQuestions, setGeneratedQuestions] = useState<GeneratedQuestion[]>([])
   const [extractedTopics, setExtractedTopics] = useState<string[]>([])
   const [loadingTopics, setLoadingTopics] = useState(false)
+  const [recommendedFormats, setRecommendedFormats] = useState(getRecommendedFormats(1))
 
   useEffect(() => {
     loadChapters()
@@ -78,6 +82,16 @@ export function QuestionGenerator() {
       loadTopicsFromChapter()
     }
   }, [selectedChapter])
+
+  useEffect(() => {
+    // Update recommended formats when Bloom level changes
+    setRecommendedFormats(getRecommendedFormats(bloomLevel))
+    // Auto-select first recommended format if current format isn't ideal
+    const recommended = getRecommendedFormats(bloomLevel)
+    if (recommended.length > 0 && !recommended.find(f => f.key === questionFormat)) {
+      setQuestionFormat(recommended[0].key)
+    }
+  }, [bloomLevel])
 
   const loadChapters = async () => {
     const supabase = createClient()
@@ -124,9 +138,10 @@ export function QuestionGenerator() {
     setLoadingTopics(false)
   }
 
-  const handleGenerate = async (customTopic?: string, customBloomLevel?: number) => {
+  const handleGenerate = async (customTopic?: string, customBloomLevel?: number, customFormat?: QuestionFormat) => {
     const topicToUse = customTopic || topic
     const bloomLevelToUse = customBloomLevel || bloomLevel
+    const formatToUse = customFormat || questionFormat
 
     if (!selectedChapter || !topicToUse.trim()) {
       setMessage('Please select a chapter and enter a topic')
@@ -147,6 +162,7 @@ export function QuestionGenerator() {
           chapter_id: selectedChapter,
           topic: topicToUse.trim(),
           bloom_level: bloomLevelToUse,
+          question_format: formatToUse,
           num_questions: numQuestions,
         }),
       })
@@ -195,21 +211,29 @@ export function QuestionGenerator() {
       // Pick random Bloom level (1-6)
       const randomBloomLevel = Math.floor(Math.random() * 6) + 1
 
-      console.log('Random values:', { randomTopic, randomBloomLevel, topicsSource: extractedTopics.length > 0 ? 'chapter content' : 'fallback' })
+      // Pick random format from recommended formats for this Bloom level
+      const formatsForLevel = getRecommendedFormats(randomBloomLevel)
+      const randomFormat = formatsForLevel.length > 0
+        ? formatsForLevel[Math.floor(Math.random() * formatsForLevel.length)].key
+        : 'mcq'
+
+      console.log('Random values:', { randomTopic, randomBloomLevel, randomFormat, topicsSource: extractedTopics.length > 0 ? 'chapter content' : 'fallback' })
 
       // Update form fields (for visual feedback)
       setTopic(randomTopic)
       setBloomLevel(randomBloomLevel)
+      setQuestionFormat(randomFormat)
 
       // Show selection info before generating
       const bloomLevelName = BLOOM_LEVELS.find(l => l.value === randomBloomLevel)?.label || `Level ${randomBloomLevel}`
-      setMessage(`Random selection: ${randomTopic} - ${bloomLevelName}\n\nGenerating question...`)
+      const formatInfo = getRecommendedFormats(randomBloomLevel).find(f => f.key === randomFormat)
+      setMessage(`Random selection: ${randomTopic} - ${bloomLevelName} - ${formatInfo?.name || randomFormat}\n\nGenerating question...`)
 
       // Small delay to show the selection
       await new Promise(resolve => setTimeout(resolve, 1000))
 
       // Generate immediately with the random values
-      await handleGenerate(randomTopic, randomBloomLevel)
+      await handleGenerate(randomTopic, randomBloomLevel, randomFormat)
     } catch (error) {
       console.error('Error in handleRandomGenerate:', error)
       setMessage('Error generating random question')
@@ -287,6 +311,27 @@ export function QuestionGenerator() {
                 </option>
               ))}
             </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Question Format *
+            </label>
+            <select
+              value={questionFormat}
+              onChange={(e) => setQuestionFormat(e.target.value as QuestionFormat)}
+              className="neuro-input w-full"
+              disabled={loading}
+            >
+              {recommendedFormats.map((format) => (
+                <option key={format.key} value={format.key}>
+                  {format.icon} {format.name} - {format.description}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-gray-500 mt-1">
+              Showing formats recommended for Bloom Level {bloomLevel}
+            </p>
           </div>
 
           <div>

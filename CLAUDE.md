@@ -1238,6 +1238,148 @@ See `docs/RL_PHASE_TRACKING.md` for complete documentation.
 
 ---
 
+### 19. Question Format Personalization
+
+**Personalize HOW students learn, not just WHAT they learn.**
+
+Axium tracks performance across 10 question formats to optimize learning effectiveness:
+
+#### The 10 Question Formats
+
+```typescript
+import { getQuestionFormatInfo, getRecommendedFormats } from '@/lib/utils/question-format'
+import { QuestionFormatBadge } from '@/components/QuestionFormatBadge'
+
+// Get format information
+const formatInfo = getQuestionFormatInfo('mcq_single')
+console.log(formatInfo.name)        // "MCQ - Single Select"
+console.log(formatInfo.icon)        // "◻"
+console.log(formatInfo.idealBloomLevels)  // [1, 2]
+
+// Get recommended formats for Bloom level
+const formats = getRecommendedFormats(3)  // Returns formats ideal for Apply level
+```
+
+**Note:** MCQs are split into two types:
+- **mcq_single** - One correct answer (easier, Bloom 1-2)
+- **mcq_multi** - Multiple correct answers / "select all that apply" (harder, Bloom 2-4, tests deeper understanding)
+
+#### Format × Bloom Matrix
+
+| Format | Icon | Bloom Levels | Complexity | Use Case |
+|--------|------|--------------|------------|----------|
+| **True/False** | ◐ | 1-2 | Low | Quick recall |
+| **MCQ - Single** | ◻ | 1-2 | Low | Factual knowledge, one correct answer |
+| **MCQ - Multi** | ☑ | 2-4 | Medium | Multiple correct answers, deeper understanding |
+| **Fill in Blank** | ▭ | 1-3 | Low | Term completion |
+| **Matching** | ⋈ | 2-3 | Medium | Relationships |
+| **Code Trace** | ⇝ | 3-4 | Medium | Predict output |
+| **Diagram** | ◇ | 2-4, 6 | Medium | Visual reasoning |
+| **Code Debug** | ⚠ | 4-5 | High | Find/fix bugs |
+| **Code Writing** | ⟨⟩ | 3-6 | High | Implementation |
+| **Open Ended** | ≡ | 4-6 | High | Essay/analysis |
+
+#### Format Selection Strategy
+
+The RL system uses format performance to personalize learning:
+
+```typescript
+// Stored in user_progress.rl_metadata
+{
+  "format_performance": {
+    "3": {  // Bloom level 3
+      "mcq_single": { "attempts": 10, "correct": 8, "avg_confidence": 0.75 },
+      "mcq_multi": { "attempts": 8, "correct": 5, "avg_confidence": 0.65 },
+      "code_trace": { "attempts": 5, "correct": 3, "avg_confidence": 0.60 }
+    }
+  },
+  "format_preferences": {
+    "most_effective": ["mcq_single", "true_false"],
+    "least_effective": ["code_debug", "mcq_multi"]
+  }
+}
+```
+
+**Selection Algorithm:**
+- **Cold Start Phase** → Uniform random (gather baseline)
+- **Exploration Phase** → Epsilon-greedy (ε=0.3)
+- **Optimization Phase** → Exploit best formats (ε=0.1)
+
+#### UI Components
+
+```typescript
+// Display format badge
+<QuestionFormatBadge
+  format="code_trace"
+  showIcon={true}
+  showDescription={true}
+/>
+
+// Display format indicator with ideal level check
+<QuestionFormatIndicator
+  format="code_trace"
+  bloomLevel={3}  // Shows "Ideal for this level" if match
+/>
+```
+
+#### Admin: Question Generation with Format
+
+The question generator automatically filters formats by Bloom level:
+
+```typescript
+// In QuestionGenerator.tsx
+const recommendedFormats = getRecommendedFormats(bloomLevel)
+// User selects from formats ideal for current Bloom level
+// When Bloom level changes, format options update automatically
+```
+
+#### Database Schema
+
+```sql
+-- questions table
+ALTER TABLE questions
+ADD COLUMN question_format question_format DEFAULT 'mcq',
+ADD COLUMN format_metadata JSONB DEFAULT '{}'::jsonb;
+
+-- Effectiveness calculation
+SELECT calculate_format_effectiveness(
+  attempts := 10,
+  correct := 8,
+  avg_confidence := 0.75
+) as score;  -- Returns 0.785 (70% accuracy + 30% confidence)
+```
+
+#### Benefits
+
+1. **Cognitive Load Optimization** - Use easier formats when learning new concepts
+2. **Confidence Building** - Start with formats where user excels
+3. **Skill Gap Identification** - Spot theoretical vs. practical weaknesses
+4. **Adaptive Difficulty** - Tune challenge within same Bloom level
+
+#### Example: Personalized Learning Path
+
+```
+User Profile (Bloom Level 3 - Apply):
+  ✅ MCQ Single: 85% accuracy → High effectiveness
+  ✅ Fill in Blank: 80% accuracy → Good effectiveness
+  ⚠️ MCQ Multi: 65% accuracy → Medium effectiveness
+  ⚠️ Code Trace: 60% accuracy → Medium effectiveness
+  ❌ Code Debug: 45% accuracy → Low effectiveness
+
+System Decision:
+  1. Build confidence with MCQ Single/Fill Blank (60% of questions)
+  2. Challenge with MCQ Multi (15% of questions)
+  3. Introduce Code Trace (15% of questions)
+  4. Sparingly use Code Debug (10% of questions)
+  5. Monitor and adjust based on performance
+
+Note: MCQ Multi serves as a "stepping stone" - harder than MCQ Single but easier than code-based questions.
+```
+
+See `docs/QUESTION_FORMAT_PERSONALIZATION.md` for complete documentation.
+
+---
+
 ## Quick Reference Checklist
 
 Before committing code, verify:
