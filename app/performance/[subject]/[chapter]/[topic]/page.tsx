@@ -7,7 +7,7 @@ import Link from 'next/link'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import { RLPhaseBadge } from '@/components/RLPhaseBadge'
 import { getRLPhaseContext } from '@/lib/utils/rl-phase'
-import { TargetIcon, CheckIcon, TrendingUpIcon, AwardIcon, BarChartIcon, InfoIcon, PlayIcon } from '@/components/icons'
+import { TargetIcon, CheckIcon, TrendingUpIcon, AwardIcon, BarChartIcon, PlayIcon } from '@/components/icons'
 
 const BLOOM_LEVELS = [
   { num: 1, name: 'Remember' },
@@ -189,18 +189,8 @@ export default function TopicMasteryPage() {
 
           {/* RL Phase Badge */}
           {rlPhase && (
-            <div className="mb-6">
+            <div className="mb-6 cursor-help" title={getRLPhaseContext(rlPhase)}>
               <RLPhaseBadge phase={rlPhase} showDescription={false} />
-              <div className="mt-4 neuro-inset p-4 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <div className="neuro-inset w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <InfoIcon size={16} className="text-blue-400" />
-                  </div>
-                  <div className="text-sm text-gray-400 leading-relaxed">
-                    {getRLPhaseContext(rlPhase)}
-                  </div>
-                </div>
-              </div>
             </div>
           )}
 
