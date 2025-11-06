@@ -372,17 +372,9 @@ export default function TopicMasteryPage() {
                                 >
                                   <div className={`${getStatusColor(status, masteryLevel, uniqueCount)} relative inline-block`}>
                                     {uniqueCount > 0 ? (
-                                      <>
-                                        <div className="font-bold text-lg">
-                                          {Math.round(cell.average_score)}%
-                                        </div>
-                                        <div className="text-xs opacity-75 flex items-center gap-1 justify-center">
-                                          <span>{uniqueCount}</span>
-                                          {totalAttempts > uniqueCount && (
-                                            <span>+{totalAttempts - uniqueCount}</span>
-                                          )}
-                                        </div>
-                                      </>
+                                      <div className="font-bold text-lg">
+                                        {Math.round(cell.average_score)}%
+                                      </div>
                                     ) : (
                                       <div className="text-lg">-</div>
                                     )}
