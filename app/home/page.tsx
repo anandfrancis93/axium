@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { BookIcon } from '@/components/icons'
+import { BookIcon, SettingsIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 
 // Force dynamic rendering to access runtime environment variables
