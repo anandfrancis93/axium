@@ -354,27 +354,12 @@ export default function TopicMasteryPage() {
                     </thead>
                     <tbody>
                       {matrixByBloom.map(bloomLevel => {
-                        const isLocked = bloomLevel.num > currentBloomLevel
-                        const hasAnyData = bloomLevel.dimensions.some(d => (d.unique_questions_count || 0) > 0)
-                        const isUnlockedNoData = !isLocked && !hasAnyData
+                        const isRowLocked = bloomLevel.num > currentBloomLevel
 
                         return (
                         <tr key={bloomLevel.num} className="border-t border-gray-800">
                           <td className="sticky left-0 z-10 bg-[#0a0a0a] p-4 font-medium text-gray-200 border-r border-gray-800">
                             <div className="flex items-center gap-2">
-                              {isLocked ? (
-                                <Tooltip content={`Locked - Complete Level ${bloomLevel.num - 1} to unlock`}>
-                                  <div className="inline-flex">
-                                    <LockIcon size={16} className="text-gray-600" />
-                                  </div>
-                                </Tooltip>
-                              ) : isUnlockedNoData ? (
-                                <Tooltip content={`Unlocked, no attempts yet`}>
-                                  <div className="inline-flex">
-                                    <LockOpenIcon size={16} className="text-gray-500" />
-                                  </div>
-                                </Tooltip>
-                              ) : null}
                               <span className="text-white">L{bloomLevel.num}</span>
                               <span className="text-sm text-gray-500">{bloomLevel.name}</span>
                             </div>
@@ -388,19 +373,29 @@ export default function TopicMasteryPage() {
 
                             return (
                               <td key={`${bloomLevel.num}-${dim.key}`} className="p-4 text-center">
-                                <Tooltip
-                                  content={`${topic} - ${bloomLevel.name} - ${dim.name}\n\nScore: ${cell?.average_score || 0}%\n\nUnique Questions: ${uniqueCount}\n\nTotal Attempts: ${totalAttempts} (${totalAttempts - uniqueCount} repeats)\n\nStatus: ${getStatusLabel(status, masteryLevel, uniqueCount, totalAttempts)}`}
-                                >
-                                  <div className={`${getStatusColor(status, masteryLevel, uniqueCount)} relative inline-block`}>
-                                    {uniqueCount > 0 ? (
+                                {isRowLocked ? (
+                                  <Tooltip content={`Locked - Complete Level ${bloomLevel.num - 1} to unlock`}>
+                                    <div className="inline-flex">
+                                      <LockIcon size={16} className="text-gray-600" />
+                                    </div>
+                                  </Tooltip>
+                                ) : uniqueCount === 0 ? (
+                                  <Tooltip content={`${topic} - ${bloomLevel.name} - ${dim.name}\n\nNo attempts yet`}>
+                                    <div className="inline-flex">
+                                      <LockOpenIcon size={16} className="text-gray-500" />
+                                    </div>
+                                  </Tooltip>
+                                ) : (
+                                  <Tooltip
+                                    content={`${topic} - ${bloomLevel.name} - ${dim.name}\n\nScore: ${cell?.average_score || 0}%\n\nUnique Questions: ${uniqueCount}\n\nTotal Attempts: ${totalAttempts} (${totalAttempts - uniqueCount} repeats)\n\nStatus: ${getStatusLabel(status, masteryLevel, uniqueCount, totalAttempts)}`}
+                                  >
+                                    <div className={`${getStatusColor(status, masteryLevel, uniqueCount)} relative inline-block`}>
                                       <div className="font-bold text-lg">
                                         {Math.round(cell.average_score)}%
                                       </div>
-                                    ) : (
-                                      <div className="text-lg">-</div>
-                                    )}
-                                  </div>
-                                </Tooltip>
+                                    </div>
+                                  </Tooltip>
+                                )}
                               </td>
                             )
                           })}
