@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { RefreshIcon, AlertTriangleIcon, CheckIcon, XIcon, BarChartIcon, TrendingUpIcon, AwardIcon, TargetIcon, PlayIcon, ChevronDownIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
+import { Tooltip } from '@/components/Tooltip'
 
 export default function PerformancePage() {
   const router = useRouter()
@@ -179,7 +180,6 @@ export default function PerformancePage() {
           <div className="neuro-raised px-6 py-3 flex items-center gap-3 min-w-0 flex-shrink">
             <BarChartIcon size={24} className="text-blue-400 flex-shrink-0" />
             <div className="min-w-0">
-              <div className="text-xs text-gray-500 truncate">{chapterData?.subjects?.name}</div>
               <h1 className="text-xl font-bold text-gray-200 truncate">
                 {chapterData?.name}
               </h1>
@@ -214,50 +214,58 @@ export default function PerformancePage() {
 
           {statsExpanded && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6 pt-6 border-t border-gray-800">
-              <div className="neuro-inset p-4 rounded-lg group cursor-help" title="Topics explored">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="text-sm text-blue-400 font-medium">
-                    Topics Started
+              <Tooltip content="Topics explored">
+                <div className="neuro-inset p-4 rounded-lg group">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-sm text-blue-400 font-medium">
+                      Topics Started
+                    </div>
+                    <TargetIcon size={20} className="text-blue-400 opacity-50 group-hover:opacity-100 transition-opacity" />
                   </div>
-                  <TargetIcon size={20} className="text-blue-400 opacity-50 group-hover:opacity-100 transition-opacity" />
-                </div>
-                <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
-                  {progressSummary?.topics_started || 0}
-                </div>
-              </div>
-              <div className="neuro-inset p-4 rounded-lg group cursor-help" title="80%+ mastery achieved">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="text-sm text-green-400 font-medium">
-                    Topics Mastered
+                  <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
+                    {progressSummary?.topics_started || 0}
                   </div>
-                  <AwardIcon size={20} className="text-green-400 opacity-50 group-hover:opacity-100 transition-opacity" />
                 </div>
-                <div className="text-4xl font-bold text-gray-200 group-hover:text-green-400 transition-colors">
-                  {progressSummary?.topics_mastered || 0}
-                </div>
-              </div>
-              <div className="neuro-inset p-4 rounded-lg group cursor-help" title="Total attempts made">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="text-sm text-cyan-400 font-medium">
-                    Questions Answered
+              </Tooltip>
+              <Tooltip content="80%+ mastery achieved">
+                <div className="neuro-inset p-4 rounded-lg group">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-sm text-green-400 font-medium">
+                      Topics Mastered
+                    </div>
+                    <AwardIcon size={20} className="text-green-400 opacity-50 group-hover:opacity-100 transition-opacity" />
                   </div>
-                  <CheckIcon size={20} className="text-cyan-400 opacity-50 group-hover:opacity-100 transition-opacity" />
-                </div>
-                <div className="text-4xl font-bold text-gray-200 group-hover:text-cyan-400 transition-colors">
-                  {progressSummary?.total_questions_attempted || 0}
-                </div>
-              </div>
-              <div className="neuro-inset p-4 rounded-lg group cursor-help" title="Correct answers">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="text-sm text-blue-400 font-medium">
-                    Overall Accuracy
+                  <div className="text-4xl font-bold text-gray-200 group-hover:text-green-400 transition-colors">
+                    {progressSummary?.topics_mastered || 0}
                   </div>
-                  <TrendingUpIcon size={20} className="text-blue-400 opacity-50 group-hover:opacity-100 transition-opacity" />
                 </div>
-                <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
-                  {progressSummary?.overall_accuracy ? Math.round(progressSummary.overall_accuracy) : 0}%
+              </Tooltip>
+              <Tooltip content="Total attempts made">
+                <div className="neuro-inset p-4 rounded-lg group">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-sm text-cyan-400 font-medium">
+                      Questions Answered
+                    </div>
+                    <CheckIcon size={20} className="text-cyan-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <div className="text-4xl font-bold text-gray-200 group-hover:text-cyan-400 transition-colors">
+                    {progressSummary?.total_questions_attempted || 0}
+                  </div>
                 </div>
-              </div>
+              </Tooltip>
+              <Tooltip content="Correct answers">
+                <div className="neuro-inset p-4 rounded-lg group">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-sm text-blue-400 font-medium">
+                      Overall Accuracy
+                    </div>
+                    <TrendingUpIcon size={20} className="text-blue-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
+                    {progressSummary?.overall_accuracy ? Math.round(progressSummary.overall_accuracy) : 0}%
+                  </div>
+                </div>
+              </Tooltip>
             </div>
           )}
         </div>
@@ -344,12 +352,11 @@ export default function PerformancePage() {
                             const hasData = mastery !== null && mastery !== undefined
                             return (
                               <td key={level.num} className="p-4 text-center">
-                                <div
-                                  className={`${getMasteryColor(mastery)} font-medium text-sm cursor-help`}
-                                  title={`${row.topic} - Level ${level.num}: ${hasData ? Math.round(mastery) : 0}% (${getMasteryLabel(mastery)})`}
-                                >
-                                  {hasData ? Math.round(mastery) : '-'}
-                                </div>
+                                <Tooltip content={`${row.topic} - Level ${level.num}: ${hasData ? Math.round(mastery) : 0}% (${getMasteryLabel(mastery)})`}>
+                                  <div className={`${getMasteryColor(mastery)} font-medium text-sm`}>
+                                    {hasData ? Math.round(mastery) : '-'}
+                                  </div>
+                                </Tooltip>
                               </td>
                             )
                           })}
