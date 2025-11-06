@@ -19,8 +19,8 @@ export function RLPhaseBadge({ phase, showIcon = true, showDescription = false, 
         <IconComponent className={phaseInfo.color} size={24} />
       )}
       <div>
-        <div className={`font-medium ${phaseInfo.color}`}>
-          {phaseInfo.name}
+        <div className="font-medium text-blue-400">
+          {phaseInfo.name} Phase
         </div>
         {showDescription && (
           <div className="text-xs text-gray-500 mt-1">
@@ -51,8 +51,8 @@ export function RLPhaseIndicator({ phase }: RLPhaseIndicatorProps) {
         )}
         <div>
           <div className="text-xs text-gray-500">RL Phase</div>
-          <div className={`text-sm font-medium ${phaseInfo.color}`}>
-            {phaseInfo.name}
+          <div className="text-sm font-medium text-blue-400">
+            {phaseInfo.name} Phase
           </div>
         </div>
       </div>
