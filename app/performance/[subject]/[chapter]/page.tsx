@@ -171,7 +171,7 @@ export default function PerformancePage() {
     return 'Novice'
   }
 
-  const getMasteryTooltip = (topic: string, level: number, mastery: number) => {
+  const getMasteryTooltip = (mastery: number) => {
     const label = getMasteryLabel(mastery)
     let range = ''
     let meaning = ''
@@ -193,8 +193,7 @@ export default function PerformancePage() {
       meaning = 'Just getting started'
     }
 
-    return `${topic} - Level ${level}
-${Math.round(mastery)}% Mastery (${label})
+    return `${Math.round(mastery)}% Mastery (${label})
 
 Range: ${range}
 ${meaning}
@@ -418,7 +417,7 @@ Mastery grows with correct answers and high confidence`
                                     </div>
                                   </Tooltip>
                                 ) : (
-                                  <Tooltip content={getMasteryTooltip(row.topic, level.num, mastery || 0)}>
+                                  <Tooltip content={getMasteryTooltip(mastery || 0)}>
                                     <div className={`${getMasteryColor(mastery)} font-medium text-sm`}>
                                       {Math.round(mastery || 0)}
                                     </div>
