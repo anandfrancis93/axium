@@ -9,11 +9,10 @@ async function initializeQuestionFormats() {
   try {
     console.log('📝 Initializing question formats for existing questions...\n')
 
-    // Get all questions that don't have a format set (or have old 'mcq' format)
+    // Get all questions - we'll check format in code
     const { data: questions, error: fetchError} = await supabase
       .from('questions')
-      .select('id, bloom_level, question, options, correct_answer')
-      .or('question_format.is.null,question_format.eq.mcq')
+      .select('id, bloom_level, question_text, options, correct_answer, question_format')
 
     if (fetchError) {
       console.error('❌ Error fetching questions:', fetchError.message)
@@ -21,21 +20,33 @@ async function initializeQuestionFormats() {
     }
 
     if (!questions || questions.length === 0) {
-      console.log('✅ All questions already have formats assigned')
+      console.log('✅ No questions found')
       process.exit(0)
     }
 
-    console.log(`Found ${questions.length} questions without formats\n`)
+    // Filter questions that need format assignment
+    const questionsToUpdate = questions.filter(q =>
+      !q.question_format ||
+      q.question_format === 'mcq' ||
+      !['mcq_single', 'mcq_multi', 'code', 'open_ended', 'diagram', 'fill_blank', 'true_false', 'matching', 'code_trace', 'code_debug'].includes(q.question_format)
+    )
+
+    if (questionsToUpdate.length === 0) {
+      console.log('✅ All questions already have valid formats assigned')
+      process.exit(0)
+    }
+
+    console.log(`Found ${questionsToUpdate.length} questions that need format assignment (out of ${questions.length} total)\n`)
 
     // Intelligent format assignment based on question characteristics
     let updated = 0
     let errors = 0
 
-    for (const question of questions) {
+    for (const question of questionsToUpdate) {
       let assignedFormat = 'mcq_single' // default
 
       // Analyze question to determine format
-      const questionText = question.question?.toLowerCase() || ''
+      const questionText = question.question_text?.toLowerCase() || ''
       const hasOptions = question.options && Object.keys(question.options).length > 0
 
       if (!hasOptions) {
