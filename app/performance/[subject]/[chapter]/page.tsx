@@ -430,48 +430,27 @@ export default function PerformancePage() {
                           </div>
                           <div className="flex-1">
                             <div className="flex flex-wrap items-center gap-3 text-sm mb-3">
-                              {bloomLevel && (
+                              {response.bloom_level && (
                                 <span className="neuro-raised px-2 py-1 rounded text-blue-400">
-                                  Bloom L{bloomLevel}
+                                  Bloom L{response.bloom_level}
                                 </span>
                               )}
-                              {topic && (
-                                <span className="neuro-raised px-2 py-1 rounded text-cyan-400 truncate max-w-xs">
-                                  {topic}
-                                </span>
-                              )}
-                              {response.confidence_level && (
+                              {response.confidence !== null && response.confidence !== undefined && (
                                 <span className="text-gray-500">
-                                  Confidence: {response.confidence_level}/5
+                                  Confidence: {response.confidence}/5
                                 </span>
                               )}
-                              {response.recognition_method && (
-                                <span className="neuro-badge neuro-badge-info text-xs">
-                                  {response.recognition_method === 'memory' && 'Memory'}
-                                  {response.recognition_method === 'recognition' && 'Recognition'}
-                                  {response.recognition_method === 'educated_guess' && 'Educated Guess'}
-                                  {response.recognition_method === 'random' && 'Random Guess'}
-                                </span>
-                              )}
-                              {response.reward_received !== null && (
+                              {response.reward !== null && response.reward !== undefined && (
                                 <span className={`font-medium ${
-                                  response.reward_received >= 0 ? 'text-green-400' : 'text-red-400'
+                                  response.reward >= 0 ? 'text-green-400' : 'text-red-400'
                                 }`}>
-                                  Reward: {response.reward_received >= 0 ? '+' : ''}{response.reward_received?.toFixed(1)}
-                                </span>
-                              )}
-                            </div>
-                            <div className="text-gray-500 text-sm">
-                              Mastery: {response.mastery_before?.toFixed(0)}% → {response.mastery_after?.toFixed(0)}%
-                              {response.learning_gain !== null && (
-                                <span className={response.learning_gain >= 0 ? 'text-green-400' : 'text-red-400'}>
-                                  {' '}({response.learning_gain >= 0 ? '+' : ''}{response.learning_gain?.toFixed(1)})
+                                  Reward: {response.reward >= 0 ? '+' : ''}{response.reward.toFixed(2)}
                                 </span>
                               )}
                             </div>
                           </div>
                           <div className="flex-shrink-0 text-sm text-gray-500">
-                            {new Date(response.answered_at).toLocaleDateString()}
+                            {new Date(response.created_at).toLocaleDateString()}
                           </div>
                         </div>
                       </div>
