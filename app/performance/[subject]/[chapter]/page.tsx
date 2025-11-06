@@ -387,9 +387,9 @@ export default function PerformancePage() {
                                     </div>
                                   </Tooltip>
                                 ) : (
-                                  <Tooltip content={`${row.topic} - Level ${level.num}: ${Math.round(mastery)} % (${getMasteryLabel(mastery)})`}>
+                                  <Tooltip content={`${row.topic} - Level ${level.num}: ${Math.round(mastery || 0)}% (${getMasteryLabel(mastery)})`}>
                                     <div className={`${getMasteryColor(mastery)} font-medium text-sm`}>
-                                      {Math.round(mastery)}
+                                      {Math.round(mastery || 0)}
                                     </div>
                                   </Tooltip>
                                 )}
