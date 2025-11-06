@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { StarIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 
 const BLOOM_LEVELS = [
@@ -179,9 +178,7 @@ export default function TopicMasteryPage() {
                 <div className="text-3xl font-bold text-gray-200">{summary.mastered_cells}</div>
               </div>
               <div className="neuro-stat cursor-help" title="5+ unique questions">
-                <div className="text-sm text-cyan-400 mb-1 flex items-center gap-1">
-                  Deep Mastery <StarIcon size={16} filled className="text-yellow-400" />
-                </div>
+                <div className="text-sm text-cyan-400 mb-1">Deep Mastery</div>
                 <div className="text-3xl font-bold text-gray-200">
                   {summary.deep_mastery_cells || 0}
                 </div>
@@ -221,9 +218,7 @@ export default function TopicMasteryPage() {
               <span className="text-gray-500">Initial Mastery</span>
             </div>
             <div className="flex items-center gap-2 cursor-help" title="5+ unique, 80%+">
-              <div className="w-4 h-4 rounded bg-gradient-to-br from-green-600 to-green-400 relative flex items-center justify-center">
-                <StarIcon size={10} filled className="text-yellow-300" />
-              </div>
+              <div className="w-4 h-4 rounded bg-gradient-to-br from-green-600 to-green-400"></div>
               <span className="text-gray-500">Deep Mastery</span>
             </div>
           </div>
@@ -285,11 +280,6 @@ export default function TopicMasteryPage() {
                                     <span>+{totalAttempts - uniqueCount}</span>
                                   )}
                                 </div>
-                                {masteryLevel === 'deep' && (
-                                  <div className="absolute -top-1 -right-1">
-                                    <StarIcon size={12} filled className="text-yellow-400" />
-                                  </div>
-                                )}
                               </>
                             ) : (
                               <div className="text-lg">-</div>
