@@ -320,7 +320,7 @@ export function QuestionGenerator() {
             <button
               onClick={() => handleGenerate()}
               disabled={loading || !selectedChapter || !topic.trim()}
-              className="neuro-btn-primary"
+              className="neuro-btn text-blue-400"
             >
               {loading ? 'Generating...' : 'Generate Questions'}
             </button>

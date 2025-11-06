@@ -128,7 +128,7 @@ export function SubjectManager() {
         <button
           onClick={handleCreate}
           disabled={loading || !name.trim()}
-          className="neuro-btn-primary w-full"
+          className="neuro-btn w-full text-blue-400"
         >
           {loading ? 'Creating...' : 'Create Subject'}
         </button>

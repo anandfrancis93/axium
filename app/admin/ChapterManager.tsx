@@ -317,7 +317,7 @@ export function ChapterManager() {
         <button
           onClick={handleCreate}
           disabled={loading || !selectedSubject || !name.trim()}
-          className="neuro-btn-primary w-full"
+          className="neuro-btn w-full text-blue-400"
         >
           {loading ? 'Processing...' : (file || contentText) ? 'Create Chapter & Process Content' : 'Create Chapter'}
         </button>
