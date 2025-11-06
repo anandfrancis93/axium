@@ -19,6 +19,7 @@ export default function PerformancePage() {
   const [recentActivity, setRecentActivity] = useState<any[]>([])
   const [resetting, setResetting] = useState(false)
   const [statsExpanded, setStatsExpanded] = useState(false)
+  const [heatmapExpanded, setHeatmapExpanded] = useState(false)
 
   useEffect(() => {
     loadPerformanceData()
@@ -271,109 +272,122 @@ export default function PerformancePage() {
           )}
         </div>
 
-        {/* Mastery Heatmap */}
+        {/* Mastery Heatmap - Collapsible */}
         <div className="neuro-card mb-6">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+          <button
+            onClick={() => setHeatmapExpanded(!heatmapExpanded)}
+            className="w-full flex items-center justify-between p-2 -m-2 hover:bg-gray-800/20 rounded-lg transition-colors"
+          >
             <div className="flex items-center gap-3">
               <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center">
                 <BarChartIcon size={20} className="text-blue-400" />
               </div>
-              <h2 className="text-2xl font-semibold text-gray-200">
+              <h2 className="text-xl font-semibold text-gray-200">
                 Mastery Heatmap
               </h2>
             </div>
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-gray-500">Mastery:</span>
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-3 rounded bg-gray-800"></div>
-                <span className="text-gray-600">0%</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-3 rounded bg-red-500"></div>
-                <span className="text-gray-600">20%</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-3 rounded bg-yellow-500"></div>
-                <span className="text-gray-600">40%</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-3 rounded bg-blue-500"></div>
-                <span className="text-gray-600">60%</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-3 rounded bg-green-500"></div>
-                <span className="text-gray-600">80%+</span>
-              </div>
-            </div>
-          </div>
+            <ChevronDownIcon
+              size={24}
+              className={`text-gray-400 transition-transform ${heatmapExpanded ? 'rotate-180' : ''}`}
+            />
+          </button>
 
-          {masteryHeatmap.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr>
-                    <th className="text-left p-3 text-gray-400 font-medium">Topic</th>
-                    {bloomLevels.map(level => (
-                      <th key={level.num} className="p-3 text-center text-gray-400 font-medium">
-                        <div>L{level.num}</div>
-                        <div className="text-xs text-gray-600">{level.name}</div>
-                      </th>
-                    ))}
-                    <th className="p-3 text-center text-gray-400 font-medium">Avg</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {masteryHeatmap.map((row, idx) => (
-                    <tr key={idx} className="border-t border-gray-800 hover:bg-gray-900/30 transition-colors">
-                      <td className="p-3 text-gray-300 font-medium max-w-xs">
-                        <Link
-                          href={`/topic-mastery/${slug}/${encodeURIComponent(row.topic)}`}
-                          className="hover:text-blue-400 transition-colors flex items-center gap-2 group"
-                        >
-                          <span className="truncate">{row.topic}</span>
-                          <span className="opacity-0 group-hover:opacity-100 text-blue-400 text-xs">
-                            →
-                          </span>
-                        </Link>
-                      </td>
-                      {bloomLevels.map(level => {
-                        const masteryKey = `bloom_${level.num}` as keyof typeof row
-                        const mastery = row[masteryKey] as number | null
-                        return (
-                          <td key={level.num} className="p-3">
-                            <div
-                              className={`w-full h-12 rounded ${getMasteryColor(mastery)} flex items-center justify-center text-white font-medium text-xs transition-all hover:scale-105 cursor-help`}
-                              title={`${row.topic} - Level ${level.num}: ${mastery !== null && mastery !== undefined ? Math.round(mastery) : 0}% (${getMasteryLabel(mastery)})`}
+          {heatmapExpanded && (
+            <div className="mt-6 pt-6 border-t border-gray-800">
+              {/* Legend */}
+              <div className="flex items-center gap-2 text-xs mb-6 flex-wrap">
+                <span className="text-gray-500">Mastery:</span>
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 rounded bg-gray-800"></div>
+                  <span className="text-gray-600">0%</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 rounded bg-red-500"></div>
+                  <span className="text-gray-600">20%</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 rounded bg-yellow-500"></div>
+                  <span className="text-gray-600">40%</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 rounded bg-blue-500"></div>
+                  <span className="text-gray-600">60%</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 rounded bg-green-500"></div>
+                  <span className="text-gray-600">80%+</span>
+                </div>
+              </div>
+
+              {masteryHeatmap.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr>
+                        <th className="text-left p-3 text-gray-400 font-medium">Topic</th>
+                        {bloomLevels.map(level => (
+                          <th key={level.num} className="p-3 text-center text-gray-400 font-medium">
+                            <div>L{level.num}</div>
+                            <div className="text-xs text-gray-600">{level.name}</div>
+                          </th>
+                        ))}
+                        <th className="p-3 text-center text-gray-400 font-medium">Avg</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {masteryHeatmap.map((row, idx) => (
+                        <tr key={idx} className="border-t border-gray-800 hover:bg-gray-900/30 transition-colors">
+                          <td className="p-3 text-gray-300 font-medium max-w-xs">
+                            <Link
+                              href={`/topic-mastery/${slug}/${encodeURIComponent(row.topic)}`}
+                              className="hover:text-blue-400 transition-colors flex items-center gap-2 group"
                             >
-                              {mastery !== null && mastery !== undefined ? Math.round(mastery) : '-'}
+                              <span className="truncate">{row.topic}</span>
+                              <span className="opacity-0 group-hover:opacity-100 text-blue-400 text-xs">
+                                →
+                              </span>
+                            </Link>
+                          </td>
+                          {bloomLevels.map(level => {
+                            const masteryKey = `bloom_${level.num}` as keyof typeof row
+                            const mastery = row[masteryKey] as number | null
+                            return (
+                              <td key={level.num} className="p-3">
+                                <div
+                                  className={`w-full h-12 rounded ${getMasteryColor(mastery)} flex items-center justify-center text-white font-medium text-xs transition-all hover:scale-105 cursor-help`}
+                                  title={`${row.topic} - Level ${level.num}: ${mastery !== null && mastery !== undefined ? Math.round(mastery) : 0}% (${getMasteryLabel(mastery)})`}
+                                >
+                                  {mastery !== null && mastery !== undefined ? Math.round(mastery) : '-'}
+                                </div>
+                              </td>
+                            )
+                          })}
+                          <td className="p-3 text-center">
+                            <div className="text-gray-300 font-medium">
+                              {row.avg_mastery ? Math.round(row.avg_mastery) : 0}%
                             </div>
                           </td>
-                        )
-                      })}
-                      <td className="p-3 text-center">
-                        <div className="text-gray-300 font-medium">
-                          {row.avg_mastery ? Math.round(row.avg_mastery) : 0}%
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="neuro-inset p-8 rounded-lg text-center">
-              <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <BarChartIcon size={40} className="text-gray-600" />
-              </div>
-              <div className="text-gray-400 text-lg mb-2 font-semibold">No mastery data yet</div>
-              <div className="text-sm text-gray-600 mb-6">Start learning to see your progress!</div>
-              <Link
-                href={`/learn/${slug}`}
-                className="neuro-btn-primary inline-flex items-center gap-2 px-6 py-3"
-              >
-                <PlayIcon size={18} />
-                <span>Start Learning</span>
-              </Link>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="neuro-inset p-8 rounded-lg text-center">
+                  <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <BarChartIcon size={40} className="text-gray-600" />
+                  </div>
+                  <div className="text-gray-400 text-lg mb-2 font-semibold">No mastery data yet</div>
+                  <div className="text-sm text-gray-600 mb-6">Start learning to see your progress!</div>
+                  <Link
+                    href={`/learn/${slug}`}
+                    className="neuro-btn-primary inline-flex items-center gap-2 px-6 py-3"
+                  >
+                    <PlayIcon size={18} />
+                    <span>Start Learning</span>
+                  </Link>
+                </div>
+              )}
             </div>
           )}
         </div>
