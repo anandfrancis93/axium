@@ -9,9 +9,9 @@ export const dynamic = 'force-dynamic'
 export default async function SubjectPage({
   params,
 }: {
-  params: Promise<{ slug: string }>
+  params: Promise<{ subject: string }>
 }) {
-  const { slug } = await params
+  const { subject: subjectSlug } = await params
 
   let subject: any = null
   let chapters: any[] = []
@@ -31,11 +31,11 @@ export default async function SubjectPage({
     const { data: subjectData, error: subjectError } = await supabase
       .from('subjects')
       .select('*')
-      .eq('slug', slug)
+      .eq('slug', subjectSlug)
       .single()
 
     if (subjectError || !subjectData) {
-      redirect('/home')
+      redirect('/subjects')
     }
 
     subject = subjectData
@@ -68,7 +68,7 @@ export default async function SubjectPage({
 
   } catch (error) {
     console.error('Error loading subject:', error)
-    redirect('/home')
+    redirect('/subjects')
     return null
   }
 
@@ -140,14 +140,14 @@ export default async function SubjectPage({
 
                       <div className="flex flex-col sm:flex-row gap-3 md:ml-16">
                         <Link
-                          href={`/learn/${chapter.slug}`}
+                          href={`/subjects/${subject.slug}/${chapter.slug}/quiz`}
                           className="neuro-btn px-6 py-3 text-center whitespace-nowrap flex items-center justify-center gap-2 text-blue-400"
                         >
                           <PlayIcon size={18} />
                           Start Learning
                         </Link>
                         <Link
-                          href={`/performance/${chapter.slug}`}
+                          href={`/performance/${subject.slug}/${chapter.slug}`}
                           className="neuro-btn px-6 py-3 text-center whitespace-nowrap flex items-center justify-center gap-2"
                         >
                           <BarChartIcon size={18} />

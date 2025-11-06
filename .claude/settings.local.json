@@ -5,7 +5,12 @@
       "Bash(node scripts/extract-all-topics.mjs:*)",
       "Bash(node scripts/extract-all-concepts.mjs:*)",
       "Bash(git reset:*)",
-      "Bash(node scripts/add-chapter-slugs.mjs:*)"
+      "Bash(node scripts/add-chapter-slugs.mjs:*)",
+      "Bash(supabase --version:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []
