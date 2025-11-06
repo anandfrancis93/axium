@@ -162,34 +162,29 @@ export default function TopicMasteryPage() {
           {/* Summary Stats */}
           {summary && (
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <div className="neuro-stat">
+              <div className="neuro-stat cursor-help" title="6 Bloom × {dimensions.length} Dimensions">
                 <div className="text-sm text-blue-400 mb-1">Total Cells</div>
                 <div className="text-3xl font-bold text-gray-200">{summary.total_cells}</div>
-                <div className="text-xs text-gray-600">6 Bloom × {dimensions.length} Dimensions</div>
               </div>
-              <div className="neuro-stat">
-                <div className="text-sm text-purple-400 mb-1">Coverage</div>
+              <div className="neuro-stat cursor-help" title={`${summary.tested_cells}/${summary.total_cells} tested`}>
+                <div className="text-sm text-cyan-400 mb-1">Coverage</div>
                 <div className="text-3xl font-bold text-gray-200">{summary.coverage_percentage}%</div>
-                <div className="text-xs text-gray-600">{summary.tested_cells}/{summary.total_cells} tested</div>
               </div>
-              <div className="neuro-stat">
-                <div className="text-sm text-cyan-400 mb-1">Min Questions</div>
+              <div className="neuro-stat cursor-help" title="cells with 3+ unique">
+                <div className="text-sm text-blue-400 mb-1">Min Questions</div>
                 <div className="text-3xl font-bold text-gray-200">{summary.cells_with_min_questions}</div>
-                <div className="text-xs text-gray-600">cells with 3+ unique</div>
               </div>
-              <div className="neuro-stat">
+              <div className="neuro-stat cursor-help" title={`${summary.mastery_percentage}% of total`}>
                 <div className="text-sm text-green-400 mb-1">Initial Mastery</div>
                 <div className="text-3xl font-bold text-gray-200">{summary.mastered_cells}</div>
-                <div className="text-xs text-gray-600">{summary.mastery_percentage}% of total</div>
               </div>
-              <div className="neuro-stat">
-                <div className="text-sm text-yellow-400 mb-1 flex items-center gap-1">
+              <div className="neuro-stat cursor-help" title="5+ unique questions">
+                <div className="text-sm text-cyan-400 mb-1 flex items-center gap-1">
                   Deep Mastery <StarIcon size={16} filled className="text-yellow-400" />
                 </div>
                 <div className="text-3xl font-bold text-gray-200">
                   {summary.deep_mastery_cells || 0}
                 </div>
-                <div className="text-xs text-gray-600">5+ unique questions</div>
               </div>
             </div>
           )}
@@ -199,8 +194,8 @@ export default function TopicMasteryPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         {/* Legend */}
         <div className="neuro-card mb-6">
-          <h3 className="text-sm font-medium text-gray-400 mb-3">Adaptive Mastery Levels:</h3>
-          <div className="flex flex-wrap gap-3 text-xs">
+          <h3 className="text-sm font-medium text-gray-400 mb-4">Adaptive Mastery Levels:</h3>
+          <div className="flex flex-wrap gap-4 text-sm">
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded bg-gray-800"></div>
               <span className="text-gray-500">Not Tested (0 unique)</span>
@@ -232,7 +227,7 @@ export default function TopicMasteryPage() {
               <span className="text-gray-500">Deep Mastery (5+ unique, 80%+)</span>
             </div>
           </div>
-          <div className="mt-3 text-xs text-gray-600">
+          <div className="mt-4 text-sm text-gray-500">
             <strong>Note:</strong> Spaced repetition repeats do not count toward unique questions. Only new questions count for mastery progress.
           </div>
         </div>
@@ -247,12 +242,12 @@ export default function TopicMasteryPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr>
-                  <th className="sticky left-0 bg-[#1a1a1a] text-left p-3 text-gray-400 font-medium border-r border-gray-800">
+                  <th className="sticky left-0 bg-[#1a1a1a] text-left p-4 text-gray-400 font-medium border-r border-gray-800">
                     Bloom Level
                   </th>
                   {dimensions.map(dim => (
-                    <th key={dim.key} className="p-3 text-center text-gray-400 font-medium min-w-[120px]">
-                      <div className="text-xs">{dim.name}</div>
+                    <th key={dim.key} className="p-4 text-center text-gray-400 font-medium min-w-[120px]">
+                      <div className="text-sm">{dim.name}</div>
                     </th>
                   ))}
                 </tr>
@@ -260,10 +255,10 @@ export default function TopicMasteryPage() {
               <tbody>
                 {matrixByBloom.map(bloomLevel => (
                   <tr key={bloomLevel.num} className="border-t border-gray-800">
-                    <td className="sticky left-0 bg-[#1a1a1a] p-3 font-medium text-gray-300 border-r border-gray-800">
+                    <td className="sticky left-0 bg-[#1a1a1a] p-4 font-medium text-gray-200 border-r border-gray-800">
                       <div className="flex items-center gap-2">
-                        <span className="text-purple-400">L{bloomLevel.num}</span>
-                        <span className="text-xs text-gray-600">{bloomLevel.name}</span>
+                        <span className="text-blue-400">L{bloomLevel.num}</span>
+                        <span className="text-sm text-gray-500">{bloomLevel.name}</span>
                       </div>
                     </td>
                     {dimensions.map(dim => {
@@ -274,9 +269,9 @@ export default function TopicMasteryPage() {
                       const masteryLevel = cell?.mastery_level || 'none'
 
                       return (
-                        <td key={`${bloomLevel.num}-${dim.key}`} className="p-2">
+                        <td key={`${bloomLevel.num}-${dim.key}`} className="p-1">
                           <div
-                            className={`w-full h-16 rounded ${getStatusColor(status, masteryLevel, uniqueCount)} flex flex-col items-center justify-center text-white text-xs transition-all hover:scale-105 cursor-help relative`}
+                            className={`w-full h-16 rounded ${getStatusColor(status, masteryLevel, uniqueCount)} flex flex-col items-center justify-center text-white text-sm transition-all hover:scale-105 cursor-help relative`}
                             title={`${topic} - ${bloomLevel.name} - ${dim.name}\nScore: ${cell?.average_score || 0}%\nUnique Questions: ${uniqueCount}\nTotal Attempts: ${totalAttempts} (${totalAttempts - uniqueCount} repeats)\nStatus: ${getStatusLabel(status, masteryLevel, uniqueCount, totalAttempts)}`}
                           >
                             {uniqueCount > 0 ? (
@@ -284,7 +279,7 @@ export default function TopicMasteryPage() {
                                 <div className="font-bold text-lg">
                                   {Math.round(cell.average_score)}%
                                 </div>
-                                <div className="text-[10px] opacity-75 flex items-center gap-1">
+                                <div className="text-xs opacity-75 flex items-center gap-1">
                                   <span>{uniqueCount} unique</span>
                                   {totalAttempts > uniqueCount && (
                                     <span className="text-blue-200">+{totalAttempts - uniqueCount}</span>
@@ -313,7 +308,7 @@ export default function TopicMasteryPage() {
               <div className="text-sm">Start learning to see your mastery matrix!</div>
               <Link
                 href={`/learn/${slug}`}
-                className="neuro-btn-primary inline-block mt-4"
+                className="neuro-btn inline-block mt-4 text-blue-400"
               >
                 Start Learning
               </Link>
@@ -330,12 +325,12 @@ export default function TopicMasteryPage() {
                 const stats = summary.dimensions_per_bloom[level.num.toString()]
                 return (
                   <div key={level.num} className="neuro-inset p-4 rounded-lg">
-                    <div className="text-purple-400 font-bold mb-2">Level {level.num}</div>
-                    <div className="text-xs text-gray-600 mb-3">{level.name}</div>
-                    <div className="space-y-1 text-xs">
+                    <div className="text-blue-400 font-bold mb-2">Level {level.num}</div>
+                    <div className="text-sm text-gray-500 mb-3">{level.name}</div>
+                    <div className="space-y-1 text-sm">
                       <div className="flex justify-between">
                         <span className="text-gray-500">Tested:</span>
-                        <span className="text-blue-400">{stats?.tested || 0}/{stats?.total || 0}</span>
+                        <span className="text-cyan-400">{stats?.tested || 0}/{stats?.total || 0}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-500">Mastered:</span>
