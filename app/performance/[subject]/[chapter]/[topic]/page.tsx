@@ -171,9 +171,6 @@ export default function TopicMasteryPage() {
         <div className="neuro-card mb-8">
           <div className="flex items-center justify-between mb-6">
             <div className="min-w-0 flex-1">
-              <div className="text-sm text-gray-500 truncate">
-                {chapterData?.name}
-              </div>
               <h1 className="text-2xl font-semibold text-gray-200 truncate">
                 {topic}
               </h1>
