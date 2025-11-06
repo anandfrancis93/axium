@@ -58,7 +58,7 @@ export default function TopicMasteryPage() {
       // Get dimension matrix
       const { data: matrixData } = await supabase.rpc('get_topic_dimension_matrix', {
         p_user_id: user.id,
-        p_chapter_id: chapterData.id,
+        p_chapter_id: fetchedChapter.id,
         p_topic: topic
       })
 
@@ -67,7 +67,7 @@ export default function TopicMasteryPage() {
       // Get summary statistics
       const { data: summaryData } = await supabase.rpc('get_topic_dimension_summary', {
         p_user_id: user.id,
-        p_chapter_id: chapterData.id,
+        p_chapter_id: fetchedChapter.id,
         p_topic: topic
       })
 
@@ -77,8 +77,8 @@ export default function TopicMasteryPage() {
       const { data: topicData } = await supabase
         .from('topics')
         .select('id')
-        .eq('chapter_id', chapterData.id)
-        .ilike('name', topic)
+        .eq('chapter_id', fetchedChapter.id)
+        .eq('name', topic)
         .single()
 
       if (topicData) {
