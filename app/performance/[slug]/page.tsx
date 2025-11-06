@@ -353,7 +353,7 @@ export default function PerformancePage() {
                             const masteryKey = `bloom_${level.num}` as keyof typeof row
                             const mastery = row[masteryKey] as number | null
                             return (
-                              <td key={level.num} className="p-4">
+                              <td key={level.num} className="p-2">
                                 <div
                                   className={`w-full h-12 rounded ${getMasteryColor(mastery)} flex items-center justify-center text-white font-medium text-sm transition-all hover:scale-105 cursor-help`}
                                   title={`${row.topic} - Level ${level.num}: ${mastery !== null && mastery !== undefined ? Math.round(mastery) : 0}% (${getMasteryLabel(mastery)})`}
