@@ -80,23 +80,23 @@ export default function TopicMasteryPage() {
   const getStatusColor = (status: string, masteryLevel: string, uniqueCount: number) => {
     // Special handling for deep mastery
     if (status === 'mastered' && masteryLevel === 'deep') {
-      return 'bg-gradient-to-br from-green-600 to-green-400'
+      return 'text-green-500'
     }
 
     // Insufficient data (< 3 unique questions)
     if (status === 'insufficient_data' || uniqueCount < 3) {
-      if (uniqueCount === 0) return 'bg-gray-800'
-      return 'bg-gray-700 border border-yellow-500/30'
+      if (uniqueCount === 0) return 'text-gray-500'
+      return 'text-yellow-500'
     }
 
     // Normal mastery statuses
     switch (status) {
-      case 'mastered': return 'bg-green-500'
-      case 'proficient': return 'bg-blue-500'
-      case 'developing': return 'bg-yellow-500'
-      case 'struggling': return 'bg-red-500'
-      case 'not_tested': return 'bg-gray-800'
-      default: return 'bg-gray-800'
+      case 'mastered': return 'text-green-500'
+      case 'proficient': return 'text-blue-500'
+      case 'developing': return 'text-yellow-500'
+      case 'struggling': return 'text-red-500'
+      case 'not_tested': return 'text-gray-500'
+      default: return 'text-gray-500'
     }
   }
 
@@ -233,7 +233,7 @@ export default function TopicMasteryPage() {
         </div>
 
         {/* Dimension Matrix */}
-        <div className="neuro-card overflow-x-auto">
+        <div className="neuro-card overflow-x-auto scrollbar-hide">
           <h2 className="text-xl font-semibold text-gray-200 mb-6">
             Comprehensive Mastery Matrix (Bloom × Dimension)
           </h2>
@@ -269,9 +269,9 @@ export default function TopicMasteryPage() {
                       const masteryLevel = cell?.mastery_level || 'none'
 
                       return (
-                        <td key={`${bloomLevel.num}-${dim.key}`} className="p-1">
+                        <td key={`${bloomLevel.num}-${dim.key}`} className="p-4 text-center">
                           <div
-                            className={`w-full h-16 rounded ${getStatusColor(status, masteryLevel, uniqueCount)} flex flex-col items-center justify-center text-white text-sm transition-all hover:scale-105 cursor-help relative`}
+                            className={`${getStatusColor(status, masteryLevel, uniqueCount)} cursor-help relative inline-block`}
                             title={`${topic} - ${bloomLevel.name} - ${dim.name}\nScore: ${cell?.average_score || 0}%\nUnique Questions: ${uniqueCount}\nTotal Attempts: ${totalAttempts} (${totalAttempts - uniqueCount} repeats)\nStatus: ${getStatusLabel(status, masteryLevel, uniqueCount, totalAttempts)}`}
                           >
                             {uniqueCount > 0 ? (
@@ -279,20 +279,20 @@ export default function TopicMasteryPage() {
                                 <div className="font-bold text-lg">
                                   {Math.round(cell.average_score)}%
                                 </div>
-                                <div className="text-xs opacity-75 flex items-center gap-1">
-                                  <span>{uniqueCount} unique</span>
+                                <div className="text-xs opacity-75 flex items-center gap-1 justify-center">
+                                  <span>{uniqueCount}</span>
                                   {totalAttempts > uniqueCount && (
-                                    <span className="text-blue-200">+{totalAttempts - uniqueCount}</span>
+                                    <span>+{totalAttempts - uniqueCount}</span>
                                   )}
                                 </div>
                                 {masteryLevel === 'deep' && (
-                                  <div className="absolute top-0.5 right-0.5">
-                                    <StarIcon size={14} filled className="text-yellow-300" />
+                                  <div className="absolute -top-1 -right-1">
+                                    <StarIcon size={12} filled className="text-yellow-400" />
                                   </div>
                                 )}
                               </>
                             ) : (
-                              <div className="text-gray-500 text-2xl">-</div>
+                              <div className="text-lg">-</div>
                             )}
                           </div>
                         </td>
