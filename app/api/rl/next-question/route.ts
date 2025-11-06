@@ -183,7 +183,35 @@ Return ONLY valid JSON, no other text.`
 
   const q = questionsData.questions[0]
 
-  // Store question for spaced repetition
+  // Look up topic_id from topics table
+  const { data: topicRecord, error: topicError } = await supabase
+    .from('topics')
+    .select('id')
+    .eq('chapter_id', chapterId)
+    .eq('name', topic)
+    .single()
+
+  if (topicError || !topicRecord) {
+    console.error('Topic not found:', topic, topicError)
+    // Fallback: return ephemeral question without storing
+    return {
+      id: `ephemeral-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+      chapter_id: chapterId,
+      question_text: q.question_text,
+      question_type: 'mcq',
+      options: q.options,
+      correct_answer: q.correct_answer,
+      explanation: q.explanation,
+      bloom_level: bloomLevel,
+      topic,
+      topic_id: null,
+      dimension,
+      difficulty_estimated: bloomLevel >= 4 ? 'hard' : bloomLevel >= 3 ? 'medium' : 'easy',
+      source_type: 'ai_generated_realtime',
+    }
+  }
+
+  // Store question for spaced repetition with topic_id
   const questionToInsert = {
     chapter_id: chapterId,
     question_text: q.question_text,
@@ -193,6 +221,7 @@ Return ONLY valid JSON, no other text.`
     explanation: q.explanation,
     bloom_level: bloomLevel,
     topic,
+    topic_id: topicRecord.id,  // ✅ Assign topic_id foreign key
     dimension,  // Track which knowledge dimension this question tests
     difficulty_estimated: bloomLevel >= 4 ? 'hard' : bloomLevel >= 3 ? 'medium' : 'easy',
     source_type: 'ai_generated_realtime',

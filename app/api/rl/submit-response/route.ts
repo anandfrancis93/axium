@@ -187,6 +187,19 @@ export async function POST(request: NextRequest) {
       })
     }
 
+    // Look up topic_id from topics table
+    const topicName = question.primary_topic || question.topic
+    const { data: topicRecord } = await supabase
+      .from('topics')
+      .select('id')
+      .eq('chapter_id', session.chapter_id)
+      .eq('name', topicName)
+      .single()
+
+    if (!topicRecord) {
+      console.warn(`Topic not found in topics table: ${topicName}`)
+    }
+
     // Store user response
     const { data: response, error: responseError } = await supabase
       .from('user_responses')
@@ -194,9 +207,11 @@ export async function POST(request: NextRequest) {
         session_id,
         question_id,
         user_id: user.id,
+        topic_id: topicRecord?.id || null,  // ✅ Add topic_id
+        bloom_level: question.bloom_level,   // ✅ Add bloom_level
         user_answer,
         is_correct: isCorrect,
-        confidence_level: confidence,
+        confidence: confidence,  // ✅ Fixed: was confidence_level
         recognition_method,
         mastery_before: masteryUpdates[0].oldMastery,
         mastery_after: masteryUpdates[0].newMastery,
