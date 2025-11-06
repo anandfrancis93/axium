@@ -79,7 +79,7 @@ export default function TopicMasteryPage() {
   const getStatusColor = (status: string, masteryLevel: string, uniqueCount: number) => {
     // Special handling for deep mastery
     if (status === 'mastered' && masteryLevel === 'deep') {
-      return 'text-green-500'
+      return 'text-green-600'
     }
 
     // Insufficient data (< 3 unique questions)
@@ -218,7 +218,7 @@ export default function TopicMasteryPage() {
               <span className="text-gray-500">Initial Mastery</span>
             </div>
             <div className="flex items-center gap-2 cursor-help" title="5+ unique, 80%+">
-              <div className="w-4 h-4 rounded bg-gradient-to-br from-green-600 to-green-400"></div>
+              <div className="w-4 h-4 rounded bg-green-600"></div>
               <span className="text-gray-500">Deep Mastery</span>
             </div>
           </div>
