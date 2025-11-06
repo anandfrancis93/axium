@@ -429,7 +429,7 @@ ${interpretation}`
               <button
                 onClick={handleConfidenceSubmit}
                 disabled={!confidence}
-                className="neuro-btn-primary w-full py-4 text-lg disabled:opacity-50"
+                className="neuro-btn text-blue-400 w-full py-4 text-lg disabled:opacity-50"
               >
                 Continue →
               </button>
@@ -459,7 +459,7 @@ ${interpretation}`
               <button
                 onClick={handleAnswerSubmit}
                 disabled={!selectedAnswer}
-                className="neuro-btn-primary w-full py-4 text-lg disabled:opacity-50"
+                className="neuro-btn text-blue-400 w-full py-4 text-lg disabled:opacity-50"
               >
                 Submit Answer →
               </button>
@@ -493,7 +493,7 @@ ${interpretation}`
               <button
                 onClick={handleRecognitionSubmit}
                 disabled={!recognitionMethod || loading}
-                className="neuro-btn-primary w-full py-4 text-lg disabled:opacity-50"
+                className="neuro-btn text-blue-400 w-full py-4 text-lg disabled:opacity-50"
               >
                 {loading ? 'Calculating...' : 'Get Feedback →'}
               </button>
@@ -581,7 +581,7 @@ ${interpretation}`
 
               <button
                 onClick={handleNextQuestion}
-                className="neuro-btn-primary w-full py-4 text-lg"
+                className="neuro-btn text-blue-400 w-full py-4 text-lg"
               >
                 Next Question →
               </button>
