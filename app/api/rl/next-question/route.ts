@@ -22,16 +22,16 @@ const BLOOM_LEVELS: { [key: number]: string } = {
 }
 
 const DIMENSION_DESCRIPTIONS: { [key: string]: string } = {
-  'core_understanding': 'Core definitions, terminology, fundamental concepts, and basic relationships',
-  'measuring_evaluating': 'Metrics, quantification methods, assessment techniques, and measurement approaches',
-  'controls': 'Administrative controls, physical controls, technical controls, and security mechanisms',
-  'architecture_design': 'System architecture, design patterns, implementation approaches, and structural decisions',
-  'threats_failures': 'Attack vectors, threat actors, failure modes, vulnerabilities, and security risks',
-  'validation_assurance': 'Testing methods, audit techniques, verification approaches, and quality assurance',
-  'legal_compliance': 'Standards (ISO, NIST, PCI DSS, etc.), regulations (GDPR, HIPAA), and compliance frameworks',
+  'core_understanding': 'Definitions, terminology, fundamental concepts, and basic relationships',
+  'technical_methods': 'Procedures, algorithms, processes, and systematic approaches',
+  'risk_management': 'Vulnerabilities, attack vectors, threat modeling, and risk assessment',
+  'security_controls': 'Protection mechanisms, defensive strategies, and security measures',
+  'tools_technologies': 'Software, platforms, implementations, and technological solutions',
+  'architecture': 'System design, infrastructure, structural patterns, and architectural decisions',
+  'legal_compliance': 'Standards (ISO, NIST, PCI DSS), regulations (GDPR, HIPAA), and compliance frameworks',
   'incident_response': 'Response procedures, remediation steps, investigation techniques, and recovery processes',
-  'advanced_concepts': 'Cutting-edge topics, emerging technologies, research areas, and sophisticated techniques',
-  'misconceptions': 'Common misunderstandings, incorrect assumptions, and typical pitfalls to avoid',
+  'advanced_concepts': 'Cross-domain connections, system integration, interoperability, and holistic understanding',
+  'misconceptions': 'Common misunderstandings, incorrect assumptions, and typical mistakes to avoid',
   'practical_scenarios': 'Real-world application, hands-on problems, situational challenges, and case studies',
   'strategic_policy': 'Business decisions, governance structures, organizational policies, and strategic planning'
 }
@@ -42,14 +42,14 @@ const DIMENSION_DESCRIPTIONS: { [key: string]: string } = {
 function getDimensionGuidance(dimension: string, bloomLevel: number): string {
   const guidance: { [key: string]: string } = {
     'core_understanding': 'Focus on definitions, terminology, and fundamental concepts. Ask "what is", "define", "identify".',
-    'measuring_evaluating': 'Focus on metrics, measurement techniques, and quantification. Ask "how to measure", "what metrics", "how to assess".',
-    'controls': 'Focus on specific security controls and mechanisms. Ask about implementation, configuration, or selection of controls.',
-    'architecture_design': 'Focus on system design, patterns, and architectural decisions. Ask about design choices and their implications.',
-    'threats_failures': 'Focus on attack vectors, vulnerabilities, and failure scenarios. Ask about threats, risks, and exploitation methods.',
-    'validation_assurance': 'Focus on testing, auditing, and verification methods. Ask "how to verify", "how to test", "how to audit".',
+    'technical_methods': 'Focus on procedures, algorithms, and systematic approaches. Ask "how to perform", "what steps", "what process".',
+    'risk_management': 'Focus on vulnerabilities, attack vectors, and threat modeling. Ask about threats, risks, and exploitation methods.',
+    'security_controls': 'Focus on protection mechanisms and defensive strategies. Ask about implementation, configuration, or selection of security measures.',
+    'tools_technologies': 'Focus on specific software, platforms, and implementations. Ask about tools, technologies, and their usage.',
+    'architecture': 'Focus on system design, infrastructure, and structural patterns. Ask about design choices and their implications.',
     'legal_compliance': 'Focus on standards, regulations, and compliance requirements. Reference specific frameworks like ISO 27001, PCI DSS, GDPR, HIPAA.',
     'incident_response': 'Focus on response procedures and remediation steps. Ask about incident handling, containment, and recovery.',
-    'advanced_concepts': 'Focus on cutting-edge techniques and sophisticated concepts. Ask about emerging technologies and advanced methodologies.',
+    'advanced_concepts': 'Focus on cross-domain connections, system integration, and interoperability. Ask about how different systems/concepts work together.',
     'misconceptions': 'Focus on common errors and misunderstandings. Present scenarios where typical mistakes occur or frame as "why is X not sufficient".',
     'practical_scenarios': 'Present a real-world situation or case study. Ask what actions to take or how to solve a specific problem.',
     'strategic_policy': 'Focus on business decisions, governance, and organizational policies. Ask about high-level strategy and policy choices.'

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { RefreshIcon, AlertTriangleIcon, CheckIcon, XIcon, BarChartIcon, TrendingUpIcon, AwardIcon, TargetIcon, PlayIcon, ChevronDownIcon, LockIcon, LockOpenIcon } from '@/components/icons'
+import { RefreshIcon, AlertTriangleIcon, CheckIcon, XIcon, BarChartIcon, TrendingUpIcon, AwardIcon, TargetIcon, ChevronDownIcon, LockIcon, LockOpenIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import { Tooltip } from '@/components/Tooltip'
 
@@ -288,14 +288,9 @@ Mastery grows with correct answers and high confidence`
             onClick={() => setStatsExpanded(!statsExpanded)}
             className="w-full flex items-center justify-between p-2 -m-2 hover:bg-gray-800/20 rounded-lg transition-colors"
           >
-            <div className="flex items-center gap-3">
-              <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center">
-                <TrendingUpIcon size={20} className="text-blue-400" />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-200">
-                Overall Statistics
-              </h2>
-            </div>
+            <h2 className="text-xl font-semibold text-gray-200">
+              Overall Statistics
+            </h2>
             <ChevronDownIcon
               size={24}
               className={`text-gray-400 transition-transform ${statsExpanded ? 'rotate-180' : ''}`}
@@ -366,14 +361,9 @@ Mastery grows with correct answers and high confidence`
             onClick={() => setHeatmapExpanded(!heatmapExpanded)}
             className="w-full flex items-center justify-between p-2 -m-2 hover:bg-gray-800/20 rounded-lg transition-colors"
           >
-            <div className="flex items-center gap-3">
-              <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center">
-                <BarChartIcon size={20} className="text-blue-400" />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-200">
-                Mastery Heatmap
-              </h2>
-            </div>
+            <h2 className="text-xl font-semibold text-gray-200">
+              Mastery Heatmap
+            </h2>
             <ChevronDownIcon
               size={24}
               className={`text-gray-400 transition-transform ${heatmapExpanded ? 'rotate-180' : ''}`}
@@ -484,14 +474,7 @@ Mastery grows with correct answers and high confidence`
                     <BarChartIcon size={40} className="text-gray-600" />
                   </div>
                   <div className="text-gray-400 text-lg mb-2 font-semibold">No mastery data yet</div>
-                  <div className="text-sm text-gray-600 mb-6">Start learning to see your progress!</div>
-                  <Link
-                    href={`/subjects/${subject}/${chapter}/quiz`}
-                    className="neuro-btn-primary inline-flex items-center gap-2 px-6 py-3"
-                  >
-                    <PlayIcon size={18} />
-                    <span>Start Learning</span>
-                  </Link>
+                  <div className="text-sm text-gray-600">Start learning to see your progress!</div>
                 </div>
               )}
             </div>
@@ -504,14 +487,9 @@ Mastery grows with correct answers and high confidence`
             onClick={() => setActivityExpanded(!activityExpanded)}
             className="w-full flex items-center justify-between p-2 -m-2 hover:bg-gray-800/20 rounded-lg transition-colors"
           >
-            <div className="flex items-center gap-3">
-              <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center">
-                <TrendingUpIcon size={20} className="text-blue-400" />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-200">
-                Recent Activity
-              </h2>
-            </div>
+            <h2 className="text-xl font-semibold text-gray-200">
+              Recent Activity
+            </h2>
             <ChevronDownIcon
               size={24}
               className={`text-gray-400 transition-transform ${activityExpanded ? 'rotate-180' : ''}`}
@@ -587,14 +565,7 @@ Mastery grows with correct answers and high confidence`
                     <TrendingUpIcon size={40} className="text-gray-600" />
                   </div>
                   <div className="text-gray-400 text-lg mb-2 font-semibold">No activity yet</div>
-                  <div className="text-sm text-gray-600 mb-6">Answer some questions to see your history!</div>
-                  <Link
-                    href={`/subjects/${subject}/${chapter}/quiz`}
-                    className="neuro-btn-primary inline-flex items-center gap-2 px-6 py-3"
-                  >
-                    <PlayIcon size={18} />
-                    <span>Start Learning</span>
-                  </Link>
+                  <div className="text-sm text-gray-600">Answer some questions to see your history!</div>
                 </div>
               )}
             </div>
