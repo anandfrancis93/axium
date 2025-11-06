@@ -257,7 +257,7 @@ export default function TopicMasteryPage() {
                   <tr key={bloomLevel.num} className="border-t border-gray-800">
                     <td className="sticky left-0 bg-[#0a0a0a] p-4 font-medium text-gray-200 border-r border-gray-800">
                       <div className="flex items-center gap-2">
-                        <span className="text-blue-400">L{bloomLevel.num}</span>
+                        <span className="text-white">L{bloomLevel.num}</span>
                         <span className="text-sm text-gray-500">{bloomLevel.name}</span>
                       </div>
                     </td>
