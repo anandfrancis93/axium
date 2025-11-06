@@ -7,7 +7,6 @@ import Link from 'next/link'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import { RLPhaseBadge } from '@/components/RLPhaseBadge'
 import { getRLPhaseContext } from '@/lib/utils/rl-phase'
-import { TargetIcon, CheckIcon, TrendingUpIcon, AwardIcon, BarChartIcon } from '@/components/icons'
 
 const BLOOM_LEVELS = [
   { num: 1, name: 'Remember' },
@@ -171,18 +170,13 @@ export default function TopicMasteryPage() {
         {/* Header */}
         <div className="neuro-card mb-8">
           <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-4 min-w-0 flex-1">
-              <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0">
-                <TargetIcon size={20} className="text-blue-400" />
+            <div className="min-w-0 flex-1">
+              <div className="text-sm text-gray-500 truncate">
+                {chapterData?.subjects?.name} • {chapterData?.name}
               </div>
-              <div className="min-w-0 flex-1">
-                <div className="text-sm text-gray-500 truncate">
-                  {chapterData?.subjects?.name} • {chapterData?.name}
-                </div>
-                <h1 className="text-2xl font-semibold text-gray-200 truncate">
-                  {topic}
-                </h1>
-              </div>
+              <h1 className="text-2xl font-semibold text-gray-200 truncate">
+                {topic}
+              </h1>
             </div>
             <HamburgerMenu />
           </div>
@@ -190,7 +184,7 @@ export default function TopicMasteryPage() {
           {/* RL Phase Badge */}
           {rlPhase && (
             <div className="cursor-help" title={getRLPhaseContext(rlPhase)}>
-              <RLPhaseBadge phase={rlPhase} showDescription={false} />
+              <RLPhaseBadge phase={rlPhase} showDescription={false} showIcon={false} />
             </div>
           )}
         </div>
@@ -203,14 +197,9 @@ export default function TopicMasteryPage() {
               onClick={() => setStatsExpanded(!statsExpanded)}
               className="w-full flex items-center justify-between mb-6"
             >
-              <div className="flex items-center gap-4">
-                <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center">
-                  <BarChartIcon size={20} className="text-blue-400" />
-                </div>
-                <h2 className="text-xl font-semibold text-gray-200">
-                  Mastery Overview
-                </h2>
-              </div>
+              <h2 className="text-xl font-semibold text-gray-200">
+                Mastery Overview
+              </h2>
               <span className="text-gray-400 text-xl">
                 {statsExpanded ? '▼' : '▶'}
               </span>
@@ -219,50 +208,35 @@ export default function TopicMasteryPage() {
             {statsExpanded && (
               <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
                 <div className="neuro-stat group cursor-help" title={`6 Bloom levels × ${dimensions.length} Dimensions`}>
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="text-sm text-blue-400 font-medium">Total Cells</div>
-                    <TargetIcon size={20} className="text-blue-400 opacity-50 group-hover:opacity-100 transition-opacity" />
-                  </div>
+                  <div className="text-sm text-blue-400 font-medium mb-3">Total Cells</div>
                   <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
                     {summary.total_cells}
                   </div>
                 </div>
 
                 <div className="neuro-stat group cursor-help" title={`${summary.tested_cells}/${summary.total_cells} cells tested`}>
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="text-sm text-cyan-400 font-medium">Coverage</div>
-                    <TrendingUpIcon size={20} className="text-cyan-400 opacity-50 group-hover:opacity-100 transition-opacity" />
-                  </div>
+                  <div className="text-sm text-cyan-400 font-medium mb-3">Coverage</div>
                   <div className="text-4xl font-bold text-gray-200 group-hover:text-cyan-400 transition-colors">
                     {summary.coverage_percentage}%
                   </div>
                 </div>
 
                 <div className="neuro-stat group cursor-help" title="Cells with 3+ unique questions">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="text-sm text-blue-400 font-medium">Min Questions</div>
-                    <CheckIcon size={20} className="text-blue-400 opacity-50 group-hover:opacity-100 transition-opacity" />
-                  </div>
+                  <div className="text-sm text-blue-400 font-medium mb-3">Min Questions</div>
                   <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
                     {summary.cells_with_min_questions}
                   </div>
                 </div>
 
                 <div className="neuro-stat group cursor-help" title={`${summary.mastery_percentage}% of total cells`}>
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="text-sm text-green-400 font-medium">Mastered</div>
-                    <AwardIcon size={20} className="text-green-400 opacity-50 group-hover:opacity-100 transition-opacity" />
-                  </div>
+                  <div className="text-sm text-green-400 font-medium mb-3">Mastered</div>
                   <div className="text-4xl font-bold text-gray-200 group-hover:text-green-400 transition-colors">
                     {summary.mastered_cells}
                   </div>
                 </div>
 
                 <div className="neuro-stat group cursor-help" title="5+ unique questions at 80%+">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="text-sm text-green-400 font-medium">Deep Mastery</div>
-                    <AwardIcon size={20} className="text-green-400 opacity-50 group-hover:opacity-100 transition-opacity" />
-                  </div>
+                  <div className="text-sm text-green-400 font-medium mb-3">Deep Mastery</div>
                   <div className="text-4xl font-bold text-gray-200 group-hover:text-green-400 transition-colors">
                     {summary.deep_mastery_cells || 0}
                   </div>
@@ -279,14 +253,9 @@ export default function TopicMasteryPage() {
             onClick={() => setMatrixExpanded(!matrixExpanded)}
             className="w-full flex items-center justify-between mb-6"
           >
-            <div className="flex items-center gap-4">
-              <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center">
-                <TargetIcon size={20} className="text-blue-400" />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-200">
-                Comprehensive Mastery Matrix
-              </h2>
-            </div>
+            <h2 className="text-xl font-semibold text-gray-200">
+              Comprehensive Mastery Matrix
+            </h2>
             <span className="text-gray-400 text-xl">
               {matrixExpanded ? '▼' : '▶'}
             </span>
@@ -393,9 +362,6 @@ export default function TopicMasteryPage() {
                 </div>
               ) : (
                 <div className="neuro-inset p-8 rounded-lg text-center">
-                  <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <TargetIcon size={40} className="text-gray-600" />
-                  </div>
                   <div className="text-gray-400 text-lg font-semibold mb-2">
                     No data yet
                   </div>
@@ -416,14 +382,9 @@ export default function TopicMasteryPage() {
               onClick={() => setBloomExpanded(!bloomExpanded)}
               className="w-full flex items-center justify-between mb-6"
             >
-              <div className="flex items-center gap-4">
-                <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center">
-                  <TrendingUpIcon size={20} className="text-blue-400" />
-                </div>
-                <h2 className="text-xl font-semibold text-gray-200">
-                  Progress by Bloom Level
-                </h2>
-              </div>
+              <h2 className="text-xl font-semibold text-gray-200">
+                Progress by Bloom Level
+              </h2>
               <span className="text-gray-400 text-xl">
                 {bloomExpanded ? '▼' : '▶'}
               </span>
