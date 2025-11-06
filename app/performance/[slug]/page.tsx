@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { RefreshIcon, AlertTriangleIcon, CheckIcon, XIcon, BarChartIcon, TrendingUpIcon, AwardIcon, TargetIcon, PlayIcon } from '@/components/icons'
+import { RefreshIcon, AlertTriangleIcon, CheckIcon, XIcon, BarChartIcon, TrendingUpIcon, AwardIcon, TargetIcon, PlayIcon, ChevronDownIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 
 export default function PerformancePage() {
@@ -18,6 +18,7 @@ export default function PerformancePage() {
   const [progressSummary, setProgressSummary] = useState<any>(null)
   const [recentActivity, setRecentActivity] = useState<any[]>([])
   const [resetting, setResetting] = useState(false)
+  const [statsExpanded, setStatsExpanded] = useState(false)
 
   useEffect(() => {
     loadPerformanceData()
@@ -188,64 +189,86 @@ export default function PerformancePage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        {/* Overall Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div className="neuro-stat group">
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-sm text-blue-400 font-medium">
-                Topics Started
+        {/* Overall Stats - Collapsible */}
+        <div className="neuro-card mb-6">
+          <button
+            onClick={() => setStatsExpanded(!statsExpanded)}
+            className="w-full flex items-center justify-between p-2 -m-2 hover:bg-gray-800/20 rounded-lg transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center">
+                <TrendingUpIcon size={20} className="text-blue-400" />
               </div>
-              <TargetIcon size={20} className="text-blue-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+              <h2 className="text-xl font-semibold text-gray-200">
+                Overall Statistics
+              </h2>
             </div>
-            <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
-              {progressSummary?.topics_started || 0}
-            </div>
-            <div className="text-xs text-gray-600 mt-2">
-              Topics explored
-            </div>
-          </div>
-          <div className="neuro-stat group">
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-sm text-green-400 font-medium">
-                Topics Mastered
+            <ChevronDownIcon
+              size={24}
+              className={`text-gray-400 transition-transform ${statsExpanded ? 'rotate-180' : ''}`}
+            />
+          </button>
+
+          {statsExpanded && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6 pt-6 border-t border-gray-800">
+              <div className="neuro-inset p-4 rounded-lg group">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="text-sm text-blue-400 font-medium">
+                    Topics Started
+                  </div>
+                  <TargetIcon size={20} className="text-blue-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                </div>
+                <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
+                  {progressSummary?.topics_started || 0}
+                </div>
+                <div className="text-xs text-gray-600 mt-2">
+                  Topics explored
+                </div>
               </div>
-              <AwardIcon size={20} className="text-green-400 opacity-50 group-hover:opacity-100 transition-opacity" />
-            </div>
-            <div className="text-4xl font-bold text-gray-200 group-hover:text-green-400 transition-colors">
-              {progressSummary?.topics_mastered || 0}
-            </div>
-            <div className="text-xs text-gray-600 mt-2">
-              80%+ mastery achieved
-            </div>
-          </div>
-          <div className="neuro-stat group">
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-sm text-cyan-400 font-medium">
-                Questions Answered
+              <div className="neuro-inset p-4 rounded-lg group">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="text-sm text-green-400 font-medium">
+                    Topics Mastered
+                  </div>
+                  <AwardIcon size={20} className="text-green-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                </div>
+                <div className="text-4xl font-bold text-gray-200 group-hover:text-green-400 transition-colors">
+                  {progressSummary?.topics_mastered || 0}
+                </div>
+                <div className="text-xs text-gray-600 mt-2">
+                  80%+ mastery achieved
+                </div>
               </div>
-              <CheckIcon size={20} className="text-cyan-400 opacity-50 group-hover:opacity-100 transition-opacity" />
-            </div>
-            <div className="text-4xl font-bold text-gray-200 group-hover:text-cyan-400 transition-colors">
-              {progressSummary?.total_questions_attempted || 0}
-            </div>
-            <div className="text-xs text-gray-600 mt-2">
-              Total attempts made
-            </div>
-          </div>
-          <div className="neuro-stat group">
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-sm text-blue-400 font-medium">
-                Overall Accuracy
+              <div className="neuro-inset p-4 rounded-lg group">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="text-sm text-cyan-400 font-medium">
+                    Questions Answered
+                  </div>
+                  <CheckIcon size={20} className="text-cyan-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                </div>
+                <div className="text-4xl font-bold text-gray-200 group-hover:text-cyan-400 transition-colors">
+                  {progressSummary?.total_questions_attempted || 0}
+                </div>
+                <div className="text-xs text-gray-600 mt-2">
+                  Total attempts made
+                </div>
               </div>
-              <TrendingUpIcon size={20} className="text-blue-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+              <div className="neuro-inset p-4 rounded-lg group">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="text-sm text-blue-400 font-medium">
+                    Overall Accuracy
+                  </div>
+                  <TrendingUpIcon size={20} className="text-blue-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                </div>
+                <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
+                  {progressSummary?.overall_accuracy ? Math.round(progressSummary.overall_accuracy) : 0}%
+                </div>
+                <div className="text-xs text-gray-600 mt-2">
+                  Correct answers
+                </div>
+              </div>
             </div>
-            <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
-              {progressSummary?.overall_accuracy ? Math.round(progressSummary.overall_accuracy) : 0}%
-            </div>
-            <div className="text-xs text-gray-600 mt-2">
-              Correct answers
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Mastery Heatmap */}
