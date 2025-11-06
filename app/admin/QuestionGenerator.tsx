@@ -219,12 +219,7 @@ export function QuestionGenerator() {
   return (
     <div className="space-y-6">
       {/* Generator Form */}
-      <div className="neuro-card">
-        <h3 className="text-lg font-semibold text-gray-200 mb-4">
-          Generate AI Questions
-        </h3>
-
-        <div className="space-y-4">
+      <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">
               Chapter *
@@ -338,7 +333,6 @@ export function QuestionGenerator() {
             </div>
           )}
         </div>
-      </div>
 
       {/* Generated Questions Display */}
       {generatedQuestions.length > 0 && (

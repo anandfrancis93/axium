@@ -1,9 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { SubjectManager } from './SubjectManager'
-import { ChapterManager } from './ChapterManager'
-import { QuestionGenerator } from './QuestionGenerator'
 import HamburgerMenu from '@/components/HamburgerMenu'
+import { AdminContent } from './AdminContent'
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
@@ -43,47 +41,7 @@ export default async function AdminPage() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Subjects */}
-          <div className="neuro-card">
-            <h2 className="text-2xl font-semibold text-gray-200 mb-4">
-              Subjects
-            </h2>
-            <SubjectManager />
-          </div>
-
-          {/* Chapters */}
-          <div className="neuro-card">
-            <h2 className="text-2xl font-semibold text-gray-200 mb-4">
-              Chapters
-            </h2>
-            <ChapterManager />
-          </div>
-        </div>
-
-        {/* Question Generator */}
-        <div className="mt-6">
-          <QuestionGenerator />
-        </div>
-
-        <div className="neuro-card mt-6">
-          <h3 className="text-lg font-semibold text-gray-200 mb-4">
-            Content Hierarchy
-          </h3>
-          <div className="neuro-inset p-4 rounded-lg">
-            <p className="text-sm text-gray-300 mb-2 font-medium">
-              Subject → Chapter → Topic → Bloom Level (1-6)
-            </p>
-            <p className="text-xs text-gray-500 mt-3">
-              1. Create subjects (e.g., "Computer Science", "Mathematics")<br />
-              2. Add chapters to subjects (e.g., "Data Structures", "Algorithms")<br />
-              3. Upload documents to chapters for RAG-powered learning<br />
-              4. Topics and Bloom levels will be managed through the learning interface
-            </p>
-          </div>
-        </div>
-      </main>
+      <AdminContent />
     </div>
   )
 }
