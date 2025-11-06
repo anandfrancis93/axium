@@ -181,15 +181,7 @@ export default function PerformancePage() {
               </h1>
             </div>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <button
-              onClick={handleResetProgress}
-              disabled={resetting}
-              className="neuro-btn text-xs flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-red-400 hover:text-red-300 px-3 py-2"
-            >
-              <RefreshIcon size={14} className={resetting ? 'animate-spin' : ''} />
-              <span className="hidden sm:inline">{resetting ? 'Resetting...' : 'Reset'}</span>
-            </button>
+          <div className="flex-shrink-0">
             <HamburgerMenu />
           </div>
         </div>
@@ -463,6 +455,26 @@ export default function PerformancePage() {
               </Link>
             </div>
           )}
+        </div>
+
+        {/* Danger Zone - Reset Progress */}
+        <div className="neuro-card mt-8 border border-red-900/20">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h3 className="text-lg font-semibold text-red-400 mb-2">Danger Zone</h3>
+              <p className="text-sm text-gray-500">
+                Permanently delete all progress for this chapter. This action cannot be undone.
+              </p>
+            </div>
+            <button
+              onClick={handleResetProgress}
+              disabled={resetting}
+              className="neuro-btn text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-red-400 hover:text-red-300 px-6 py-3 whitespace-nowrap"
+            >
+              <RefreshIcon size={16} className={resetting ? 'animate-spin' : ''} />
+              {resetting ? 'Resetting...' : 'Reset Progress'}
+            </button>
+          </div>
         </div>
       </main>
     </div>
