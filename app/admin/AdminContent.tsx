@@ -27,43 +27,44 @@ export function AdminContent() {
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Subjects */}
-        <div className="neuro-card">
-          <button
-            onClick={() => toggleSection('subjects')}
-            className="w-full flex items-center justify-between mb-4"
-          >
-            <h2 className="text-2xl font-semibold text-gray-200">
-              Subjects
-            </h2>
-            <span className="text-gray-400 text-xl">
-              {expandedSections.subjects ? '▼' : '▶'}
-            </span>
-          </button>
-          {expandedSections.subjects && <SubjectManager />}
-        </div>
+      {/* Subjects */}
+      <div className="neuro-card mb-6">
+        <button
+          type="button"
+          onClick={() => toggleSection('subjects')}
+          className="w-full flex items-center justify-between mb-4"
+        >
+          <h2 className="text-2xl font-semibold text-gray-200">
+            Subjects
+          </h2>
+          <span className="text-gray-400 text-xl">
+            {expandedSections.subjects ? '▼' : '▶'}
+          </span>
+        </button>
+        {expandedSections.subjects && <SubjectManager />}
+      </div>
 
-        {/* Chapters */}
-        <div className="neuro-card">
-          <button
-            onClick={() => toggleSection('chapters')}
-            className="w-full flex items-center justify-between mb-4"
-          >
-            <h2 className="text-2xl font-semibold text-gray-200">
-              Chapters
-            </h2>
-            <span className="text-gray-400 text-xl">
-              {expandedSections.chapters ? '▼' : '▶'}
-            </span>
-          </button>
-          {expandedSections.chapters && <ChapterManager />}
-        </div>
+      {/* Chapters */}
+      <div className="neuro-card mb-6">
+        <button
+          type="button"
+          onClick={() => toggleSection('chapters')}
+          className="w-full flex items-center justify-between mb-4"
+        >
+          <h2 className="text-2xl font-semibold text-gray-200">
+            Chapters
+          </h2>
+          <span className="text-gray-400 text-xl">
+            {expandedSections.chapters ? '▼' : '▶'}
+          </span>
+        </button>
+        {expandedSections.chapters && <ChapterManager />}
       </div>
 
       {/* Question Generator */}
-      <div className="neuro-card mt-6">
+      <div className="neuro-card mb-6">
         <button
+          type="button"
           onClick={() => toggleSection('questions')}
           className="w-full flex items-center justify-between mb-4"
         >
@@ -78,8 +79,9 @@ export function AdminContent() {
       </div>
 
       {/* Content Hierarchy */}
-      <div className="neuro-card mt-6">
+      <div className="neuro-card">
         <button
+          type="button"
           onClick={() => toggleSection('hierarchy')}
           className="w-full flex items-center justify-between mb-4"
         >
