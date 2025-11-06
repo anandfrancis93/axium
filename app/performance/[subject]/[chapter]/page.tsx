@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { RefreshIcon, AlertTriangleIcon, CheckIcon, XIcon, BarChartIcon, TrendingUpIcon, AwardIcon, TargetIcon, PlayIcon, ChevronDownIcon } from '@/components/icons'
+import { RefreshIcon, AlertTriangleIcon, CheckIcon, XIcon, BarChartIcon, TrendingUpIcon, AwardIcon, TargetIcon, PlayIcon, ChevronDownIcon, LockIcon, LockOpenIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import { Tooltip } from '@/components/Tooltip'
 
@@ -19,6 +19,7 @@ export default function PerformancePage() {
   const [masteryHeatmap, setMasteryHeatmap] = useState<any[]>([])
   const [progressSummary, setProgressSummary] = useState<any>(null)
   const [recentActivity, setRecentActivity] = useState<any[]>([])
+  const [topicUnlockLevels, setTopicUnlockLevels] = useState<Record<string, number>>({})
   const [resetting, setResetting] = useState(false)
   const [statsExpanded, setStatsExpanded] = useState(false)
   const [heatmapExpanded, setHeatmapExpanded] = useState(false)
@@ -90,6 +91,23 @@ export default function PerformancePage() {
       } else {
         setRecentActivity([])
       }
+
+      // Get user progress for each topic to determine unlock levels
+      const { data: progressData } = await supabase
+        .from('user_progress')
+        .select('topic_id, current_bloom_level, topics(name)')
+        .eq('user_id', user.id)
+
+      // Build mapping from topic name to current_bloom_level
+      const unlockLevels: Record<string, number> = {}
+      if (progressData) {
+        progressData.forEach((progress: any) => {
+          if (progress.topics?.name) {
+            unlockLevels[progress.topics.name] = progress.current_bloom_level
+          }
+        })
+      }
+      setTopicUnlockLevels(unlockLevels)
 
       setLoading(false)
 
@@ -350,13 +368,31 @@ export default function PerformancePage() {
                             const masteryKey = `bloom_${level.num}` as keyof typeof row
                             const mastery = row[masteryKey] as number | null
                             const hasData = mastery !== null && mastery !== undefined
+                            const currentBloomLevel = topicUnlockLevels[row.topic] || 1
+                            const isLocked = level.num > currentBloomLevel
+                            const isUnlockedNoData = !isLocked && !hasData
+
                             return (
                               <td key={level.num} className="p-4 text-center">
-                                <Tooltip content={`${row.topic} - Level ${level.num}: ${hasData ? Math.round(mastery) : 0}% (${getMasteryLabel(mastery)})`}>
-                                  <div className={`${getMasteryColor(mastery)} font-medium text-sm`}>
-                                    {hasData ? Math.round(mastery) : '-'}
-                                  </div>
-                                </Tooltip>
+                                {isLocked ? (
+                                  <Tooltip content={`Locked - Complete Level ${currentBloomLevel} to unlock`}>
+                                    <div className="inline-flex">
+                                      <LockIcon size={16} className="text-gray-600" />
+                                    </div>
+                                  </Tooltip>
+                                ) : isUnlockedNoData ? (
+                                  <Tooltip content={`${row.topic} - Level ${level.num}: Unlocked, no attempts yet`}>
+                                    <div className="inline-flex">
+                                      <LockOpenIcon size={16} className="text-gray-500" />
+                                    </div>
+                                  </Tooltip>
+                                ) : (
+                                  <Tooltip content={`${row.topic} - Level ${level.num}: ${Math.round(mastery)} % (${getMasteryLabel(mastery)})`}>
+                                    <div className={`${getMasteryColor(mastery)} font-medium text-sm`}>
+                                      {Math.round(mastery)}
+                                    </div>
+                                  </Tooltip>
+                                )}
                               </td>
                             )
                           })}
