@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import HamburgerMenu from '@/components/HamburgerMenu'
+import { RLPhaseBadge } from '@/components/RLPhaseBadge'
 
 const BLOOM_LEVELS = [
   { num: 1, name: 'Remember' },
@@ -25,6 +26,7 @@ export default function TopicMasteryPage() {
   const [matrix, setMatrix] = useState<any[]>([])
   const [summary, setSummary] = useState<any>(null)
   const [chapter, setChapter] = useState<any>(null)
+  const [rlPhase, setRlPhase] = useState<string | null>(null)
 
   useEffect(() => {
     loadData()
@@ -68,6 +70,25 @@ export default function TopicMasteryPage() {
       })
 
       setSummary(summaryData?.[0] || null)
+
+      // Get RL phase from user_progress
+      const { data: topicData } = await supabase
+        .from('topics')
+        .select('id')
+        .eq('chapter_id', chapterData.id)
+        .ilike('name', topic)
+        .single()
+
+      if (topicData) {
+        const { data: progressData } = await supabase
+          .from('user_progress')
+          .select('rl_phase')
+          .eq('user_id', user.id)
+          .eq('topic_id', topicData.id)
+          .single()
+
+        setRlPhase(progressData?.rl_phase || null)
+      }
 
       setLoading(false)
     } catch (error) {
@@ -152,6 +173,11 @@ export default function TopicMasteryPage() {
               <h1 className="text-2xl font-bold text-gray-200 truncate">
                 {topic}
               </h1>
+              {rlPhase && (
+                <div className="mt-2">
+                  <RLPhaseBadge phase={rlPhase} showDescription={true} />
+                </div>
+              )}
             </div>
             <div className="flex-shrink-0">
               <HamburgerMenu />
