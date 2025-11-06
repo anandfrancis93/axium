@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import { RLPhaseBadge } from '@/components/RLPhaseBadge'
+import { getRLPhaseContext } from '@/lib/utils/rl-phase'
 
 const BLOOM_LEVELS = [
   { num: 1, name: 'Remember' },
@@ -174,8 +175,16 @@ export default function TopicMasteryPage() {
                 {topic}
               </h1>
               {rlPhase && (
-                <div className="mt-2">
-                  <RLPhaseBadge phase={rlPhase} showDescription={true} />
+                <div className="mt-3">
+                  <RLPhaseBadge phase={rlPhase} showDescription={false} />
+                  <div className="mt-2 neuro-inset p-3 rounded-lg max-w-2xl">
+                    <div className="flex items-start gap-2">
+                      <div className="text-blue-400 text-lg flex-shrink-0">ℹ️</div>
+                      <div className="text-sm text-gray-400 leading-relaxed">
+                        {getRLPhaseContext(rlPhase)}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

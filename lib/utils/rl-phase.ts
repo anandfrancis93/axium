@@ -74,3 +74,19 @@ export function getRLPhaseProgress(phase: RLPhase | string | null | undefined): 
   const index = phases.indexOf(phaseKey)
   return index === -1 ? 0 : ((index + 1) / phases.length) * 100
 }
+
+// Get user-facing explanation of what this phase means for their learning
+export function getRLPhaseContext(phase: RLPhase | string | null | undefined): string {
+  const phaseKey = (phase as RLPhase) || 'cold_start'
+
+  const contexts: Record<RLPhase, string> = {
+    cold_start: 'The system is gathering initial data about your learning patterns. You may see a variety of question types and topics as we build your baseline.',
+    exploration: 'The system is testing different question types, topics, and difficulty levels to find what works best for you. Expect variety in your questions.',
+    optimization: 'The system has identified effective learning strategies for you and is focusing on high-value questions to maximize your progress.',
+    stabilization: 'Your learning pattern has stabilized. The system is maintaining your progress with optimized question selection.',
+    adaptation: 'The system detected changes in your performance and is adjusting its teaching strategy to keep you on track.',
+    meta_learning: 'You have achieved optimal learning efficiency. The system has learned your ideal learning patterns and is applying them consistently.'
+  }
+
+  return contexts[phaseKey] || contexts.cold_start
+}
