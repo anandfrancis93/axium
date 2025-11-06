@@ -134,7 +134,7 @@ export default function PerformancePage() {
   }
 
   const getMasteryColor = (mastery: number | null) => {
-    if (mastery === null || mastery === undefined) return 'bg-transparent border border-gray-800'
+    if (mastery === null || mastery === undefined) return ''
     if (mastery >= 80) return 'bg-green-500'
     if (mastery >= 60) return 'bg-blue-500'
     if (mastery >= 40) return 'bg-yellow-500'
@@ -356,7 +356,7 @@ export default function PerformancePage() {
                             return (
                               <td key={level.num} className="p-1">
                                 <div
-                                  className={`w-full h-12 rounded ${getMasteryColor(mastery)} flex items-center justify-center ${hasData ? 'text-white' : 'text-gray-600'} font-medium text-sm transition-all hover:scale-105 cursor-help`}
+                                  className={`w-full h-12 flex items-center justify-center ${hasData ? `rounded ${getMasteryColor(mastery)} text-white transition-all hover:scale-105` : 'text-gray-500'} font-medium text-sm cursor-help`}
                                   title={`${row.topic} - Level ${level.num}: ${hasData ? Math.round(mastery) : 0}% (${getMasteryLabel(mastery)})`}
                                 >
                                   {hasData ? Math.round(mastery) : '-'}
