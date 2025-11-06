@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { CheckIcon, XIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
+import { Tooltip } from '@/components/Tooltip'
 
 type ConfidenceLevel = 'low' | 'medium' | 'high'
 type RecognitionMethod = 'memory' | 'recognition' | 'educated_guess' | 'random'
@@ -184,6 +185,167 @@ export default function LearnPage() {
     getNextQuestion(session.session_id)
   }
 
+  const getMasteryTooltip = (oldMastery: number, newMastery: number, change: number) => {
+    let oldLevel = ''
+    let newLevel = ''
+    let interpretation = ''
+
+    // Interpret old mastery
+    if (oldMastery === 0) {
+      oldLevel = 'No prior knowledge'
+    } else if (oldMastery < 20) {
+      oldLevel = 'Just getting started'
+    } else if (oldMastery < 40) {
+      oldLevel = 'Early stages of learning'
+    } else if (oldMastery < 60) {
+      oldLevel = 'Building understanding'
+    } else if (oldMastery < 80) {
+      oldLevel = 'Good progress'
+    } else {
+      oldLevel = 'Strong mastery'
+    }
+
+    // Interpret new mastery
+    if (newMastery < 20) {
+      newLevel = 'Just getting started'
+    } else if (newMastery < 40) {
+      newLevel = 'Early stages of learning'
+    } else if (newMastery < 60) {
+      newLevel = 'Building understanding'
+    } else if (newMastery < 80) {
+      newLevel = 'Good progress, keep practicing'
+    } else {
+      newLevel = 'Ready to advance to next level'
+    }
+
+    // Interpret the change
+    if (change >= 30) {
+      interpretation = 'Excellent progress!'
+    } else if (change >= 15) {
+      interpretation = 'Strong improvement'
+    } else if (change >= 5) {
+      interpretation = 'Steady progress'
+    } else if (change > 0) {
+      interpretation = 'Small improvement'
+    } else if (change === 0) {
+      interpretation = 'No change'
+    } else if (change > -10) {
+      interpretation = 'Slight decrease'
+    } else {
+      interpretation = 'Needs review'
+    }
+
+    return `Before: ${oldMastery}% (${oldLevel})
+After: ${newMastery}% (${newLevel})
+Change: ${change >= 0 ? '+' : ''}${change}%
+
+${interpretation}
+
+Mastery grows with correct answers and confidence calibration`
+  }
+
+  const getRewardTooltip = (component: string, value: number) => {
+    let description = ''
+    let interpretation = ''
+    let scale = ''
+
+    switch (component) {
+      case 'learningGain':
+        description = 'Learning Gain: How much your mastery improved'
+        scale = 'Range: -10 to +10 points'
+        if (value >= 8) {
+          interpretation = 'Excellent! Significant mastery improvement'
+        } else if (value >= 5) {
+          interpretation = 'Very good progress on this topic'
+        } else if (value >= 2) {
+          interpretation = 'Steady progress'
+        } else if (value >= 0) {
+          interpretation = 'Small progress'
+        } else if (value >= -3) {
+          interpretation = 'Slight setback, review recommended'
+        } else {
+          interpretation = 'Major gap identified, needs focused review'
+        }
+        break
+
+      case 'calibration':
+        description = 'Calibration: How well your confidence matched your performance'
+        scale = 'Range: -5 to +5 points'
+        if (value >= 4) {
+          interpretation = 'Perfect calibration! Your confidence matched your answer'
+        } else if (value >= 2) {
+          interpretation = 'Good calibration'
+        } else if (value >= 0) {
+          interpretation = 'Decent calibration'
+        } else if (value >= -2) {
+          interpretation = 'Over/under confident - work on self-assessment'
+        } else {
+          interpretation = 'Poor calibration - confidence did not match performance'
+        }
+        break
+
+      case 'recognition':
+        description = 'Recognition: Reward for your answer method (memory vs guessing)'
+        scale = 'Range: 0 to +5 points'
+        if (value >= 5) {
+          interpretation = 'Maximum bonus! You knew it from memory'
+        } else if (value >= 3) {
+          interpretation = 'Good! You recognized the correct answer'
+        } else if (value >= 1) {
+          interpretation = 'You made an educated guess'
+        } else {
+          interpretation = 'Random guess - no bonus awarded'
+        }
+        break
+
+      case 'spacing':
+        description = 'Spacing: Bonus for spaced repetition timing'
+        scale = 'Range: 0 to +5 points'
+        if (value >= 4) {
+          interpretation = 'Perfect timing! Optimal spacing between reviews'
+        } else if (value >= 2) {
+          interpretation = 'Good spacing effect'
+        } else if (value >= 0) {
+          interpretation = 'Some spacing benefit'
+        } else {
+          interpretation = 'Too soon or too late for optimal spacing'
+        }
+        break
+
+      case 'total':
+        description = 'Total Reward: Combined score from all components'
+        scale = 'Range: -10 to +25 points'
+        if (value >= 20) {
+          interpretation = 'Outstanding! Maximum learning effectiveness'
+        } else if (value >= 15) {
+          interpretation = 'Excellent learning performance'
+        } else if (value >= 10) {
+          interpretation = 'Very good progress'
+        } else if (value >= 5) {
+          interpretation = 'Good progress'
+        } else if (value >= 0) {
+          interpretation = 'Positive progress'
+        } else if (value >= -5) {
+          interpretation = 'Room for improvement'
+        } else {
+          interpretation = 'Needs focused review and practice'
+        }
+        break
+
+      default:
+        description = 'Reward component'
+        interpretation = 'Value: ' + value
+        scale = ''
+    }
+
+    return `${description}
+
+Value: ${value.toFixed(1)} points
+${scale}
+
+${interpretation}`
+  }
+
   if (loading && !question) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#0a0a0a' }}>
@@ -260,11 +422,6 @@ export default function LearnPage() {
                       confidence === level ? 'ring-2 ring-blue-400' : ''
                     }`}
                   >
-                    <div className="text-2xl mb-2">
-                      {level === 'low' && '😕'}
-                      {level === 'medium' && '🤔'}
-                      {level === 'high' && '😊'}
-                    </div>
                     <div className="font-medium text-gray-200 capitalize">{level}</div>
                   </button>
                 ))}
@@ -383,13 +540,16 @@ export default function LearnPage() {
                   {feedback.mastery_updates?.map((update: any, idx: number) => (
                     <div key={idx} className="flex justify-between items-center">
                       <span className="text-gray-300">{update.topic}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-gray-500">{update.old_mastery}%</span>
-                        <span className={update.change >= 0 ? 'text-green-400' : 'text-red-400'}>
-                          {update.change >= 0 ? '+' : ''}{update.change}%
-                        </span>
-                        <span className="text-blue-400 font-medium">{update.new_mastery}%</span>
-                      </div>
+                      <Tooltip content={getMasteryTooltip(update.old_mastery, update.new_mastery, update.change)}>
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-500">{update.old_mastery}%</span>
+                          <span className="text-gray-600">→</span>
+                          <span className="text-blue-400 font-medium">{update.new_mastery}%</span>
+                          <span className={`text-sm ${update.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            ({update.change >= 0 ? '+' : ''}{update.change}%)
+                          </span>
+                        </div>
+                      </Tooltip>
                     </div>
                   ))}
                 </div>
@@ -399,13 +559,23 @@ export default function LearnPage() {
               <div className="neuro-inset p-4 rounded-lg mb-6">
                 <div className="text-sm font-medium text-gray-400 mb-3">Reward Components:</div>
                 <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>Learning Gain: <span className="text-blue-400">{feedback.reward_components?.learningGain?.toFixed(1)}</span></div>
-                  <div>Calibration: <span className="text-purple-400">{feedback.reward_components?.calibration?.toFixed(1)}</span></div>
-                  <div>Recognition: <span className="text-green-400">{feedback.reward_components?.recognition?.toFixed(1)}</span></div>
-                  <div>Spacing: <span className="text-yellow-400">{feedback.reward_components?.spacing?.toFixed(1)}</span></div>
+                  <Tooltip content={getRewardTooltip('learningGain', feedback.reward_components?.learningGain || 0)}>
+                    <div>Learning Gain: <span className="text-blue-400">{feedback.reward_components?.learningGain?.toFixed(1)}</span></div>
+                  </Tooltip>
+                  <Tooltip content={getRewardTooltip('calibration', feedback.reward_components?.calibration || 0)}>
+                    <div>Calibration: <span className="text-purple-400">{feedback.reward_components?.calibration?.toFixed(1)}</span></div>
+                  </Tooltip>
+                  <Tooltip content={getRewardTooltip('recognition', feedback.reward_components?.recognition || 0)}>
+                    <div>Recognition: <span className="text-green-400">{feedback.reward_components?.recognition?.toFixed(1)}</span></div>
+                  </Tooltip>
+                  <Tooltip content={getRewardTooltip('spacing', feedback.reward_components?.spacing || 0)}>
+                    <div>Spacing: <span className="text-yellow-400">{feedback.reward_components?.spacing?.toFixed(1)}</span></div>
+                  </Tooltip>
                 </div>
                 <div className="mt-3 pt-3 border-t border-gray-700">
-                  <div className="font-medium">Total Reward: <span className="text-blue-400">{feedback.reward_components?.total?.toFixed(1)}</span></div>
+                  <Tooltip content={getRewardTooltip('total', feedback.reward_components?.total || 0)}>
+                    <div className="font-medium">Total Reward: <span className="text-blue-400">{feedback.reward_components?.total?.toFixed(1)}</span></div>
+                  </Tooltip>
                 </div>
               </div>
 
