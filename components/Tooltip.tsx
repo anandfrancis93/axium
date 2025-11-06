@@ -87,7 +87,7 @@ export function Tooltip({ content, children, className = '' }: TooltipProps) {
             transform: 'translate(-50%, 0)'
           }}
         >
-          <div className={`neuro-raised px-3 py-2 rounded-lg text-xs text-gray-300 max-w-xs backdrop-blur-sm ${typeof content === 'string' ? 'whitespace-pre-line' : ''}`}>
+          <div className={`neuro-raised px-3 py-2 rounded-lg text-xs text-gray-300 max-w-xs backdrop-blur-sm text-left ${typeof content === 'string' ? 'whitespace-pre-line' : ''}`}>
             {content}
           </div>
         </div>

@@ -368,7 +368,7 @@ export default function TopicMasteryPage() {
                             return (
                               <td key={`${bloomLevel.num}-${dim.key}`} className="p-4 text-center">
                                 <Tooltip
-                                  content={`${topic} - ${bloomLevel.name} - ${dim.name}\nScore: ${cell?.average_score || 0}%\nUnique Questions: ${uniqueCount}\nTotal Attempts: ${totalAttempts} (${totalAttempts - uniqueCount} repeats)\nStatus: ${getStatusLabel(status, masteryLevel, uniqueCount, totalAttempts)}`}
+                                  content={`${topic} - ${bloomLevel.name} - ${dim.name}\n\nScore: ${cell?.average_score || 0}%\n\nUnique Questions: ${uniqueCount}\n\nTotal Attempts: ${totalAttempts} (${totalAttempts - uniqueCount} repeats)\n\nStatus: ${getStatusLabel(status, masteryLevel, uniqueCount, totalAttempts)}`}
                                 >
                                   <div className={`${getStatusColor(status, masteryLevel, uniqueCount)} relative inline-block`}>
                                     {uniqueCount > 0 ? (
