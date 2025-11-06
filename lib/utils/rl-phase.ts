@@ -1,4 +1,12 @@
 // RL Phase utilities and constants
+import {
+  ColdStartIcon,
+  ExplorationIcon,
+  OptimizationIcon,
+  StabilizationIcon,
+  AdaptationIcon,
+  MetaLearningIcon
+} from '@/components/icons'
 
 export type RLPhase =
   | 'cold_start'
@@ -13,7 +21,7 @@ export interface RLPhaseInfo {
   name: string
   description: string
   color: string
-  icon: string
+  icon: any // React component
 }
 
 export const RL_PHASES: Record<RLPhase, RLPhaseInfo> = {
@@ -22,42 +30,42 @@ export const RL_PHASES: Record<RLPhase, RLPhaseInfo> = {
     name: 'Cold Start',
     description: 'Building initial understanding - gathering first data points',
     color: 'text-gray-400',
-    icon: '○'
+    icon: ColdStartIcon
   },
   exploration: {
     key: 'exploration',
     name: 'Exploration',
     description: 'Testing different approaches to find what works best',
     color: 'text-blue-400',
-    icon: '◐'
+    icon: ExplorationIcon
   },
   optimization: {
     key: 'optimization',
     name: 'Optimization',
     description: 'Focusing on high-value learning strategies',
     color: 'text-cyan-400',
-    icon: '◑'
+    icon: OptimizationIcon
   },
   stabilization: {
     key: 'stabilization',
     name: 'Stabilization',
     description: 'Performance is stable and consistent',
     color: 'text-green-400',
-    icon: '●'
+    icon: StabilizationIcon
   },
   adaptation: {
     key: 'adaptation',
     name: 'Adaptation',
     description: 'Continuously adjusting to maintain performance',
     color: 'text-yellow-400',
-    icon: '◉'
+    icon: AdaptationIcon
   },
   meta_learning: {
     key: 'meta_learning',
     name: 'Meta-Learning',
     description: 'Mastered how to learn - optimal learning patterns established',
     color: 'text-purple-400',
-    icon: '◈'
+    icon: MetaLearningIcon
   }
 }
 

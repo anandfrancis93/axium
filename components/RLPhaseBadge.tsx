@@ -11,13 +11,12 @@ interface RLPhaseBadgeProps {
 
 export function RLPhaseBadge({ phase, showIcon = true, showDescription = false, className = '' }: RLPhaseBadgeProps) {
   const phaseInfo = getRLPhaseInfo(phase as RLPhase)
+  const IconComponent = phaseInfo.icon
 
   return (
     <div className={`inline-flex items-center gap-2 ${className}`}>
-      {showIcon && (
-        <span className={`text-2xl ${phaseInfo.color}`}>
-          {phaseInfo.icon}
-        </span>
+      {showIcon && IconComponent && (
+        <IconComponent className={phaseInfo.color} size={24} />
       )}
       <div>
         <div className={`font-medium ${phaseInfo.color}`}>
@@ -39,6 +38,7 @@ interface RLPhaseIndicatorProps {
 
 export function RLPhaseIndicator({ phase }: RLPhaseIndicatorProps) {
   const phaseInfo = getRLPhaseInfo(phase as RLPhase)
+  const IconComponent = phaseInfo.icon
 
   return (
     <div
@@ -46,9 +46,9 @@ export function RLPhaseIndicator({ phase }: RLPhaseIndicatorProps) {
       title={phaseInfo.description}
     >
       <div className="flex items-center gap-2">
-        <span className={`text-lg ${phaseInfo.color}`}>
-          {phaseInfo.icon}
-        </span>
+        {IconComponent && (
+          <IconComponent className={phaseInfo.color} size={18} />
+        )}
         <div>
           <div className="text-xs text-gray-500">RL Phase</div>
           <div className={`text-sm font-medium ${phaseInfo.color}`}>

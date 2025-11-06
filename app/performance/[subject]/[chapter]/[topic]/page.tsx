@@ -7,7 +7,7 @@ import Link from 'next/link'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import { RLPhaseBadge } from '@/components/RLPhaseBadge'
 import { getRLPhaseContext } from '@/lib/utils/rl-phase'
-import { TargetIcon, CheckIcon, TrendingUpIcon, AwardIcon, BarChartIcon, PlayIcon } from '@/components/icons'
+import { TargetIcon, CheckIcon, TrendingUpIcon, AwardIcon, BarChartIcon } from '@/components/icons'
 
 const BLOOM_LEVELS = [
   { num: 1, name: 'Remember' },
@@ -189,19 +189,10 @@ export default function TopicMasteryPage() {
 
           {/* RL Phase Badge */}
           {rlPhase && (
-            <div className="mb-6 cursor-help" title={getRLPhaseContext(rlPhase)}>
+            <div className="cursor-help" title={getRLPhaseContext(rlPhase)}>
               <RLPhaseBadge phase={rlPhase} showDescription={false} />
             </div>
           )}
-
-          {/* Primary Action */}
-          <Link
-            href={`/subjects/${subject}/${chapter}/quiz`}
-            className="neuro-btn text-blue-400 inline-flex items-center gap-2"
-          >
-            <PlayIcon size={18} />
-            <span>Continue Learning</span>
-          </Link>
         </div>
 
         {/* Summary Stats Section */}
@@ -408,16 +399,9 @@ export default function TopicMasteryPage() {
                   <div className="text-gray-400 text-lg font-semibold mb-2">
                     No data yet
                   </div>
-                  <div className="text-sm text-gray-600 mb-6">
+                  <div className="text-sm text-gray-600">
                     Start learning to see your mastery matrix
                   </div>
-                  <Link
-                    href={`/subjects/${subject}/${chapter}/quiz`}
-                    className="neuro-btn text-blue-400 inline-flex items-center gap-2"
-                  >
-                    <PlayIcon size={18} />
-                    <span>Start Learning</span>
-                  </Link>
                 </div>
               )}
             </>

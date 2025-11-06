@@ -384,3 +384,84 @@ export const MenuIcon = ({ className = "", size = 24 }: IconProps) => (
     <line x1="3" y1="18" x2="21" y2="18" />
   </svg>
 )
+
+// RL Phase Icons
+export const ColdStartIcon = ({ className = "", size = 24 }: IconProps) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    className={className}
+  >
+    <circle cx="12" cy="12" r="9" />
+  </svg>
+)
+
+export const ExplorationIcon = ({ className = "", size = 24 }: IconProps) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    className={className}
+  >
+    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
+    <path d="M 12 3 A 9 9 0 0 1 12 21 Z" fill="currentColor" />
+  </svg>
+)
+
+export const OptimizationIcon = ({ className = "", size = 24 }: IconProps) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    className={className}
+  >
+    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
+    <path d="M 12 3 A 9 9 0 0 0 12 21 Z" fill="currentColor" />
+  </svg>
+)
+
+export const StabilizationIcon = ({ className = "", size = 24 }: IconProps) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={className}
+  >
+    <circle cx="12" cy="12" r="9" />
+  </svg>
+)
+
+export const AdaptationIcon = ({ className = "", size = 24 }: IconProps) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    className={className}
+  >
+    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" fill="currentColor" />
+    <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="2" fill="none" />
+  </svg>
+)
+
+export const MetaLearningIcon = ({ className = "", size = 24 }: IconProps) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinejoin="miter"
+    className={className}
+  >
+    <polygon points="12,3 21,12 12,21 3,12" />
+  </svg>
+)
