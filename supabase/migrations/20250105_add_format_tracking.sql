@@ -36,16 +36,18 @@ COMMENT ON COLUMN user_progress.rl_metadata IS 'RL metadata including format per
 CREATE OR REPLACE VIEW user_format_effectiveness AS
 SELECT
   up.user_id,
-  up.subject_id,
+  up.topic_id,
+  t.subject_id,
   up.rl_phase,
   up.rl_metadata->'format_performance' as format_performance,
   up.rl_metadata->'format_preferences' as format_preferences,
   up.total_attempts,
   up.current_bloom_level
 FROM user_progress up
+LEFT JOIN topics t ON up.topic_id = t.id
 WHERE up.rl_metadata ? 'format_performance';
 
-COMMENT ON VIEW user_format_effectiveness IS 'View showing format performance metrics per user per subject';
+COMMENT ON VIEW user_format_effectiveness IS 'View showing format performance metrics per user per topic';
 
 -- Create function to calculate format effectiveness score
 CREATE OR REPLACE FUNCTION calculate_format_effectiveness(
@@ -89,6 +91,6 @@ SELECT
 FROM user_progress,
      jsonb_each(rl_metadata->'format_performance'->'3') as formats(format_key, value)
 WHERE user_id = 'some-user-id'
-  AND subject_id = 'some-subject-id'
+  AND topic_id = 'some-topic-id'
 ORDER BY effectiveness_score DESC;
 */
