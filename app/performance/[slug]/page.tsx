@@ -20,6 +20,7 @@ export default function PerformancePage() {
   const [resetting, setResetting] = useState(false)
   const [statsExpanded, setStatsExpanded] = useState(false)
   const [heatmapExpanded, setHeatmapExpanded] = useState(false)
+  const [activityExpanded, setActivityExpanded] = useState(false)
 
   useEffect(() => {
     loadPerformanceData()
@@ -392,104 +393,117 @@ export default function PerformancePage() {
           )}
         </div>
 
-        {/* Recent Activity */}
+        {/* Recent Activity - Collapsible */}
         <div className="neuro-card">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center">
-              <TrendingUpIcon size={20} className="text-blue-400" />
-            </div>
-            <h2 className="text-xl font-semibold text-gray-200">
-              Recent Activity
-            </h2>
-          </div>
-
-          {recentActivity.length > 0 ? (
-            <div className="space-y-3">
-              {recentActivity.slice(0, 10).map((response: any) => {
-                // Parse arm_selected to get topic and bloom level
-                const armParts = response.arm_selected?.split('_') || []
-                const bloomLevel = armParts.length > 0 ? armParts[armParts.length - 1] : null
-                const topic = armParts.length > 1 ? armParts.slice(0, -1).join('_') : null
-
-                return (
-                  <div
-                    key={response.id}
-                    className="neuro-inset p-4 rounded-lg"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                        response.is_correct ? 'bg-green-500/20' : 'bg-red-500/20'
-                      }`}>
-                        {response.is_correct ? (
-                          <CheckIcon size={18} className="text-green-400" />
-                        ) : (
-                          <XIcon size={18} className="text-red-400" />
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex flex-wrap items-center gap-2 text-xs mb-2">
-                          {bloomLevel && (
-                            <span className="neuro-raised px-2 py-1 rounded text-blue-400">
-                              Bloom L{bloomLevel}
-                            </span>
-                          )}
-                          {topic && (
-                            <span className="neuro-raised px-2 py-1 rounded text-cyan-400 truncate max-w-xs">
-                              {topic}
-                            </span>
-                          )}
-                          {response.confidence_level && (
-                            <span className="text-gray-500">
-                              Confidence: {response.confidence_level}/5
-                            </span>
-                          )}
-                          {response.recognition_method && (
-                            <span className="neuro-badge neuro-badge-info text-xs">
-                              {response.recognition_method === 'memory' && 'Memory'}
-                              {response.recognition_method === 'recognition' && 'Recognition'}
-                              {response.recognition_method === 'educated_guess' && 'Educated Guess'}
-                              {response.recognition_method === 'random' && 'Random Guess'}
-                            </span>
-                          )}
-                          {response.reward_received !== null && (
-                            <span className={`font-medium ${
-                              response.reward_received >= 0 ? 'text-green-400' : 'text-red-400'
-                            }`}>
-                              Reward: {response.reward_received >= 0 ? '+' : ''}{response.reward_received?.toFixed(1)}
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-gray-400 text-xs">
-                          Mastery: {response.mastery_before?.toFixed(0)}% → {response.mastery_after?.toFixed(0)}%
-                          {response.learning_gain !== null && (
-                            <span className={response.learning_gain >= 0 ? 'text-green-400' : 'text-red-400'}>
-                              {' '}({response.learning_gain >= 0 ? '+' : ''}{response.learning_gain?.toFixed(1)})
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex-shrink-0 text-xs text-gray-600">
-                        {new Date(response.answered_at).toLocaleDateString()}
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          ) : (
-            <div className="neuro-inset p-8 rounded-lg text-center">
-              <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <TrendingUpIcon size={40} className="text-gray-600" />
+          <button
+            onClick={() => setActivityExpanded(!activityExpanded)}
+            className="w-full flex items-center justify-between p-2 -m-2 hover:bg-gray-800/20 rounded-lg transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center">
+                <TrendingUpIcon size={20} className="text-blue-400" />
               </div>
-              <div className="text-gray-400 text-lg mb-2 font-semibold">No activity yet</div>
-              <div className="text-sm text-gray-600 mb-6">Answer some questions to see your history!</div>
-              <Link
-                href={`/learn/${slug}`}
-                className="neuro-btn-primary inline-flex items-center gap-2 px-6 py-3"
-              >
-                <PlayIcon size={18} />
-                <span>Start Learning</span>
-              </Link>
+              <h2 className="text-xl font-semibold text-gray-200">
+                Recent Activity
+              </h2>
+            </div>
+            <ChevronDownIcon
+              size={24}
+              className={`text-gray-400 transition-transform ${activityExpanded ? 'rotate-180' : ''}`}
+            />
+          </button>
+
+          {activityExpanded && (
+            <div className="mt-6 pt-6 border-t border-gray-800">
+              {recentActivity.length > 0 ? (
+                <div className="space-y-3">
+                  {recentActivity.slice(0, 10).map((response: any) => {
+                    // Parse arm_selected to get topic and bloom level
+                    const armParts = response.arm_selected?.split('_') || []
+                    const bloomLevel = armParts.length > 0 ? armParts[armParts.length - 1] : null
+                    const topic = armParts.length > 1 ? armParts.slice(0, -1).join('_') : null
+
+                    return (
+                      <div
+                        key={response.id}
+                        className="neuro-inset p-4 rounded-lg"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                            response.is_correct ? 'bg-green-500/20' : 'bg-red-500/20'
+                          }`}>
+                            {response.is_correct ? (
+                              <CheckIcon size={18} className="text-green-400" />
+                            ) : (
+                              <XIcon size={18} className="text-red-400" />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex flex-wrap items-center gap-2 text-xs mb-2">
+                              {bloomLevel && (
+                                <span className="neuro-raised px-2 py-1 rounded text-blue-400">
+                                  Bloom L{bloomLevel}
+                                </span>
+                              )}
+                              {topic && (
+                                <span className="neuro-raised px-2 py-1 rounded text-cyan-400 truncate max-w-xs">
+                                  {topic}
+                                </span>
+                              )}
+                              {response.confidence_level && (
+                                <span className="text-gray-500">
+                                  Confidence: {response.confidence_level}/5
+                                </span>
+                              )}
+                              {response.recognition_method && (
+                                <span className="neuro-badge neuro-badge-info text-xs">
+                                  {response.recognition_method === 'memory' && 'Memory'}
+                                  {response.recognition_method === 'recognition' && 'Recognition'}
+                                  {response.recognition_method === 'educated_guess' && 'Educated Guess'}
+                                  {response.recognition_method === 'random' && 'Random Guess'}
+                                </span>
+                              )}
+                              {response.reward_received !== null && (
+                                <span className={`font-medium ${
+                                  response.reward_received >= 0 ? 'text-green-400' : 'text-red-400'
+                                }`}>
+                                  Reward: {response.reward_received >= 0 ? '+' : ''}{response.reward_received?.toFixed(1)}
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-gray-400 text-xs">
+                              Mastery: {response.mastery_before?.toFixed(0)}% → {response.mastery_after?.toFixed(0)}%
+                              {response.learning_gain !== null && (
+                                <span className={response.learning_gain >= 0 ? 'text-green-400' : 'text-red-400'}>
+                                  {' '}({response.learning_gain >= 0 ? '+' : ''}{response.learning_gain?.toFixed(1)})
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex-shrink-0 text-xs text-gray-600">
+                            {new Date(response.answered_at).toLocaleDateString()}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                <div className="neuro-inset p-8 rounded-lg text-center">
+                  <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <TrendingUpIcon size={40} className="text-gray-600" />
+                  </div>
+                  <div className="text-gray-400 text-lg mb-2 font-semibold">No activity yet</div>
+                  <div className="text-sm text-gray-600 mb-6">Answer some questions to see your history!</div>
+                  <Link
+                    href={`/learn/${slug}`}
+                    className="neuro-btn-primary inline-flex items-center gap-2 px-6 py-3"
+                  >
+                    <PlayIcon size={18} />
+                    <span>Start Learning</span>
+                  </Link>
+                </div>
+              )}
             </div>
           )}
         </div>
