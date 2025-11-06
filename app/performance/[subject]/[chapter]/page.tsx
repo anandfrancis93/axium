@@ -510,7 +510,7 @@ Mastery grows with correct answers and high confidence`
                             {new Date(response.created_at).toLocaleDateString()}
                           </div>
                         </div>
-                        <div className="flex flex-wrap items-center gap-4 text-sm">
+                        <div className="flex flex-wrap items-center gap-6 text-sm">
                           {response.bloom_level && (
                             <Tooltip content="Bloom's Taxonomy difficulty level (1=Remember to 6=Create)">
                               <span className="neuro-raised px-2 py-1 rounded text-blue-400">
