@@ -79,7 +79,7 @@ export default function TopicMasteryPage() {
   const getStatusColor = (status: string, masteryLevel: string, uniqueCount: number) => {
     // Special handling for deep mastery
     if (status === 'mastered' && masteryLevel === 'deep') {
-      return 'text-emerald-400'
+      return 'text-green-700'
     }
 
     // Insufficient data (< 3 unique questions)
@@ -218,7 +218,7 @@ export default function TopicMasteryPage() {
               <span className="text-gray-500">Initial Mastery</span>
             </div>
             <div className="flex items-center gap-2 cursor-help" title="5+ unique, 80%+">
-              <div className="w-4 h-4 rounded bg-emerald-400"></div>
+              <div className="w-4 h-4 rounded bg-green-700"></div>
               <span className="text-gray-500">Deep Mastery</span>
             </div>
           </div>
@@ -228,7 +228,7 @@ export default function TopicMasteryPage() {
         </div>
 
         {/* Dimension Matrix */}
-        <div className="neuro-card overflow-x-auto scrollbar-custom">
+        <div className="neuro-card overflow-x-auto scrollbar-custom pb-6">
           <h2 className="text-xl font-semibold text-gray-200 mb-6">
             Comprehensive Mastery Matrix (Bloom × Dimension)
           </h2>
@@ -237,7 +237,7 @@ export default function TopicMasteryPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr>
-                  <th className="sticky left-0 bg-[#0a0a0a] text-left p-4 text-gray-400 font-medium border-r border-gray-800">
+                  <th className="sticky left-0 z-10 bg-[#0a0a0a] text-left p-4 text-gray-400 font-medium border-r border-gray-800">
                     Bloom Level
                   </th>
                   {dimensions.map(dim => (
@@ -250,7 +250,7 @@ export default function TopicMasteryPage() {
               <tbody>
                 {matrixByBloom.map(bloomLevel => (
                   <tr key={bloomLevel.num} className="border-t border-gray-800">
-                    <td className="sticky left-0 bg-[#0a0a0a] p-4 font-medium text-gray-200 border-r border-gray-800">
+                    <td className="sticky left-0 z-10 bg-[#0a0a0a] p-4 font-medium text-gray-200 border-r border-gray-800">
                       <div className="flex items-center gap-2">
                         <span className="text-white">L{bloomLevel.num}</span>
                         <span className="text-sm text-gray-500">{bloomLevel.name}</span>
