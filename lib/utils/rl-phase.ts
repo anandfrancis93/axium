@@ -100,7 +100,7 @@ export function getRLPhaseContext(phase: RLPhase | string | null | undefined): s
 }
 
 // Get all RL phases with their descriptions for tooltip display
-export function getAllRLPhasesInfo(currentPhase?: RLPhase | string | null): string {
+export function getAllRLPhasesInfo(currentPhase?: RLPhase | string | null) {
   const phases: Array<{ key: RLPhase; name: string; description: string }> = [
     {
       key: 'cold_start',
@@ -134,10 +134,21 @@ export function getAllRLPhasesInfo(currentPhase?: RLPhase | string | null): stri
     }
   ]
 
-  return phases
-    .map(phase => {
-      const current = currentPhase === phase.key ? ' (Current)' : ''
-      return `${phase.name}${current}\n${phase.description}`
-    })
-    .join('\n\n')
+  return (
+    <div className="space-y-3">
+      {phases.map((phase, index) => {
+        const isCurrent = currentPhase === phase.key
+        return (
+          <div key={phase.key}>
+            <div className={isCurrent ? 'text-blue-400 font-semibold' : 'text-gray-300 font-medium'}>
+              {phase.name}{isCurrent && ' (Current)'}
+            </div>
+            <div className="text-gray-400 text-xs mt-1">
+              {phase.description}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
 }

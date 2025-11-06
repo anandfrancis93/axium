@@ -3,7 +3,7 @@
 import { useState, useRef, ReactNode, useEffect } from 'react'
 
 interface TooltipProps {
-  content: string
+  content: string | ReactNode
   children: ReactNode
   className?: string
 }
@@ -87,7 +87,7 @@ export function Tooltip({ content, children, className = '' }: TooltipProps) {
             transform: 'translate(-50%, 0)'
           }}
         >
-          <div className="neuro-raised px-3 py-2 rounded-lg text-xs text-gray-300 whitespace-pre-line max-w-xs backdrop-blur-sm">
+          <div className={`neuro-raised px-3 py-2 rounded-lg text-xs text-gray-300 max-w-xs backdrop-blur-sm ${typeof content === 'string' ? 'whitespace-pre-line' : ''}`}>
             {content}
           </div>
         </div>
