@@ -233,7 +233,7 @@ export default function TopicMasteryPage() {
         </div>
 
         {/* Dimension Matrix */}
-        <div className="neuro-card overflow-x-auto scrollbar-hide">
+        <div className="neuro-card overflow-x-auto scrollbar-custom">
           <h2 className="text-xl font-semibold text-gray-200 mb-6">
             Comprehensive Mastery Matrix (Bloom × Dimension)
           </h2>
