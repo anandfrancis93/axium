@@ -1180,6 +1180,64 @@ Max 4 cards per row (1→2→4 scaling)
 
 ---
 
+### 18. RL Phase Tracking
+
+**Track learning progression through distinct Reinforcement Learning phases.**
+
+Axium tracks each user's learning journey through 6 distinct RL phases for each topic:
+
+#### Phase Overview
+```typescript
+import { RLPhaseBadge, RLPhaseIndicator } from '@/components/RLPhaseBadge'
+import { getRLPhaseInfo } from '@/lib/utils/rl-phase'
+
+// Display phase badge
+<RLPhaseBadge phase={userProgress.rl_phase} showDescription={true} />
+
+// Get phase information
+const phaseInfo = getRLPhaseInfo(userProgress.rl_phase)
+console.log(phaseInfo.name)         // "Exploration"
+console.log(phaseInfo.description)  // Full description
+console.log(phaseInfo.color)        // "text-blue-400"
+```
+
+#### The 6 Phases
+
+1. **Cold Start** (< 10 attempts) - Gray ○
+   - No prior knowledge, gathering initial data
+   - Random exploration
+
+2. **Exploration** (10-50 attempts) - Blue ◐
+   - Testing different strategies
+   - Finding what works
+
+3. **Optimization** (50-150 attempts) - Cyan ◑
+   - Focusing on high-value actions
+   - Refining approach
+
+4. **Stabilization** (150+ attempts, low variance) - Green ●
+   - Stable, consistent performance
+   - Converged policy
+
+5. **Adaptation** (150+ attempts, changing) - Yellow ◉
+   - Responding to performance changes
+   - Continuous adjustment
+
+6. **Meta-Learning** (500+ attempts, excellent) - Purple ◈
+   - Learning how to learn
+   - Self-optimization
+
+#### Automatic Phase Calculation
+
+Phases are automatically calculated based on:
+- `total_attempts` - Experience level
+- `mastery_variance` - Performance consistency
+- `confidence_calibration_error` - Self-assessment accuracy
+
+See `docs/RL_PHASE_TRACKING.md` for complete documentation.
+
+---
+
 ## Quick Reference Checklist
 
 Before committing code, verify:
