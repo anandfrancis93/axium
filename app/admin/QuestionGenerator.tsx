@@ -215,7 +215,7 @@ export function QuestionGenerator() {
       const formatsForLevel = getRecommendedFormats(randomBloomLevel)
       const randomFormat = formatsForLevel.length > 0
         ? formatsForLevel[Math.floor(Math.random() * formatsForLevel.length)].key
-        : 'mcq'
+        : 'mcq_single'
 
       console.log('Random values:', { randomTopic, randomBloomLevel, randomFormat, topicsSource: extractedTopics.length > 0 ? 'chapter content' : 'fallback' })
 
