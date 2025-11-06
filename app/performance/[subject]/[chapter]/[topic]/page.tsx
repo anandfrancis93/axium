@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import { RLPhaseBadge } from '@/components/RLPhaseBadge'
-import { getAllRLPhasesInfo } from '@/lib/utils/rl-phase'
+import { getAllRLPhasesData } from '@/lib/utils/rl-phase'
 import { Tooltip } from '@/components/Tooltip'
 
 const BLOOM_LEVELS = [
@@ -181,7 +181,20 @@ export default function TopicMasteryPage() {
 
           {/* RL Phase Badge */}
           {rlPhase && (
-            <Tooltip content={getAllRLPhasesInfo(rlPhase)}>
+            <Tooltip content={
+              <div className="space-y-3">
+                {getAllRLPhasesData(rlPhase).map((phase) => (
+                  <div key={phase.key}>
+                    <div className={phase.isCurrent ? 'text-blue-400 font-semibold' : 'text-gray-300 font-medium'}>
+                      {phase.name}{phase.isCurrent && ' (Current)'}
+                    </div>
+                    <div className="text-gray-400 text-xs mt-1">
+                      {phase.description}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            }>
               <RLPhaseBadge phase={rlPhase} showDescription={false} showIcon={false} />
             </Tooltip>
           )}

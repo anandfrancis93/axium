@@ -100,55 +100,45 @@ export function getRLPhaseContext(phase: RLPhase | string | null | undefined): s
 }
 
 // Get all RL phases with their descriptions for tooltip display
-export function getAllRLPhasesInfo(currentPhase?: RLPhase | string | null) {
-  const phases: Array<{ key: RLPhase; name: string; description: string }> = [
+export function getAllRLPhasesData(currentPhase?: RLPhase | string | null) {
+  const phases: Array<{ key: RLPhase; name: string; description: string; isCurrent: boolean }> = [
     {
       key: 'cold_start',
       name: 'Cold Start',
-      description: 'Building initial understanding - gathering first data points'
+      description: 'Building initial understanding - gathering first data points',
+      isCurrent: currentPhase === 'cold_start'
     },
     {
       key: 'exploration',
       name: 'Exploration',
-      description: 'Testing different approaches to find what works best'
+      description: 'Testing different approaches to find what works best',
+      isCurrent: currentPhase === 'exploration'
     },
     {
       key: 'optimization',
       name: 'Optimization',
-      description: 'Focusing on high-value learning strategies'
+      description: 'Focusing on high-value learning strategies',
+      isCurrent: currentPhase === 'optimization'
     },
     {
       key: 'stabilization',
       name: 'Stabilization',
-      description: 'Performance is stable and consistent'
+      description: 'Performance is stable and consistent',
+      isCurrent: currentPhase === 'stabilization'
     },
     {
       key: 'adaptation',
       name: 'Adaptation',
-      description: 'Continuously adjusting to maintain performance'
+      description: 'Continuously adjusting to maintain performance',
+      isCurrent: currentPhase === 'adaptation'
     },
     {
       key: 'meta_learning',
       name: 'Meta-Learning',
-      description: 'Mastered how to learn - optimal learning patterns established'
+      description: 'Mastered how to learn - optimal learning patterns established',
+      isCurrent: currentPhase === 'meta_learning'
     }
   ]
 
-  return (
-    <div className="space-y-3">
-      {phases.map((phase, index) => {
-        const isCurrent = currentPhase === phase.key
-        return (
-          <div key={phase.key}>
-            <div className={isCurrent ? 'text-blue-400 font-semibold' : 'text-gray-300 font-medium'}>
-              {phase.name}{isCurrent && ' (Current)'}
-            </div>
-            <div className="text-gray-400 text-xs mt-1">
-              {phase.description}
-            </div>
-          </div>
-        )
-      })}
-    </div>
-  )
+  return phases
 }
