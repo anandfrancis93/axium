@@ -308,7 +308,7 @@ export async function selectArmEpsilonGreedy(
   const armStats = await getArmStats(userId, chapterId)
 
   const armsWithRewards = availableArms.map(armData => {
-    const key = `${armData.arm.topic}_${armData.arm.bloomLevel}`
+    const key = `${armData.arm.topicId}_${armData.arm.bloomLevel}`
     const stats = armStats.get(key)
 
     return {
