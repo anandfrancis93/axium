@@ -35,6 +35,10 @@ export default function TopicMasteryPage() {
   const [statsExpanded, setStatsExpanded] = useState(true)
   const [matrixExpanded, setMatrixExpanded] = useState(true)
   const [bloomExpanded, setBloomExpanded] = useState(false)
+  const [repeatAnalysisExpanded, setRepeatAnalysisExpanded] = useState(false)
+  const [questionHistoryExpanded, setQuestionHistoryExpanded] = useState(false)
+  const [repeatQuestions, setRepeatQuestions] = useState<any[]>([])
+  const [uniqueQuestions, setUniqueQuestions] = useState<any[]>([])
 
   useEffect(() => {
     loadData()
@@ -97,6 +101,79 @@ export default function TopicMasteryPage() {
 
         setRlPhase(progressData?.rl_phase || null)
         setCurrentBloomLevel(progressData?.current_bloom_level || 1)
+
+        // Fetch question attempt analysis
+        const { data: responses } = await supabase
+          .from('user_responses')
+          .select(`
+            id,
+            question_id,
+            is_correct,
+            confidence,
+            reward,
+            created_at,
+            questions (
+              id,
+              question_text,
+              dimension
+            )
+          `)
+          .eq('user_id', user.id)
+          .eq('topic_id', topicData.id)
+          .order('created_at', { ascending: true })
+
+        if (responses) {
+          // Analyze repeated questions
+          const questionGroups = new Map<string, any[]>()
+          responses.forEach((r: any) => {
+            const qid = r.question_id
+            if (!questionGroups.has(qid)) {
+              questionGroups.set(qid, [])
+            }
+            questionGroups.get(qid)!.push(r)
+          })
+
+          // Find questions answered multiple times
+          const repeated: any[] = []
+          questionGroups.forEach((attempts, qid) => {
+            if (attempts.length > 1) {
+              repeated.push({
+                question_id: qid,
+                question_text: attempts[0]?.questions?.question_text || 'Question',
+                dimension: attempts[0]?.questions?.dimension || 'Unknown',
+                attempts: attempts.map((a, idx) => ({
+                  attempt_num: idx + 1,
+                  is_correct: a.is_correct,
+                  confidence: a.confidence,
+                  reward: a.reward,
+                  created_at: a.created_at
+                }))
+              })
+            }
+          })
+
+          setRepeatQuestions(repeated)
+
+          // Track unique questions in chronological order
+          const uniqueQuestionsMap = new Map()
+          responses.forEach((r: any) => {
+            if (!uniqueQuestionsMap.has(r.question_id)) {
+              uniqueQuestionsMap.set(r.question_id, {
+                question_id: r.question_id,
+                question_text: r.questions?.question_text || 'Question',
+                dimension: r.questions?.dimension || 'Unknown',
+                is_correct: r.is_correct,
+                reward: r.reward,
+                created_at: r.created_at,
+                total_attempts: 1
+              })
+            } else {
+              uniqueQuestionsMap.get(r.question_id).total_attempts++
+            }
+          })
+
+          setUniqueQuestions(Array.from(uniqueQuestionsMap.values()))
+        }
       }
 
       setLoading(false)
@@ -456,6 +533,173 @@ export default function TopicMasteryPage() {
                     </div>
                   )
                 })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Repeated Questions Analysis Section */}
+        {repeatQuestions.length > 0 && (
+          <div className="neuro-card">
+            <button
+              type="button"
+              onClick={() => setRepeatAnalysisExpanded(!repeatAnalysisExpanded)}
+              className="w-full flex items-center justify-between mb-6"
+            >
+              <h2 className="text-xl font-semibold text-gray-200">
+                Spaced Repetition Analysis
+              </h2>
+              <span className="text-gray-400 text-xl">
+                {repeatAnalysisExpanded ? '▼' : '▶'}
+              </span>
+            </button>
+
+            {repeatAnalysisExpanded && (
+              <div className="space-y-6">
+                <p className="text-sm text-gray-400 mb-4">
+                  Questions you've answered multiple times (spaced repetition). Shows how your mastery evolves with each attempt.
+                </p>
+
+                {repeatQuestions.map((q, idx) => (
+                  <div key={q.question_id} className="neuro-inset p-6 rounded-lg">
+                    <div className="mb-4">
+                      <div className="text-sm text-blue-400 font-semibold mb-1">
+                        Question {idx + 1} - {q.dimension}
+                      </div>
+                      <div className="text-gray-300 text-sm">
+                        {q.question_text.substring(0, 100)}...
+                      </div>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-gray-700">
+                            <th className="text-left py-2 px-3 text-gray-400 font-medium">Attempt</th>
+                            <th className="text-left py-2 px-3 text-gray-400 font-medium">Result</th>
+                            <th className="text-left py-2 px-3 text-gray-400 font-medium">Confidence</th>
+                            <th className="text-left py-2 px-3 text-gray-400 font-medium">Reward</th>
+                            <th className="text-left py-2 px-3 text-gray-400 font-medium">Date</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {q.attempts.map((attempt: any) => (
+                            <tr key={attempt.attempt_num} className="border-b border-gray-800">
+                              <td className="py-3 px-3 text-gray-300">
+                                #{attempt.attempt_num}
+                              </td>
+                              <td className="py-3 px-3">
+                                {attempt.is_correct ? (
+                                  <span className="text-green-400">✓ Correct</span>
+                                ) : (
+                                  <span className="text-red-400">✗ Wrong</span>
+                                )}
+                              </td>
+                              <td className="py-3 px-3 text-gray-300">
+                                {attempt.confidence}/5
+                              </td>
+                              <td className="py-3 px-3">
+                                <span className={attempt.reward >= 0 ? 'text-green-400' : 'text-red-400'}>
+                                  {attempt.reward >= 0 ? '+' : ''}{attempt.reward.toFixed(1)}
+                                </span>
+                              </td>
+                              <td className="py-3 px-3 text-gray-500 text-xs">
+                                {new Date(attempt.created_at).toLocaleDateString()}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="mt-3 text-xs text-gray-500">
+                      Total: {q.attempts.length} attempts
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Unique Questions History Section */}
+        {uniqueQuestions.length > 0 && (
+          <div className="neuro-card">
+            <button
+              type="button"
+              onClick={() => setQuestionHistoryExpanded(!questionHistoryExpanded)}
+              className="w-full flex items-center justify-between mb-6"
+            >
+              <h2 className="text-xl font-semibold text-gray-200">
+                Question History ({uniqueQuestions.length} unique)
+              </h2>
+              <span className="text-gray-400 text-xl">
+                {questionHistoryExpanded ? '▼' : '▶'}
+              </span>
+            </button>
+
+            {questionHistoryExpanded && (
+              <div className="space-y-4">
+                <p className="text-sm text-gray-400 mb-4">
+                  All unique questions you've encountered for this topic, in chronological order.
+                </p>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-gray-700">
+                        <th className="text-left py-2 px-3 text-gray-400 font-medium">#</th>
+                        <th className="text-left py-2 px-3 text-gray-400 font-medium">Question</th>
+                        <th className="text-left py-2 px-3 text-gray-400 font-medium">Dimension</th>
+                        <th className="text-left py-2 px-3 text-gray-400 font-medium">First Result</th>
+                        <th className="text-left py-2 px-3 text-gray-400 font-medium">Reward</th>
+                        <th className="text-left py-2 px-3 text-gray-400 font-medium">Attempts</th>
+                        <th className="text-left py-2 px-3 text-gray-400 font-medium">Date</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {uniqueQuestions.map((q, idx) => (
+                        <tr key={q.question_id} className="border-b border-gray-800 hover:bg-gray-900/30">
+                          <td className="py-3 px-3 text-gray-500">
+                            {idx + 1}
+                          </td>
+                          <td className="py-3 px-3 text-gray-300 max-w-md">
+                            <div className="truncate">
+                              {q.question_text.substring(0, 80)}...
+                            </div>
+                          </td>
+                          <td className="py-3 px-3 text-gray-400 text-xs">
+                            {q.dimension}
+                          </td>
+                          <td className="py-3 px-3">
+                            {q.is_correct ? (
+                              <span className="text-green-400">✓ Correct</span>
+                            ) : (
+                              <span className="text-red-400">✗ Wrong</span>
+                            )}
+                          </td>
+                          <td className="py-3 px-3">
+                            <span className={q.reward >= 0 ? 'text-green-400' : 'text-red-400'}>
+                              {q.reward >= 0 ? '+' : ''}{q.reward.toFixed(1)}
+                            </span>
+                          </td>
+                          <td className="py-3 px-3 text-center">
+                            <span className={q.total_attempts > 1 ? 'text-blue-400' : 'text-gray-500'}>
+                              {q.total_attempts}
+                            </span>
+                          </td>
+                          <td className="py-3 px-3 text-gray-500 text-xs">
+                            {new Date(q.created_at).toLocaleDateString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="mt-4 text-sm text-gray-500">
+                  Total: {uniqueQuestions.length} unique questions, {uniqueQuestions.reduce((sum, q) => sum + q.total_attempts, 0)} total attempts
+                </div>
               </div>
             )}
           </div>
