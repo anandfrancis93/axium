@@ -529,13 +529,89 @@ ${interpretation}`
 
                 <div className="neuro-raised p-6 mt-4">
                   <div className="text-sm text-gray-500 mb-4">Explanation:</div>
-                  <div className="space-y-2">
-                    {feedback.explanation.split(/[.!?]+/).filter((sentence: string) => sentence.trim().length > 0).map((sentence: string, idx: number) => (
-                      <div key={idx} className="flex items-start gap-3">
-                        <div className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2 flex-shrink-0" />
-                        <div className="text-gray-200 text-sm leading-relaxed">{sentence.trim()}.</div>
-                      </div>
-                    ))}
+                  <div className="space-y-4">
+                    {(() => {
+                      // Parse the explanation into sections
+                      const text = feedback.explanation
+                      const sections: { header: string; bullets: string[] }[] = []
+
+                      // First, try to identify section headers by looking for common patterns
+                      // Split by newlines first if they exist, otherwise by period+space
+                      const rawLines = text.includes('\n')
+                        ? text.split('\n').filter(l => l.trim())
+                        : text.split(/\.\s+/).filter(l => l.trim())
+
+                      let currentSection: { header: string; bullets: string[] } | null = null
+
+                      rawLines.forEach(line => {
+                        const trimmed = line.trim()
+                        if (!trimmed) return
+
+                        // Remove leading bullet symbols if present
+                        const cleanedLine = trimmed.replace(/^[•\-\*]\s*/, '')
+
+                        // Check if this is a section header (contains colon after key phrase)
+                        const headerMatch = cleanedLine.match(/^(Fundamental Question|Core characteristics|What happens|How it works|Comparison to|Ultimate goal|Basic protection|Logical comparison|Build from basics|Key mechanisms|Real-world analogy):\s*(.*)$/i)
+
+                        if (headerMatch) {
+                          // Save previous section
+                          if (currentSection && currentSection.bullets.length > 0) {
+                            sections.push(currentSection)
+                          }
+                          // Start new section
+                          const header = headerMatch[1] + ':'
+                          const content = headerMatch[2]
+                          currentSection = { header, bullets: content ? [content] : [] }
+                        } else if (currentSection) {
+                          // Add as bullet to current section (split by periods if it's a long line)
+                          if (cleanedLine.length > 150 && cleanedLine.includes('. ')) {
+                            // Split long lines by periods
+                            const subBullets = cleanedLine.split(/\.\s+/).filter(s => s.trim())
+                            currentSection.bullets.push(...subBullets.map(s => s.trim()))
+                          } else {
+                            currentSection.bullets.push(cleanedLine)
+                          }
+                        } else {
+                          // No section yet, create a default one
+                          currentSection = { header: '', bullets: [cleanedLine] }
+                        }
+                      })
+
+                      // Add last section
+                      if (currentSection && currentSection.bullets.length > 0) {
+                        sections.push(currentSection)
+                      }
+
+                      // If no sections parsed, fall back to simple splitting by sentences
+                      if (sections.length === 0) {
+                        const sentences = text.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 0)
+                        return sentences.map((sentence: string, idx: number) => (
+                          <div key={idx} className="flex items-start gap-3">
+                            <div className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2 flex-shrink-0" />
+                            <div className="text-gray-200 text-sm leading-relaxed">{sentence.trim()}</div>
+                          </div>
+                        ))
+                      }
+
+                      // Render sections with headers
+                      return sections.map((section, sIdx) => (
+                        <div key={sIdx} className="space-y-2">
+                          {section.header && (
+                            <div className="text-blue-400 font-semibold text-sm mb-1">
+                              {section.header}
+                            </div>
+                          )}
+                          <div className="space-y-2">
+                            {section.bullets.map((bullet, bIdx) => (
+                              <div key={bIdx} className="flex items-start gap-3 ml-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-gray-400 mt-2 flex-shrink-0" />
+                                <div className="text-gray-200 text-sm leading-relaxed">{bullet}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))
+                    })()}
                   </div>
                 </div>
               </div>
