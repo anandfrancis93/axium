@@ -590,9 +590,7 @@ Mastery calculated using EMA (recent performance weighted higher)`
                   </div>
                 </div>
                 <div className="text-xs text-gray-500 flex items-start gap-2">
-                  <div className="neuro-inset rounded-sm p-0.5 mt-0.5">
-                    <AlertTriangleIcon size={10} className="text-yellow-500" />
-                  </div>
+                  <AlertTriangleIcon size={10} className="text-yellow-500 mt-0.5" />
                   <span>Warning triangle indicates insufficient data (&lt;3 unique questions). Scores shown but may not reflect true mastery.</span>
                 </div>
               </div>
@@ -661,9 +659,7 @@ Mastery calculated using EMA (recent performance weighted higher)`
                                     </Tooltip>
                                     {uniqueCount < 3 && (
                                       <Tooltip content={`⚠️ Insufficient Data\n\nOnly ${uniqueCount} unique question${uniqueCount === 1 ? '' : 's'} at this level.\n\nNeed ${3 - uniqueCount} more for reliable assessment.`}>
-                                        <div className="neuro-inset rounded-sm p-0.5">
-                                          <AlertTriangleIcon size={10} className="text-yellow-500" />
-                                        </div>
+                                        <AlertTriangleIcon size={10} className="text-yellow-500" />
                                       </Tooltip>
                                     )}
                                   </div>

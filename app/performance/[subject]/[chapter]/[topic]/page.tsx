@@ -510,9 +510,7 @@ export default function TopicMasteryPage() {
                   </Tooltip>
                 </div>
                 <div className="mt-4 text-xs text-gray-500 flex items-start gap-2">
-                  <div className="neuro-inset rounded-md p-1 mt-0.5">
-                    <AlertTriangleIcon size={12} className="text-yellow-500" />
-                  </div>
+                  <AlertTriangleIcon size={12} className="text-yellow-500 mt-0.5" />
                   <span>Warning triangle indicates insufficient data (&lt;3 unique questions). Scores shown but may not reflect true mastery.</span>
                 </div>
               </div>
@@ -591,9 +589,7 @@ export default function TopicMasteryPage() {
                                     </Tooltip>
                                     {uniqueCount < 3 && (
                                       <Tooltip content={`⚠️ Insufficient Data\n\nOnly ${uniqueCount} unique question${uniqueCount === 1 ? '' : 's'} answered.\n\nNeed ${3 - uniqueCount} more for reliable assessment.`}>
-                                        <div className="neuro-inset rounded-md p-1">
-                                          <AlertTriangleIcon size={14} className="text-yellow-500" />
-                                        </div>
+                                        <AlertTriangleIcon size={14} className="text-yellow-500" />
                                       </Tooltip>
                                     )}
                                   </div>
@@ -619,9 +615,7 @@ export default function TopicMasteryPage() {
                                 </Tooltip>
                                 {avgUniqueCount < 3 && (
                                   <Tooltip content={`⚠️ Insufficient Data\n\nOnly ${avgUniqueCount} total unique question${avgUniqueCount === 1 ? '' : 's'} across all dimensions.\n\nNeed ${3 - avgUniqueCount} more for reliable assessment.`}>
-                                    <div className="neuro-inset rounded-md p-1">
-                                      <AlertTriangleIcon size={14} className="text-yellow-500" />
-                                    </div>
+                                    <AlertTriangleIcon size={14} className="text-yellow-500" />
                                   </Tooltip>
                                 )}
                               </div>
