@@ -561,7 +561,7 @@ ${interpretation}`
                           // Start new section
                           const header = headerMatch[1] + ':'
                           const content = headerMatch[2]
-                          currentSection = { header, bullets: content ? [content] : [] }
+                          currentSection = { header, bullets: content ? [content] : [] } as { header: string; bullets: string[] }
                         } else if (currentSection) {
                           // Add as bullet to current section (split by periods if it's a long line)
                           if (cleanedLine.length > 150 && cleanedLine.includes('. ')) {
@@ -573,7 +573,7 @@ ${interpretation}`
                           }
                         } else {
                           // No section yet, create a default one
-                          currentSection = { header: '', bullets: [cleanedLine] }
+                          currentSection = { header: '', bullets: [cleanedLine] } as { header: string; bullets: string[] }
                         }
                       })
 
