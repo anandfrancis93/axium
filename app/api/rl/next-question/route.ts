@@ -107,14 +107,14 @@ async function generateQuestionOnDemand(
   const prompt = `You are an expert educator creating comprehensive assessment questions.
 
 BLOOM'S TAXONOMY LEVEL: ${bloomLevel} - ${bloomDescription}
-TOPIC: ${topic}
+TOPIC: ${topicName}
 KNOWLEDGE DIMENSION: ${dimension}
 DIMENSION FOCUS: ${dimensionDescription}
 
 CONTEXT (from course materials):
 ${context}
 
-TASK: Generate 1 multiple-choice question at Bloom's level ${bloomLevel} about "${topic}", specifically focusing on the "${dimension}" dimension.
+TASK: Generate 1 multiple-choice question at Bloom's level ${bloomLevel} about "${topicName}", specifically focusing on the "${dimension}" dimension.
 
 REQUIREMENTS:
 1. Base question ONLY on the provided context
