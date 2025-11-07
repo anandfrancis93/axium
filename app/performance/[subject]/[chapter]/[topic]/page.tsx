@@ -517,11 +517,24 @@ export default function TopicMasteryPage() {
                             <div className="text-sm">{dim.name}</div>
                           </th>
                         ))}
+                        <th className="p-4 text-center text-gray-400 font-medium border-l border-gray-800">
+                          <div className="text-sm">Avg</div>
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       {matrixByBloom.map(bloomLevel => {
                         const isRowLocked = bloomLevel.num > currentBloomLevel
+
+                        // Calculate average across all 6 dimensions for this Bloom level
+                        const dimensionScores = bloomLevel.dimensions
+                          .filter(d => d.unique_questions_count > 0) // Only include tested dimensions
+                          .map(d => d.average_score)
+                        const avgScore = dimensionScores.length > 0
+                          ? dimensionScores.reduce((sum, score) => sum + score, 0) / dimensionScores.length
+                          : 0
+                        const avgUniqueCount = bloomLevel.dimensions
+                          .reduce((sum, d) => sum + (d.unique_questions_count || 0), 0)
 
                         return (
                         <tr key={bloomLevel.num} className="border-t border-gray-800">
@@ -565,6 +578,23 @@ export default function TopicMasteryPage() {
                               </td>
                             )
                           })}
+                          <td className="p-4 text-center border-l border-gray-800">
+                            {isRowLocked ? (
+                              <Tooltip content={`Locked - Complete Level ${bloomLevel.num - 1} to unlock`}>
+                                <div className="inline-flex">
+                                  <LockIcon size={16} className="text-gray-600" />
+                                </div>
+                              </Tooltip>
+                            ) : avgUniqueCount === 0 ? (
+                              <div className="text-gray-600">--</div>
+                            ) : (
+                              <Tooltip content={`${topic} - ${bloomLevel.name}\n\nAverage EMA Score: ${Math.round(avgScore)}%\n\nCalculated from ${dimensionScores.length} tested dimension${dimensionScores.length === 1 ? '' : 's'} (out of 6 total)\n\nTotal Unique Questions: ${avgUniqueCount}`}>
+                                <div className="text-gray-200 font-bold text-lg">
+                                  {Math.round(avgScore)}%
+                                </div>
+                              </Tooltip>
+                            )}
+                          </td>
                         </tr>
                         )
                       })}
