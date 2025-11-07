@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
     })
 
     // Update mastery for this topic (using new RPC function that uses topic_id)
-    await supabase.rpc('update_topic_mastery_by_id', {
+    const { error: masteryError } = await supabase.rpc('update_topic_mastery_by_id', {
       p_user_id: user.id,
       p_topic_id: topicId,
       p_bloom_level: question.bloom_level,
@@ -163,15 +163,28 @@ export async function POST(request: NextRequest) {
       p_weight: 1.0
     })
 
+    if (masteryError) {
+      console.error('Error updating mastery:', masteryError)
+      // Don't throw - allow response to be recorded even if mastery update fails
+    } else {
+      console.log('Successfully updated mastery for topic:', topicId, 'bloom:', question.bloom_level)
+    }
+
     // Update RL arm stats (Thompson Sampling) using topic_id
     if (arm_selected && arm_selected.topic_id) {
-      await supabase.rpc('update_arm_stats_by_id', {
+      const { error: armStatsError } = await supabase.rpc('update_arm_stats_by_id', {
         p_user_id: user.id,
         p_chapter_id: session.chapter_id,
         p_topic_id: arm_selected.topic_id,
         p_bloom_level: arm_selected.bloom_level,
         p_reward: rewardComponents.total
       })
+
+      if (armStatsError) {
+        console.error('Error updating arm stats:', armStatsError)
+      } else {
+        console.log('Successfully updated arm stats for topic:', arm_selected.topic_id, 'bloom:', arm_selected.bloom_level)
+      }
     }
 
     // Validate question_id is a valid UUID (not ephemeral)
