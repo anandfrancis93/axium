@@ -22,6 +22,45 @@ const BLOOM_LEVELS = {
   6: 'Create (produce new or original work)',
 }
 
+// Knowledge Dimensions - Different perspectives on learning the same concept
+const KNOWLEDGE_DIMENSIONS: Record<string, string> = {
+  definition: `DIMENSION: Definition/Conceptual Understanding
+- Focus on "what is it?" and core terminology
+- Test understanding of fundamental concepts, definitions, and classifications
+- Appropriate for Bloom levels 1-2 (Remember, Understand)
+- Example: "What is a firewall?" or "Define defense in depth"`,
+
+  example: `DIMENSION: Examples and Applications
+- Focus on "how is it used?" and practical instances
+- Test ability to recognize or provide real-world examples
+- Appropriate for Bloom levels 2-3 (Understand, Apply)
+- Example: "Which scenario demonstrates a man-in-the-middle attack?" or "Give an example of physical security"`,
+
+  comparison: `DIMENSION: Comparison and Contrast
+- Focus on "how are these different/similar?" and relationships
+- Test ability to distinguish between related concepts
+- Appropriate for Bloom levels 2-4 (Understand, Apply, Analyze)
+- Example: "How does symmetric encryption differ from asymmetric?" or "Compare preventive vs detective controls"`,
+
+  scenario: `DIMENSION: Scenario-Based Problem Solving
+- Focus on "what should you do?" in realistic situations
+- Test ability to apply knowledge to novel contexts and make decisions
+- Appropriate for Bloom levels 3-5 (Apply, Analyze, Evaluate)
+- Example: "Your network is under DDoS attack. What steps should you take?" or "Which control best addresses this risk?"`,
+
+  implementation: `DIMENSION: Implementation and Procedures
+- Focus on "how do you implement/configure it?" and step-by-step processes
+- Test knowledge of setup, configuration, and operational procedures
+- Appropriate for Bloom levels 3-6 (Apply, Analyze, Evaluate, Create)
+- Example: "What steps are required to configure MFA?" or "Design a secure network architecture"`,
+
+  troubleshooting: `DIMENSION: Troubleshooting and Analysis
+- Focus on "why isn't it working?" and diagnostic reasoning
+- Test ability to identify problems, analyze symptoms, and propose solutions
+- Appropriate for Bloom levels 4-6 (Analyze, Evaluate, Create)
+- Example: "Authentication is failing. What could be the cause?" or "Diagnose this security incident"`
+}
+
 // Question format instructions
 const FORMAT_INSTRUCTIONS: Record<string, string> = {
   mcq_single: `QUESTION FORMAT: Multiple Choice Question (Single Select)
@@ -95,12 +134,28 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { chapter_id, topic, topic_id, bloom_level, question_format = 'mcq', num_questions = 1 } = body
+    const {
+      chapter_id,
+      topic,
+      topic_id,
+      bloom_level,
+      question_format = 'mcq_single',
+      dimension = 'definition',  // Default to definition dimension
+      num_questions = 1
+    } = body
 
     // Validate inputs
     if (!chapter_id || (!topic && !topic_id)) {
       return NextResponse.json(
         { error: 'chapter_id and either topic or topic_id are required' },
+        { status: 400 }
+      )
+    }
+
+    // Validate dimension
+    if (dimension && !KNOWLEDGE_DIMENSIONS[dimension]) {
+      return NextResponse.json(
+        { error: `Invalid dimension. Must be one of: ${Object.keys(KNOWLEDGE_DIMENSIONS).join(', ')}` },
         { status: 400 }
       )
     }
@@ -137,7 +192,7 @@ export async function POST(request: NextRequest) {
 
     const formatInstructions = FORMAT_INSTRUCTIONS[question_format] || FORMAT_INSTRUCTIONS.mcq_single
 
-    console.log(`Generating ${num_questions} ${question_format} question(s) for topic: "${topicFullName}" at Bloom level ${bloomLevelNum}`)
+    console.log(`Generating ${num_questions} ${question_format} question(s) for topic: "${topicFullName}" at Bloom level ${bloomLevelNum}, dimension: ${dimension}`)
 
     // Step 1: Generate embedding for the topic using full hierarchical path
     console.log('Generating topic embedding using full path...')
@@ -201,6 +256,8 @@ export async function POST(request: NextRequest) {
     console.log('Generating questions with Grok AI...')
     const bloomDescription = BLOOM_LEVELS[bloomLevelNum as keyof typeof BLOOM_LEVELS]
 
+    const dimensionInstructions = KNOWLEDGE_DIMENSIONS[dimension]
+
     const prompt = `You are an expert educator creating assessment questions for students studying cybersecurity.
 
 BLOOM'S TAXONOMY LEVEL: ${bloomLevelNum} - ${bloomDescription}
@@ -210,17 +267,20 @@ FULL CONTEXT PATH: ${topicFullName}
 
 ${formatInstructions}
 
+${dimensionInstructions}
+
 CONTEXT (from course materials):
 ${context}
 
-TASK: Generate ${num_questions} question(s) at Bloom's level ${bloomLevelNum} about "${topicName}".
+TASK: Generate ${num_questions} question(s) at Bloom's level ${bloomLevelNum} about "${topicName}" focusing on the ${dimension} dimension.
 
 REQUIREMENTS:
 1. Base questions ONLY on the provided context
 2. Match the cognitive level of Bloom's ${bloomLevelNum} (${bloomDescription})
-3. Follow the question format instructions above exactly
-4. Clearly indicate the correct answer
-5. Include a brief, educational explanation for the correct answer
+3. Focus on the ${dimension} dimension as specified above
+4. Follow the question format instructions exactly
+5. Clearly indicate the correct answer
+6. Include a brief, educational explanation for the correct answer
 
 EXPLANATION REQUIREMENTS:
 - Write explanations as a subject matter expert teaching the concept
@@ -317,7 +377,7 @@ Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other 
     }
 
     // Step 5: Return questions for preview (NOT stored in database)
-    console.log(`Successfully generated ${questionsData.questions.length} question(s) for preview`)
+    console.log(`Successfully generated ${questionsData.questions.length} question(s) for preview (Bloom: ${bloomLevelNum}, Dimension: ${dimension})`)
 
     // Format questions for preview (add IDs for frontend display)
     const previewQuestions = questionsData.questions.map((q: any, idx: number) => ({
@@ -330,6 +390,7 @@ Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other 
       correct_answer: q.correct_answer,
       explanation: q.explanation,
       bloom_level: bloomLevelNum,
+      knowledge_dimension: dimension,
       topic: topicName,
       topic_full_name: topicFullName,
       difficulty_estimated: bloomLevelNum >= 4 ? 'hard' : bloomLevelNum >= 3 ? 'medium' : 'easy',
@@ -340,6 +401,7 @@ Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other 
       success: true,
       questions: previewQuestions,
       chunks_used: chunks.length,
+      dimension_used: dimension,
       note: 'Questions are for preview/testing only - not stored in database',
     })
   } catch (error) {
