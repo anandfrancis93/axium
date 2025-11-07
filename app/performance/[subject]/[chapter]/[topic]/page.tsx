@@ -708,10 +708,12 @@ export default function TopicMasteryPage() {
                 <div className="space-y-4">
                   <div className="text-sm text-gray-400 mb-4">
                     Track your learning progression over time using Exponential Moving Average (EMA). This gives more weight to recent performance while considering your learning history, matching the mastery calculation shown in the heatmap.
-                    {masteryTrendData.length < 3 && (
-                      <span className="text-yellow-500"> ⚠️ Limited data: {masteryTrendData.length} question{masteryTrendData.length === 1 ? '' : 's'} answered. Trend becomes more meaningful with 3+ questions.</span>
-                    )}
                   </div>
+                  {masteryTrendData.length < 3 && (
+                    <div className="text-sm text-yellow-500 mb-4">
+                      ⚠️ Limited data: {masteryTrendData.length} question{masteryTrendData.length === 1 ? '' : 's'} answered. Trend becomes more meaningful with 3+ questions.
+                    </div>
+                  )}
 
                   <ResponsiveContainer width="100%" height={400}>
                     <AreaChart data={masteryTrendData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
