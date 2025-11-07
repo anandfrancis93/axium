@@ -1,16 +1,18 @@
 -- Enforce ONLY new 6 dimensions - remove all backward compatibility
 -- Clean break from old 12-dimension system
 
--- Delete existing questions with old dimension values (test data)
+-- FIRST: Drop old constraints (before deleting data)
+ALTER TABLE questions DROP CONSTRAINT IF EXISTS questions_dimension_check;
+ALTER TABLE user_dimension_coverage DROP CONSTRAINT IF EXISTS user_dimension_coverage_dimension_check;
+
+-- SECOND: Delete existing questions with old dimension values (test data)
 -- This includes NULL dimensions and old 12-dimension keys
 DELETE FROM questions;
 
 -- Also clear dimension coverage data
 DELETE FROM user_dimension_coverage;
 
--- Drop and recreate constraint on questions table (6 dimensions only)
-ALTER TABLE questions DROP CONSTRAINT IF EXISTS questions_dimension_check;
-
+-- THIRD: Add new constraints (after data is cleaned)
 ALTER TABLE questions
 ADD CONSTRAINT questions_dimension_check
 CHECK (dimension IN (
@@ -21,9 +23,6 @@ CHECK (dimension IN (
   'implementation',
   'troubleshooting'
 ));
-
--- Drop and recreate constraint on user_dimension_coverage table (6 dimensions only)
-ALTER TABLE user_dimension_coverage DROP CONSTRAINT IF EXISTS user_dimension_coverage_dimension_check;
 
 ALTER TABLE user_dimension_coverage
 ADD CONSTRAINT user_dimension_coverage_dimension_check
