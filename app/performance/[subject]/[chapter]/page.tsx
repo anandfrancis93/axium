@@ -179,11 +179,17 @@ export default function PerformancePage() {
 
       const topicIds = chapterTopics?.map(t => t.id) || []
 
-      const { count: questionsCount } = await supabase
+      const { count: questionsCount, error: questionsCountError } = await supabase
         .from('questions')
         .select('*', { count: 'exact', head: true })
         .in('topic_id', topicIds)
         .eq('source_type', 'ai_generated_realtime')
+
+      console.log('Questions count query:', {
+        topicIds: topicIds.length,
+        count: questionsCount,
+        error: questionsCountError
+      })
 
       setPreResetCounts({
         responses: responsesCount || 0,
