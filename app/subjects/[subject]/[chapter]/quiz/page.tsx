@@ -532,7 +532,7 @@ ${interpretation}`
                   <div className="space-y-2">
                     {feedback.explanation.split(/[.!?]+/).filter((sentence: string) => sentence.trim().length > 0).map((sentence: string, idx: number) => (
                       <div key={idx} className="flex items-start gap-3">
-                        <div className="neuro-inset w-2 h-2 rounded-full mt-2 flex-shrink-0" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2 flex-shrink-0" />
                         <div className="text-gray-200 text-sm leading-relaxed">{sentence.trim()}.</div>
                       </div>
                     ))}
