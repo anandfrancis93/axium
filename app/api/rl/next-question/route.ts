@@ -130,75 +130,83 @@ DIMENSION-SPECIFIC GUIDANCE:
 ${getDimensionGuidance(dimension, bloomLevel)}
 
 EXPLANATION REQUIREMENTS - FIRST PRINCIPLES APPROACH:
-Use a structured first principles breakdown to teach the concept from foundational reasoning:
 
-**Format Structure:**
-1. Fundamental Question: Start with the core "why" question
-   - What problem does this solve?
-   - Why does this concept exist?
+**CRITICAL: Format the explanation as PLAIN TEXT with line breaks, NOT as a continuous paragraph.**
 
-2. Build from basics:
-   - Start with simple, undeniable facts
-   - Show logical progression
-   - Connect each step to the next
+Use this EXACT structure with proper line breaks:
 
-3. Core characteristics:
-   - What defines this concept?
-   - What are its essential properties?
+Fundamental Question: [Core "why" question]
+• [First basic fact]
+• [Second basic fact]
+• [Third basic fact]
 
-4. Consequences/implications:
-   - What happens if X occurs?
-   - What risks or benefits result?
+Core characteristics:
+• [Key property 1]
+• [Key property 2]
+• [Key property 3]
 
-5. Practical protection/implementation:
-   - How is it actually done?
-   - What mechanisms are used?
+What happens if [concept fails/succeeds]:
+• [Consequence 1]
+• [Consequence 2]
 
-6. Logical comparisons:
-   - How does it differ from related concepts?
-   - Where does it fit in the hierarchy?
+How it works:
+• [Mechanism 1]
+• [Mechanism 2]
 
-7. Ultimate goal/purpose:
-   - What is the end objective?
-   - How does it serve the larger system?
-
-**Example Structure:**
-Fundamental Question: Why classify data at all?
-- Organizations possess information
-- Not all information has equal value or risk
-- Different information requires different protection levels
-
-What makes data "confidential"?
-- Contains sensitive content (strategies, client details)
-- Disclosure would cause harm to the organization
-- Limited group of people should access it
-
-Core harm if exposed:
-- Financial loss (competitive disadvantage)
-- Reputation damage
-- Operational disruption
-- Legal/regulatory consequences
-
-Basic protection principle:
-- Control who can access = access controls
-- Hide content from unauthorized viewers = encryption
-- Only grant access when necessary = need-to-know basis
-
-Logical comparison:
-- More sensitive than "internal" data (causes greater harm if leaked)
-- Less sensitive than "restricted/classified" data (not catastrophic if exposed)
-- Far more sensitive than "public" data (public data has no harm from exposure)
+Comparison to related concepts:
+• [Difference from concept A]
+• [Difference from concept B]
 
 Ultimate goal:
-- Preserve confidentiality (one of three CIA triad pillars)
-- Balance security with operational efficiency
+• [End objective]
+• [How it serves the larger system]
 
-**Rules:**
-- NEVER mention "context chunks", "provided context", "course materials"
-- Build logically from simple to complex
-- Use bullet points for clarity
-- Focus on reasoning, not just facts
-- Connect to broader principles (CIA triad, defense in depth, etc.)
+**EXAMPLE (Use this EXACT formatting):**
+
+Fundamental Question: Why classify data at all?
+• Organizations possess different types of information
+• Not all information has equal value or risk
+• Different information requires different protection levels
+
+Core characteristics of Confidential data:
+• Contains sensitive content like strategies and client details
+• Disclosure would cause significant organizational harm
+• Limited to specific roles on a need-to-know basis
+
+What happens if exposed:
+• Financial loss through competitive disadvantage
+• Reputation damage affecting client trust
+• Operational disruption from leaked strategies
+
+How it's protected:
+• Access controls limit who can view it
+• Encryption hides content from unauthorized viewers
+• Need-to-know principle restricts distribution
+
+Comparison to other classifications:
+• More sensitive than Internal data (higher harm if leaked)
+• Less critical than Restricted data (not catastrophic)
+• Far more protected than Public data (no harm tolerance)
+
+Ultimate goal:
+• Preserve confidentiality (CIA triad pillar)
+• Balance security controls with operational efficiency
+
+**FORMATTING RULES (CRITICAL):**
+1. Use actual line breaks between sections (press Enter twice)
+2. Use bullet symbol • not dashes or asterisks
+3. Keep each bullet point to ONE line
+4. NO markdown bold/italic within the text
+5. Each section header ends with a colon
+6. Maximum 3-4 bullet points per section
+7. Keep total explanation under 200 words
+8. NEVER use periods inside abbreviated words (write "e.g." as "for example")
+
+**BANNED:**
+- "e.g." or "i.e." - spell these out
+- Parenthetical clauses - use separate bullets instead
+- Run-on sentences - break into multiple bullets
+- Markdown formatting inside text - plain text only
 
 ANTI-TELLTALE QUALITY CONTROLS (CRITICAL - MUST FOLLOW):
 1. **Length Requirement**: All 4 options MUST be within 10 words of each other
