@@ -584,14 +584,9 @@ Mastery calculated using EMA (recent performance weighted higher)`
               onClick={() => setExamPredictionExpanded(!examPredictionExpanded)}
               className="w-full flex items-center justify-between p-2 -m-2 hover:bg-gray-800/20 rounded-lg transition-colors"
             >
-              <div className="flex items-center gap-3">
-                <div className="neuro-inset w-10 h-10 rounded-xl flex items-center justify-center">
-                  <TrophyIcon size={20} className="text-yellow-400" />
-                </div>
-                <h2 className="text-xl font-semibold text-gray-200">
-                  CompTIA Security+ Exam Prediction
-                </h2>
-              </div>
+              <h2 className="text-xl font-semibold text-gray-200">
+                CompTIA Security+ Exam Prediction
+              </h2>
               <ChevronDownIcon
                 size={24}
                 className={`text-gray-400 transition-transform ${examPredictionExpanded ? 'rotate-180' : ''}`}
