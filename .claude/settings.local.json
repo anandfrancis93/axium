@@ -11,7 +11,9 @@
       "Bash(npm install:*)",
       "Bash(find:*)",
       "Bash(psql:*)",
-      "Bash(node scripts/analyze-irt-data.mjs:*)"
+      "Bash(node scripts/analyze-irt-data.mjs:*)",
+      "Bash(Application Security)",
+      "Bash(Application\")\n- Removed \"Path:\" prefix for cleaner display\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []

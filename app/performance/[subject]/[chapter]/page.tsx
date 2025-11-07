@@ -64,7 +64,7 @@ export default function PerformancePage() {
       // Get all topics for this chapter with hierarchical info
       const { data: topicsData } = await supabase
         .from('topics')
-        .select('id, name, path, depth, description')
+        .select('id, name, full_name, depth, description')
         .eq('chapter_id', fetchedChapter.id)
         .order('name')
 
@@ -162,7 +162,7 @@ export default function PerformancePage() {
             user_id: user.id,
             chapter_id: fetchedChapter.id,
             topic: topic.name,
-            path: topic.path || topic.name,
+            full_name: topic.full_name || topic.name,
             depth: topic.depth || 0,
             description: topic.description,
             latest_response: latestResponseMap.get(topic.name),
@@ -781,7 +781,7 @@ Mastery calculated using EMA (recent performance weighted higher)`
                         return (
                         <tr key={idx} className="border-t border-gray-800 hover:bg-gray-900/30 transition-colors">
                           <td className="p-4 text-gray-200 font-medium max-w-xs">
-                            <Tooltip content={row.path && row.path !== row.topic ? `Path: ${row.path}${row.description ? `\n\n${row.description}` : ''}` : (row.description || row.topic)}>
+                            <Tooltip content={row.full_name && row.full_name !== row.topic ? `${row.full_name}${row.description ? `\n\n${row.description}` : ''}` : (row.description || row.topic)}>
                               <Link
                                 href={`/performance/${subject}/${chapter}/${encodeURIComponent(row.topic)}`}
                                 className="hover:text-blue-400 transition-colors flex items-center gap-2 group"
