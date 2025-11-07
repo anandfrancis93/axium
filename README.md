@@ -1,6 +1,6 @@
 # Axium - Intelligent Adaptive Learning Platform
 
-A personalized AI learning platform that uses reinforcement learning, Bloom's Taxonomy, and knowledge dimensions to create adaptive learning paths. Built with Next.js, Supabase, and Claude AI.
+A personalized AI learning platform that uses reinforcement learning, Bloom's Taxonomy, and knowledge dimensions to create adaptive learning paths. Built with Next.js, Supabase, and Grok AI.
 
 ## 🚀 Current Status
 
@@ -24,7 +24,7 @@ A personalized AI learning platform that uses reinforcement learning, Bloom's Ta
 - **Dimension-Specific Targeting**: Each dimension tests different learning perspectives
 
 ### 🤖 AI-Powered Question Generation
-- **Grok 2 Fast Reasoning**: Generates contextual questions based on RAG-retrieved content
+- **Grok 4 Fast Reasoning**: Generates contextual questions based on RAG-retrieved content
 - **RAG (Retrieval-Augmented Generation)**: Semantic search using OpenAI embeddings over uploaded PDFs
 - **Dimension-Aware**: Questions target specific knowledge dimensions at specific Bloom levels
 - **Multiple Choice Questions**: With AI-generated distractors and explanations
@@ -57,7 +57,7 @@ A personalized AI learning platform that uses reinforcement learning, Bloom's Ta
 - **Styling**: Tailwind CSS + Custom Neumorphic System
 - **Database**: Supabase (PostgreSQL + pgvector)
 - **Auth**: Supabase Auth with Google SSO
-- **LLM**: Grok 2 Fast Reasoning (X.AI API)
+- **LLM**: Grok 4 Fast Reasoning (X.AI API)
 - **Embeddings**: OpenAI text-embedding-3-small
 - **Deployment**: Vercel
 
@@ -149,7 +149,7 @@ questions (all stored, no ephemeral)
 
 - **Node.js** 18+ and npm
 - **Supabase account** (free tier sufficient)
-- **X.AI API key** (Grok 2)
+- **X.AI API key** (Grok 4 Fast Reasoning)
 - **OpenAI API key** (text-embedding-3-small)
 - **Google Cloud Console** (OAuth 2.0 credentials)
 
@@ -401,7 +401,7 @@ MIT
 ## 🙏 Acknowledgments
 
 - Built with [Claude Code](https://claude.com/claude-code)
-- Powered by Grok 2 (X.AI)
+- Powered by Grok 4 Fast Reasoning (X.AI)
 - Database & Auth by Supabase
 - Embeddings by OpenAI
 - Deployed on Vercel
