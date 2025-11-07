@@ -683,6 +683,7 @@ export default function TopicMasteryPage() {
                         <th className="text-left py-2 px-3 text-gray-400 font-medium">Dimension</th>
                         <th className="text-left py-2 px-3 text-gray-400 font-medium">Previous Result</th>
                         <th className="text-left py-2 px-3 text-gray-400 font-medium">Current Result</th>
+                        <th className="text-left py-2 px-3 text-gray-400 font-medium">Reward</th>
                         <th className="text-left py-2 px-3 text-gray-400 font-medium">Trend</th>
                         <th className="text-left py-2 px-3 text-gray-400 font-medium">Attempts</th>
                         <th className="text-left py-2 px-3 text-gray-400 font-medium">First Date</th>
@@ -746,6 +747,11 @@ export default function TopicMasteryPage() {
                               ) : (
                                 <span className="text-red-400">✗ Wrong</span>
                               )}
+                            </td>
+                            <td className="py-3 px-3">
+                              <span className={q.current_attempt.reward >= 0 ? 'text-green-400' : 'text-red-400'}>
+                                {q.current_attempt.reward >= 0 ? '+' : ''}{q.current_attempt.reward.toFixed(1)}
+                              </span>
                             </td>
                             <td className="py-3 px-3">
                               <span className={trendColor}>
