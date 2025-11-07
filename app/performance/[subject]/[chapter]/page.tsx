@@ -61,10 +61,10 @@ export default function PerformancePage() {
 
       if (!fetchedChapter) return
 
-      // Get all topics for this chapter
+      // Get all topics for this chapter with hierarchical info
       const { data: topicsData } = await supabase
         .from('topics')
-        .select('id, name')
+        .select('id, name, path, depth, description')
         .eq('chapter_id', fetchedChapter.id)
         .order('name')
 
@@ -162,6 +162,9 @@ export default function PerformancePage() {
             user_id: user.id,
             chapter_id: fetchedChapter.id,
             topic: topic.name,
+            path: topic.path || topic.name,
+            depth: topic.depth || 0,
+            description: topic.description,
             latest_response: latestResponseMap.get(topic.name),
             bloom_1: topicMastery.get(1) !== undefined ? topicMastery.get(1) : null,
             bloom_2: topicMastery.get(2) !== undefined ? topicMastery.get(2) : null,
@@ -778,15 +781,17 @@ Mastery calculated using EMA (recent performance weighted higher)`
                         return (
                         <tr key={idx} className="border-t border-gray-800 hover:bg-gray-900/30 transition-colors">
                           <td className="p-4 text-gray-200 font-medium max-w-xs">
-                            <Link
-                              href={`/performance/${subject}/${chapter}/${encodeURIComponent(row.topic)}`}
-                              className="hover:text-blue-400 transition-colors flex items-center gap-2 group"
-                            >
-                              <span className="truncate">{row.topic}</span>
-                              <span className="opacity-0 group-hover:opacity-100 text-blue-400 text-xs">
-                                →
-                              </span>
-                            </Link>
+                            <Tooltip content={row.path && row.path !== row.topic ? `Path: ${row.path}${row.description ? `\n\n${row.description}` : ''}` : (row.description || row.topic)}>
+                              <Link
+                                href={`/performance/${subject}/${chapter}/${encodeURIComponent(row.topic)}`}
+                                className="hover:text-blue-400 transition-colors flex items-center gap-2 group"
+                              >
+                                <span className="truncate">{row.topic}</span>
+                                <span className="opacity-0 group-hover:opacity-100 text-blue-400 text-xs">
+                                  →
+                                </span>
+                              </Link>
+                            </Tooltip>
                           </td>
                           {bloomLevels.map(level => {
                             const masteryKey = `bloom_${level.num}` as keyof typeof row
