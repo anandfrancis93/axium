@@ -585,7 +585,8 @@ ${interpretation}`
                         const cleanedLine = trimmed.replace(/^[•\-\*]\s*/, '')
 
                         // Check if this is a section header (contains colon after key phrase)
-                        const headerMatch = cleanedLine.match(/^(Fundamental Question|Core characteristics|What happens|How it works|Comparison to|Ultimate goal|Basic protection|Logical comparison|Build from basics|Key mechanisms|Real-world analogy):\s*(.*)$/i)
+                        // Match any capitalized phrase ending with colon (more flexible pattern)
+                        const headerMatch = cleanedLine.match(/^(Fundamental Question|Core characteristics|What happens[^:]*|How it [^:]+|Comparison to[^:]*|Ultimate goal|Basic protection|Logical comparison|Build from basics|Key mechanisms|Real-world analogy):\s*(.*)$/i)
 
                         if (headerMatch) {
                           // Save previous section
