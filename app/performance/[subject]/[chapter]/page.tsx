@@ -21,6 +21,7 @@ export default function PerformancePage() {
   const [progressSummary, setProgressSummary] = useState<any>(null)
   const [recentActivity, setRecentActivity] = useState<any[]>([])
   const [topicUnlockLevels, setTopicUnlockLevels] = useState<Record<string, number>>({})
+  const [uniqueQuestionCounts, setUniqueQuestionCounts] = useState<Record<string, number>>({})
   const [resetting, setResetting] = useState(false)
   const [statsExpanded, setStatsExpanded] = useState(false)
   const [heatmapExpanded, setHeatmapExpanded] = useState(false)
@@ -97,6 +98,28 @@ export default function PerformancePage() {
       } else {
         setRecentActivity([])
       }
+
+      // Get unique question counts for each topic × Bloom level
+      const { data: dimensionData } = await supabase
+        .from('user_dimension_coverage')
+        .select('topic_id, bloom_level, unique_questions_answered, topics(name)')
+        .eq('user_id', user.id)
+        .eq('chapter_id', fetchedChapter.id)
+
+      // Build mapping from "topicName-bloomLevel" to unique question count
+      const countsMap: Record<string, number> = {}
+      if (dimensionData) {
+        dimensionData.forEach((item: any) => {
+          const topicName = item.topics?.name
+          if (topicName) {
+            const key = `${topicName}-${item.bloom_level}`
+            const uniqueCount = item.unique_questions_answered?.length || 0
+            // Track the maximum unique count across all dimensions for this topic-bloom combo
+            countsMap[key] = Math.max(countsMap[key] || 0, uniqueCount)
+          }
+        })
+      }
+      setUniqueQuestionCounts(countsMap)
 
       // Get user progress for each topic to determine unlock levels
       const { data: progressData } = await supabase
@@ -240,30 +263,39 @@ export default function PerformancePage() {
     window.location.reload()
   }
 
-  const getMasteryColor = (mastery: number | null) => {
-    if (mastery === null || mastery === undefined) return 'text-gray-500'
-    if (mastery >= 80) return 'text-green-500'
-    if (mastery >= 60) return 'text-blue-500'
-    if (mastery >= 40) return 'text-yellow-500'
-    if (mastery >= 20) return 'text-red-500'
-    return 'text-gray-500'
+  const getMasteryColor = (mastery: number | null, uniqueCount: number) => {
+    if (mastery === null || mastery === undefined || uniqueCount === 0) return 'text-gray-500'
+    if (uniqueCount < 3) return 'text-yellow-500' // Insufficient data
+    if (uniqueCount >= 5 && mastery >= 80) return 'text-green-700' // Deep mastery
+    if (mastery >= 80) return 'text-green-500' // Mastered
+    if (mastery >= 60) return 'text-blue-500' // Proficient
+    if (mastery >= 40) return 'text-yellow-500' // Developing
+    return 'text-red-500' // Struggling
   }
 
-  const getMasteryLabel = (mastery: number | null) => {
-    if (mastery === null || mastery === undefined) return 'Not Started'
+  const getMasteryLabel = (mastery: number | null, uniqueCount: number) => {
+    if (mastery === null || mastery === undefined || uniqueCount === 0) return 'Not Tested'
+    if (uniqueCount < 3) return 'Insufficient'
+    if (uniqueCount >= 5 && mastery >= 80) return 'Deep Mastery'
     if (mastery >= 80) return 'Mastered'
     if (mastery >= 60) return 'Proficient'
     if (mastery >= 40) return 'Developing'
-    if (mastery >= 20) return 'Beginning'
-    return 'Novice'
+    return 'Struggling'
   }
 
-  const getMasteryTooltip = (mastery: number) => {
-    const label = getMasteryLabel(mastery)
+  const getMasteryTooltip = (mastery: number, uniqueCount: number) => {
+    const label = getMasteryLabel(mastery, uniqueCount)
     let range = ''
     let meaning = ''
 
-    if (mastery >= 80) {
+    if (uniqueCount === 0) {
+      return 'Not Tested\n\nNo questions answered yet'
+    } else if (uniqueCount < 3) {
+      return `Insufficient Data\n\n${uniqueCount}/3 unique questions\n\nNeed ${3 - uniqueCount} more for valid assessment`
+    } else if (uniqueCount >= 5 && mastery >= 80) {
+      range = '5+ questions, 80%+'
+      meaning = 'Excellent mastery, ready for advanced topics'
+    } else if (mastery >= 80) {
       range = '80%+'
       meaning = 'Ready to advance to next level'
     } else if (mastery >= 60) {
@@ -272,20 +304,18 @@ export default function PerformancePage() {
     } else if (mastery >= 40) {
       range = '40-59%'
       meaning = 'Building understanding'
-    } else if (mastery >= 20) {
-      range = '20-39%'
-      meaning = 'Early stages of learning'
     } else {
-      range = '0-19%'
-      meaning = 'Just getting started'
+      range = '<40%'
+      meaning = 'Review fundamentals and practice more'
     }
 
     return `${Math.round(mastery)}% Mastery (${label})
 
+${uniqueCount} unique question${uniqueCount === 1 ? '' : 's'} answered
 Range: ${range}
 ${meaning}
 
-Mastery grows with correct answers and high confidence`
+Mastery calculated using EMA (recent performance weighted higher)`
   }
 
   const getBloomLevelTooltip = (level: number) => {
@@ -464,23 +494,31 @@ Mastery grows with correct answers and high confidence`
                 <span className="text-gray-400 font-medium">Mastery Levels:</span>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded bg-gray-800"></div>
-                  <span className="text-gray-500">0-19%</span>
+                  <span className="text-gray-500">Not Tested</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded bg-gray-700 border border-yellow-500/30"></div>
+                  <span className="text-gray-500">Insufficient (&lt;3)</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded bg-red-500"></div>
-                  <span className="text-gray-500">20-39%</span>
+                  <span className="text-gray-500">Struggling (&lt;40%)</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded bg-yellow-500"></div>
-                  <span className="text-gray-500">40-59%</span>
+                  <span className="text-gray-500">Developing (40-59%)</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded bg-blue-500"></div>
-                  <span className="text-gray-500">60-79%</span>
+                  <span className="text-gray-500">Proficient (60-79%)</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded bg-green-500"></div>
-                  <span className="text-gray-500">80%+</span>
+                  <span className="text-gray-500">Mastered (80%+)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded bg-green-700"></div>
+                  <span className="text-gray-500">Deep Mastery (5+, 80%+)</span>
                 </div>
               </div>
 
@@ -521,6 +559,10 @@ Mastery grows with correct answers and high confidence`
                             const isLocked = level.num > currentBloomLevel
                             const isUnlockedNoData = !isLocked && !hasData
 
+                            // Get unique question count for this topic-bloom combination
+                            const uniqueCountKey = `${row.topic}-${level.num}`
+                            const uniqueCount = uniqueQuestionCounts[uniqueCountKey] || 0
+
                             return (
                               <td key={level.num} className="p-4 text-center">
                                 {isLocked ? (
@@ -535,9 +577,15 @@ Mastery grows with correct answers and high confidence`
                                       <LockOpenIcon size={16} className="text-gray-500" />
                                     </div>
                                   </Tooltip>
+                                ) : uniqueCount < 3 ? (
+                                  <Tooltip content={getMasteryTooltip(mastery || 0, uniqueCount)}>
+                                    <div className={`${getMasteryColor(mastery, uniqueCount)} text-sm font-medium`}>
+                                      {uniqueCount}/3
+                                    </div>
+                                  </Tooltip>
                                 ) : (
-                                  <Tooltip content={getMasteryTooltip(mastery || 0)}>
-                                    <div className={`${getMasteryColor(mastery)} font-medium text-sm`}>
+                                  <Tooltip content={getMasteryTooltip(mastery || 0, uniqueCount)}>
+                                    <div className={`${getMasteryColor(mastery, uniqueCount)} font-medium text-sm`}>
                                       {Math.round(mastery || 0)}
                                     </div>
                                   </Tooltip>
