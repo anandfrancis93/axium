@@ -236,6 +236,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Track dimension coverage for comprehensive mastery with unique question tracking
+    console.log('Checking dimension coverage tracking:', {
+      has_dimension: !!question.dimension,
+      dimension: question.dimension,
+      has_bloom: !!question.bloom_level,
+      bloom_level: question.bloom_level,
+      has_topic: !!topicId,
+      topic_id: topicId
+    })
+
     if (question.dimension && question.bloom_level && topicId) {
       const { data: existingCoverage } = await supabase
         .from('user_dimension_coverage')
@@ -270,7 +279,7 @@ export async function POST(request: NextRequest) {
           (existingCoverage.average_score * existingCoverage.times_tested) + scoreForDimension
         ) / newTimesTested
 
-        await supabase
+        const { error: updateError } = await supabase
           .from('user_dimension_coverage')
           .update({
             times_tested: newTimesTested,
@@ -281,9 +290,15 @@ export async function POST(request: NextRequest) {
             updated_at: new Date().toISOString()
           })
           .eq('id', existingCoverage.id)
+
+        if (updateError) {
+          console.error('Error updating dimension coverage:', updateError)
+        } else {
+          console.log('Successfully updated dimension coverage')
+        }
       } else {
         // Insert new coverage record
-        await supabase
+        const { error: insertError } = await supabase
           .from('user_dimension_coverage')
           .insert({
             user_id: user.id,
@@ -297,7 +312,15 @@ export async function POST(request: NextRequest) {
             average_score: scoreForDimension,
             last_tested_at: new Date().toISOString()
           })
+
+        if (insertError) {
+          console.error('Error inserting dimension coverage:', insertError)
+        } else {
+          console.log('Successfully inserted dimension coverage')
+        }
       }
+    } else {
+      console.log('Skipping dimension coverage tracking - missing required field')
     }
 
     // Update session progress
