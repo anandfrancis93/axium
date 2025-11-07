@@ -503,6 +503,44 @@ ${interpretation}`
           {/* STEP 4: Feedback */}
           {currentStep === 'feedback' && feedback && (
             <div>
+              {/* Show options with user's selection highlighted */}
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-gray-200 mb-4">
+                  Your Answer:
+                </h3>
+                <div className="space-y-3">
+                  {Object.entries(question.options as { [key: string]: string }).map(([key, value]) => {
+                    const isSelected = selectedAnswer === key
+                    const isCorrect = feedback.correct_answer === key
+                    return (
+                      <div
+                        key={key}
+                        className={`neuro-inset p-4 w-full text-left ${
+                          isSelected
+                            ? feedback.is_correct
+                              ? 'ring-2 ring-green-400 bg-green-500/10'
+                              : 'ring-2 ring-red-400 bg-red-500/10'
+                            : isCorrect
+                            ? 'ring-2 ring-green-400 bg-green-500/5'
+                            : ''
+                        }`}
+                      >
+                        <span className="font-bold text-blue-400 mr-3">{key}.</span>
+                        <span className="text-gray-200">{value}</span>
+                        {isSelected && (
+                          <span className={`ml-3 text-sm ${feedback.is_correct ? 'text-green-400' : 'text-red-400'}`}>
+                            (Your answer)
+                          </span>
+                        )}
+                        {!isSelected && isCorrect && (
+                          <span className="ml-3 text-sm text-green-400">(Correct answer)</span>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
               {/* Correctness */}
               <div className={`neuro-inset p-6 rounded-lg mb-6 ${
                 feedback.is_correct ? 'ring-2 ring-green-400' : 'ring-2 ring-red-400'
@@ -520,9 +558,6 @@ ${interpretation}`
                   <div>
                     <div className="text-2xl font-bold text-gray-200">
                       {feedback.is_correct ? 'Correct!' : 'Incorrect'}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      The correct answer was: <span className="text-green-400 font-bold">{feedback.correct_answer}</span>
                     </div>
                   </div>
                 </div>
