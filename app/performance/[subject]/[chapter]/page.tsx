@@ -57,14 +57,12 @@ export default function PerformancePage() {
 
       if (!fetchedChapter) return
 
-      // Get mastery heatmap
-      const { data: heatmapData } = await supabase
-        .from('user_mastery_heatmap')
-        .select('*')
-        .eq('user_id', user.id)
+      // Get all topics for this chapter
+      const { data: topicsData } = await supabase
+        .from('topics')
+        .select('id, name')
         .eq('chapter_id', fetchedChapter.id)
-
-      setMasteryHeatmap(heatmapData || [])
+        .order('name')
 
       // Get progress summary
       const { data: summaryData } = await supabase
@@ -83,10 +81,24 @@ export default function PerformancePage() {
         .eq('user_id', user.id)
         .eq('chapter_id', fetchedChapter.id)
 
-      // Get recent responses for this chapter's sessions
+      let allResponses: any[] = []
+
+      // Get ALL responses for EMA calculation (not just recent 20)
       if (chapterSessions && chapterSessions.length > 0) {
         const sessionIds = chapterSessions.map(s => s.id)
-        const { data: responsesData } = await supabase
+
+        // Get all responses for heatmap calculation
+        const { data: allResponsesData } = await supabase
+          .from('user_responses')
+          .select('*, topics(name)')
+          .eq('user_id', user.id)
+          .in('session_id', sessionIds)
+          .order('created_at', { ascending: true }) // Ascending for EMA calculation
+
+        allResponses = allResponsesData || []
+
+        // Get recent responses for activity feed (last 20)
+        const { data: recentResponsesData } = await supabase
           .from('user_responses')
           .select('*, topics(name)')
           .eq('user_id', user.id)
@@ -94,10 +106,69 @@ export default function PerformancePage() {
           .order('created_at', { ascending: false })
           .limit(20)
 
-        setRecentActivity(responsesData || [])
+        setRecentActivity(recentResponsesData || [])
       } else {
         setRecentActivity([])
       }
+
+      // Calculate EMA-based mastery heatmap from responses
+      // Group responses by topic and bloom_level
+      const masteryMap = new Map<string, Map<number, number>>() // topic -> bloom_level -> EMA
+      const alpha = 0.3 // Same EMA smoothing factor
+
+      allResponses.forEach((response: any) => {
+        const topicName = response.topics?.name
+        const bloomLevel = response.bloom_level
+        if (!topicName || !bloomLevel) return
+
+        if (!masteryMap.has(topicName)) {
+          masteryMap.set(topicName, new Map())
+        }
+
+        const topicMap = masteryMap.get(topicName)!
+        const currentScore = response.is_correct ? 100 : 0
+        const existingEMA = topicMap.get(bloomLevel)
+
+        if (existingEMA === undefined) {
+          // First response for this topic-bloom combination
+          topicMap.set(bloomLevel, currentScore)
+        } else {
+          // Update EMA: new_ema = alpha * current + (1-alpha) * old
+          const newEMA = alpha * currentScore + (1 - alpha) * existingEMA
+          topicMap.set(bloomLevel, newEMA)
+        }
+      })
+
+      // Convert masteryMap to heatmap format
+      const heatmapData: any[] = []
+      if (topicsData) {
+        topicsData.forEach((topic: any) => {
+          const topicMastery = masteryMap.get(topic.name)
+          if (!topicMastery) return // Skip topics with no responses
+
+          const row: any = {
+            user_id: user.id,
+            chapter_id: fetchedChapter.id,
+            topic: topic.name,
+            bloom_1: topicMastery.get(1) || null,
+            bloom_2: topicMastery.get(2) || null,
+            bloom_3: topicMastery.get(3) || null,
+            bloom_4: topicMastery.get(4) || null,
+            bloom_5: topicMastery.get(5) || null,
+            bloom_6: topicMastery.get(6) || null,
+          }
+
+          // Calculate average mastery (only from levels with data)
+          const masteryValues = Array.from(topicMastery.values())
+          row.avg_mastery = masteryValues.length > 0
+            ? masteryValues.reduce((sum, val) => sum + val, 0) / masteryValues.length
+            : 0
+
+          heatmapData.push(row)
+        })
+      }
+
+      setMasteryHeatmap(heatmapData)
 
       // Get unique question counts for each topic × Bloom level
       const { data: dimensionData } = await supabase
