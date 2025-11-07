@@ -1,0 +1,11 @@
+Zero Trust
+  Control Plane
+    Adaptive identity
+    Threat scope reduction
+    Policy-driven access control
+    Policy Administrator
+    Policy Engine
+  Data Plane
+    Implicit trust zones
+    Subject/System
+    Policy Enforcement Point

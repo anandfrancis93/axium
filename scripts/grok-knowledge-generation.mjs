@@ -150,16 +150,23 @@ async function main() {
   console.log(`   Skipping domains (depth 0) and objectives (depth 1) - they provide context only`)
   console.log()
 
-  // Check which topics already have chunks (from the basic generation)
+  // Check which topics already have chunks
   const { data: existingChunks } = await supabase
     .from('knowledge_chunks')
     .select('topic_id')
     .eq('chapter_id', CHAPTER_ID)
 
   const existingTopicIds = new Set(existingChunks?.map(c => c.topic_id) || [])
-  const topicsToProcess = topics.filter(t => existingTopicIds.has(t.id))
+  const existingCount = existingTopicIds.size
 
-  console.log(`🔄 Upgrading ${topicsToProcess.length} existing chunks with detailed content`)
+  // Filter to ONLY process topics that DON'T have chunks yet
+  const topicsToProcess = topics.filter(t => !existingTopicIds.has(t.id))
+  const newCount = topicsToProcess.length
+
+  console.log(`📊 Knowledge chunk status:`)
+  console.log(`   - ${existingCount} topics already have chunks (skipping)`)
+  console.log(`   - ${newCount} topics missing chunks (will create)`)
+  console.log(`   - Total topics: ${topics.length}`)
   console.log()
 
   let processed = 0

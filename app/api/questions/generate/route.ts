@@ -220,7 +220,15 @@ REQUIREMENTS:
 2. Match the cognitive level of Bloom's ${bloomLevelNum} (${bloomDescription})
 3. Follow the question format instructions above exactly
 4. Clearly indicate the correct answer
-5. Include a brief explanation for the correct answer
+5. Include a brief, educational explanation for the correct answer
+
+EXPLANATION REQUIREMENTS:
+- Write explanations as a subject matter expert teaching the concept
+- NEVER mention "context chunks", "provided context", "course materials", or similar meta-references
+- Explain WHY the answer is correct using cybersecurity principles and real-world relevance
+- Keep explanations concise (1-3 sentences) but informative
+- Use authoritative, educational tone
+- Example: "Physical security protects tangible assets like hardware and facilities from unauthorized access, theft, and environmental threats, which is essential since physical breaches can lead to data compromise."
 
 ANTI-TELLTALE QUALITY CONTROLS (CRITICAL):
 These measures prevent obvious answer giveaways and test-taking tricks:
