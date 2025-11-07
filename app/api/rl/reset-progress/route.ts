@@ -167,25 +167,29 @@ export async function POST(request: NextRequest) {
     console.log(`Deleted ${dimensionCoverageDeleted} user_dimension_coverage records`)
 
     // Delete AI-generated questions for this chapter
-    // These are chapter-specific generated questions that should be reset with user progress
-    const { count: questionsCount, error: questionsError } = await supabase
-      .from('questions')
-      .delete({ count: 'exact' })
-      .in('topic_id',
-        supabase
-          .from('topics')
-          .select('id')
-          .eq('chapter_id', chapter_id)
-      )
-      .eq('source_type', 'ai_generated_realtime')
+    // First get all topic IDs for this chapter
+    const { data: chapterTopics } = await supabase
+      .from('topics')
+      .select('id')
+      .eq('chapter_id', chapter_id)
 
-    if (questionsError) {
-      console.error('Error deleting generated questions:', questionsError)
-      // Don't fail the entire reset if question deletion fails
-      // Questions will be orphaned but won't affect new learning
-    } else {
-      questionsDeleted = questionsCount || 0
-      console.log(`Deleted ${questionsDeleted} AI-generated questions`)
+    if (chapterTopics && chapterTopics.length > 0) {
+      const topicIds = chapterTopics.map(t => t.id)
+
+      // Delete questions for these topics
+      const { count: questionsCount, error: questionsError } = await supabase
+        .from('questions')
+        .delete({ count: 'exact' })
+        .in('topic_id', topicIds)
+        .eq('source_type', 'ai_generated_realtime')
+
+      if (questionsError) {
+        console.error('Error deleting generated questions:', questionsError)
+        // Don't fail the entire reset if question deletion fails
+      } else {
+        questionsDeleted = questionsCount || 0
+        console.log(`Deleted ${questionsDeleted} AI-generated questions`)
+      }
     }
 
     console.log('Reset progress complete')
