@@ -711,7 +711,7 @@ export default function TopicMasteryPage() {
                   </div>
                   {masteryTrendData.length < 3 && (
                     <div className="text-sm text-yellow-500 mb-4">
-                      ⚠️ Limited data: {masteryTrendData.length} question{masteryTrendData.length === 1 ? '' : 's'} answered. Trend becomes more meaningful with 3+ questions.
+                      Limited data: {masteryTrendData.length} question{masteryTrendData.length === 1 ? '' : 's'} answered. Trend becomes more meaningful with 3+ questions.
                     </div>
                   )}
 
