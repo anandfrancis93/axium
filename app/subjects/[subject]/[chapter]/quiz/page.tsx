@@ -525,7 +525,7 @@ ${interpretation}`
                             : ''
                         }`}
                       >
-                        <span className="font-bold text-blue-400 mr-3">{key}.</span>
+                        <span className="font-bold text-gray-200 mr-3">{key}.</span>
                         <span className="text-gray-200">{value}</span>
                         {isSelected && (
                           <span className={`ml-3 text-sm ${feedback.is_correct ? 'text-green-400' : 'text-red-400'}`}>
