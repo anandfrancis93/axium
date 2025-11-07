@@ -56,7 +56,7 @@ Do NOT mention the syllabus structure. Write as if teaching the actual concept.`
 
   try {
     const completion = await grok.chat.completions.create({
-      model: 'grok-2-1212',
+      model: 'grok-4-fast-reasoning',
       messages: [{
         role: 'user',
         content: prompt
