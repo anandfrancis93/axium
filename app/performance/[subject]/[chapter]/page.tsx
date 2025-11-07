@@ -676,7 +676,7 @@ Mastery calculated using EMA (recent performance weighted higher)`
                             )
                           })}
                           <td className="p-4 text-center">
-                            {row.avg_mastery ? (
+                            {row.avg_mastery !== null && row.avg_mastery !== undefined ? (
                               <div className="inline-flex items-center gap-1.5">
                                 <Tooltip content={`${row.topic} - Average Mastery\n\nAverage EMA Score: ${Math.round(row.avg_mastery)}%\n\nTotal Unique Questions: ${totalUniqueCount}`}>
                                   <div className={`${getMasteryColor(row.avg_mastery, totalUniqueCount)} font-medium`}>
@@ -690,7 +690,7 @@ Mastery calculated using EMA (recent performance weighted higher)`
                                 )}
                               </div>
                             ) : (
-                              <div className="text-gray-600">0%</div>
+                              <div className="text-gray-600">--</div>
                             )}
                           </td>
                         </tr>
