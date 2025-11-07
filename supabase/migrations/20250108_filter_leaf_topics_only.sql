@@ -1,6 +1,9 @@
 -- Filter get_available_arms to only return leaf topics (depth >= 2)
 -- This prevents questions from being generated for high-level objectives
 
+-- Drop existing function first (signature changed - added topic_full_name column)
+DROP FUNCTION IF EXISTS get_available_arms(uuid, uuid);
+
 CREATE OR REPLACE FUNCTION get_available_arms(
   p_user_id UUID,
   p_chapter_id UUID
