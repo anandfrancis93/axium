@@ -651,7 +651,7 @@ export default function TopicMasteryPage() {
 
           {masteryTrendExpanded && (
             <>
-              {masteryTrendData.length > 0 ? (
+              {masteryTrendData.length >= 3 ? (
                 <div className="space-y-4">
                   <div className="text-sm text-gray-400 mb-4">
                     Track your learning progression over time using Exponential Moving Average (EMA). This gives more weight to recent performance while considering your learning history, matching the mastery calculation shown in the heatmap.
@@ -731,10 +731,13 @@ export default function TopicMasteryPage() {
               ) : (
                 <div className="neuro-inset p-8 rounded-lg text-center">
                   <div className="text-gray-400 text-lg font-semibold mb-2">
-                    No Performance Data Yet
+                    {masteryTrendData.length === 0 ? 'No Performance Data Yet' : 'Insufficient Data for Trend Analysis'}
                   </div>
                   <div className="text-sm text-gray-600">
-                    Start answering questions to see your mastery trend over time
+                    {masteryTrendData.length === 0
+                      ? 'Start answering questions to see your mastery trend over time'
+                      : `You've answered ${masteryTrendData.length} question${masteryTrendData.length === 1 ? '' : 's'}. Need ${3 - masteryTrendData.length} more for valid trend analysis.`
+                    }
                   </div>
                 </div>
               )}
