@@ -213,9 +213,9 @@ Return ONLY valid JSON, no other text.`
     console.log('[FIRST 5 TOPICS IN DB]', similarTopics?.map((t: any) => t.name))
 
     // Fallback: Return ephemeral question when topic lookup fails
-    const questionWithoutTopic = {
+    // Cannot store in DB without topic_id due to foreign key constraint
+    return {
       id: `ephemeral-${Date.now()}-${Math.random().toString(36).substring(7)}`,
-      // NOTE: Cannot store in DB without topic_id due to foreign key constraint
       question_text: q.question_text,
       question_type: 'mcq',
       options: q.options,
