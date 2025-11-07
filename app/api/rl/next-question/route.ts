@@ -21,19 +21,19 @@ const BLOOM_LEVELS: { [key: number]: string } = {
   6: 'Create (produce new or original work)',
 }
 
-const DIMENSION_DESCRIPTIONS: { [key: string]: string } = {
-  'core_understanding': 'Definitions, terminology, fundamental concepts, and basic relationships',
-  'technical_methods': 'Procedures, algorithms, processes, and systematic approaches',
-  'risk_management': 'Vulnerabilities, attack vectors, threat modeling, and risk assessment',
-  'security_controls': 'Protection mechanisms, defensive strategies, and security measures',
-  'tools_technologies': 'Software, platforms, implementations, and technological solutions',
-  'architecture': 'System design, infrastructure, structural patterns, and architectural decisions',
-  'legal_compliance': 'Standards (ISO, NIST, PCI DSS), regulations (GDPR, HIPAA), and compliance frameworks',
-  'incident_response': 'Response procedures, remediation steps, investigation techniques, and recovery processes',
-  'advanced_concepts': 'Cross-domain connections, system integration, interoperability, and holistic understanding',
-  'misconceptions': 'Common misunderstandings, incorrect assumptions, and typical mistakes to avoid',
-  'practical_scenarios': 'Real-world application, hands-on problems, situational challenges, and case studies',
-  'strategic_policy': 'Business decisions, governance structures, organizational policies, and strategic planning'
+// Knowledge Dimensions - Different perspectives on learning the same concept
+const KNOWLEDGE_DIMENSIONS: { [key: string]: string } = {
+  'definition': 'DIMENSION: Definition/Conceptual Understanding - Focus on "what is it?" and core terminology. Test understanding of fundamental concepts, definitions, and classifications. Appropriate for Bloom levels 1-2 (Remember, Understand).',
+
+  'example': 'DIMENSION: Examples and Applications - Focus on "how is it used?" and practical instances. Test ability to recognize or provide real-world examples. Appropriate for Bloom levels 2-3 (Understand, Apply).',
+
+  'comparison': 'DIMENSION: Comparison and Contrast - Focus on "how are these different/similar?" and relationships. Test ability to distinguish between related concepts. Appropriate for Bloom levels 2-4 (Understand, Apply, Analyze).',
+
+  'scenario': 'DIMENSION: Scenario-Based Problem Solving - Focus on "what should you do?" in realistic situations. Test ability to apply knowledge to novel contexts and make decisions. Appropriate for Bloom levels 3-5 (Apply, Analyze, Evaluate).',
+
+  'implementation': 'DIMENSION: Implementation and Procedures - Focus on "how do you implement/configure it?" and step-by-step processes. Test knowledge of setup, configuration, and operational procedures. Appropriate for Bloom levels 3-6 (Apply, Analyze, Evaluate, Create).',
+
+  'troubleshooting': 'DIMENSION: Troubleshooting and Analysis - Focus on "why isn\'t it working?" and diagnostic reasoning. Test ability to identify problems, analyze symptoms, and propose solutions. Appropriate for Bloom levels 4-6 (Analyze, Evaluate, Create).'
 }
 
 /**
@@ -41,18 +41,17 @@ const DIMENSION_DESCRIPTIONS: { [key: string]: string } = {
  */
 function getDimensionGuidance(dimension: string, bloomLevel: number): string {
   const guidance: { [key: string]: string } = {
-    'core_understanding': 'Focus on definitions, terminology, and fundamental concepts. Ask "what is", "define", "identify".',
-    'technical_methods': 'Focus on procedures, algorithms, and systematic approaches. Ask "how to perform", "what steps", "what process".',
-    'risk_management': 'Focus on vulnerabilities, attack vectors, and threat modeling. Ask about threats, risks, and exploitation methods.',
-    'security_controls': 'Focus on protection mechanisms and defensive strategies. Ask about implementation, configuration, or selection of security measures.',
-    'tools_technologies': 'Focus on specific software, platforms, and implementations. Ask about tools, technologies, and their usage.',
-    'architecture': 'Focus on system design, infrastructure, and structural patterns. Ask about design choices and their implications.',
-    'legal_compliance': 'Focus on standards, regulations, and compliance requirements. Reference specific frameworks like ISO 27001, PCI DSS, GDPR, HIPAA.',
-    'incident_response': 'Focus on response procedures and remediation steps. Ask about incident handling, containment, and recovery.',
-    'advanced_concepts': 'Focus on cross-domain connections, system integration, and interoperability. Ask about how different systems/concepts work together.',
-    'misconceptions': 'Focus on common errors and misunderstandings. Present scenarios where typical mistakes occur or frame as "why is X not sufficient".',
-    'practical_scenarios': 'Present a real-world situation or case study. Ask what actions to take or how to solve a specific problem.',
-    'strategic_policy': 'Focus on business decisions, governance, and organizational policies. Ask about high-level strategy and policy choices.'
+    'definition': 'Ask "What is...", "Define...", "Which statement best describes...", "What does X mean?". Focus on terminology and core concepts.',
+
+    'example': 'Ask "Which is an example of...", "Which scenario demonstrates...", "Identify the real-world application of...". Provide concrete instances.',
+
+    'comparison': 'Ask "How does X differ from Y?", "What distinguishes X from Y?", "Compare X and Y in terms of...". Highlight similarities and differences.',
+
+    'scenario': 'Present a realistic situation and ask "What should you do?", "Which action is most appropriate?", "How would you address this?". Require application of knowledge.',
+
+    'implementation': 'Ask "What steps are required to...?", "How do you configure...?", "What is the correct procedure for...?". Focus on setup and operational steps.',
+
+    'troubleshooting': 'Present a problem and ask "What could be the cause?", "Why is this failing?", "How would you diagnose...?". Require analytical reasoning.'
   }
 
   return guidance[dimension] || 'Generate a question focused on this aspect of the topic.'
@@ -72,7 +71,7 @@ async function generateQuestionOnDemand(
   console.log(`Generating question for: ${topic} at Bloom ${bloomLevel}, dimension: ${dimension}`)
 
   // Use provided map or fall back to defaults
-  const dimDescriptions = dimensionDescriptionMap || DIMENSION_DESCRIPTIONS
+  const dimDescriptions = dimensionDescriptionMap || KNOWLEDGE_DIMENSIONS
 
   // Step 1: Generate embedding for the topic
   const embeddingResponse = await openai.embeddings.create({
@@ -121,10 +120,17 @@ REQUIREMENTS:
 3. **CRITICALLY IMPORTANT**: The question MUST focus on the ${dimension} dimension - ${dimensionDescription}
 4. Provide 4 answer options (A, B, C, D)
 5. Clearly indicate the correct answer
-6. Include a brief explanation
+6. Include a brief, educational explanation
 
 DIMENSION-SPECIFIC GUIDANCE:
 ${getDimensionGuidance(dimension, bloomLevel)}
+
+EXPLANATION REQUIREMENTS:
+- Write explanations as a subject matter expert teaching the concept
+- NEVER mention "context chunks", "provided context", "course materials", or similar meta-references
+- Explain WHY the answer is correct using cybersecurity principles and real-world relevance
+- Keep explanations concise (1-3 sentences) but informative
+- Use authoritative, educational tone
 
 ANTI-TELLTALE QUALITY CONTROLS:
 - All 4 options must have similar length
@@ -421,7 +427,7 @@ export async function POST(request: NextRequest) {
         })
       } else {
         // Fallback to hardcoded defaults if subject has no custom dimensions
-        Object.assign(subjectDimensionMap, DIMENSION_DESCRIPTIONS)
+        Object.assign(subjectDimensionMap, KNOWLEDGE_DIMENSIONS)
       }
 
       // Determine which knowledge dimension to focus on for comprehensive mastery
@@ -433,7 +439,7 @@ export async function POST(request: NextRequest) {
         p_bloom_level: selectedArm.bloomLevel
       })
 
-      const targetDimension = dimensionResult || 'core_understanding'
+      const targetDimension = dimensionResult || 'definition'  // Default to definition dimension
       console.log(`Target dimension: ${targetDimension}`)
 
       try {
