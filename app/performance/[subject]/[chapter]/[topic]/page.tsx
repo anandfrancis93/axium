@@ -8,7 +8,7 @@ import HamburgerMenu from '@/components/HamburgerMenu'
 import { RLPhaseBadge } from '@/components/RLPhaseBadge'
 import { getAllRLPhasesData } from '@/lib/utils/rl-phase'
 import { Tooltip } from '@/components/Tooltip'
-import { LockIcon, LockOpenIcon } from '@/components/icons'
+import { LockIcon, LockOpenIcon, AlertTriangleIcon } from '@/components/icons'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Area, AreaChart } from 'recharts'
 
 const BLOOM_LEVELS = [
@@ -268,29 +268,33 @@ export default function TopicMasteryPage() {
     }
   }
 
-  const getStatusColor = (status: string, masteryLevel: string, uniqueCount: number) => {
-    if (status === 'mastered' && masteryLevel === 'deep') {
+  const getStatusColor = (status: string, masteryLevel: string, uniqueCount: number, avgScore?: number) => {
+    // If no data at all
+    if (uniqueCount === 0) return 'text-gray-500'
+
+    // Use avgScore if provided, otherwise use status
+    // This allows showing actual mastery color even with insufficient data
+    const score = avgScore !== undefined ? avgScore :
+                  (status === 'mastered' ? 85 :
+                   status === 'proficient' ? 70 :
+                   status === 'developing' ? 50 :
+                   status === 'struggling' ? 30 : 0)
+
+    // Color based on score, not data sufficiency
+    if (masteryLevel === 'deep' || (uniqueCount >= 5 && score >= 80)) {
       return 'text-green-700'
     }
+    if (score >= 80) return 'text-green-500'
+    if (score >= 60) return 'text-blue-500'
+    if (score >= 40) return 'text-yellow-500'
+    if (score < 40) return 'text-red-500'
 
-    if (status === 'insufficient_data' || uniqueCount < 3) {
-      if (uniqueCount === 0) return 'text-gray-500'
-      return 'text-yellow-500'
-    }
-
-    switch (status) {
-      case 'mastered': return 'text-green-500'
-      case 'proficient': return 'text-blue-500'
-      case 'developing': return 'text-yellow-500'
-      case 'struggling': return 'text-red-500'
-      case 'not_tested': return 'text-gray-500'
-      default: return 'text-gray-500'
-    }
+    return 'text-gray-500'
   }
 
   const getAvgColor = (avgScore: number, avgUniqueCount: number) => {
     if (avgUniqueCount === 0) return 'text-gray-600'
-    if (avgUniqueCount < 3) return 'text-yellow-500'
+    // Show color based on actual score, regardless of data sufficiency
     if (avgUniqueCount >= 15 && avgScore >= 80) return 'text-green-700' // Deep mastery (5+ per dimension avg)
     if (avgScore >= 80) return 'text-green-500' // Mastered
     if (avgScore >= 60) return 'text-blue-500' // Proficient
@@ -572,18 +576,27 @@ export default function TopicMasteryPage() {
                                 ) : uniqueCount === 0 ? (
                                   <div></div>
                                 ) : (
-                                  <Tooltip
-                                    content={uniqueCount < 3
-                                      ? `${topic} - ${bloomLevel.name} - ${dim.name}\n\nEMA Score: ${Math.round(cell?.average_score || 0)}%\n\n⚠️ Insufficient Data (${uniqueCount}/3 questions)\n\nNeed ${3 - uniqueCount} more question${3 - uniqueCount === 1 ? '' : 's'} for accurate mastery assessment.\n\nTotal Attempts: ${totalAttempts} (${totalAttempts - uniqueCount} repeats)\n\nCurrent score may not reflect true understanding.`
-                                      : `${topic} - ${bloomLevel.name} - ${dim.name}\n\nEMA Score: ${Math.round(cell?.average_score || 0)}%\n\nUnique Questions: ${uniqueCount}\n\nTotal Attempts: ${totalAttempts} (${totalAttempts - uniqueCount} repeats)\n\nStatus: ${getStatusLabel(status, masteryLevel, uniqueCount, totalAttempts)}`
-                                    }
-                                  >
-                                    <div className={`${getStatusColor(status, masteryLevel, uniqueCount)} relative inline-block`}>
-                                      <div className="font-bold text-lg">
-                                        {Math.round(cell.average_score)}%
+                                  <div className="inline-flex items-center gap-2">
+                                    <Tooltip
+                                      content={uniqueCount < 3
+                                        ? `${topic} - ${bloomLevel.name} - ${dim.name}\n\nEMA Score: ${Math.round(cell?.average_score || 0)}%\n\n⚠️ Insufficient Data (${uniqueCount}/3 questions)\n\nNeed ${3 - uniqueCount} more question${3 - uniqueCount === 1 ? '' : 's'} for accurate mastery assessment.\n\nTotal Attempts: ${totalAttempts} (${totalAttempts - uniqueCount} repeats)\n\nCurrent score may not reflect true understanding.`
+                                        : `${topic} - ${bloomLevel.name} - ${dim.name}\n\nEMA Score: ${Math.round(cell?.average_score || 0)}%\n\nUnique Questions: ${uniqueCount}\n\nTotal Attempts: ${totalAttempts} (${totalAttempts - uniqueCount} repeats)\n\nStatus: ${getStatusLabel(status, masteryLevel, uniqueCount, totalAttempts)}`
+                                      }
+                                    >
+                                      <div className={`${getStatusColor(status, masteryLevel, uniqueCount, cell?.average_score)} relative inline-block`}>
+                                        <div className="font-bold text-lg">
+                                          {Math.round(cell.average_score)}%
+                                        </div>
                                       </div>
-                                    </div>
-                                  </Tooltip>
+                                    </Tooltip>
+                                    {uniqueCount < 3 && (
+                                      <Tooltip content={`⚠️ Insufficient Data\n\nOnly ${uniqueCount} unique question${uniqueCount === 1 ? '' : 's'} answered.\n\nNeed ${3 - uniqueCount} more for reliable assessment.`}>
+                                        <div className="neuro-inset rounded-md p-1">
+                                          <AlertTriangleIcon size={14} className="text-yellow-500" />
+                                        </div>
+                                      </Tooltip>
+                                    )}
+                                  </div>
                                 )}
                               </td>
                             )
@@ -598,11 +611,20 @@ export default function TopicMasteryPage() {
                             ) : avgUniqueCount === 0 ? (
                               <div className="text-gray-600">--</div>
                             ) : (
-                              <Tooltip content={`${topic} - ${bloomLevel.name}\n\nAverage EMA Score: ${Math.round(avgScore)}%\n\nCalculated from ${dimensionScores.length} tested dimension${dimensionScores.length === 1 ? '' : 's'} (out of 6 total)\n\nTotal Unique Questions: ${avgUniqueCount}`}>
-                                <div className={`${getAvgColor(avgScore, avgUniqueCount)} font-bold text-lg`}>
-                                  {Math.round(avgScore)}%
-                                </div>
-                              </Tooltip>
+                              <div className="inline-flex items-center gap-2">
+                                <Tooltip content={`${topic} - ${bloomLevel.name}\n\nAverage EMA Score: ${Math.round(avgScore)}%\n\nCalculated from ${dimensionScores.length} tested dimension${dimensionScores.length === 1 ? '' : 's'} (out of 6 total)\n\nTotal Unique Questions: ${avgUniqueCount}`}>
+                                  <div className={`${getAvgColor(avgScore, avgUniqueCount)} font-bold text-lg`}>
+                                    {Math.round(avgScore)}%
+                                  </div>
+                                </Tooltip>
+                                {avgUniqueCount < 3 && (
+                                  <Tooltip content={`⚠️ Insufficient Data\n\nOnly ${avgUniqueCount} total unique question${avgUniqueCount === 1 ? '' : 's'} across all dimensions.\n\nNeed ${3 - avgUniqueCount} more for reliable assessment.`}>
+                                    <div className="neuro-inset rounded-md p-1">
+                                      <AlertTriangleIcon size={14} className="text-yellow-500" />
+                                    </div>
+                                  </Tooltip>
+                                )}
+                              </div>
                             )}
                           </td>
                         </tr>
