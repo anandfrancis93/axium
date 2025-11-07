@@ -288,10 +288,11 @@ Mastery grows with correct answers and confidence calibration`
         return 'no spacing benefit'
 
       case 'responseTime':
+        if (value === 0) return 'not tracked'
         if (value >= 5) return 'fluent retrieval'
         if (value >= 3) return 'thoughtful retrieval'
         if (value >= 1) return 'slow retrieval'
-        if (value >= 0) return 'expected pace'
+        if (value > 0) return 'expected pace'
         if (value >= -1) return 'too slow'
         return 'rushed/careless'
 
