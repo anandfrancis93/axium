@@ -1,7 +1,9 @@
 -- Update get_topic_dimension_matrix function to use new 6 dimensions
 -- Replaces old 12 dimensions with: definition, example, comparison, scenario, implementation, troubleshooting
 
--- Drop existing function first (return type changed)
+-- Drop and recreate in a single transaction
+BEGIN;
+
 DROP FUNCTION IF EXISTS get_topic_dimension_matrix(UUID, UUID, TEXT) CASCADE;
 
 CREATE FUNCTION get_topic_dimension_matrix(
@@ -95,6 +97,8 @@ END;
 $$ LANGUAGE plpgsql STABLE SECURITY DEFINER;
 
 COMMENT ON FUNCTION get_topic_dimension_matrix IS 'Returns full (Bloom × Dimension) matrix for a topic showing comprehensive mastery coverage. Uses 6 dimensions: definition, example, comparison, scenario, implementation, troubleshooting';
+
+COMMIT;
 
 -- Log completion
 DO $$
