@@ -476,7 +476,7 @@ ${interpretation}`
                     key={method.value}
                     onClick={() => setRecognitionMethod(method.value as RecognitionMethod)}
                     className={`neuro-raised p-4 w-full text-left transition-all hover:shadow-lg ${
-                      recognitionMethod === method.value ? 'ring-2 ring-purple-400 bg-purple-500/10' : ''
+                      recognitionMethod === method.value ? 'ring-2 ring-blue-400 bg-blue-500/10' : ''
                     }`}
                   >
                     <span className="text-gray-200">{method.label}</span>
