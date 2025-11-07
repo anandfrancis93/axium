@@ -171,35 +171,14 @@ export default function PerformancePage() {
         .eq('user_id', user.id)
         .eq('chapter_id', chapterData.id)
 
-      // Count unique questions the user has answered in this chapter
-      // First get all session IDs for this chapter
-      const { data: chapterSessions } = await supabase
-        .from('learning_sessions')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('chapter_id', chapterData.id)
+      // Count AI-generated questions for this chapter
+      const { count: questionsCount, error: questionsCountError } = await supabase
+        .from('questions')
+        .select('topic_id, topics!inner(chapter_id)', { count: 'exact', head: true })
+        .eq('topics.chapter_id', chapterData.id)
+        .eq('source_type', 'ai_generated_realtime')
 
-      let questionsCount = 0
-      let questionsCountError = null
-
-      if (chapterSessions && chapterSessions.length > 0) {
-        const sessionIds = chapterSessions.map(s => s.id)
-
-        // Get all responses for these sessions
-        const { data: uniqueQuestions, error: qError } = await supabase
-          .from('user_responses')
-          .select('question_id')
-          .eq('user_id', user.id)
-          .in('session_id', sessionIds)
-
-        questionsCountError = qError
-        // Count distinct questions
-        questionsCount = uniqueQuestions
-          ? new Set(uniqueQuestions.map(r => r.question_id)).size
-          : 0
-      }
-
-      console.log('Unique questions answered:', {
+      console.log('AI-generated questions count:', {
         count: questionsCount,
         error: questionsCountError
       })

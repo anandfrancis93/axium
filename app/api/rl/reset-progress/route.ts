@@ -79,22 +79,6 @@ export async function POST(request: NextRequest) {
     let dimensionCoverageDeleted = 0
     let questionsDeleted = 0
 
-    // Count unique questions answered BEFORE deleting responses
-    if (sessions && sessions.length > 0) {
-      const sessionIds = sessions.map(s => s.id)
-
-      const { data: uniqueQuestions } = await supabase
-        .from('user_responses')
-        .select('question_id')
-        .eq('user_id', user.id)
-        .in('session_id', sessionIds)
-
-      questionsDeleted = uniqueQuestions
-        ? new Set(uniqueQuestions.map(r => r.question_id)).size
-        : 0
-      console.log(`User answered ${questionsDeleted} unique questions`)
-    }
-
     // Delete user_responses for this chapter's sessions
     if (sessions && sessions.length > 0) {
       const sessionIds = sessions.map(s => s.id)
@@ -182,8 +166,30 @@ export async function POST(request: NextRequest) {
     dimensionCoverageDeleted = dimensionCoverageCount || 0
     console.log(`Deleted ${dimensionCoverageDeleted} user_dimension_coverage records`)
 
+    // Delete AI-generated questions for this chapter
+    const { data: chapterTopics } = await supabase
+      .from('topics')
+      .select('id')
+      .eq('chapter_id', chapter_id)
+
+    if (chapterTopics && chapterTopics.length > 0) {
+      const topicIds = chapterTopics.map(t => t.id)
+
+      const { count: questionsCount, error: questionsError } = await supabase
+        .from('questions')
+        .delete({ count: 'exact' })
+        .in('topic_id', topicIds)
+        .eq('source_type', 'ai_generated_realtime')
+
+      if (questionsError) {
+        console.error('Error deleting AI-generated questions:', questionsError)
+      } else {
+        questionsDeleted = questionsCount || 0
+        console.log(`Deleted ${questionsDeleted} AI-generated questions`)
+      }
+    }
+
     console.log('Reset progress complete')
-    console.log('Note: Questions are shared resources and were not deleted from database')
 
     return NextResponse.json({
       success: true,
