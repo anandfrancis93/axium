@@ -3,14 +3,10 @@
 export type QuestionFormat =
   | 'mcq_single'
   | 'mcq_multi'
-  | 'code'
   | 'open_ended'
-  | 'diagram'
   | 'fill_blank'
   | 'true_false'
   | 'matching'
-  | 'code_trace'
-  | 'code_debug'
 
 export interface QuestionFormatInfo {
   key: QuestionFormat
@@ -66,42 +62,6 @@ export const QUESTION_FORMATS: Record<QuestionFormat, QuestionFormatInfo> = {
     color: 'text-green-400',
     icon: '⋈',
     idealBloomLevels: [2, 3],  // Understand, Apply
-    complexity: 'medium'
-  },
-  code: {
-    key: 'code',
-    name: 'Code Writing',
-    description: 'Write or complete code to solve a problem',
-    color: 'text-purple-400',
-    icon: '⟨⟩',
-    idealBloomLevels: [3, 4, 5, 6],  // Apply, Analyze, Evaluate, Create
-    complexity: 'high'
-  },
-  code_trace: {
-    key: 'code_trace',
-    name: 'Code Trace',
-    description: 'Trace execution and predict output',
-    color: 'text-yellow-400',
-    icon: '⇝',
-    idealBloomLevels: [3, 4],  // Apply, Analyze
-    complexity: 'medium'
-  },
-  code_debug: {
-    key: 'code_debug',
-    name: 'Code Debug',
-    description: 'Find and fix bugs in provided code',
-    color: 'text-red-400',
-    icon: '⚠',
-    idealBloomLevels: [4, 5],  // Analyze, Evaluate
-    complexity: 'high'
-  },
-  diagram: {
-    key: 'diagram',
-    name: 'Diagram',
-    description: 'Visual representation or diagram-based questions',
-    color: 'text-pink-400',
-    icon: '◇',
-    idealBloomLevels: [2, 3, 4, 6],  // Understand, Apply, Analyze, Create
     complexity: 'medium'
   },
   open_ended: {

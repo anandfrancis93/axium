@@ -60,9 +60,8 @@ ADD COLUMN format_metadata JSONB DEFAULT '{}'::jsonb;
 
 -- Enum type
 CREATE TYPE question_format AS ENUM (
-  'mcq', 'code', 'open_ended', 'diagram',
-  'fill_blank', 'true_false', 'matching',
-  'code_trace', 'code_debug'
+  'mcq_single', 'mcq_multi', 'open_ended',
+  'fill_blank', 'true_false', 'matching'
 );
 ```
 
@@ -86,11 +85,11 @@ CREATE TYPE question_format AS ENUM (
     "2": { /* ... */ }
   },
   "format_preferences": {
-    "most_effective": ["mcq", "true_false"],
-    "least_effective": ["code_debug"],
+    "most_effective": ["mcq_single", "true_false"],
+    "least_effective": ["open_ended"],
     "confidence_by_format": {
-      "mcq": 0.75,
-      "code": 0.60
+      "mcq_single": 0.75,
+      "fill_blank": 0.60
     }
   }
 }
@@ -179,13 +178,13 @@ import { getRecommendedFormats } from '@/lib/utils/question-format'
 
 const bloomLevel = 3
 const formats = getRecommendedFormats(bloomLevel)
-// Returns: [fill_blank, matching, code_trace, ...]
+// Returns: [fill_blank, matching, mcq_multi, ...]
 
 // Generate question
 await generateQuestion({
   topic: 'SQL Injection',
   bloom_level: 3,
-  question_format: 'code_trace'
+  question_format: 'matching'
 })
 ```
 
@@ -194,11 +193,11 @@ await generateQuestion({
 import { QuestionFormatBadge } from '@/components/QuestionFormatBadge'
 
 <QuestionFormatBadge
-  format="code_trace"
+  format="matching"
   showIcon={true}
   showDescription={true}
 />
-// Shows: ⇝ Code Trace - "Trace execution and predict output"
+// Shows: ⋈ Matching - "Match related concepts or terms"
 ```
 
 ### Query: Get Best Format for User
@@ -227,9 +226,9 @@ LIMIT 1;
 ## Personalization Benefits
 
 ### 1. Cognitive Load Optimization
-- **High performers** on code formats → More code questions
-- **Visual learners** → More diagram-based questions
-- **Struggling with code** → Start with MCQ/true-false, gradually increase complexity
+- **High performers** on complex formats → More open-ended questions
+- **Visual learners** → More matching and fill-in-blank questions
+- **Struggling with complexity** → Start with MCQ/true-false, gradually increase to multi-select and matching
 
 ### 2. Confidence Building
 - Start with formats where user excels
@@ -246,8 +245,8 @@ User struggles with:
   - Code Debug (Bloom 4): 45% accuracy
   - Open Ended (Bloom 5): 50% accuracy
 
-→ System diagnosis: Strong theoretical knowledge, weak practical skills
-→ Recommendation: Focus on code_trace → code_debug → code progression
+→ System diagnosis: Strong theoretical knowledge, weak application skills
+→ Recommendation: Focus on matching → mcq_multi → open_ended progression
 ```
 
 ### 4. Adaptive Difficulty

@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "WebSearch",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nAdd knowledge dimension support to question generation API\n\n- Added 6 knowledge dimensions: definition, example, comparison, scenario, implementation, troubleshooting\n- Each dimension targets different learning perspectives and appropriate Bloom levels\n- Added dimension parameter validation with default to ''definition''\n- Integrated dimension instructions into Grok prompt generation\n- Updated response to include dimension metadata\n- Enhanced logging to show both Bloom level and dimension used\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git push:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nFix build error by excluding Deno edge functions from TypeScript compilation\n\n- Added supabase/functions to tsconfig.json exclude list\n- Prevents TypeScript from trying to compile Deno-specific imports\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []

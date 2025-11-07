@@ -1273,10 +1273,6 @@ const formats = getRecommendedFormats(3)  // Returns formats ideal for Apply lev
 | **MCQ - Multi** | ☑ | 2-4 | Medium | Multiple correct answers, deeper understanding |
 | **Fill in Blank** | ▭ | 1-3 | Low | Term completion |
 | **Matching** | ⋈ | 2-3 | Medium | Relationships |
-| **Code Trace** | ⇝ | 3-4 | Medium | Predict output |
-| **Diagram** | ◇ | 2-4, 6 | Medium | Visual reasoning |
-| **Code Debug** | ⚠ | 4-5 | High | Find/fix bugs |
-| **Code Writing** | ⟨⟩ | 3-6 | High | Implementation |
 | **Open Ended** | ≡ | 4-6 | High | Essay/analysis |
 
 #### Format Selection Strategy
@@ -1290,12 +1286,12 @@ The RL system uses format performance to personalize learning:
     "3": {  // Bloom level 3
       "mcq_single": { "attempts": 10, "correct": 8, "avg_confidence": 0.75 },
       "mcq_multi": { "attempts": 8, "correct": 5, "avg_confidence": 0.65 },
-      "code_trace": { "attempts": 5, "correct": 3, "avg_confidence": 0.60 }
+      "fill_blank": { "attempts": 5, "correct": 3, "avg_confidence": 0.60 }
     }
   },
   "format_preferences": {
     "most_effective": ["mcq_single", "true_false"],
-    "least_effective": ["code_debug", "mcq_multi"]
+    "least_effective": ["open_ended", "mcq_multi"]
   }
 }
 ```
@@ -1310,14 +1306,14 @@ The RL system uses format performance to personalize learning:
 ```typescript
 // Display format badge
 <QuestionFormatBadge
-  format="code_trace"
+  format="matching"
   showIcon={true}
   showDescription={true}
 />
 
 // Display format indicator with ideal level check
 <QuestionFormatIndicator
-  format="code_trace"
+  format="matching"
   bloomLevel={3}  // Shows "Ideal for this level" if match
 />
 ```
@@ -1362,18 +1358,17 @@ SELECT calculate_format_effectiveness(
 User Profile (Bloom Level 3 - Apply):
   ✅ MCQ Single: 85% accuracy → High effectiveness
   ✅ Fill in Blank: 80% accuracy → Good effectiveness
+  ✅ True/False: 78% accuracy → Good effectiveness
   ⚠️ MCQ Multi: 65% accuracy → Medium effectiveness
-  ⚠️ Code Trace: 60% accuracy → Medium effectiveness
-  ❌ Code Debug: 45% accuracy → Low effectiveness
+  ⚠️ Matching: 62% accuracy → Medium effectiveness
 
 System Decision:
-  1. Build confidence with MCQ Single/Fill Blank (60% of questions)
-  2. Challenge with MCQ Multi (15% of questions)
-  3. Introduce Code Trace (15% of questions)
-  4. Sparingly use Code Debug (10% of questions)
-  5. Monitor and adjust based on performance
+  1. Build confidence with MCQ Single/Fill Blank/True-False (65% of questions)
+  2. Challenge with MCQ Multi (20% of questions)
+  3. Introduce Matching (15% of questions)
+  4. Monitor and adjust based on performance
 
-Note: MCQ Multi serves as a "stepping stone" - harder than MCQ Single but easier than code-based questions.
+Note: MCQ Multi serves as a "stepping stone" - harder than MCQ Single but tests deeper understanding.
 ```
 
 See `docs/QUESTION_FORMAT_PERSONALIZATION.md` for complete documentation.
