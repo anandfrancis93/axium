@@ -584,9 +584,9 @@ ${interpretation}`
                         // Remove leading bullet symbols if present
                         const cleanedLine = trimmed.replace(/^[•\-\*]\s*/, '')
 
-                        // Check if this is a section header (contains colon after key phrase)
-                        // Match any capitalized phrase ending with colon (more flexible pattern)
-                        const headerMatch = cleanedLine.match(/^(Fundamental Question|Core characteristics|What happens[^:]*|How it [^:]+|Comparison to[^:]*|Ultimate goal|Basic protection|Logical comparison|Build from basics|Key mechanisms|Real-world analogy):\s*(.*)$/i)
+                        // Check if this is a section header (any capitalized phrase with colon at end)
+                        // Match lines that start with capital letter and end with colon
+                        const headerMatch = cleanedLine.match(/^([A-Z][^:]{10,}):\s*(.*)$/)
 
                         if (headerMatch) {
                           // Save previous section
