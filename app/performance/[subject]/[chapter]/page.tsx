@@ -171,22 +171,15 @@ export default function PerformancePage() {
         .eq('user_id', user.id)
         .eq('chapter_id', chapterData.id)
 
-      // Count generated questions for this chapter's topics
-      const { data: chapterTopics } = await supabase
-        .from('topics')
-        .select('id')
-        .eq('chapter_id', chapterData.id)
-
-      const topicIds = chapterTopics?.map(t => t.id) || []
-
+      // Count generated questions for this chapter
+      // Use a subquery join instead of .in() to avoid URL length limits with 837 topics
       const { count: questionsCount, error: questionsCountError } = await supabase
         .from('questions')
-        .select('*', { count: 'exact', head: true })
-        .in('topic_id', topicIds)
+        .select('topic_id, topics!inner(chapter_id)', { count: 'exact', head: true })
+        .eq('topics.chapter_id', chapterData.id)
         .eq('source_type', 'ai_generated_realtime')
 
       console.log('Questions count query:', {
-        topicIds: topicIds.length,
         count: questionsCount,
         error: questionsCountError
       })
