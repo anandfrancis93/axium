@@ -175,11 +175,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Store user response (only columns that exist in schema)
+    // For ephemeral questions, question_id will be null (they're not in questions table)
+    const isEphemeral = question_id && question_id.toString().startsWith('ephemeral-')
+
     const { data: response, error: responseError } = await supabase
       .from('user_responses')
       .insert({
         session_id,
-        question_id,
+        question_id: isEphemeral ? null : question_id, // Don't store ephemeral IDs
         user_id: user.id,
         topic_id: topicId,
         bloom_level: question.bloom_level,
