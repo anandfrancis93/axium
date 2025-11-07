@@ -781,7 +781,7 @@ Mastery calculated using EMA (recent performance weighted higher)`
                         return (
                         <tr key={idx} className="border-t border-gray-800 hover:bg-gray-900/30 transition-colors">
                           <td className="p-4 text-gray-200 font-medium max-w-xs">
-                            <Tooltip content={row.full_name && row.full_name !== row.topic ? `${row.full_name}${row.description ? `\n\n${row.description}` : ''}` : (row.description || row.topic)}>
+                            <Tooltip content={row.full_name && row.full_name !== row.topic ? `${row.full_name.replace(/ > /g, '\n')}${row.description ? `\n\n${row.description}` : ''}` : (row.description || row.topic)}>
                               <Link
                                 href={`/performance/${subject}/${chapter}/${encodeURIComponent(row.topic)}`}
                                 className="hover:text-blue-400 transition-colors flex items-center gap-2 group"
