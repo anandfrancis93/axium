@@ -44,10 +44,26 @@ export async function POST(request: NextRequest) {
       question_metadata // For ephemeral questions
     } = body
 
-    // Validate inputs
+    // Validate all required inputs
     if (!session_id || !question_id || !user_answer) {
       return NextResponse.json(
         { error: 'session_id, question_id, and user_answer are required' },
+        { status: 400 }
+      )
+    }
+
+    // Validate confidence level is provided
+    if (rawConfidence === null || rawConfidence === undefined) {
+      return NextResponse.json(
+        { error: 'confidence level is required - please select your confidence before submitting' },
+        { status: 400 }
+      )
+    }
+
+    // Validate recognition method is provided
+    if (!recognition_method) {
+      return NextResponse.json(
+        { error: 'recognition_method is required - please select how you arrived at your answer' },
         { status: 400 }
       )
     }
