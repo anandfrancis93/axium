@@ -42,8 +42,12 @@ export async function POST(request: NextRequest) {
       recognition_method,
       arm_selected,
       question_metadata, // For ephemeral questions
-      response_time_seconds // Time taken to answer
+      response_time_seconds, // Time taken to answer (from frontend)
+      time_taken_seconds // Alternative name (legacy support)
     } = body
+
+    // Use whichever is provided
+    const responseTime = response_time_seconds ?? time_taken_seconds
 
     // Validate all required inputs
     if (!session_id || !question_id || !user_answer) {
@@ -166,7 +170,7 @@ export async function POST(request: NextRequest) {
       currentMastery,
       daysSinceLastPractice: daysSince,
       recognitionMethod: recognition_method as RecognitionMethod,
-      responseTimeSeconds: response_time_seconds,
+      responseTimeSeconds: responseTime,
       bloomLevel: question.bloom_level,
       questionText: question.question_text,
       options: question.options,
@@ -231,7 +235,7 @@ export async function POST(request: NextRequest) {
         is_correct: isCorrect,
         confidence: confidence,
         reward: rewardComponents.total,
-        response_time_seconds: response_time_seconds,
+        time_taken_seconds: responseTime, // Use schema column name
         // created_at will be set by database default
       })
       .select()
