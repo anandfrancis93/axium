@@ -2,9 +2,11 @@
 -- This prevents questions from being generated for high-level objectives
 
 -- Drop existing function first (signature changed - added topic_full_name column)
-DROP FUNCTION IF EXISTS get_available_arms(uuid, uuid);
+-- Must drop explicitly because return type changed
+-- Using CASCADE to force drop even if dependencies exist
+DROP FUNCTION IF EXISTS get_available_arms CASCADE;
 
-CREATE OR REPLACE FUNCTION get_available_arms(
+CREATE FUNCTION get_available_arms(
   p_user_id UUID,
   p_chapter_id UUID
 )
