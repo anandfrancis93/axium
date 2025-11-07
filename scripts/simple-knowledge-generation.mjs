@@ -85,11 +85,12 @@ async function main() {
   console.log('='.repeat(60))
   console.log()
 
-  // Get all topics from database
+  // Get all topics from database (only depth >= 2, skip domains and objectives)
   const { data: topics, error: topicsError } = await supabase
     .from('topics')
     .select('id, name, full_name, depth')
     .eq('chapter_id', CHAPTER_ID)
+    .gte('depth', 2)  // Only ###, ####, #####, ###### (skip # and ##)
     .order('full_name')
 
   if (topicsError) {
@@ -97,7 +98,8 @@ async function main() {
     process.exit(1)
   }
 
-  console.log(`📊 Found ${topics.length} topics to process`)
+  console.log(`📊 Found ${topics.length} leaf topics to process (depth >= 2)`)
+  console.log(`   Skipping domains (depth 0) and objectives (depth 1) - they provide context only`)
   console.log()
 
   let processed = 0
