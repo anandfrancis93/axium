@@ -257,11 +257,9 @@ Return ONLY valid JSON, no other text.`
 
   if (insertError) {
     console.error('Error storing question for spaced repetition:', insertError)
-    // Return ephemeral question if storage fails
-    return {
-      id: `ephemeral-${Date.now()}-${Math.random().toString(36).substring(7)}`,
-      ...questionToInsert
-    }
+    console.error('Question data that failed to insert:', JSON.stringify(questionToInsert, null, 2))
+    // Throw error instead of returning ephemeral - helps identify storage issues
+    throw new Error(`Failed to store question: ${insertError.message} (code: ${insertError.code})`)
   }
 
   console.log(`Successfully generated and stored question for spaced repetition`)
