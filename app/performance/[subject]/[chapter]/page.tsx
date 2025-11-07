@@ -662,7 +662,7 @@ Mastery calculated using EMA (recent performance weighted higher)`
                                   <div className="inline-flex items-center gap-1.5">
                                     <Tooltip content={getMasteryTooltip(mastery || 0, uniqueCount)}>
                                       <div className={`${getMasteryColor(mastery, uniqueCount)} font-medium text-sm`}>
-                                        {Math.round(mastery || 0)}
+                                        {Math.round(mastery || 0)}%
                                       </div>
                                     </Tooltip>
                                     {uniqueCount < 3 && (
