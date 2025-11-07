@@ -133,7 +133,9 @@ EXPLANATION REQUIREMENTS - FIRST PRINCIPLES APPROACH:
 
 **CRITICAL: Format the explanation as PLAIN TEXT with line breaks, NOT as a continuous paragraph.**
 
-Use this EXACT structure with proper line breaks:
+**YOU MUST INSERT BLANK LINES (\\n\\n) BETWEEN EACH SECTION. DO NOT PUT ALL TEXT IN ONE PARAGRAPH.**
+
+Use this EXACT structure with proper line breaks (note the blank lines):
 
 Fundamental Question: [Core "why" question]
 • [First basic fact]
@@ -193,14 +195,19 @@ Ultimate goal:
 • Balance security controls with operational efficiency
 
 **FORMATTING RULES (CRITICAL):**
-1. Use actual line breaks between sections (press Enter twice)
-2. Use bullet symbol • not dashes or asterisks
-3. Keep each bullet point to ONE line
-4. NO markdown bold/italic within the text
-5. Each section header ends with a colon
-6. Maximum 3-4 bullet points per section
-7. Keep total explanation under 200 words
-8. NEVER use periods inside abbreviated words (write "e.g." as "for example")
+1. Insert \\n\\n (double newline) between each section header and the next section
+2. Insert \\n (single newline) between each bullet point
+3. Use bullet symbol • not dashes or asterisks
+4. Keep each bullet point to ONE line
+5. NO markdown bold/italic within the text
+6. Each section header ends with a colon
+7. Maximum 3-4 bullet points per section
+8. Keep total explanation under 200 words
+9. NEVER use periods inside abbreviated words (write "e.g." as "for example")
+
+**EXACT TEXT FORMAT IN JSON:**
+The explanation field should contain literal \\n characters for line breaks:
+"explanation": "Fundamental Question: Why...\\n• Bullet 1\\n• Bullet 2\\n\\nCore characteristics:\\n• Bullet 3\\n• Bullet 4"
 
 **BANNED:**
 - "e.g." or "i.e." - spell these out
