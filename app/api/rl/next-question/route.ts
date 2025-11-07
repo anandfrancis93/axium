@@ -136,12 +136,53 @@ EXPLANATION REQUIREMENTS:
 - Keep explanations concise (1-3 sentences) but informative
 - Use authoritative, educational tone
 
-ANTI-TELLTALE QUALITY CONTROLS:
-- All 4 options must have similar length
-- Wrong answers must be plausible and from the same domain
-- Don't repeat exact keywords from question in only the correct answer
-- All options must be equally technical/professional
-- Wrong answers should be "close but not quite right"
+ANTI-TELLTALE QUALITY CONTROLS (CRITICAL - MUST FOLLOW):
+1. **Length Requirement**: All 4 options MUST be within 10 words of each other
+   - Count words in each option and ensure variance is minimal
+   - If correct answer is 12 words, all options must be 10-14 words
+
+2. **Plausibility Requirement**: Wrong answers must be:
+   - From the SAME security domain as the correct answer
+   - Technically accurate statements that are "close but not quite right" for THIS specific question
+   - Things that could reasonably confuse someone who partially understands the topic
+
+3. **Keyword Distribution**:
+   - If question mentions "alerting", ALL options should relate to alerting/detection/monitoring
+   - Don't make only the correct answer use action words (automated, real-time, etc.)
+   - Distribute technical terms evenly across all options
+
+4. **Difficulty Balance**:
+   - Correct answer should NOT be the only option that directly addresses the question
+   - Wrong answers should address the question but be subtly incorrect (wrong scope, wrong timing, wrong mechanism)
+   - Avoid "obviously wrong" distractors like completely unrelated concepts
+
+5. **Format Consistency**:
+   - All options must use similar grammatical structure
+   - All should start with similar parts of speech (all nouns, all verbs, etc.)
+   - Avoid making correct answer the only complete/detailed one
+
+EXAMPLE OF GOOD VS BAD OPTIONS:
+
+❌ BAD (too easy to identify correct answer):
+Q: What best describes alerting in security operations?
+A. The passive collection of logs from network devices and endpoints [different domain, obviously wrong]
+B. Automated detection of anomalies with real-time notifications to teams [ONLY ONE with action words, obviously correct]
+C. Manual auditing of compliance standards across applications [different domain]
+D. Storage and retention of historical event data for investigations [different domain]
+
+✅ GOOD (all plausible, similar structure, same domain):
+Q: What best describes alerting in security operations?
+A. Continuous monitoring with threshold-based notifications triggered by predefined rules [similar length, same domain]
+B. Real-time correlation of security events with automated escalation to response teams [CORRECT - but not obvious]
+C. Periodic scanning of system logs with batch notifications sent to security analysts [plausible but wrong timing]
+D. Event-driven detection with manual review before notifying incident response personnel [plausible but wrong automation level]
+
+All options now:
+- Have similar length (12-15 words each)
+- Use similar structure (adjective + noun + with + details)
+- Relate to detection/monitoring/alerting
+- Include technical terms evenly distributed
+- Require actual knowledge to distinguish
 
 FORMAT YOUR RESPONSE AS VALID JSON:
 {
