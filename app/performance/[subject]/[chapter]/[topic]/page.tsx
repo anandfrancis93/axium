@@ -550,18 +550,15 @@ export default function TopicMasteryPage() {
                                   <div></div>
                                 ) : (
                                   <Tooltip
-                                    content={`${topic} - ${bloomLevel.name} - ${dim.name}\n\nEMA Score: ${Math.round(cell?.average_score || 0)}%\n\nUnique Questions: ${uniqueCount}\n\nTotal Attempts: ${totalAttempts} (${totalAttempts - uniqueCount} repeats)\n\nStatus: ${getStatusLabel(status, masteryLevel, uniqueCount, totalAttempts)}`}
+                                    content={uniqueCount < 3
+                                      ? `${topic} - ${bloomLevel.name} - ${dim.name}\n\nEMA Score: ${Math.round(cell?.average_score || 0)}%\n\n⚠️ Insufficient Data (${uniqueCount}/3 questions)\n\nNeed ${3 - uniqueCount} more question${3 - uniqueCount === 1 ? '' : 's'} for accurate mastery assessment.\n\nTotal Attempts: ${totalAttempts} (${totalAttempts - uniqueCount} repeats)\n\nCurrent score may not reflect true understanding.`
+                                      : `${topic} - ${bloomLevel.name} - ${dim.name}\n\nEMA Score: ${Math.round(cell?.average_score || 0)}%\n\nUnique Questions: ${uniqueCount}\n\nTotal Attempts: ${totalAttempts} (${totalAttempts - uniqueCount} repeats)\n\nStatus: ${getStatusLabel(status, masteryLevel, uniqueCount, totalAttempts)}`
+                                    }
                                   >
                                     <div className={`${getStatusColor(status, masteryLevel, uniqueCount)} relative inline-block`}>
-                                      {uniqueCount < 3 ? (
-                                        <div className="text-sm font-medium">
-                                          {uniqueCount}/3
-                                        </div>
-                                      ) : (
-                                        <div className="font-bold text-lg">
-                                          {Math.round(cell.average_score)}%
-                                        </div>
-                                      )}
+                                      <div className="font-bold text-lg">
+                                        {Math.round(cell.average_score)}%
+                                      </div>
                                     </div>
                                   </Tooltip>
                                 )}

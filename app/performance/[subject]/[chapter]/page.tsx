@@ -291,7 +291,7 @@ export default function PerformancePage() {
     if (uniqueCount === 0) {
       return 'Not Tested\n\nNo questions answered yet'
     } else if (uniqueCount < 3) {
-      return `Insufficient Data\n\n${uniqueCount}/3 unique questions\n\nNeed ${3 - uniqueCount} more for valid assessment`
+      return `${Math.round(mastery)}% Mastery\n\n⚠️ Insufficient Data (${uniqueCount}/3 questions)\n\nNeed ${3 - uniqueCount} more question${3 - uniqueCount === 1 ? '' : 's'} for accurate mastery assessment.\n\nCurrent score may not reflect true understanding.`
     } else if (uniqueCount >= 5 && mastery >= 80) {
       range = '5+ questions, 80%+'
       meaning = 'Excellent mastery, ready for advanced topics'
@@ -498,7 +498,7 @@ Mastery calculated using EMA (recent performance weighted higher)`
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded bg-gray-700 border border-yellow-500/30"></div>
-                  <span className="text-gray-500">Insufficient (&lt;3)</span>
+                  <span className="text-gray-500">Insufficient (&lt;3 questions)*</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded bg-red-500"></div>
@@ -575,12 +575,6 @@ Mastery calculated using EMA (recent performance weighted higher)`
                                   <Tooltip content={`${row.topic} - Level ${level.num}: Unlocked, no attempts yet`}>
                                     <div className="inline-flex">
                                       <LockOpenIcon size={16} className="text-gray-500" />
-                                    </div>
-                                  </Tooltip>
-                                ) : uniqueCount < 3 ? (
-                                  <Tooltip content={getMasteryTooltip(mastery || 0, uniqueCount)}>
-                                    <div className={`${getMasteryColor(mastery, uniqueCount)} text-sm font-medium`}>
-                                      {uniqueCount}/3
                                     </div>
                                   </Tooltip>
                                 ) : (
