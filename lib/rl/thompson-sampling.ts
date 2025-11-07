@@ -12,6 +12,7 @@ import { getDaysSinceLastPractice, hasMetMasteryRequirements } from './mastery'
 export interface Arm {
   topicId: string
   topicName: string
+  topicFullName: string  // Full hierarchical name (e.g., "Security Architecture > Application Security > Application")
   bloomLevel: number
 }
 
@@ -75,6 +76,7 @@ export async function getAvailableArms(
       arm: {
         topicId: arm.topic_id,
         topicName: arm.topic,
+        topicFullName: arm.topic_full_name || arm.topic,
         bloomLevel: arm.bloom_level
       },
       sample: 0,

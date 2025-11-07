@@ -8,6 +8,7 @@ CREATE OR REPLACE FUNCTION get_available_arms(
 RETURNS TABLE (
   topic_id UUID,
   topic TEXT,
+  topic_full_name TEXT,
   bloom_level INT,
   mastery_score DECIMAL,
   is_unlocked BOOLEAN
@@ -20,6 +21,7 @@ BEGIN
     SELECT
       t.id as topic_id,
       t.name as topic,
+      COALESCE(t.full_name, t.name) as topic_full_name,
       unnest(t.available_bloom_levels) as bloom_level
     FROM topics t
     WHERE t.chapter_id = p_chapter_id
@@ -46,6 +48,7 @@ BEGIN
   SELECT
     tbc.topic_id,
     tbc.topic,
+    tbc.topic_full_name,
     tbc.bloom_level,
     COALESCE(upd.mastery_score, 0.0) as mastery_score,
     CASE

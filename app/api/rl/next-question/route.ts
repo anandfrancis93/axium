@@ -66,19 +66,21 @@ async function generateQuestionOnDemand(
   chapterId: string,
   topicId: string,
   topicName: string,
+  topicFullName: string,
   bloomLevel: number,
   dimension: string,
   dimensionDescriptionMap?: { [key: string]: string }
 ): Promise<any> {
-  console.log(`Generating question for: ${topicName} (${topicId}) at Bloom ${bloomLevel}, dimension: ${dimension}`)
+  console.log(`Generating question for: ${topicFullName} (${topicId}) at Bloom ${bloomLevel}, dimension: ${dimension}`)
 
   // Use provided map or fall back to defaults
   const dimDescriptions = dimensionDescriptionMap || KNOWLEDGE_DIMENSIONS
 
-  // Step 1: Generate embedding for the topic name
+  // Step 1: Generate embedding for the FULL hierarchical topic name
+  // This provides better context for RAG search
   const embeddingResponse = await openai.embeddings.create({
     model: 'text-embedding-3-small',
-    input: topicName,
+    input: topicFullName,  // Use full hierarchical name for better context
   })
   const topicEmbedding = embeddingResponse.data[0].embedding
 
@@ -107,14 +109,14 @@ async function generateQuestionOnDemand(
   const prompt = `You are an expert educator creating comprehensive assessment questions.
 
 BLOOM'S TAXONOMY LEVEL: ${bloomLevel} - ${bloomDescription}
-TOPIC: ${topicName}
+TOPIC: ${topicFullName}
 KNOWLEDGE DIMENSION: ${dimension}
 DIMENSION FOCUS: ${dimensionDescription}
 
 CONTEXT (from course materials):
 ${context}
 
-TASK: Generate 1 multiple-choice question at Bloom's level ${bloomLevel} about "${topicName}", specifically focusing on the "${dimension}" dimension.
+TASK: Generate 1 multiple-choice question at Bloom's level ${bloomLevel} about "${topicFullName}", specifically focusing on the "${dimension}" dimension.
 
 REQUIREMENTS:
 1. Base question ONLY on the provided context
@@ -407,7 +409,8 @@ export async function POST(request: NextRequest) {
           user.id,  // Pass user ID for question ownership
           session.chapter_id,
           selectedArm.topicId,  // Pass topic ID (handles hierarchy correctly)
-          selectedArm.topicName,  // Use topic name for RAG search
+          selectedArm.topicName,  // Leaf topic name for storage
+          selectedArm.topicFullName,  // Full hierarchical name for RAG and context
           selectedArm.bloomLevel,
           targetDimension,
           subjectDimensionMap
