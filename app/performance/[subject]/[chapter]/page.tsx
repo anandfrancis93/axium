@@ -635,7 +635,8 @@ Mastery calculated using EMA (recent performance weighted higher)`
                             const masteryKey = `bloom_${level.num}` as keyof typeof row
                             const mastery = row[masteryKey] as number | null
                             const hasData = mastery !== null && mastery !== undefined
-                            const currentBloomLevel = topicUnlockLevels[row.topic] || 1
+                            // Default to 1 (L1 always unlocked), or use current unlock level if higher
+                            const currentBloomLevel = Math.max(1, topicUnlockLevels[row.topic] || 1)
                             const isLocked = level.num > currentBloomLevel
                             const isUnlockedNoData = !isLocked && !hasData
 
