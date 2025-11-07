@@ -64,20 +64,21 @@ async function generateQuestionOnDemand(
   supabase: any,
   userId: string,
   chapterId: string,
-  topic: string,
+  topicId: string,
+  topicName: string,
   bloomLevel: number,
   dimension: string,
   dimensionDescriptionMap?: { [key: string]: string }
 ): Promise<any> {
-  console.log(`Generating question for: ${topic} at Bloom ${bloomLevel}, dimension: ${dimension}`)
+  console.log(`Generating question for: ${topicName} (${topicId}) at Bloom ${bloomLevel}, dimension: ${dimension}`)
 
   // Use provided map or fall back to defaults
   const dimDescriptions = dimensionDescriptionMap || KNOWLEDGE_DIMENSIONS
 
-  // Step 1: Generate embedding for the topic
+  // Step 1: Generate embedding for the topic name
   const embeddingResponse = await openai.embeddings.create({
     model: 'text-embedding-3-small',
-    input: topic,
+    input: topicName,
   })
   const topicEmbedding = embeddingResponse.data[0].embedding
 
@@ -91,7 +92,7 @@ async function generateQuestionOnDemand(
   })
 
   if (!chunks || chunks.length === 0) {
-    throw new Error(`No content found for topic "${topic}". Please upload learning materials first.`)
+    throw new Error(`No content found for topic "${topicName}". Please upload learning materials first.`)
   }
 
   // Step 3: Prepare context
@@ -190,55 +191,11 @@ Return ONLY valid JSON, no other text.`
 
   const q = questionsData.questions[0]
 
-  // Look up topic_id from topics table
-  console.log(`[TOPIC LOOKUP] Searching for topic: "${topic}" in chapter: ${chapterId}`)
-
-  const { data: topicRecords, error: topicError } = await supabase
-    .from('topics')
-    .select('id, name')
-    .eq('chapter_id', chapterId)
-    .eq('name', topic)
-    .limit(1)
-
-  const topicRecord = topicRecords?.[0]
-
-  if (topicError || !topicRecord) {
-    console.error(`[TOPIC LOOKUP FAILED] Topic: "${topic}"`)
-    console.error('[TOPIC ERROR]', topicError)
-
-    // Try to find similar topics to help debug
-    const { data: similarTopics } = await supabase
-      .from('topics')
-      .select('name')
-      .eq('chapter_id', chapterId)
-      .limit(5)
-
-    console.log('[FIRST 5 TOPICS IN DB]', similarTopics?.map((t: any) => t.name))
-
-    // Fallback: Return ephemeral question when topic lookup fails
-    // Cannot store in DB without topic_id due to foreign key constraint
-    return {
-      id: `ephemeral-${Date.now()}-${Math.random().toString(36).substring(7)}`,
-      question_text: q.question_text,
-      question_type: 'mcq',
-      options: q.options,
-      correct_answer: q.correct_answer,
-      explanation: q.explanation,
-      bloom_level: bloomLevel,
-      topic,
-      topic_id: null,
-      dimension,
-      difficulty_estimated: bloomLevel >= 4 ? 'hard' : bloomLevel >= 3 ? 'medium' : 'easy',
-      source_type: 'ai_generated_realtime',
-    }
-  }
-
   // Store question for spaced repetition with topic_id
-  // NOTE: questions table has constraint "questions_chapter_or_topic_check"
-  // which requires EITHER chapter_id OR topic_id, not both
-  // We use topic_id since topics already reference chapters
+  // We already have the correct topic_id from the RL arm selection (handles hierarchy correctly)
+  console.log(`Storing question for topic_id: ${topicId}`)
+
   const questionToInsert = {
-    // chapter_id: chapterId,  // ❌ Removed - causes constraint violation when topic_id is set
     user_id: userId,  // Track which user generated this question
     question_text: q.question_text,
     question_type: 'mcq',
@@ -246,8 +203,8 @@ Return ONLY valid JSON, no other text.`
     correct_answer: q.correct_answer,
     explanation: q.explanation,
     bloom_level: bloomLevel,
-    topic,
-    topic_id: topicRecord.id,  // ✅ Use topic_id (topics table has chapter_id foreign key)
+    topic: topicName,  // Store topic name for reference
+    topic_id: topicId,  // ✅ Use topic_id from RL arm selection (handles hierarchy correctly)
     dimension,  // Track which knowledge dimension this question tests
     difficulty_estimated: bloomLevel >= 4 ? 'hard' : bloomLevel >= 3 ? 'medium' : 'easy',
     source_type: 'ai_generated_realtime',
@@ -449,6 +406,7 @@ export async function POST(request: NextRequest) {
           supabase,
           user.id,  // Pass user ID for question ownership
           session.chapter_id,
+          selectedArm.topicId,  // Pass topic ID (handles hierarchy correctly)
           selectedArm.topicName,  // Use topic name for RAG search
           selectedArm.bloomLevel,
           targetDimension,
