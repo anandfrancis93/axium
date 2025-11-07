@@ -288,6 +288,16 @@ export default function TopicMasteryPage() {
     }
   }
 
+  const getAvgColor = (avgScore: number, avgUniqueCount: number) => {
+    if (avgUniqueCount === 0) return 'text-gray-600'
+    if (avgUniqueCount < 3) return 'text-yellow-500'
+    if (avgUniqueCount >= 15 && avgScore >= 80) return 'text-green-700' // Deep mastery (5+ per dimension avg)
+    if (avgScore >= 80) return 'text-green-500' // Mastered
+    if (avgScore >= 60) return 'text-blue-500' // Proficient
+    if (avgScore >= 40) return 'text-yellow-500' // Developing
+    return 'text-red-500' // Struggling
+  }
+
   const getStatusLabel = (status: string, masteryLevel: string, uniqueCount: number, totalAttempts: number) => {
     if (uniqueCount === 0) return 'Not Tested'
     if (uniqueCount < 3) return `Need More (${uniqueCount}/3 min)`
@@ -589,7 +599,7 @@ export default function TopicMasteryPage() {
                               <div className="text-gray-600">--</div>
                             ) : (
                               <Tooltip content={`${topic} - ${bloomLevel.name}\n\nAverage EMA Score: ${Math.round(avgScore)}%\n\nCalculated from ${dimensionScores.length} tested dimension${dimensionScores.length === 1 ? '' : 's'} (out of 6 total)\n\nTotal Unique Questions: ${avgUniqueCount}`}>
-                                <div className="text-gray-200 font-bold text-lg">
+                                <div className={`${getAvgColor(avgScore, avgUniqueCount)} font-bold text-lg`}>
                                   {Math.round(avgScore)}%
                                 </div>
                               </Tooltip>
