@@ -543,7 +543,7 @@ ${interpretation}`
 
                       let currentSection: { header: string; bullets: string[] } | null = null
 
-                      rawLines.forEach(line => {
+                      rawLines.forEach((line: string) => {
                         const trimmed = line.trim()
                         if (!trimmed) return
 
@@ -566,8 +566,8 @@ ${interpretation}`
                           // Add as bullet to current section (split by periods if it's a long line)
                           if (cleanedLine.length > 150 && cleanedLine.includes('. ')) {
                             // Split long lines by periods
-                            const subBullets = cleanedLine.split(/\.\s+/).filter(s => s.trim())
-                            currentSection.bullets.push(...subBullets.map(s => s.trim()))
+                            const subBullets = cleanedLine.split(/\.\s+/).filter((s: string) => s.trim())
+                            currentSection.bullets.push(...subBullets.map((s: string) => s.trim()))
                           } else {
                             currentSection.bullets.push(cleanedLine)
                           }
@@ -584,7 +584,7 @@ ${interpretation}`
 
                       // If no sections parsed, fall back to simple splitting by sentences
                       if (sections.length === 0) {
-                        const sentences = text.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 0)
+                        const sentences = text.split(/(?<=[.!?])\s+/).filter((s: string) => s.trim().length > 0)
                         return sentences.map((sentence: string, idx: number) => (
                           <div key={idx} className="flex items-start gap-3">
                             <div className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2 flex-shrink-0" />
