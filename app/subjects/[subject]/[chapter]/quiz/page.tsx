@@ -244,40 +244,6 @@ ${interpretation}
 Mastery grows with correct answers and confidence calibration`
   }
 
-  const getRewardInterpretation = (component: string, value: number): string => {
-    switch (component) {
-      case 'learningGain':
-        if (value >= 8) return 'Excellent! Significant mastery improvement'
-        if (value >= 5) return 'Very good progress on this topic'
-        if (value >= 2) return 'Steady progress'
-        if (value >= 0) return 'Small progress'
-        if (value >= -3) return 'Slight setback, review recommended'
-        return 'Major gap identified, needs focused review'
-
-      case 'calibration':
-        if (value >= 4) return 'Perfect calibration!'
-        if (value >= 2) return 'Good calibration'
-        if (value >= 0) return 'Decent calibration'
-        if (value >= -2) return 'Over/under confident'
-        return 'Poor calibration'
-
-      case 'recognition':
-        if (value >= 5) return 'Knew from memory'
-        if (value >= 3) return 'Recognized answer'
-        if (value >= 1) return 'Educated guess'
-        return 'Random guess'
-
-      case 'spacing':
-        if (value >= 4) return 'Perfect timing!'
-        if (value >= 2) return 'Good spacing effect'
-        if (value >= 0) return 'Some spacing benefit'
-        return 'Too soon or too late'
-
-      default:
-        return ''
-    }
-  }
-
   const getRewardTooltip = (component: string, value: number) => {
     let description = ''
     let interpretation = ''
