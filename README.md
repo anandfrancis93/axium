@@ -143,62 +143,6 @@ questions (all stored, no ephemeral)
 15. Repeat with improved arm selection
 ```
 
-## 🚦 Getting Started
-
-### Prerequisites
-
-- **Node.js** 18+ and npm
-- **Supabase account** (free tier sufficient)
-- **X.AI API key** (Grok 4 Fast Reasoning)
-- **OpenAI API key** (text-embedding-3-small)
-- **Google Cloud Console** (OAuth 2.0 credentials)
-
-### Installation
-
-1. **Clone and install**
-   ```bash
-   git clone https://github.com/yourusername/axium.git
-   cd axium
-   npm install
-   ```
-
-2. **Set up Supabase**
-   - Create project at https://supabase.com
-   - Enable pgvector extension
-   - Run migrations from `supabase/migrations/` in order
-   - Configure Google OAuth in Supabase Auth settings
-
-3. **Configure environment variables**
-   ```bash
-   cp .env.local.example .env.local
-   ```
-
-   Required variables:
-   ```env
-   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-   SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-   XAI_API_KEY=xai-...
-   OPENAI_API_KEY=sk-...
-   ```
-
-4. **Run development server**
-   ```bash
-   npm run dev
-   ```
-
-5. **Open http://localhost:3000**
-
-### Initial Setup
-
-1. **Sign in** at `/login` with Google
-2. **Go to Admin** at `/admin` to:
-   - Add subjects and chapters
-   - Upload PDFs (will be chunked and embedded)
-   - Generate questions for chapters
-3. **Start Learning** at `/subjects/[subject]/[chapter]/quiz`
-4. **Track Progress** at `/performance/[subject]/[chapter]` or `/[topic]`
-
 ## 📁 Project Structure
 
 ```
@@ -301,37 +245,6 @@ Phases are automatically calculated based on `total_attempts`, `mastery_variance
 - Per-dimension statistics
 - Progress by Bloom level breakdown
 - Lock icons for locked levels
-
-## 🛠️ Development
-
-### Guidelines
-- **Read `CLAUDE.md`** - Comprehensive development best practices
-- **Follow design system** - Neumorphic dark theme with `neuro-btn`, `neuro-card`, etc.
-- **Use tooltips** - All metrics need contextual explanations
-- **No emojis** - Use SVG icons from `components/icons.tsx`
-- **Button style** - Always `neuro-btn text-[color]`, never colored backgrounds
-- **Use topic_id** - All queries and tracking use UUID, not topic names (handles hierarchy)
-
-### Common Commands
-```bash
-npm run dev          # Start dev server with Turbopack
-npm run build        # Production build
-npm run lint         # ESLint check
-npm run type-check   # TypeScript check
-npx supabase db push # Apply migrations to Supabase
-```
-
-### Database Migrations
-All migrations are in `supabase/migrations/` with timestamps. Apply via:
-1. Supabase CLI: `npx supabase db push`
-2. Manual: Copy SQL to Supabase Dashboard → SQL Editor
-
-**Recent Important Migrations:**
-- `20250107_add_source_type_to_questions.sql` - Question tracking
-- `20250107_add_user_id_to_questions.sql` - User-specific questions
-- `20250107_cleanup_old_dimensions.sql` - Remove old 12 dimensions
-- `20250107_update_dimension_matrix_to_new_6.sql` - New 6 dimensions
-- `20250108_add_topic_hierarchy.sql` - Hierarchical topic support
 
 ## 🔧 Reset Progress Feature
 
