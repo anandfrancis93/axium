@@ -336,7 +336,7 @@ export default function PerformancePage() {
 
   const getMasteryColor = (mastery: number | null, uniqueCount: number) => {
     if (mastery === null || mastery === undefined || uniqueCount === 0) return 'text-gray-500'
-    if (uniqueCount < 3) return 'text-yellow-500' // Insufficient data
+    // Show color based on actual score, regardless of data sufficiency
     if (uniqueCount >= 5 && mastery >= 80) return 'text-green-700' // Deep mastery
     if (mastery >= 80) return 'text-green-500' // Mastered
     if (mastery >= 60) return 'text-blue-500' // Proficient
@@ -561,35 +561,39 @@ Mastery calculated using EMA (recent performance weighted higher)`
           {heatmapExpanded && (
             <div className="mt-6 pt-6 border-t border-gray-800">
               {/* Legend */}
-              <div className="flex items-center gap-4 text-sm mb-6 flex-wrap">
-                <span className="text-gray-400 font-medium">Mastery Levels:</span>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded bg-gray-800"></div>
-                  <span className="text-gray-500">Not Tested</span>
+              <div className="mb-6">
+                <div className="flex items-center gap-4 text-sm mb-3 flex-wrap">
+                  <span className="text-gray-400 font-medium">Mastery Levels:</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 rounded bg-gray-800"></div>
+                    <span className="text-gray-500">Not Tested</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 rounded bg-red-500"></div>
+                    <span className="text-gray-500">Struggling (&lt;40%)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 rounded bg-yellow-500"></div>
+                    <span className="text-gray-500">Developing (40-59%)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 rounded bg-blue-500"></div>
+                    <span className="text-gray-500">Proficient (60-79%)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 rounded bg-green-500"></div>
+                    <span className="text-gray-500">Mastered (80%+)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 rounded bg-green-700"></div>
+                    <span className="text-gray-500">Deep Mastery (5+, 80%+)</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded bg-gray-700 border border-yellow-500/30"></div>
-                  <span className="text-gray-500">Insufficient (&lt;3 questions)*</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded bg-red-500"></div>
-                  <span className="text-gray-500">Struggling (&lt;40%)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded bg-yellow-500"></div>
-                  <span className="text-gray-500">Developing (40-59%)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded bg-blue-500"></div>
-                  <span className="text-gray-500">Proficient (60-79%)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded bg-green-500"></div>
-                  <span className="text-gray-500">Mastered (80%+)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded bg-green-700"></div>
-                  <span className="text-gray-500">Deep Mastery (5+, 80%+)</span>
+                <div className="text-xs text-gray-500 flex items-start gap-2">
+                  <div className="neuro-inset rounded-sm p-0.5 mt-0.5">
+                    <AlertTriangleIcon size={10} className="text-yellow-500" />
+                  </div>
+                  <span>Warning triangle indicates insufficient data (&lt;3 unique questions). Scores shown but may not reflect true mastery.</span>
                 </div>
               </div>
 
@@ -649,11 +653,20 @@ Mastery calculated using EMA (recent performance weighted higher)`
                                     </div>
                                   </Tooltip>
                                 ) : (
-                                  <Tooltip content={getMasteryTooltip(mastery || 0, uniqueCount)}>
-                                    <div className={`${getMasteryColor(mastery, uniqueCount)} font-medium text-sm`}>
-                                      {Math.round(mastery || 0)}
-                                    </div>
-                                  </Tooltip>
+                                  <div className="inline-flex items-center gap-1.5">
+                                    <Tooltip content={getMasteryTooltip(mastery || 0, uniqueCount)}>
+                                      <div className={`${getMasteryColor(mastery, uniqueCount)} font-medium text-sm`}>
+                                        {Math.round(mastery || 0)}
+                                      </div>
+                                    </Tooltip>
+                                    {uniqueCount < 3 && (
+                                      <Tooltip content={`⚠️ Insufficient Data\n\nOnly ${uniqueCount} unique question${uniqueCount === 1 ? '' : 's'} at this level.\n\nNeed ${3 - uniqueCount} more for reliable assessment.`}>
+                                        <div className="neuro-inset rounded-sm p-0.5">
+                                          <AlertTriangleIcon size={10} className="text-yellow-500" />
+                                        </div>
+                                      </Tooltip>
+                                    )}
+                                  </div>
                                 )}
                               </td>
                             )
