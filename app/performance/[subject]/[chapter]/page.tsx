@@ -28,6 +28,8 @@ export default function PerformancePage() {
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [resetResults, setResetResults] = useState<any>(null)
+  const [preResetCounts, setPreResetCounts] = useState<any>(null)
+  const [loadingCounts, setLoadingCounts] = useState(false)
 
   useEffect(() => {
     loadPerformanceData()
@@ -119,6 +121,88 @@ export default function PerformancePage() {
       console.error('Error loading performance data:', error)
       setLoading(false)
     }
+  }
+
+  const loadPreResetCounts = async () => {
+    if (!chapterData?.id) return
+
+    setLoadingCounts(true)
+    try {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      // Get all sessions for this chapter
+      const { data: sessions } = await supabase
+        .from('learning_sessions')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('chapter_id', chapterData.id)
+
+      const sessionIds = sessions?.map(s => s.id) || []
+
+      // Count responses
+      const { count: responsesCount } = await supabase
+        .from('user_responses')
+        .select('*', { count: 'exact', head: true })
+        .in('session_id', sessionIds)
+
+      // Count sessions
+      const sessionsCount = sessions?.length || 0
+
+      // Count mastery records
+      const { count: masteryCount } = await supabase
+        .from('user_topic_mastery')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('chapter_id', chapterData.id)
+
+      // Count arm stats
+      const { count: armStatsCount } = await supabase
+        .from('rl_arm_stats')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('chapter_id', chapterData.id)
+
+      // Count dimension coverage
+      const { count: dimensionCoverageCount } = await supabase
+        .from('user_dimension_coverage')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('chapter_id', chapterData.id)
+
+      // Count generated questions for this chapter's topics
+      const { data: chapterTopics } = await supabase
+        .from('topics')
+        .select('id')
+        .eq('chapter_id', chapterData.id)
+
+      const topicIds = chapterTopics?.map(t => t.id) || []
+
+      const { count: questionsCount } = await supabase
+        .from('questions')
+        .select('*', { count: 'exact', head: true })
+        .in('topic_id', topicIds)
+        .eq('source_type', 'ai_generated_realtime')
+
+      setPreResetCounts({
+        responses: responsesCount || 0,
+        sessions: sessionsCount,
+        mastery: masteryCount || 0,
+        armStats: armStatsCount || 0,
+        dimensionCoverage: dimensionCoverageCount || 0,
+        questions: questionsCount || 0
+      })
+    } catch (error) {
+      console.error('Error loading counts:', error)
+    } finally {
+      setLoadingCounts(false)
+    }
+  }
+
+  const handleShowConfirmModal = async () => {
+    setShowConfirmModal(true)
+    await loadPreResetCounts()
   }
 
   const handleResetProgress = async () => {
@@ -586,7 +670,7 @@ Mastery grows with correct answers and high confidence`
               </p>
             </div>
             <button
-              onClick={() => setShowConfirmModal(true)}
+              onClick={handleShowConfirmModal}
               disabled={resetting}
               className="neuro-btn text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-red-400 hover:text-red-300 px-6 py-3 whitespace-nowrap"
             >
@@ -620,14 +704,54 @@ Mastery grows with correct answers and high confidence`
           <p className="text-gray-300">
             This will permanently delete all progress for this chapter:
           </p>
-          <ul className="list-disc list-inside space-y-2 text-gray-400 neuro-inset p-4 rounded-lg">
-            <li>All mastery scores</li>
-            <li>Learning history and responses</li>
-            <li>Thompson Sampling statistics</li>
-            <li>Session data</li>
-            <li>Dimension coverage records</li>
-            <li>Generated questions</li>
-          </ul>
+
+          {loadingCounts ? (
+            <div className="neuro-inset p-6 rounded-lg text-center">
+              <RefreshIcon size={24} className="animate-spin text-gray-400 mx-auto mb-2" />
+              <p className="text-gray-500 text-sm">Calculating items to delete...</p>
+            </div>
+          ) : preResetCounts ? (
+            <div className="neuro-inset p-4 rounded-lg space-y-2">
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Responses:</span>
+                  <span className="text-red-400 font-medium">{preResetCounts.responses}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Sessions:</span>
+                  <span className="text-red-400 font-medium">{preResetCounts.sessions}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Mastery Records:</span>
+                  <span className="text-red-400 font-medium">{preResetCounts.mastery}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Arm Stats:</span>
+                  <span className="text-red-400 font-medium">{preResetCounts.armStats}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Dimension Coverage:</span>
+                  <span className="text-red-400 font-medium">{preResetCounts.dimensionCoverage}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Generated Questions:</span>
+                  <span className="text-red-400 font-medium">{preResetCounts.questions}</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="neuro-inset p-4 rounded-lg">
+              <ul className="list-disc list-inside space-y-2 text-gray-400">
+                <li>All mastery scores</li>
+                <li>Learning history and responses</li>
+                <li>Thompson Sampling statistics</li>
+                <li>Session data</li>
+                <li>Dimension coverage records</li>
+                <li>Generated questions</li>
+              </ul>
+            </div>
+          )}
+
           <p className="text-red-400 font-semibold">
             This action cannot be undone.
           </p>
