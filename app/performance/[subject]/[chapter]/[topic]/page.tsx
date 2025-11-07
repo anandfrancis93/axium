@@ -1124,9 +1124,12 @@ export default function TopicMasteryPage() {
           },
           {
             label: resetting ? 'Resetting...' : 'Reset Progress',
-            onClick: () => handleResetProgress(resetBloomLevel || undefined),
-            variant: 'danger',
-            disabled: resetting
+            onClick: () => {
+              if (!resetting) {
+                handleResetProgress(resetBloomLevel || undefined)
+              }
+            },
+            variant: 'danger'
           }
         ]}
       >
