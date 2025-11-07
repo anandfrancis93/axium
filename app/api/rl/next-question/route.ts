@@ -341,7 +341,8 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('[THOMPSON SAMPLING] Selected arm:', {
-      topic: selectedArm.topic,
+      topicId: selectedArm.topicId,
+      topicName: selectedArm.topicName,
       bloomLevel: selectedArm.bloomLevel
     })
 
@@ -349,9 +350,8 @@ export async function POST(request: NextRequest) {
     const { data: existingQuestions } = await supabase
       .from('questions')
       .select('*')
-      .eq('chapter_id', session.chapter_id)
+      .eq('topic_id', selectedArm.topicId)
       .eq('bloom_level', selectedArm.bloomLevel)
-      .or(`primary_topic.eq.${selectedArm.topic},topic.eq.${selectedArm.topic}`)
 
     // Step 2: Check which questions user has answered and when
     const { data: userResponses } = await supabase
@@ -399,7 +399,7 @@ export async function POST(request: NextRequest) {
       console.log(`Selected existing question for spaced repetition review`)
     } else {
       // 70% chance to generate a new question (or if no questions ready for review)
-      console.log(`Generating new question for ${selectedArm.topic} at Bloom ${selectedArm.bloomLevel}`)
+      console.log(`Generating new question for ${selectedArm.topicName} at Bloom ${selectedArm.bloomLevel}`)
 
       // Get subject ID from chapter
       const { data: chapterData } = await supabase
@@ -425,10 +425,11 @@ export async function POST(request: NextRequest) {
       }
 
       // Determine which knowledge dimension to focus on for comprehensive mastery
-      const { data: dimensionResult } = await supabase.rpc('get_least_tested_dimension', {
+      // Note: Using topicId for lookup now
+      const { data: dimensionResult } = await supabase.rpc('get_least_tested_dimension_by_id', {
         p_user_id: user.id,
         p_chapter_id: session.chapter_id,
-        p_topic: selectedArm.topic,
+        p_topic_id: selectedArm.topicId,
         p_bloom_level: selectedArm.bloomLevel
       })
 
@@ -439,7 +440,7 @@ export async function POST(request: NextRequest) {
         selectedQuestion = await generateQuestionOnDemand(
           supabase,
           session.chapter_id,
-          selectedArm.topic,
+          selectedArm.topicName,  // Use topic name for RAG search
           selectedArm.bloomLevel,
           targetDimension,
           subjectDimensionMap
@@ -447,7 +448,7 @@ export async function POST(request: NextRequest) {
 
         if (!selectedQuestion) {
           return NextResponse.json(
-            { error: `Failed to generate question for topic "${selectedArm.topic}" at Bloom level ${selectedArm.bloomLevel}` },
+            { error: `Failed to generate question for topic "${selectedArm.topicName}" at Bloom level ${selectedArm.bloomLevel}` },
             { status: 500 }
           )
         }
@@ -479,7 +480,8 @@ export async function POST(request: NextRequest) {
         current_score: session.score
       },
       arm_selected: {
-        topic: selectedArm.topic,
+        topic_id: selectedArm.topicId,
+        topic_name: selectedArm.topicName,
         bloom_level: selectedArm.bloomLevel
       },
       is_review: isReview,

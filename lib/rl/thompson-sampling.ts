@@ -10,12 +10,14 @@ import { sampleBeta } from './beta-distribution'
 import { getDaysSinceLastPractice, hasMetMasteryRequirements } from './mastery'
 
 export interface Arm {
-  topic: string
+  topicId: string
+  topicName: string
   bloomLevel: number
 }
 
 export interface ArmStats {
-  topic: string
+  topicId: string
+  topicName: string
   bloomLevel: number
   alpha: number
   beta: number
@@ -24,7 +26,8 @@ export interface ArmStats {
 }
 
 export interface MasteryData {
-  topic: string
+  topicId: string
+  topicName: string
   bloomLevel: number
   masteryScore: number
   questionsCorrect: number
@@ -70,7 +73,8 @@ export async function getAvailableArms(
     .filter((arm: any) => arm.is_unlocked)
     .map((arm: any) => ({
       arm: {
-        topic: arm.topic,
+        topicId: arm.topic_id,
+        topicName: arm.topic,
         bloomLevel: arm.bloom_level
       },
       sample: 0,
@@ -109,9 +113,10 @@ export async function getArmStats(
   const statsMap = new Map<string, ArmStats>()
 
   stats?.forEach((stat: any) => {
-    const key = `${stat.topic}_${stat.bloom_level}`
+    const key = `${stat.topic_id}_${stat.bloom_level}`
     statsMap.set(key, {
-      topic: stat.topic,
+      topicId: stat.topic_id,
+      topicName: stat.topic || '', // May be null if migrating
       bloomLevel: stat.bloom_level,
       alpha: parseFloat(stat.alpha),
       beta: parseFloat(stat.beta),
@@ -150,9 +155,10 @@ export async function getUserMastery(
   const masteryMap = new Map<string, MasteryData>()
 
   mastery?.forEach((m: any) => {
-    const key = `${m.topic}_${m.bloom_level}`
+    const key = `${m.topic_id}_${m.bloom_level}`
     masteryMap.set(key, {
-      topic: m.topic,
+      topicId: m.topic_id,
+      topicName: m.topic || '', // May be null if migrating
       bloomLevel: m.bloom_level,
       masteryScore: parseFloat(m.mastery_score) || 0,
       questionsCorrect: m.questions_correct || 0,
@@ -199,11 +205,12 @@ export async function selectArmThompsonSampling(
 
   // Thompson Sampling: sample from each arm's Beta distribution
   const samples: ArmSample[] = availableArms.map(armData => {
-    const key = `${armData.arm.topic}_${armData.arm.bloomLevel}`
+    const key = `${armData.arm.topicId}_${armData.arm.bloomLevel}`
 
     // Get arm statistics (default to uniform prior Beta(1, 1))
     const stats = armStats.get(key) || {
-      topic: armData.arm.topic,
+      topicId: armData.arm.topicId,
+      topicName: armData.arm.topicName,
       bloomLevel: armData.arm.bloomLevel,
       alpha: 1.0,
       beta: 1.0,
@@ -235,7 +242,7 @@ export async function selectArmThompsonSampling(
 
     // 4. Recently unlocked bonus: Prioritize newly unlocked Bloom levels
     // Check if this Bloom level was recently unlocked
-    const prereqKey = `${armData.arm.topic}_${armData.arm.bloomLevel - 1}`
+    const prereqKey = `${armData.arm.topicId}_${armData.arm.bloomLevel - 1}`
     const prereqMastery = mastery.get(prereqKey)
     const isRecentlyUnlocked = armData.arm.bloomLevel > 1 &&
       prereqMastery &&
@@ -260,7 +267,8 @@ export async function selectArmThompsonSampling(
   )
 
   console.log('Thompson Sampling selection:', {
-    selected: `${selected.arm.topic}_L${selected.arm.bloomLevel}`,
+    selected: `${selected.arm.topicName}_L${selected.arm.bloomLevel}`,
+    topicId: selected.arm.topicId,
     sample: selected.sample.toFixed(3),
     adjustedSample: selected.adjustedSample.toFixed(3),
     mastery: selected.masteryScore.toFixed(1),
@@ -323,5 +331,5 @@ export async function selectArmEpsilonGreedy(
  * @returns String key
  */
 export function getArmKey(arm: Arm): string {
-  return `${arm.topic}_${arm.bloomLevel}`
+  return `${arm.topicId}_${arm.bloomLevel}`
 }

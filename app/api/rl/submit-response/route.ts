@@ -14,7 +14,7 @@ import { calculateReward, RecognitionMethod } from '@/lib/rl/rewards'
  * - user_answer: User's selected answer (A, B, C, or D)
  * - confidence: Confidence level (1-5 or 'low'/'medium'/'high')
  * - recognition_method: How user arrived at answer ('memory', 'recognition', 'educated_guess', 'random')
- * - arm_selected: { topic, bloom_level } from next-question response
+ * - arm_selected: { topic_id, topic_name, bloom_level } from next-question response
  *
  * Returns:
  * - is_correct: boolean
@@ -112,92 +112,66 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get current mastery for all involved topics
-    const primaryTopic = question.primary_topic || question.topic
-    const secondaryTopics = question.secondary_topics || []
-    const allTopics = [primaryTopic, ...secondaryTopics]
+    // Get topic_id from question or arm_selected
+    const topicId = question.topic_id || arm_selected?.topic_id
 
-    const masteryMap = new Map<string, number>()
-    const masteryDataMap = new Map<string, any>()
-
-    for (const topic of allTopics) {
-      const { data: masteryData } = await supabase
-        .from('user_topic_mastery')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('chapter_id', session.chapter_id)
-        .eq('topic', topic)
-        .eq('bloom_level', question.bloom_level)
-        .single()
-
-      const key = `${topic}_${question.bloom_level}`
-      const currentMastery = masteryData?.mastery_score || 0
-      masteryMap.set(key, currentMastery)
-      masteryDataMap.set(key, masteryData)
+    if (!topicId) {
+      return NextResponse.json(
+        { error: 'Question must have topic_id associated with it' },
+        { status: 400 }
+      )
     }
 
-    // Calculate mastery updates for all topics
-    const masteryUpdates = calculateMultiTopicMasteryUpdates(
-      primaryTopic,
-      secondaryTopics.length > 0 ? secondaryTopics : null,
-      question.topic_weights,
-      masteryMap,
-      question.bloom_level,
-      isCorrect,
-      confidence
-    )
+    // Get current mastery for the topic
+    const { data: masteryData } = await supabase
+      .from('user_topic_mastery')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('chapter_id', session.chapter_id)
+      .eq('topic_id', topicId)
+      .eq('bloom_level', question.bloom_level)
+      .single()
 
-    // Get primary topic mastery data for reward calculation
-    const primaryKey = `${primaryTopic}_${question.bloom_level}`
-    const primaryMasteryData = masteryDataMap.get(primaryKey)
-    const daysSince = getDaysSinceLastPractice(primaryMasteryData?.last_practiced_at || null)
+    const currentMastery = masteryData?.mastery_score || 0
+
+    // Calculate learning gain for this topic
+    const learningGain = calculateLearningGain(currentMastery, isCorrect, confidence)
+    const newMastery = Math.max(0, Math.min(100, currentMastery + learningGain))
+
+    // Get days since last practice for reward calculation
+    const daysSince = getDaysSinceLastPractice(masteryData?.last_practiced_at || null)
 
     // Calculate reward
     const rewardComponents = calculateReward({
-      learningGain: masteryUpdates[0].learningGain,
+      learningGain,
       isCorrect,
       confidence,
-      currentMastery: masteryUpdates[0].oldMastery,
+      currentMastery,
       daysSinceLastPractice: daysSince,
       recognitionMethod: recognition_method as RecognitionMethod
     })
 
-    // Update mastery for all topics
-    for (const update of masteryUpdates) {
-      await supabase.rpc('update_topic_mastery', {
-        p_user_id: user.id,
-        p_topic: update.topic,
-        p_bloom_level: update.bloomLevel,
-        p_chapter_id: session.chapter_id,
-        p_is_correct: isCorrect,
-        p_confidence: confidence,
-        p_learning_gain: update.learningGain,
-        p_weight: 1.0
-      })
-    }
+    // Update mastery for this topic (using new RPC function that uses topic_id)
+    await supabase.rpc('update_topic_mastery_by_id', {
+      p_user_id: user.id,
+      p_topic_id: topicId,
+      p_bloom_level: question.bloom_level,
+      p_chapter_id: session.chapter_id,
+      p_is_correct: isCorrect,
+      p_confidence: confidence,
+      p_learning_gain: learningGain,
+      p_weight: 1.0
+    })
 
-    // Update RL arm stats (Thompson Sampling)
-    if (arm_selected) {
-      await supabase.rpc('update_arm_stats', {
+    // Update RL arm stats (Thompson Sampling) using topic_id
+    if (arm_selected && arm_selected.topic_id) {
+      await supabase.rpc('update_arm_stats_by_id', {
         p_user_id: user.id,
         p_chapter_id: session.chapter_id,
-        p_topic: arm_selected.topic,
+        p_topic_id: arm_selected.topic_id,
         p_bloom_level: arm_selected.bloom_level,
         p_reward: rewardComponents.total
       })
-    }
-
-    // Look up topic_id from topics table
-    const topicName = question.primary_topic || question.topic
-    const { data: topicRecord } = await supabase
-      .from('topics')
-      .select('id')
-      .eq('chapter_id', session.chapter_id)
-      .eq('name', topicName)
-      .single()
-
-    if (!topicRecord) {
-      console.warn(`Topic not found in topics table: ${topicName}`)
     }
 
     // Store user response (only columns that exist in schema)
@@ -207,7 +181,7 @@ export async function POST(request: NextRequest) {
         session_id,
         question_id,
         user_id: user.id,
-        topic_id: topicRecord?.id || null,
+        topic_id: topicId,
         bloom_level: question.bloom_level,
         user_answer,
         is_correct: isCorrect,
@@ -224,13 +198,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Track dimension coverage for comprehensive mastery with unique question tracking
-    if (question.dimension && question.bloom_level && question.topic) {
+    if (question.dimension && question.bloom_level && topicId) {
       const { data: existingCoverage } = await supabase
         .from('user_dimension_coverage')
         .select('*')
         .eq('user_id', user.id)
         .eq('chapter_id', session.chapter_id)
-        .eq('topic', question.topic)
+        .eq('topic_id', topicId)
         .eq('bloom_level', question.bloom_level)
         .eq('dimension', question.dimension)
         .single()
@@ -276,7 +250,7 @@ export async function POST(request: NextRequest) {
           .insert({
             user_id: user.id,
             chapter_id: session.chapter_id,
-            topic: question.topic,
+            topic_id: topicId,
             bloom_level: question.bloom_level,
             dimension: question.dimension,
             times_tested: 1,
@@ -307,13 +281,14 @@ export async function POST(request: NextRequest) {
       correct_answer: question.correct_answer,
       explanation: question.explanation,
       reward_components: rewardComponents,
-      mastery_updates: masteryUpdates.map(u => ({
-        topic: u.topic,
-        bloom_level: u.bloomLevel,
-        old_mastery: Math.round(u.oldMastery * 10) / 10,
-        new_mastery: Math.round(u.newMastery * 10) / 10,
-        change: Math.round(u.learningGain * 10) / 10
-      })),
+      mastery_update: {
+        topic_id: topicId,
+        topic_name: arm_selected?.topic_name || 'Unknown',
+        bloom_level: question.bloom_level,
+        old_mastery: Math.round(currentMastery * 10) / 10,
+        new_mastery: Math.round(newMastery * 10) / 10,
+        change: Math.round(learningGain * 10) / 10
+      },
       session_progress: {
         questions_answered: newQuestionsAnswered,
         total_questions: session.total_questions,

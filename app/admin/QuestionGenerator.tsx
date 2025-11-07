@@ -10,6 +10,14 @@ type Chapter = {
   subjects: { name: string } | null
 }
 
+type Topic = {
+  id: string
+  name: string
+  full_name: string
+  depth: number
+  parent_topic_id: string | null
+}
+
 type GeneratedQuestion = {
   id: string
   question_text: string
@@ -23,6 +31,7 @@ type GeneratedQuestion = {
   explanation: string
   bloom_level: number
   topic: string
+  topic_id?: string
   question_format?: string
 }
 
@@ -35,41 +44,17 @@ const BLOOM_LEVELS = [
   { value: 6, label: 'Level 6: Create', description: 'Produce new or original work' },
 ]
 
-// Common cybersecurity topics for random selection
-const COMMON_TOPICS = [
-  'security controls',
-  'CIA triad',
-  'threat actors',
-  'vulnerabilities',
-  'authentication',
-  'encryption',
-  'access control',
-  'network security',
-  'malware',
-  'incident response',
-  'risk management',
-  'cryptography',
-  'firewalls',
-  'intrusion detection',
-  'security policies',
-  'physical security',
-  'social engineering',
-  'penetration testing',
-  'security monitoring',
-  'disaster recovery',
-]
-
 export function QuestionGenerator() {
   const [chapters, setChapters] = useState<Chapter[]>([])
   const [selectedChapter, setSelectedChapter] = useState('')
-  const [topic, setTopic] = useState('')
+  const [selectedTopicId, setSelectedTopicId] = useState('')
+  const [topics, setTopics] = useState<Topic[]>([])
   const [bloomLevel, setBloomLevel] = useState(1)
   const [questionFormat, setQuestionFormat] = useState<QuestionFormat>('mcq_single')
   const [numQuestions, setNumQuestions] = useState(1)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [generatedQuestions, setGeneratedQuestions] = useState<GeneratedQuestion[]>([])
-  const [extractedTopics, setExtractedTopics] = useState<string[]>([])
   const [loadingTopics, setLoadingTopics] = useState(false)
   const [recommendedFormats, setRecommendedFormats] = useState(getRecommendedFormats(1))
 
@@ -115,36 +100,49 @@ export function QuestionGenerator() {
     if (!selectedChapter) return
 
     setLoadingTopics(true)
-    setExtractedTopics([])
+    setTopics([])
+    setSelectedTopicId('')
 
     try {
-      const response = await fetch(`/api/chapters/${selectedChapter}/topics`)
-      const result = await response.json()
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from('topics')
+        .select('id, name, full_name, depth, parent_topic_id')
+        .eq('chapter_id', selectedChapter)
+        .order('full_name')
 
-      if (response.ok && result.topics) {
-        setExtractedTopics(result.topics)
-        console.log(`Loaded ${result.topics.length} topics from chapter`)
-      } else {
-        console.error('Failed to load topics:', result.error)
-        // Fall back to common topics if extraction fails
-        setExtractedTopics(COMMON_TOPICS)
+      if (error) {
+        console.error('Error loading topics:', error)
+        setMessage('Failed to load topics from chapter')
+      } else if (data) {
+        setTopics(data)
+        console.log(`Loaded ${data.length} topics from chapter`)
+        if (data.length === 0) {
+          setMessage('No topics found. Upload syllabus for this chapter first.')
+        }
       }
     } catch (error) {
       console.error('Error loading topics:', error)
-      // Fall back to common topics
-      setExtractedTopics(COMMON_TOPICS)
+      setMessage('Failed to load topics')
     }
 
     setLoadingTopics(false)
   }
 
-  const handleGenerate = async (customTopic?: string, customBloomLevel?: number, customFormat?: QuestionFormat) => {
-    const topicToUse = customTopic || topic
+  const handleGenerate = async (customTopicId?: string, customBloomLevel?: number, customFormat?: QuestionFormat) => {
+    const topicIdToUse = customTopicId || selectedTopicId
     const bloomLevelToUse = customBloomLevel || bloomLevel
     const formatToUse = customFormat || questionFormat
 
-    if (!selectedChapter || !topicToUse.trim()) {
-      setMessage('Please select a chapter and enter a topic')
+    if (!selectedChapter || !topicIdToUse) {
+      setMessage('Please select a chapter and a topic')
+      return
+    }
+
+    // Get topic name for display
+    const topic = topics.find(t => t.id === topicIdToUse)
+    if (!topic) {
+      setMessage('Selected topic not found')
       return
     }
 
@@ -160,7 +158,8 @@ export function QuestionGenerator() {
         },
         body: JSON.stringify({
           chapter_id: selectedChapter,
-          topic: topicToUse.trim(),
+          topic_id: topicIdToUse,
+          topic_name: topic.name,
           bloom_level: bloomLevelToUse,
           question_format: formatToUse,
           num_questions: numQuestions,
@@ -193,20 +192,18 @@ export function QuestionGenerator() {
     }
 
     if (loadingTopics) {
-      setMessage('Loading topics from your content...')
+      setMessage('Loading topics...')
       return
     }
 
-    const topicsToUse = extractedTopics.length > 0 ? extractedTopics : COMMON_TOPICS
-
-    if (topicsToUse.length === 0) {
-      setMessage('No topics found. Upload content to this chapter first.')
+    if (topics.length === 0) {
+      setMessage('No topics found. Upload syllabus for this chapter first.')
       return
     }
 
     try {
-      // Pick random topic from extracted topics
-      const randomTopic = topicsToUse[Math.floor(Math.random() * topicsToUse.length)]
+      // Pick random topic
+      const randomTopic = topics[Math.floor(Math.random() * topics.length)]
 
       // Pick random Bloom level (1-6)
       const randomBloomLevel = Math.floor(Math.random() * 6) + 1
@@ -217,23 +214,23 @@ export function QuestionGenerator() {
         ? formatsForLevel[Math.floor(Math.random() * formatsForLevel.length)].key
         : 'mcq_single'
 
-      console.log('Random values:', { randomTopic, randomBloomLevel, randomFormat, topicsSource: extractedTopics.length > 0 ? 'chapter content' : 'fallback' })
+      console.log('Random values:', { randomTopic: randomTopic.full_name, randomBloomLevel, randomFormat })
 
       // Update form fields (for visual feedback)
-      setTopic(randomTopic)
+      setSelectedTopicId(randomTopic.id)
       setBloomLevel(randomBloomLevel)
       setQuestionFormat(randomFormat)
 
       // Show selection info before generating
       const bloomLevelName = BLOOM_LEVELS.find(l => l.value === randomBloomLevel)?.label || `Level ${randomBloomLevel}`
       const formatInfo = getRecommendedFormats(randomBloomLevel).find(f => f.key === randomFormat)
-      setMessage(`Random selection: ${randomTopic} - ${bloomLevelName} - ${formatInfo?.name || randomFormat}\n\nGenerating question...`)
+      setMessage(`Random selection: ${randomTopic.full_name} - ${bloomLevelName} - ${formatInfo?.name || randomFormat}\n\nGenerating question...`)
 
       // Small delay to show the selection
       await new Promise(resolve => setTimeout(resolve, 1000))
 
       // Generate immediately with the random values
-      await handleGenerate(randomTopic, randomBloomLevel, randomFormat)
+      await handleGenerate(randomTopic.id, randomBloomLevel, randomFormat)
     } catch (error) {
       console.error('Error in handleRandomGenerate:', error)
       setMessage('Error generating random question')
@@ -268,12 +265,12 @@ export function QuestionGenerator() {
             )}
             {loadingTopics && (
               <p className="text-xs text-blue-400 mt-1">
-                Extracting topics from chapter content...
+                Loading topics from chapter...
               </p>
             )}
-            {!loadingTopics && extractedTopics.length > 0 && (
+            {!loadingTopics && topics.length > 0 && (
               <p className="text-xs text-green-400 mt-1">
-                Found {extractedTopics.length} topics from your content
+                Found {topics.length} topics in this chapter
               </p>
             )}
           </div>
@@ -282,16 +279,21 @@ export function QuestionGenerator() {
             <label className="block text-sm font-medium text-gray-300 mb-1">
               Topic *
             </label>
-            <input
-              type="text"
-              value={topic}
-              onChange={(e) => setTopic(e.target.value)}
-              placeholder="e.g., CIA Triad, Security Controls, Threat Actors"
+            <select
+              value={selectedTopicId}
+              onChange={(e) => setSelectedTopicId(e.target.value)}
               className="neuro-input w-full"
-              disabled={loading}
-            />
+              disabled={loading || loadingTopics || topics.length === 0}
+            >
+              <option value="">Select a topic...</option>
+              {topics.map((topic) => (
+                <option key={topic.id} value={topic.id}>
+                  {'  '.repeat(topic.depth)} {topic.full_name}
+                </option>
+              ))}
+            </select>
             <p className="text-xs text-gray-500 mt-1">
-              AI will search your uploaded content for relevant material
+              Select from hierarchical topics in this chapter
             </p>
           </div>
 
@@ -359,7 +361,7 @@ export function QuestionGenerator() {
             </button>
             <button
               onClick={() => handleGenerate()}
-              disabled={loading || !selectedChapter || !topic.trim()}
+              disabled={loading || !selectedChapter || !selectedTopicId}
               className="neuro-btn text-blue-400"
             >
               {loading ? 'Generating...' : 'Generate Questions'}

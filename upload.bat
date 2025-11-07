@@ -1,0 +1,6 @@
+@echo off
+echo Starting syllabus upload...
+node scripts\simple-upload-syllabus.mjs
+echo.
+echo Done! Press any key to close...
+pause
