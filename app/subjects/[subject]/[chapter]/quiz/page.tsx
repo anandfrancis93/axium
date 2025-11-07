@@ -536,6 +536,11 @@ ${interpretation}`
                       type Section = { header: string; bullets: string[] }
                       const sections: Section[] = []
 
+                      // Type guard to help TypeScript narrow types
+                      const isValidSection = (s: Section | undefined): s is Section => {
+                        return s !== undefined && Array.isArray(s.bullets) && s.bullets.length > 0
+                      }
+
                       // First, try to identify section headers by looking for common patterns
                       // Split by newlines first if they exist, otherwise by period+space
                       const rawLines = text.includes('\n')
@@ -556,7 +561,7 @@ ${interpretation}`
 
                         if (headerMatch) {
                           // Save previous section
-                          if (currentSection && currentSection.bullets.length > 0) {
+                          if (isValidSection(currentSection)) {
                             sections.push(currentSection)
                           }
                           // Start new section
@@ -579,7 +584,7 @@ ${interpretation}`
                       })
 
                       // Add last section
-                      if (currentSection && currentSection.bullets.length > 0) {
+                      if (isValidSection(currentSection)) {
                         sections.push(currentSection)
                       }
 
