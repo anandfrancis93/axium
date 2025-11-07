@@ -9,6 +9,7 @@ import { RLPhaseBadge } from '@/components/RLPhaseBadge'
 import { getAllRLPhasesData } from '@/lib/utils/rl-phase'
 import { Tooltip } from '@/components/Tooltip'
 import { LockIcon, LockOpenIcon } from '@/components/icons'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Area, AreaChart } from 'recharts'
 
 const BLOOM_LEVELS = [
   { num: 1, name: 'Remember' },
@@ -39,6 +40,8 @@ export default function TopicMasteryPage() {
   const [questionHistoryExpanded, setQuestionHistoryExpanded] = useState(false)
   const [repeatQuestions, setRepeatQuestions] = useState<any[]>([])
   const [uniqueQuestions, setUniqueQuestions] = useState<any[]>([])
+  const [masteryTrendExpanded, setMasteryTrendExpanded] = useState(false)
+  const [masteryTrendData, setMasteryTrendData] = useState<any[]>([])
 
   useEffect(() => {
     loadData()
@@ -191,6 +194,36 @@ export default function TopicMasteryPage() {
           })
 
           setUniqueQuestions(Array.from(uniqueQuestionsMap.values()))
+
+          // Calculate mastery trend over time
+          if (responses && responses.length > 0) {
+            let cumulativeCorrect = 0
+            let cumulativeTotal = 0
+
+            const trendData = responses.map((r: any, idx: number) => {
+              cumulativeTotal++
+              if (r.is_correct) cumulativeCorrect++
+
+              const masteryScore = Math.round((cumulativeCorrect / cumulativeTotal) * 100)
+              const date = new Date(r.created_at)
+
+              return {
+                index: idx + 1,
+                date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                fullDate: date.toLocaleString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                }),
+                mastery: masteryScore,
+                correct: cumulativeCorrect,
+                total: cumulativeTotal
+              }
+            })
+
+            setMasteryTrendData(trendData)
+          }
         }
       }
 
@@ -555,6 +588,114 @@ export default function TopicMasteryPage() {
             )}
           </div>
         )}
+
+        {/* Mastery Score Over Time Chart */}
+        <div className="neuro-card">
+          <button
+            type="button"
+            onClick={() => setMasteryTrendExpanded(!masteryTrendExpanded)}
+            className="w-full flex items-center justify-between mb-6"
+          >
+            <h2 className="text-xl font-semibold text-gray-200">
+              Mastery Score Over Time
+            </h2>
+            <span className="text-gray-400 text-xl">
+              {masteryTrendExpanded ? '▼' : '▶'}
+            </span>
+          </button>
+
+          {masteryTrendExpanded && (
+            <>
+              {masteryTrendData.length > 0 ? (
+                <div className="space-y-4">
+                  <div className="text-sm text-gray-400 mb-4">
+                    Track your learning progression over time. The chart shows your cumulative mastery score as you answer questions.
+                  </div>
+
+                  <ResponsiveContainer width="100%" height={400}>
+                    <AreaChart data={masteryTrendData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="masteryGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                      <XAxis
+                        dataKey="date"
+                        stroke="#9ca3af"
+                        style={{ fontSize: '12px' }}
+                      />
+                      <YAxis
+                        stroke="#9ca3af"
+                        style={{ fontSize: '12px' }}
+                        domain={[0, 100]}
+                        ticks={[0, 20, 40, 60, 80, 100]}
+                        label={{ value: 'Mastery Score (%)', angle: -90, position: 'insideLeft', style: { fill: '#9ca3af' } }}
+                      />
+                      <RechartsTooltip
+                        contentStyle={{
+                          backgroundColor: '#1f2937',
+                          border: '1px solid #374151',
+                          borderRadius: '8px',
+                          color: '#e5e7eb'
+                        }}
+                        labelStyle={{ color: '#9ca3af' }}
+                        formatter={(value: any, name: string, props: any) => {
+                          if (name === 'mastery') {
+                            return [
+                              <div key="tooltip" className="space-y-1">
+                                <div className="font-semibold text-blue-400">{value}% Mastery</div>
+                                <div className="text-xs text-gray-400">
+                                  {props.payload.correct} / {props.payload.total} correct
+                                </div>
+                                <div className="text-xs text-gray-500">{props.payload.fullDate}</div>
+                              </div>,
+                              ''
+                            ]
+                          }
+                          return [value, name]
+                        }}
+                        labelFormatter={() => ''}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="mastery"
+                        stroke="#3b82f6"
+                        strokeWidth={3}
+                        fill="url(#masteryGradient)"
+                        dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
+                        activeDot={{ r: 6, fill: '#60a5fa' }}
+                      />
+                      {/* Reference lines for mastery thresholds */}
+                      <line y1={80} y2={80} stroke="#10b981" strokeWidth={1} strokeDasharray="5 5" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+
+                  <div className="flex flex-wrap gap-4 justify-center text-xs text-gray-500 mt-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-1 bg-green-500 opacity-50"></div>
+                      <span>80% = Mastery Threshold</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-1 bg-blue-500"></div>
+                      <span>Your Progress</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="neuro-inset p-8 rounded-lg text-center">
+                  <div className="text-gray-400 text-lg font-semibold mb-2">
+                    No Performance Data Yet
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Start answering questions to see your mastery trend over time
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
 
         {/* Repeated Questions Analysis Section */}
         <div className="neuro-card">
