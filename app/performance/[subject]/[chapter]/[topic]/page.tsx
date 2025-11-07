@@ -36,7 +36,7 @@ export default function TopicMasteryPage() {
   const [currentBloomLevel, setCurrentBloomLevel] = useState<number>(1)
   const [statsExpanded, setStatsExpanded] = useState(true)
   const [matrixExpanded, setMatrixExpanded] = useState(true)
-  const [bloomExpanded, setBloomExpanded] = useState(false)
+  const [bloomExpanded, setBloomExpanded] = useState(true)
   const [repeatAnalysisExpanded, setRepeatAnalysisExpanded] = useState(false)
   const [questionHistoryExpanded, setQuestionHistoryExpanded] = useState(false)
   const [repeatQuestions, setRepeatQuestions] = useState<any[]>([])
