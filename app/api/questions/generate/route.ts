@@ -95,12 +95,12 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { chapter_id, topic, bloom_level, question_format = 'mcq', num_questions = 1 } = body
+    const { chapter_id, topic, topic_id, bloom_level, question_format = 'mcq', num_questions = 1 } = body
 
     // Validate inputs
-    if (!chapter_id || !topic) {
+    if (!chapter_id || (!topic && !topic_id)) {
       return NextResponse.json(
-        { error: 'chapter_id and topic are required' },
+        { error: 'chapter_id and either topic or topic_id are required' },
         { status: 400 }
       )
     }
@@ -113,15 +113,37 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // If topic_id is provided, get the full hierarchical path
+    let topicName = topic
+    let topicFullName = topic
+
+    if (topic_id) {
+      const { data: topicData, error: topicError } = await supabase
+        .from('topics')
+        .select('name, full_name')
+        .eq('id', topic_id)
+        .single()
+
+      if (topicError || !topicData) {
+        return NextResponse.json(
+          { error: 'Topic not found' },
+          { status: 404 }
+        )
+      }
+
+      topicName = topicData.name
+      topicFullName = topicData.full_name
+    }
+
     const formatInstructions = FORMAT_INSTRUCTIONS[question_format] || FORMAT_INSTRUCTIONS.mcq_single
 
-    console.log(`Generating ${num_questions} ${question_format} question(s) for topic: "${topic}" at Bloom level ${bloomLevelNum}`)
+    console.log(`Generating ${num_questions} ${question_format} question(s) for topic: "${topicFullName}" at Bloom level ${bloomLevelNum}`)
 
-    // Step 1: Generate embedding for the topic
-    console.log('Generating topic embedding...')
+    // Step 1: Generate embedding for the topic using full hierarchical path
+    console.log('Generating topic embedding using full path...')
     const embeddingResponse = await openai.embeddings.create({
       model: 'text-embedding-3-small',
-      input: topic,
+      input: topicFullName,  // Use full hierarchical path for better matching
     })
     const topicEmbedding = embeddingResponse.data[0].embedding
 
@@ -161,8 +183,8 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json(
         {
-          error: `No relevant content found for topic "${topic}". Found ${count || 0} total chunks in this chapter. Try a broader topic or check if embeddings are stored correctly.`,
-          debug: { chapter_id, topic, total_chunks: count }
+          error: `No relevant content found for topic "${topicFullName}". Found ${count || 0} total chunks in this chapter. Try a broader topic or check if embeddings are stored correctly.`,
+          debug: { chapter_id, topic: topicFullName, total_chunks: count }
         },
         { status: 404 }
       )
@@ -183,14 +205,15 @@ export async function POST(request: NextRequest) {
 
 BLOOM'S TAXONOMY LEVEL: ${bloomLevelNum} - ${bloomDescription}
 
-TOPIC: ${topic}
+TOPIC: ${topicName}
+FULL CONTEXT PATH: ${topicFullName}
 
 ${formatInstructions}
 
 CONTEXT (from course materials):
 ${context}
 
-TASK: Generate ${num_questions} question(s) at Bloom's level ${bloomLevelNum} about "${topic}".
+TASK: Generate ${num_questions} question(s) at Bloom's level ${bloomLevelNum} about "${topicName}".
 
 REQUIREMENTS:
 1. Base questions ONLY on the provided context
@@ -299,7 +322,8 @@ Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other 
       correct_answer: q.correct_answer,
       explanation: q.explanation,
       bloom_level: bloomLevelNum,
-      topic,
+      topic: topicName,
+      topic_full_name: topicFullName,
       difficulty_estimated: bloomLevelNum >= 4 ? 'hard' : bloomLevelNum >= 3 ? 'medium' : 'easy',
       source_type: 'ai_generated',
     }))
