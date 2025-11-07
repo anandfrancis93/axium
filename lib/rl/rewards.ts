@@ -4,9 +4,8 @@
  * Multi-component reward function that optimizes for:
  * 1. Learning gain (primary)
  * 2. Confidence calibration
- * 3. Engagement (appropriate difficulty)
- * 4. Spaced repetition (retention)
- * 5. Recognition method (retrieval strength)
+ * 3. Spaced repetition (retention)
+ * 4. Recognition method (retrieval strength)
  */
 
 export type RecognitionMethod = 'memory' | 'recognition' | 'educated_guess' | 'random'
@@ -14,7 +13,6 @@ export type RecognitionMethod = 'memory' | 'recognition' | 'educated_guess' | 'r
 export interface RewardComponents {
   learningGain: number
   calibration: number
-  engagement: number
   spacing: number
   recognition: number
   total: number
@@ -59,32 +57,6 @@ function calculateCalibrationReward(
     return -5  // Overconfident (very wrong - worst case)
   }
 
-  return 0
-}
-
-/**
- * Calculate engagement reward
- * Penalizes questions that are too easy or too hard
- *
- * @param currentMastery - Current mastery score (0-100)
- * @param isCorrect - Whether answer was correct
- * @returns Reward component (-3 to 0)
- */
-function calculateEngagementReward(
-  currentMastery: number,
-  isCorrect: boolean
-): number {
-  // Too easy: high mastery + correct answer (no challenge)
-  if (currentMastery > 90 && isCorrect) {
-    return -3
-  }
-
-  // Too hard: low mastery + incorrect answer (discouraging)
-  if (currentMastery < 20 && !isCorrect) {
-    return -3
-  }
-
-  // Appropriate difficulty
   return 0
 }
 
@@ -199,7 +171,6 @@ export function calculateReward(params: {
   return {
     learningGain: learningGainReward,
     calibration: calibrationReward,
-    engagement: 0, // Disabled - no longer used
     spacing: spacingReward,
     recognition: recognitionReward,
     total
@@ -269,10 +240,6 @@ export function describeReward(components: RewardComponents): string {
     parts.push('Good recognition')
   } else if (components.recognition < -2) {
     parts.push('False memory - review this topic')
-  }
-
-  if (components.engagement < -2) {
-    parts.push('Difficulty mismatch')
   }
 
   if (components.spacing > 3) {
