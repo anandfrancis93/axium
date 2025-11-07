@@ -171,10 +171,11 @@ export default function PerformancePage() {
         .eq('user_id', user.id)
         .eq('chapter_id', chapterData.id)
 
-      // Count AI-generated questions for this chapter
+      // Count AI-generated questions for this user in this chapter
       const { count: questionsCount, error: questionsCountError } = await supabase
         .from('questions')
         .select('topic_id, topics!inner(chapter_id)', { count: 'exact', head: true })
+        .eq('user_id', user.id)
         .eq('topics.chapter_id', chapterData.id)
         .eq('source_type', 'ai_generated_realtime')
 

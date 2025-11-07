@@ -166,7 +166,7 @@ export async function POST(request: NextRequest) {
     dimensionCoverageDeleted = dimensionCoverageCount || 0
     console.log(`Deleted ${dimensionCoverageDeleted} user_dimension_coverage records`)
 
-    // Delete AI-generated questions for this chapter
+    // Delete AI-generated questions for this user in this chapter
     const { data: chapterTopics } = await supabase
       .from('topics')
       .select('id')
@@ -178,6 +178,7 @@ export async function POST(request: NextRequest) {
       const { count: questionsCount, error: questionsError } = await supabase
         .from('questions')
         .delete({ count: 'exact' })
+        .eq('user_id', user.id)
         .in('topic_id', topicIds)
         .eq('source_type', 'ai_generated_realtime')
 
@@ -185,7 +186,7 @@ export async function POST(request: NextRequest) {
         console.error('Error deleting AI-generated questions:', questionsError)
       } else {
         questionsDeleted = questionsCount || 0
-        console.log(`Deleted ${questionsDeleted} AI-generated questions`)
+        console.log(`Deleted ${questionsDeleted} AI-generated questions for user`)
       }
     }
 

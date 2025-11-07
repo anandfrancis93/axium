@@ -62,6 +62,7 @@ function getDimensionGuidance(dimension: string, bloomLevel: number): string {
  */
 async function generateQuestionOnDemand(
   supabase: any,
+  userId: string,
   chapterId: string,
   topic: string,
   bloomLevel: number,
@@ -236,6 +237,7 @@ Return ONLY valid JSON, no other text.`
   // We use topic_id since topics already reference chapters
   const questionToInsert = {
     // chapter_id: chapterId,  // ❌ Removed - causes constraint violation when topic_id is set
+    user_id: userId,  // Track which user generated this question
     question_text: q.question_text,
     question_type: 'mcq',
     options: q.options,
@@ -443,6 +445,7 @@ export async function POST(request: NextRequest) {
       try {
         selectedQuestion = await generateQuestionOnDemand(
           supabase,
+          user.id,  // Pass user ID for question ownership
           session.chapter_id,
           selectedArm.topicName,  // Use topic name for RAG search
           selectedArm.bloomLevel,
