@@ -193,12 +193,14 @@ Return ONLY valid JSON, no other text.`
   // Look up topic_id from topics table
   console.log(`[TOPIC LOOKUP] Searching for topic: "${topic}" in chapter: ${chapterId}`)
 
-  const { data: topicRecord, error: topicError } = await supabase
+  const { data: topicRecords, error: topicError } = await supabase
     .from('topics')
     .select('id, name')
     .eq('chapter_id', chapterId)
     .eq('name', topic)
-    .single()
+    .limit(1)
+
+  const topicRecord = topicRecords?.[0]
 
   if (topicError || !topicRecord) {
     console.error(`[TOPIC LOOKUP FAILED] Topic: "${topic}"`)
