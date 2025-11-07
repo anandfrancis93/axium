@@ -555,8 +555,10 @@ ${interpretation}`
 
                         if (headerMatch) {
                           // Save previous section
-                          if (currentSection !== null && currentSection.bullets.length > 0) {
-                            sections.push(currentSection)
+                          if (currentSection !== null) {
+                            if (currentSection.bullets && currentSection.bullets.length > 0) {
+                              sections.push(currentSection)
+                            }
                           }
                           // Start new section
                           const header = headerMatch[1] + ':'
@@ -578,8 +580,10 @@ ${interpretation}`
                       })
 
                       // Add last section
-                      if (currentSection !== null && currentSection.bullets.length > 0) {
-                        sections.push(currentSection)
+                      if (currentSection !== null) {
+                        if (currentSection.bullets && currentSection.bullets.length > 0) {
+                          sections.push(currentSection)
+                        }
                       }
 
                       // If no sections parsed, fall back to simple splitting by sentences
