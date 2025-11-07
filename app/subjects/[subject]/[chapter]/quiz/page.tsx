@@ -763,31 +763,31 @@ ${interpretation}`
                   <Tooltip content={getRewardTooltip('learningGain', feedback.reward_components?.learningGain || 0)}>
                     <div>
                       Learning Gain: <span className="text-blue-400">{feedback.reward_components?.learningGain?.toFixed(1)}</span>
-                      <span className="text-gray-500 text-xs ml-1">({getRewardLabel('learningGain', feedback.reward_components?.learningGain || 0)})</span>
+                      <span className="text-gray-200 text-xs ml-1">({getRewardLabel('learningGain', feedback.reward_components?.learningGain || 0)})</span>
                     </div>
                   </Tooltip>
                   <Tooltip content={getRewardTooltip('calibration', feedback.reward_components?.calibration || 0)}>
                     <div>
                       Calibration: <span className="text-purple-400">{feedback.reward_components?.calibration?.toFixed(1)}</span>
-                      <span className="text-gray-500 text-xs ml-1">({getRewardLabel('calibration', feedback.reward_components?.calibration || 0)})</span>
+                      <span className="text-gray-200 text-xs ml-1">({getRewardLabel('calibration', feedback.reward_components?.calibration || 0)})</span>
                     </div>
                   </Tooltip>
                   <Tooltip content={getRewardTooltip('recognition', feedback.reward_components?.recognition || 0)}>
                     <div>
                       Recognition: <span className="text-green-400">{feedback.reward_components?.recognition?.toFixed(1)}</span>
-                      <span className="text-gray-500 text-xs ml-1">({getRewardLabel('recognition', feedback.reward_components?.recognition || 0)})</span>
+                      <span className="text-gray-200 text-xs ml-1">({getRewardLabel('recognition', feedback.reward_components?.recognition || 0)})</span>
                     </div>
                   </Tooltip>
                   <Tooltip content={getRewardTooltip('spacing', feedback.reward_components?.spacing || 0)}>
                     <div>
                       Spacing: <span className="text-yellow-400">{feedback.reward_components?.spacing?.toFixed(1)}</span>
-                      <span className="text-gray-500 text-xs ml-1">({getRewardLabel('spacing', feedback.reward_components?.spacing || 0)})</span>
+                      <span className="text-gray-200 text-xs ml-1">({getRewardLabel('spacing', feedback.reward_components?.spacing || 0)})</span>
                     </div>
                   </Tooltip>
                   <Tooltip content={getRewardTooltip('responseTime', feedback.reward_components?.responseTime || 0)}>
                     <div>
                       Response Time: <span className="text-cyan-400">{feedback.reward_components?.responseTime?.toFixed(1)}</span>
-                      <span className="text-gray-500 text-xs ml-1">({getRewardLabel('responseTime', feedback.reward_components?.responseTime || 0)})</span>
+                      <span className="text-gray-200 text-xs ml-1">({getRewardLabel('responseTime', feedback.reward_components?.responseTime || 0)})</span>
                     </div>
                   </Tooltip>
                 </div>
