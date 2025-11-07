@@ -478,42 +478,42 @@ export default function TopicMasteryPage() {
                       <span className="text-gray-500">Not Tested</span>
                     </div>
                   </Tooltip>
-                  <Tooltip content={`Insufficient Data\n\nLess than 3 unique questions answered\n\nNeed more data to determine mastery level`}>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded bg-gray-700 border border-yellow-500/30"></div>
-                      <span className="text-gray-500">Insufficient</span>
-                    </div>
-                  </Tooltip>
-                  <Tooltip content={`Struggling\n\n3 or more unique questions answered\n\nAverage score: Less than 40%\n\nRecommendation: Review fundamentals and practice more`}>
+                  <Tooltip content={`Struggling\n\nAverage score: Less than 40%\n\nRecommendation: Review fundamentals and practice more`}>
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded bg-red-500"></div>
-                      <span className="text-gray-500">Struggling</span>
+                      <span className="text-gray-500">Struggling (&lt;40%)</span>
                     </div>
                   </Tooltip>
-                  <Tooltip content={`Developing\n\n3 or more unique questions answered\n\nAverage score: 40-59%\n\nRecommendation: Continue practicing to improve mastery`}>
+                  <Tooltip content={`Developing\n\nAverage score: 40-59%\n\nRecommendation: Continue practicing to improve mastery`}>
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded bg-yellow-500"></div>
-                      <span className="text-gray-500">Developing</span>
+                      <span className="text-gray-500">Developing (40-59%)</span>
                     </div>
                   </Tooltip>
-                  <Tooltip content={`Proficient\n\n3 or more unique questions answered\n\nAverage score: 60-79%\n\nRecommendation: Good progress, almost ready to advance`}>
+                  <Tooltip content={`Proficient\n\nAverage score: 60-79%\n\nRecommendation: Good progress, almost ready to advance`}>
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded bg-blue-500"></div>
-                      <span className="text-gray-500">Proficient</span>
+                      <span className="text-gray-500">Proficient (60-79%)</span>
                     </div>
                   </Tooltip>
-                  <Tooltip content={`Mastered\n\n3 or more unique questions answered\n\nAverage score: 80% or higher\n\nRecommendation: Ready to advance to next level`}>
+                  <Tooltip content={`Mastered\n\nAverage score: 80% or higher\n\nRecommendation: Ready to advance to next level`}>
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded bg-green-500"></div>
-                      <span className="text-gray-500">Mastered</span>
+                      <span className="text-gray-500">Mastered (80%+)</span>
                     </div>
                   </Tooltip>
                   <Tooltip content={`Deep Mastery\n\n5 or more unique questions answered\n\nAverage score: 80% or higher\n\nRecommendation: Excellent mastery, ready for advanced topics`}>
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded bg-green-700"></div>
-                      <span className="text-gray-500">Deep Mastery</span>
+                      <span className="text-gray-500">Deep Mastery (5+, 80%+)</span>
                     </div>
                   </Tooltip>
+                </div>
+                <div className="mt-4 text-xs text-gray-500 flex items-start gap-2">
+                  <div className="neuro-inset rounded-md p-1 mt-0.5">
+                    <AlertTriangleIcon size={12} className="text-yellow-500" />
+                  </div>
+                  <span>Warning triangle indicates insufficient data (&lt;3 unique questions). Scores shown but may not reflect true mastery.</span>
                 </div>
               </div>
 
