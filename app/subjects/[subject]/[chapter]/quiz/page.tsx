@@ -555,7 +555,7 @@ ${interpretation}`
 
                         if (headerMatch) {
                           // Save previous section
-                          if (currentSection && currentSection.bullets.length > 0) {
+                          if (currentSection !== null && currentSection.bullets.length > 0) {
                             sections.push(currentSection)
                           }
                           // Start new section
@@ -578,7 +578,7 @@ ${interpretation}`
                       })
 
                       // Add last section
-                      if (currentSection && currentSection.bullets.length > 0) {
+                      if (currentSection !== null && currentSection.bullets.length > 0) {
                         sections.push(currentSection)
                       }
 
