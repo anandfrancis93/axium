@@ -516,9 +516,15 @@ export default function TopicMasteryPage() {
                                     content={`${topic} - ${bloomLevel.name} - ${dim.name}\n\nScore: ${cell?.average_score || 0}%\n\nUnique Questions: ${uniqueCount}\n\nTotal Attempts: ${totalAttempts} (${totalAttempts - uniqueCount} repeats)\n\nStatus: ${getStatusLabel(status, masteryLevel, uniqueCount, totalAttempts)}`}
                                   >
                                     <div className={`${getStatusColor(status, masteryLevel, uniqueCount)} relative inline-block`}>
-                                      <div className="font-bold text-lg">
-                                        {Math.round(cell.average_score)}%
-                                      </div>
+                                      {uniqueCount < 3 ? (
+                                        <div className="text-sm font-medium">
+                                          {uniqueCount}/3
+                                        </div>
+                                      ) : (
+                                        <div className="font-bold text-lg">
+                                          {Math.round(cell.average_score)}%
+                                        </div>
+                                      )}
                                     </div>
                                   </Tooltip>
                                 )}
