@@ -9,7 +9,9 @@
       "Bash(npx supabase:*)",
       "Bash(npm run dev:*)",
       "Bash(npm install:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(psql:*)",
+      "Bash(node scripts/analyze-irt-data.mjs:*)"
     ],
     "deny": [],
     "ask": []

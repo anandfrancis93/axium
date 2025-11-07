@@ -4,10 +4,12 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { RefreshIcon, AlertTriangleIcon, CheckIcon, XIcon, BarChartIcon, TrendingUpIcon, AwardIcon, TargetIcon, ChevronDownIcon, LockIcon, LockOpenIcon } from '@/components/icons'
+import { RefreshIcon, AlertTriangleIcon, CheckIcon, XIcon, BarChartIcon, TrendingUpIcon, AwardIcon, TargetIcon, ChevronDownIcon, LockIcon, LockOpenIcon, TrophyIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import { Tooltip } from '@/components/Tooltip'
 import Modal from '@/components/Modal'
+import { estimateThetaAuto } from '@/lib/irt/theta-estimation'
+import { thetaToExamScore, calculateScoreConfidenceInterval, calculatePassProbability, getScoreInterpretation, calculateReliability } from '@/lib/irt/exam-score'
 
 export default function PerformancePage() {
   const router = useRouter()
@@ -26,11 +28,13 @@ export default function PerformancePage() {
   const [statsExpanded, setStatsExpanded] = useState(false)
   const [heatmapExpanded, setHeatmapExpanded] = useState(false)
   const [activityExpanded, setActivityExpanded] = useState(false)
+  const [examPredictionExpanded, setExamPredictionExpanded] = useState(true)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [resetResults, setResetResults] = useState<any>(null)
   const [preResetCounts, setPreResetCounts] = useState<any>(null)
   const [loadingCounts, setLoadingCounts] = useState(false)
+  const [examPrediction, setExamPrediction] = useState<any>(null)
 
   useEffect(() => {
     loadPerformanceData()
@@ -208,6 +212,36 @@ export default function PerformancePage() {
         })
       }
       setTopicUnlockLevels(unlockLevels)
+
+      // Calculate exam score prediction using IRT
+      if (allResponses.length >= 5) {
+        const responses = allResponses.map((r: any) => ({
+          is_correct: r.is_correct,
+          bloom_level: r.bloom_level || 3,
+          question_type: 'mcq_single'
+        }))
+
+        const { theta, standardError, responsesCount, information } = estimateThetaAuto(responses)
+        const predictedScore = thetaToExamScore(theta)
+        const { lower, upper } = calculateScoreConfidenceInterval(theta, standardError, 0.95)
+        const passProbability = calculatePassProbability(theta, standardError, 750)
+        const reliability = calculateReliability(information)
+        const interpretation = getScoreInterpretation(predictedScore, passProbability, responsesCount)
+
+        setExamPrediction({
+          theta,
+          standardError,
+          predictedScore,
+          confidenceLower: lower,
+          confidenceUpper: upper,
+          passProbability,
+          reliability,
+          responsesCount,
+          interpretation
+        })
+      } else {
+        setExamPrediction(null)
+      }
 
       setLoading(false)
 
@@ -542,6 +576,117 @@ Mastery calculated using EMA (recent performance weighted higher)`
             </div>
           )}
         </div>
+
+        {/* Exam Score Prediction - Collapsible */}
+        {examPrediction && (
+          <div className="neuro-card mb-6">
+            <button
+              onClick={() => setExamPredictionExpanded(!examPredictionExpanded)}
+              className="w-full flex items-center justify-between p-2 -m-2 hover:bg-gray-800/20 rounded-lg transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="neuro-inset w-10 h-10 rounded-xl flex items-center justify-center">
+                  <TrophyIcon size={20} className="text-yellow-400" />
+                </div>
+                <h2 className="text-xl font-semibold text-gray-200">
+                  CompTIA Security+ Exam Prediction
+                </h2>
+              </div>
+              <ChevronDownIcon
+                size={24}
+                className={`text-gray-400 transition-transform ${examPredictionExpanded ? 'rotate-180' : ''}`}
+              />
+            </button>
+
+            {examPredictionExpanded && (
+              <div className="mt-6 pt-6 border-t border-gray-800">
+                {/* Predicted Score */}
+                <div className="neuro-raised rounded-2xl p-8 mb-6 text-center">
+                  <div className="text-sm text-gray-400 mb-2">Your Predicted Exam Score</div>
+                  <div className={`text-6xl font-bold mb-3 ${examPrediction.predictedScore >= 750 ? 'text-green-400' : 'text-yellow-400'}`}>
+                    {examPrediction.predictedScore}
+                  </div>
+                  <div className="text-sm text-gray-500 mb-2">
+                    95% CI: {examPrediction.confidenceLower} - {examPrediction.confidenceUpper}
+                  </div>
+                  <div className="text-xs text-gray-600 mb-4">
+                    Scale: 100-900 | Passing: 750
+                  </div>
+                  <div className={`text-sm font-medium ${examPrediction.predictedScore >= 750 ? 'text-green-400' : 'text-yellow-400'}`}>
+                    {examPrediction.interpretation}
+                  </div>
+                </div>
+
+                {/* Key Metrics */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                  <Tooltip content={`Probability you will score 750 or higher on the exam. Based on ${examPrediction.responsesCount} responses.`}>
+                    <div className="neuro-stat group">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="text-sm text-green-400 font-medium">Pass Probability</div>
+                        <CheckIcon size={20} className="text-green-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                      <div className={`text-4xl font-bold group-hover:text-green-400 transition-colors ${
+                        examPrediction.passProbability >= 0.9 ? 'text-green-500' :
+                        examPrediction.passProbability >= 0.7 ? 'text-yellow-500' :
+                        'text-red-500'
+                      }`}>
+                        {Math.round(examPrediction.passProbability * 100)}%
+                      </div>
+                    </div>
+                  </Tooltip>
+
+                  <Tooltip content="How confident we are in this prediction. Higher is better. Increases with more questions answered.">
+                    <div className="neuro-stat group">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="text-sm text-purple-400 font-medium">Reliability</div>
+                        <TargetIcon size={20} className="text-purple-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                      <div className="text-4xl font-bold text-gray-200 group-hover:text-purple-400 transition-colors">
+                        {Math.round(examPrediction.reliability * 100)}%
+                      </div>
+                    </div>
+                  </Tooltip>
+
+                  <Tooltip content={`Your ability (θ) on the IRT scale. Average = 0, Higher = Better. Standard Error: ±${examPrediction.standardError.toFixed(2)}`}>
+                    <div className="neuro-stat group">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="text-sm text-blue-400 font-medium">Ability (θ)</div>
+                        <TrendingUpIcon size={20} className="text-blue-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                      <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
+                        {examPrediction.theta >= 0 ? '+' : ''}{examPrediction.theta.toFixed(2)}
+                      </div>
+                    </div>
+                  </Tooltip>
+                </div>
+
+                {/* Data Quality Warning */}
+                {examPrediction.responsesCount < 50 && (
+                  <div className="neuro-inset rounded-lg p-4 flex items-start gap-3">
+                    <AlertTriangleIcon size={20} className="text-yellow-500 mt-0.5 flex-shrink-0" />
+                    <div className="text-sm text-gray-400">
+                      <span className="font-semibold text-yellow-500">Limited Data</span>
+                      <br />
+                      You've answered {examPrediction.responsesCount} questions. Predictions become more accurate with 50+ questions across all topics.
+                    </div>
+                  </div>
+                )}
+
+                {/* Explanation */}
+                <div className="mt-6 text-xs text-gray-500 neuro-inset rounded-lg p-4">
+                  <div className="font-semibold text-gray-400 mb-2">How This Works:</div>
+                  <div className="space-y-1">
+                    <div>• <strong>Item Response Theory (IRT)</strong>: Statistical model that estimates your ability (θ) from response patterns</div>
+                    <div>• <strong>Predicted Score</strong>: Your θ mapped to CompTIA's 100-900 scale using percentile transformation</div>
+                    <div>• <strong>Confidence Interval</strong>: 95% probability your true score falls within this range</div>
+                    <div>• <strong>Pass Probability</strong>: Statistical likelihood of scoring ≥750 based on current performance</div>
+                    <div>• <strong>Reliability</strong>: Measurement precision based on question coverage and consistency</div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Mastery Heatmap - Collapsible */}
         <div className="neuro-card mb-6">
