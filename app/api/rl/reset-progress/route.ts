@@ -76,6 +76,7 @@ export async function POST(request: NextRequest) {
     let sessionsDeleted = 0
     let masteryDeleted = 0
     let armStatsDeleted = 0
+    let dimensionCoverageDeleted = 0
 
     // Delete user_responses for this chapter's sessions
     if (sessions && sessions.length > 0) {
@@ -147,6 +148,23 @@ export async function POST(request: NextRequest) {
     armStatsDeleted = armStatsCount || 0
     console.log(`Deleted ${armStatsDeleted} rl_arm_stats records`)
 
+    // Delete user_dimension_coverage for this chapter
+    const { count: dimensionCoverageCount, error: dimensionCoverageError } = await supabase
+      .from('user_dimension_coverage')
+      .delete({ count: 'exact' })
+      .eq('user_id', user.id)
+      .eq('chapter_id', chapter_id)
+
+    if (dimensionCoverageError) {
+      console.error('Error deleting dimension coverage:', dimensionCoverageError)
+      return NextResponse.json(
+        { error: `Failed to delete dimension coverage: ${dimensionCoverageError.message}` },
+        { status: 500 }
+      )
+    }
+    dimensionCoverageDeleted = dimensionCoverageCount || 0
+    console.log(`Deleted ${dimensionCoverageDeleted} user_dimension_coverage records`)
+
     console.log('Reset progress complete')
 
     return NextResponse.json({
@@ -156,7 +174,8 @@ export async function POST(request: NextRequest) {
         responses: responsesDeleted,
         sessions: sessionsDeleted,
         mastery: masteryDeleted,
-        armStats: armStatsDeleted
+        armStats: armStatsDeleted,
+        dimensionCoverage: dimensionCoverageDeleted
       }
     })
   } catch (error) {
