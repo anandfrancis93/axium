@@ -154,21 +154,39 @@ export default function TopicMasteryPage() {
 
           setRepeatQuestions(repeated)
 
-          // Track unique questions in chronological order
+          // Track unique questions with current and previous results
           const uniqueQuestionsMap = new Map()
           responses.forEach((r: any) => {
-            if (!uniqueQuestionsMap.has(r.question_id)) {
-              uniqueQuestionsMap.set(r.question_id, {
-                question_id: r.question_id,
+            const qid = r.question_id
+            if (!uniqueQuestionsMap.has(qid)) {
+              uniqueQuestionsMap.set(qid, {
+                question_id: qid,
                 question_text: r.questions?.question_text || 'Question',
                 dimension: r.questions?.dimension || 'Unknown',
-                is_correct: r.is_correct,
-                reward: r.reward,
-                created_at: r.created_at,
-                total_attempts: 1
+                first_attempt: {
+                  is_correct: r.is_correct,
+                  reward: r.reward,
+                  created_at: r.created_at
+                },
+                previous_attempt: null,
+                current_attempt: {
+                  is_correct: r.is_correct,
+                  reward: r.reward,
+                  created_at: r.created_at
+                },
+                total_attempts: 1,
+                all_results: [r.is_correct]
               })
             } else {
-              uniqueQuestionsMap.get(r.question_id).total_attempts++
+              const existing = uniqueQuestionsMap.get(qid)
+              existing.previous_attempt = existing.current_attempt
+              existing.current_attempt = {
+                is_correct: r.is_correct,
+                reward: r.reward,
+                created_at: r.created_at
+              }
+              existing.total_attempts++
+              existing.all_results.push(r.is_correct)
             }
           })
 
@@ -663,48 +681,88 @@ export default function TopicMasteryPage() {
                         <th className="text-left py-2 px-3 text-gray-400 font-medium">#</th>
                         <th className="text-left py-2 px-3 text-gray-400 font-medium">Question</th>
                         <th className="text-left py-2 px-3 text-gray-400 font-medium">Dimension</th>
-                        <th className="text-left py-2 px-3 text-gray-400 font-medium">First Result</th>
-                        <th className="text-left py-2 px-3 text-gray-400 font-medium">Reward</th>
+                        <th className="text-left py-2 px-3 text-gray-400 font-medium">Previous Result</th>
+                        <th className="text-left py-2 px-3 text-gray-400 font-medium">Current Result</th>
+                        <th className="text-left py-2 px-3 text-gray-400 font-medium">Trend</th>
                         <th className="text-left py-2 px-3 text-gray-400 font-medium">Attempts</th>
-                        <th className="text-left py-2 px-3 text-gray-400 font-medium">Date</th>
+                        <th className="text-left py-2 px-3 text-gray-400 font-medium">First Date</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {uniqueQuestions.map((q, idx) => (
-                        <tr key={q.question_id} className="border-b border-gray-800 hover:bg-gray-900/30">
-                          <td className="py-3 px-3 text-gray-500">
-                            {idx + 1}
-                          </td>
-                          <td className="py-3 px-3 text-gray-300 max-w-md">
-                            <div className="truncate">
-                              {q.question_text.substring(0, 80)}...
-                            </div>
-                          </td>
-                          <td className="py-3 px-3 text-gray-400 text-xs">
-                            {q.dimension}
-                          </td>
-                          <td className="py-3 px-3">
-                            {q.is_correct ? (
-                              <span className="text-green-400">✓ Correct</span>
-                            ) : (
-                              <span className="text-red-400">✗ Wrong</span>
-                            )}
-                          </td>
-                          <td className="py-3 px-3">
-                            <span className={q.reward >= 0 ? 'text-green-400' : 'text-red-400'}>
-                              {q.reward >= 0 ? '+' : ''}{q.reward.toFixed(1)}
-                            </span>
-                          </td>
-                          <td className="py-3 px-3 text-center">
-                            <span className={q.total_attempts > 1 ? 'text-blue-400' : 'text-gray-500'}>
-                              {q.total_attempts}
-                            </span>
-                          </td>
-                          <td className="py-3 px-3 text-gray-500 text-xs">
-                            {new Date(q.created_at).toLocaleDateString()}
-                          </td>
-                        </tr>
-                      ))}
+                      {uniqueQuestions.map((q, idx) => {
+                        // Calculate trend
+                        let trend = '—'
+                        let trendColor = 'text-gray-500'
+
+                        if (q.total_attempts === 1) {
+                          trend = '—'
+                          trendColor = 'text-gray-500'
+                        } else if (q.previous_attempt && q.current_attempt) {
+                          const prevCorrect = q.previous_attempt.is_correct
+                          const currCorrect = q.current_attempt.is_correct
+
+                          if (!prevCorrect && currCorrect) {
+                            trend = '↑ Improved'
+                            trendColor = 'text-green-400'
+                          } else if (prevCorrect && !currCorrect) {
+                            trend = '↓ Declined'
+                            trendColor = 'text-red-400'
+                          } else if (prevCorrect && currCorrect) {
+                            trend = '→ Consistent'
+                            trendColor = 'text-blue-400'
+                          } else {
+                            trend = '→ Still Learning'
+                            trendColor = 'text-yellow-400'
+                          }
+                        }
+
+                        return (
+                          <tr key={q.question_id} className="border-b border-gray-800 hover:bg-gray-900/30">
+                            <td className="py-3 px-3 text-gray-500">
+                              {idx + 1}
+                            </td>
+                            <td className="py-3 px-3 text-gray-300 max-w-md">
+                              <div className="truncate">
+                                {q.question_text.substring(0, 80)}...
+                              </div>
+                            </td>
+                            <td className="py-3 px-3 text-gray-400 text-xs">
+                              {q.dimension}
+                            </td>
+                            <td className="py-3 px-3">
+                              {q.previous_attempt ? (
+                                q.previous_attempt.is_correct ? (
+                                  <span className="text-green-400">✓ Correct</span>
+                                ) : (
+                                  <span className="text-red-400">✗ Wrong</span>
+                                )
+                              ) : (
+                                <span className="text-gray-600">—</span>
+                              )}
+                            </td>
+                            <td className="py-3 px-3">
+                              {q.current_attempt.is_correct ? (
+                                <span className="text-green-400">✓ Correct</span>
+                              ) : (
+                                <span className="text-red-400">✗ Wrong</span>
+                              )}
+                            </td>
+                            <td className="py-3 px-3">
+                              <span className={trendColor}>
+                                {trend}
+                              </span>
+                            </td>
+                            <td className="py-3 px-3 text-center">
+                              <span className={q.total_attempts > 1 ? 'text-blue-400' : 'text-gray-500'}>
+                                {q.total_attempts}
+                              </span>
+                            </td>
+                            <td className="py-3 px-3 text-gray-500 text-xs">
+                              {new Date(q.first_attempt.created_at).toLocaleDateString()}
+                            </td>
+                          </tr>
+                        )
+                      })}
                     </tbody>
                   </table>
                 </div>
