@@ -9,7 +9,7 @@ import { RLPhaseBadge } from '@/components/RLPhaseBadge'
 import { getAllRLPhasesData } from '@/lib/utils/rl-phase'
 import { Tooltip } from '@/components/Tooltip'
 import { LockIcon, LockOpenIcon, AlertTriangleIcon } from '@/components/icons'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Area, AreaChart } from 'recharts'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Area, AreaChart, ReferenceLine } from 'recharts'
 
 const BLOOM_LEVELS = [
   { num: 1, name: 'Remember' },
@@ -770,8 +770,14 @@ export default function TopicMasteryPage() {
                         dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
                         activeDot={{ r: 6, fill: '#60a5fa' }}
                       />
-                      {/* Reference lines for mastery thresholds */}
-                      <line y1={80} y2={80} stroke="#10b981" strokeWidth={1} strokeDasharray="5 5" />
+                      {/* Reference line for mastery threshold */}
+                      <ReferenceLine
+                        y={80}
+                        stroke="#10b981"
+                        strokeWidth={2}
+                        strokeDasharray="5 5"
+                        label={{ value: 'Mastery (80%)', position: 'right', fill: '#10b981', fontSize: 12 }}
+                      />
                     </AreaChart>
                   </ResponsiveContainer>
 
