@@ -1,6 +1,9 @@
 -- Update get_topic_dimension_matrix function to use new 6 dimensions
 -- Replaces old 12 dimensions with: definition, example, comparison, scenario, implementation, troubleshooting
 
+-- Drop existing function first (return type changed)
+DROP FUNCTION IF EXISTS get_topic_dimension_matrix(UUID, UUID, TEXT);
+
 CREATE OR REPLACE FUNCTION get_topic_dimension_matrix(
   p_user_id UUID,
   p_chapter_id UUID,
