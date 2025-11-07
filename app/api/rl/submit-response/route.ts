@@ -174,15 +174,21 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Store user response (only columns that exist in schema)
-    // For ephemeral questions, question_id will be null (they're not in questions table)
-    const isEphemeral = question_id && question_id.toString().startsWith('ephemeral-')
+    // Validate question_id is a valid UUID (not ephemeral)
+    // All questions should now be stored in database for spaced repetition
+    if (question_id && question_id.toString().startsWith('ephemeral-')) {
+      return NextResponse.json(
+        { error: 'Ephemeral questions are not supported. Question must be stored in database.' },
+        { status: 400 }
+      )
+    }
 
+    // Store user response (only columns that exist in schema)
     const { data: response, error: responseError } = await supabase
       .from('user_responses')
       .insert({
         session_id,
-        question_id: isEphemeral ? null : question_id, // Don't store ephemeral IDs
+        question_id: question_id,
         user_id: user.id,
         topic_id: topicId,
         bloom_level: question.bloom_level,
