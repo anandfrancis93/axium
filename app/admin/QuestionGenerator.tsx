@@ -159,7 +159,7 @@ export function QuestionGenerator() {
         body: JSON.stringify({
           chapter_id: selectedChapter,
           topic_id: topicIdToUse,
-          topic_name: topic.name,
+          topic: topic.name,  // API expects 'topic' not 'topic_name'
           bloom_level: bloomLevelToUse,
           question_format: formatToUse,
           num_questions: numQuestions,
