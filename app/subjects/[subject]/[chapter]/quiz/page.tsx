@@ -788,7 +788,9 @@ ${interpretation}`
                   <Tooltip content={getRewardTooltip('responseTime', feedback.reward_components?.responseTime || 0)}>
                     <div>
                       Response Time: <span className="text-cyan-400">{feedback.reward_components?.responseTime?.toFixed(1)}</span>
-                      <span className="text-gray-200 text-xs ml-1">({getRewardLabel('responseTime', feedback.reward_components?.responseTime || 0)})</span>
+                      <span className="text-gray-200 text-xs ml-1">
+                        ({feedback.response_time_seconds ? `${feedback.response_time_seconds.toFixed(1)}s, ${getRewardLabel('responseTime', feedback.reward_components?.responseTime || 0)}` : getRewardLabel('responseTime', feedback.reward_components?.responseTime || 0)})
+                      </span>
                     </div>
                   </Tooltip>
                 </div>

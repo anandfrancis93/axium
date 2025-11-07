@@ -353,6 +353,7 @@ export async function POST(request: NextRequest) {
       correct_answer: question.correct_answer,
       explanation: question.explanation,
       reward_components: rewardComponents,
+      response_time_seconds: responseTime, // Include actual time taken
       mastery_update: {
         topic_id: topicId,
         topic_name: arm_selected?.topic_name || 'Unknown',
