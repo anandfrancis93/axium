@@ -118,6 +118,7 @@ export default function PerformancePage() {
       // Calculate EMA-based mastery heatmap from responses
       // Group responses by topic and bloom_level
       const masteryMap = new Map<string, Map<number, number>>() // topic -> bloom_level -> EMA
+      const latestResponseMap = new Map<string, Date>() // topic -> latest response timestamp
       const alpha = 0.3 // Same EMA smoothing factor
 
       allResponses.forEach((response: any) => {
@@ -127,6 +128,13 @@ export default function PerformancePage() {
 
         if (!masteryMap.has(topicName)) {
           masteryMap.set(topicName, new Map())
+        }
+
+        // Track latest response timestamp for this topic
+        const responseDate = new Date(response.created_at)
+        const currentLatest = latestResponseMap.get(topicName)
+        if (!currentLatest || responseDate > currentLatest) {
+          latestResponseMap.set(topicName, responseDate)
         }
 
         const topicMap = masteryMap.get(topicName)!
@@ -154,6 +162,7 @@ export default function PerformancePage() {
             user_id: user.id,
             chapter_id: fetchedChapter.id,
             topic: topic.name,
+            latest_response: latestResponseMap.get(topic.name),
             bloom_1: topicMastery.get(1) !== undefined ? topicMastery.get(1) : null,
             bloom_2: topicMastery.get(2) !== undefined ? topicMastery.get(2) : null,
             bloom_3: topicMastery.get(3) !== undefined ? topicMastery.get(3) : null,
@@ -171,6 +180,13 @@ export default function PerformancePage() {
           heatmapData.push(row)
         })
       }
+
+      // Sort by latest response timestamp (most recent first)
+      heatmapData.sort((a, b) => {
+        const dateA = a.latest_response ? new Date(a.latest_response).getTime() : 0
+        const dateB = b.latest_response ? new Date(b.latest_response).getTime() : 0
+        return dateB - dateA
+      })
 
       setMasteryHeatmap(heatmapData)
 
@@ -737,21 +753,22 @@ Mastery calculated using EMA (recent performance weighted higher)`
 
               {masteryHeatmap.length > 0 ? (
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr>
-                        <th className="text-left p-4 text-gray-400 font-medium">Topic</th>
-                        {bloomLevels.map(level => (
-                          <th key={level.num} className="p-4 text-center text-gray-400 font-medium">
-                            <div>L{level.num}</div>
-                            <div className="text-xs text-gray-500">{level.name}</div>
-                          </th>
-                        ))}
-                        <th className="p-4 text-center text-gray-400 font-medium">Avg</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {masteryHeatmap.map((row, idx) => {
+                  <div className="max-h-[600px] overflow-y-auto neuro-inset rounded-lg">
+                    <table className="w-full text-sm">
+                      <thead className="sticky top-0 bg-[#0a0a0a] z-10">
+                        <tr>
+                          <th className="text-left p-4 text-gray-400 font-medium">Topic</th>
+                          {bloomLevels.map(level => (
+                            <th key={level.num} className="p-4 text-center text-gray-400 font-medium">
+                              <div>L{level.num}</div>
+                              <div className="text-xs text-gray-500">{level.name}</div>
+                            </th>
+                          ))}
+                          <th className="p-4 text-center text-gray-400 font-medium">Avg</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {masteryHeatmap.map((row, idx) => {
                         // Calculate total unique questions across all Bloom levels for this topic
                         const totalUniqueCount = bloomLevels.reduce((sum, level) => {
                           const uniqueCountKey = `${row.topic}-${level.num}`
@@ -836,8 +853,9 @@ Mastery calculated using EMA (recent performance weighted higher)`
                         </tr>
                         )
                       })}
-                    </tbody>
-                  </table>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               ) : (
                 <div className="neuro-inset p-8 rounded-lg text-center">
