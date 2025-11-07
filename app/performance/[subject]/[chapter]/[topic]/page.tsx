@@ -68,14 +68,15 @@ export default function TopicMasteryPage() {
 
       if (!fetchedChapter) return
 
-      // Get dimension matrix
+      // Get dimension matrix (we'll calculate EMA scores client-side)
       const { data: matrixData } = await supabase.rpc('get_topic_dimension_matrix', {
         p_user_id: user.id,
         p_chapter_id: fetchedChapter.id,
         p_topic: topic
       })
 
-      setMatrix(matrixData || [])
+      // Store raw matrix data temporarily
+      let enhancedMatrix = matrixData || []
 
       // Get summary statistics
       const { data: summaryData } = await supabase.rpc('get_topic_dimension_summary', {
@@ -111,6 +112,7 @@ export default function TopicMasteryPage() {
           .select(`
             id,
             question_id,
+            bloom_level,
             is_correct,
             confidence,
             reward,
@@ -226,9 +228,39 @@ export default function TopicMasteryPage() {
 
             setMasteryTrendData(trendData)
           }
+
+          // Calculate EMA-based mastery for each dimension × Bloom level cell
+          // Group responses by bloom_level and dimension
+          const cellEMAMap = new Map<string, number>()
+          const alpha = 0.3 // Same EMA smoothing factor
+
+          responses.forEach((r: any) => {
+            const dimension = r.questions?.dimension || 'unknown'
+            const bloomLevel = r.bloom_level
+            const cellKey = `${bloomLevel}-${dimension}`
+
+            const currentScore = r.is_correct ? 100 : 0
+            const existingEMA = cellEMAMap.get(cellKey)
+
+            if (existingEMA === undefined) {
+              // First response for this cell
+              cellEMAMap.set(cellKey, currentScore)
+            } else {
+              // Update EMA: new_ema = alpha * current + (1-alpha) * old
+              const newEMA = alpha * currentScore + (1 - alpha) * existingEMA
+              cellEMAMap.set(cellKey, newEMA)
+            }
+          })
+
+          // Update matrix data with EMA scores
+          enhancedMatrix = enhancedMatrix.map((cell: any) => ({
+            ...cell,
+            average_score: cellEMAMap.get(`${cell.bloom_level}-${cell.dimension}`) || cell.average_score
+          }))
         }
       }
 
+      setMatrix(enhancedMatrix)
       setLoading(false)
     } catch (error) {
       console.error('Error loading dimension matrix:', error)
@@ -417,6 +449,11 @@ export default function TopicMasteryPage() {
 
           {matrixExpanded && (
             <>
+              {/* Description */}
+              <div className="text-sm text-gray-400 mb-6">
+                Mastery scores calculated using Exponential Moving Average (EMA), giving more weight to recent performance. Requires 3+ unique questions for valid assessment.
+              </div>
+
               {/* Legend */}
               <div className="mb-6 p-4 neuro-inset rounded-lg">
                 <h3 className="text-sm font-medium text-gray-400 mb-4">Mastery Levels:</h3>
@@ -513,7 +550,7 @@ export default function TopicMasteryPage() {
                                   <div></div>
                                 ) : (
                                   <Tooltip
-                                    content={`${topic} - ${bloomLevel.name} - ${dim.name}\n\nScore: ${cell?.average_score || 0}%\n\nUnique Questions: ${uniqueCount}\n\nTotal Attempts: ${totalAttempts} (${totalAttempts - uniqueCount} repeats)\n\nStatus: ${getStatusLabel(status, masteryLevel, uniqueCount, totalAttempts)}`}
+                                    content={`${topic} - ${bloomLevel.name} - ${dim.name}\n\nEMA Score: ${Math.round(cell?.average_score || 0)}%\n\nUnique Questions: ${uniqueCount}\n\nTotal Attempts: ${totalAttempts} (${totalAttempts - uniqueCount} repeats)\n\nStatus: ${getStatusLabel(status, masteryLevel, uniqueCount, totalAttempts)}`}
                                   >
                                     <div className={`${getStatusColor(status, masteryLevel, uniqueCount)} relative inline-block`}>
                                       {uniqueCount < 3 ? (
