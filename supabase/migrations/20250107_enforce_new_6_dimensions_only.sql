@@ -1,6 +1,13 @@
 -- Enforce ONLY new 6 dimensions - remove all backward compatibility
 -- Clean break from old 12-dimension system
 
+-- Delete existing questions with old dimension values (test data)
+-- This includes NULL dimensions and old 12-dimension keys
+DELETE FROM questions;
+
+-- Also clear dimension coverage data
+DELETE FROM user_dimension_coverage;
+
 -- Drop and recreate constraint on questions table (6 dimensions only)
 ALTER TABLE questions DROP CONSTRAINT IF EXISTS questions_dimension_check;
 
@@ -51,6 +58,7 @@ COMMENT ON FUNCTION get_dimension_name IS 'Returns human-readable dimension name
 DO $$
 BEGIN
   RAISE NOTICE 'Enforced new 6-dimension system!';
+  RAISE NOTICE 'Deleted old test questions and dimension coverage data';
   RAISE NOTICE 'Only accepting: definition, example, comparison, scenario, implementation, troubleshooting';
   RAISE NOTICE 'All backward compatibility removed';
 END $$;
