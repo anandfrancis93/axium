@@ -195,16 +195,19 @@ export default function TopicMasteryPage() {
 
           setUniqueQuestions(Array.from(uniqueQuestionsMap.values()))
 
-          // Calculate mastery trend over time
+          // Calculate mastery trend over time using EMA (Exponential Moving Average)
+          // This matches the calculation used in user_topic_mastery for consistency
           if (responses && responses.length > 0) {
-            let cumulativeCorrect = 0
-            let cumulativeTotal = 0
+            const alpha = 0.3 // EMA smoothing factor (same as RL reward system)
+            let ema = responses[0].is_correct ? 100 : 0 // Initialize with first result
 
             const trendData = responses.map((r: any, idx: number) => {
-              cumulativeTotal++
-              if (r.is_correct) cumulativeCorrect++
+              // Update EMA: new_ema = alpha * current_result + (1-alpha) * old_ema
+              const currentScore = r.is_correct ? 100 : 0
+              if (idx > 0) {
+                ema = alpha * currentScore + (1 - alpha) * ema
+              }
 
-              const masteryScore = Math.round((cumulativeCorrect / cumulativeTotal) * 100)
               const date = new Date(r.created_at)
 
               return {
@@ -216,9 +219,8 @@ export default function TopicMasteryPage() {
                   hour: '2-digit',
                   minute: '2-digit'
                 }),
-                mastery: masteryScore,
-                correct: cumulativeCorrect,
-                total: cumulativeTotal
+                mastery: Math.round(ema),
+                isCorrect: r.is_correct
               }
             })
 
@@ -609,7 +611,7 @@ export default function TopicMasteryPage() {
               {masteryTrendData.length > 0 ? (
                 <div className="space-y-4">
                   <div className="text-sm text-gray-400 mb-4">
-                    Track your learning progression over time. The chart shows your cumulative mastery score as you answer questions.
+                    Track your learning progression over time using Exponential Moving Average (EMA). This gives more weight to recent performance while considering your learning history, matching the mastery calculation shown in the heatmap.
                   </div>
 
                   <ResponsiveContainer width="100%" height={400}>
@@ -645,9 +647,9 @@ export default function TopicMasteryPage() {
                           if (name === 'mastery') {
                             return [
                               <div key="tooltip" className="space-y-1">
-                                <div className="font-semibold text-blue-400">{value}% Mastery</div>
+                                <div className="font-semibold text-blue-400">{value}% Mastery (EMA)</div>
                                 <div className="text-xs text-gray-400">
-                                  {props.payload.correct} / {props.payload.total} correct
+                                  Result: {props.payload.isCorrect ? '✓ Correct' : '✗ Wrong'}
                                 </div>
                                 <div className="text-xs text-gray-500">{props.payload.fullDate}</div>
                               </div>,
