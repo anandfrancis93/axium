@@ -5,10 +5,11 @@ import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import HamburgerMenu from '@/components/HamburgerMenu'
+import Modal from '@/components/Modal'
 import { RLPhaseBadge } from '@/components/RLPhaseBadge'
 import { getAllRLPhasesData } from '@/lib/utils/rl-phase'
 import { Tooltip } from '@/components/Tooltip'
-import { LockIcon, LockOpenIcon, AlertTriangleIcon } from '@/components/icons'
+import { LockIcon, LockOpenIcon, AlertTriangleIcon, TrashIcon } from '@/components/icons'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Area, AreaChart, ReferenceLine } from 'recharts'
 
 const BLOOM_LEVELS = [
@@ -42,6 +43,9 @@ export default function TopicMasteryPage() {
   const [uniqueQuestions, setUniqueQuestions] = useState<any[]>([])
   const [masteryTrendExpanded, setMasteryTrendExpanded] = useState(false)
   const [masteryTrendData, setMasteryTrendData] = useState<any[]>([])
+  const [showResetModal, setShowResetModal] = useState(false)
+  const [resetBloomLevel, setResetBloomLevel] = useState<number | null>(null)
+  const [resetting, setResetting] = useState(false)
 
   useEffect(() => {
     loadData()
@@ -265,6 +269,40 @@ export default function TopicMasteryPage() {
     } catch (error) {
       console.error('Error loading dimension matrix:', error)
       setLoading(false)
+    }
+  }
+
+  const handleResetProgress = async (bloomLevel?: number) => {
+    try {
+      setResetting(true)
+      setShowResetModal(false)
+
+      const response = await fetch('/api/rl/reset-topic-progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chapter_id: chapterData?.id,
+          topic_id: summary?.topic_id,
+          bloom_level: bloomLevel || null
+        })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to reset progress')
+      }
+
+      alert(`✓ ${data.message}\n\nDeleted:\n- ${data.deleted.responses} responses\n- ${data.deleted.mastery} mastery records\n- ${data.deleted.armStats} RL stats\n- ${data.deleted.dimensionCoverage} dimension coverage\n- ${data.deleted.progress} progress records`)
+
+      // Reload the page data
+      await loadData()
+    } catch (error) {
+      console.error('Error resetting progress:', error)
+      alert(error instanceof Error ? error.message : 'Failed to reset progress')
+    } finally {
+      setResetting(false)
+      setResetBloomLevel(null)
     }
   }
 
@@ -652,31 +690,62 @@ export default function TopicMasteryPage() {
             </button>
 
             {bloomExpanded && (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-                {BLOOM_LEVELS.map(level => {
-                  const stats = summary.dimensions_per_bloom[level.num.toString()]
-                  return (
-                    <div key={level.num} className="neuro-stat group">
-                      <div className="text-blue-400 font-bold mb-2">Level {level.num}</div>
-                      <div className="text-sm text-gray-500 mb-4">{level.name}</div>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-500">Tested:</span>
-                          <span className="text-cyan-400 group-hover:text-cyan-300 transition-colors">
-                            {stats?.tested || 0}/{stats?.total || 0}
-                          </span>
+              <>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-6">
+                  {BLOOM_LEVELS.map(level => {
+                    const stats = summary.dimensions_per_bloom[level.num.toString()]
+                    const hasStat = stats && (stats.tested > 0 || stats.mastered > 0)
+                    return (
+                      <div key={level.num} className="neuro-stat group relative">
+                        <div className="text-blue-400 font-bold mb-2">Level {level.num}</div>
+                        <div className="text-sm text-gray-500 mb-4">{level.name}</div>
+                        <div className="space-y-2 text-sm mb-3">
+                          <div className="flex justify-between">
+                            <span className="text-gray-500">Tested:</span>
+                            <span className="text-cyan-400 group-hover:text-cyan-300 transition-colors">
+                              {stats?.tested || 0}/{stats?.total || 0}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-500">Mastered:</span>
+                            <span className="text-green-400 group-hover:text-green-300 transition-colors">
+                              {stats?.mastered || 0}/{stats?.total || 0}
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-500">Mastered:</span>
-                          <span className="text-green-400 group-hover:text-green-300 transition-colors">
-                            {stats?.mastered || 0}/{stats?.total || 0}
-                          </span>
-                        </div>
+                        {hasStat && (
+                          <button
+                            onClick={() => {
+                              setResetBloomLevel(level.num)
+                              setShowResetModal(true)
+                            }}
+                            className="neuro-btn text-xs px-3 py-1.5 text-red-400 hover:text-red-300 w-full flex items-center justify-center gap-2"
+                            disabled={resetting}
+                          >
+                            <TrashIcon size={14} />
+                            <span>Reset</span>
+                          </button>
+                        )}
                       </div>
-                    </div>
-                  )
-                })}
-              </div>
+                    )
+                  })}
+                </div>
+
+                {/* Reset All Levels Button */}
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => {
+                      setResetBloomLevel(null)
+                      setShowResetModal(true)
+                    }}
+                    className="neuro-btn text-sm px-4 py-2 text-red-400 hover:text-red-300 flex items-center gap-2"
+                    disabled={resetting}
+                  >
+                    <TrashIcon size={16} />
+                    <span>Reset All Bloom Levels</span>
+                  </button>
+                </div>
+              </>
             )}
           </div>
         )}
@@ -1034,6 +1103,61 @@ export default function TopicMasteryPage() {
           )}
         </div>
       </div>
+
+      {/* Confirmation Modal for Reset */}
+      <Modal
+        isOpen={showResetModal}
+        onClose={() => {
+          setShowResetModal(false)
+          setResetBloomLevel(null)
+        }}
+        title={resetBloomLevel ? `Reset Bloom Level ${resetBloomLevel}?` : "Reset All Bloom Levels?"}
+        type="warning"
+        actions={[
+          {
+            label: 'Cancel',
+            onClick: () => {
+              setShowResetModal(false)
+              setResetBloomLevel(null)
+            },
+            variant: 'secondary'
+          },
+          {
+            label: resetting ? 'Resetting...' : 'Reset Progress',
+            onClick: () => handleResetProgress(resetBloomLevel || undefined),
+            variant: 'danger',
+            disabled: resetting
+          }
+        ]}
+      >
+        <div className="space-y-4">
+          <p className="text-gray-300">
+            {resetBloomLevel
+              ? `This will permanently delete all progress data for Bloom Level ${resetBloomLevel} (${BLOOM_LEVELS[resetBloomLevel - 1].name}) of this topic.`
+              : 'This will permanently delete all progress data for ALL Bloom levels of this topic.'}
+          </p>
+          <div className="neuro-inset p-4 rounded-lg">
+            <div className="text-sm text-gray-400 space-y-2">
+              <div className="flex items-start gap-2">
+                <span className="text-red-400 mt-0.5">•</span>
+                <span>All question responses will be deleted</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-red-400 mt-0.5">•</span>
+                <span>Mastery scores will be reset</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-red-400 mt-0.5">•</span>
+                <span>RL learning statistics will be cleared</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-red-400 mt-0.5">•</span>
+                <span>This action cannot be undone</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Modal>
     </div>
   )
 }
