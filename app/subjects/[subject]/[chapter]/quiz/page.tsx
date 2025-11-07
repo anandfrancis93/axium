@@ -600,23 +600,32 @@ ${interpretation}`
                       }
 
                       // Render sections with headers
-                      return sections.map((section, sIdx) => (
-                        <div key={sIdx} className="space-y-2">
-                          {section.header && (
-                            <div className="text-blue-400 font-semibold text-sm mb-1">
-                              {section.header}
-                            </div>
-                          )}
-                          <div className="space-y-2">
-                            {section.bullets.map((bullet, bIdx) => (
-                              <div key={bIdx} className="flex items-start gap-3 ml-2">
-                                <div className="w-1.5 h-1.5 rounded-full bg-gray-400 mt-2 flex-shrink-0" />
-                                <div className="text-gray-200 text-sm leading-relaxed">{bullet}</div>
+                      return sections.map((section, sIdx) => {
+                        // Special handling for "Fundamental Question:" - show first bullet inline with header
+                        const isFundamentalQuestion = section.header.match(/^Fundamental Question:/i)
+                        const firstBullet = section.bullets[0]
+                        const remainingBullets = section.bullets.slice(1)
+
+                        return (
+                          <div key={sIdx} className="space-y-2">
+                            {section.header && (
+                              <div className="text-blue-400 font-semibold text-sm mb-1">
+                                {isFundamentalQuestion && firstBullet
+                                  ? `${section.header} ${firstBullet}`
+                                  : section.header}
                               </div>
-                            ))}
+                            )}
+                            <div className="space-y-2">
+                              {(isFundamentalQuestion ? remainingBullets : section.bullets).map((bullet, bIdx) => (
+                                <div key={bIdx} className="flex items-start gap-3 ml-2">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-gray-400 mt-2 flex-shrink-0" />
+                                  <div className="text-gray-200 text-sm leading-relaxed">{bullet}</div>
+                                </div>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      ))
+                        )
+                      })
                     })()}
                   </div>
                 </div>
