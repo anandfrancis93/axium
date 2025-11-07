@@ -298,18 +298,6 @@ Mastery grows with correct answers and confidence calibration`
         }
         break
 
-      case 'engagement':
-        description = 'Engagement: Penalty for difficulty mismatch'
-        scale = 'Range: -3 to 0 points'
-        if (value === 0) {
-          interpretation = 'Appropriate difficulty level'
-        } else if (value === -3) {
-          interpretation = 'Question was too easy or too hard'
-        } else {
-          interpretation = 'Slight difficulty mismatch'
-        }
-        break
-
       case 'spacing':
         description = 'Spacing: Bonus for spaced repetition timing'
         scale = 'Range: 0 to +5 points'
@@ -703,9 +691,6 @@ ${interpretation}`
                   </Tooltip>
                   <Tooltip content={getRewardTooltip('calibration', feedback.reward_components?.calibration || 0)}>
                     <div>Calibration: <span className="text-purple-400">{feedback.reward_components?.calibration?.toFixed(1)}</span></div>
-                  </Tooltip>
-                  <Tooltip content={getRewardTooltip('engagement', feedback.reward_components?.engagement || 0)}>
-                    <div>Engagement: <span className="text-orange-400">{feedback.reward_components?.engagement?.toFixed(1)}</span></div>
                   </Tooltip>
                   <Tooltip content={getRewardTooltip('recognition', feedback.reward_components?.recognition || 0)}>
                     <div>Recognition: <span className="text-green-400">{feedback.reward_components?.recognition?.toFixed(1)}</span></div>

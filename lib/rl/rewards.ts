@@ -189,18 +189,17 @@ export function calculateReward(params: {
   // Calculate each component
   const learningGainReward = calculateLearningGainReward(learningGain)
   const calibrationReward = calculateCalibrationReward(isCorrect, confidence)
-  const engagementReward = calculateEngagementReward(currentMastery, isCorrect)
   const spacingReward = calculateSpacingReward(daysSinceLastPractice, isCorrect)
   const recognitionReward = calculateRecognitionReward(recognitionMethod, isCorrect)
 
-  // Total reward (range: approximately -21 to +28)
-  // Typically: -15 to +25 for normal cases
-  const total = learningGainReward + calibrationReward + engagementReward + spacingReward + recognitionReward
+  // Total reward (range: approximately -18 to +25)
+  // Engagement component removed - was penalizing first attempts unfairly
+  const total = learningGainReward + calibrationReward + spacingReward + recognitionReward
 
   return {
     learningGain: learningGainReward,
     calibration: calibrationReward,
-    engagement: engagementReward,
+    engagement: 0, // Disabled - no longer used
     spacing: spacingReward,
     recognition: recognitionReward,
     total
