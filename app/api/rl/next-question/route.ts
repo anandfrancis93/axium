@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { selectArmThompsonSampling } from '@/lib/rl/thompson-sampling'
+import { getFormatsByBloomLevel, type QuestionFormat } from '@/lib/utils/question-format'
 import OpenAI from 'openai'
 
 const openai = new OpenAI({
@@ -69,9 +70,10 @@ async function generateQuestionOnDemand(
   topicFullName: string,
   bloomLevel: number,
   dimension: string,
+  questionFormat: QuestionFormat,
   dimensionDescriptionMap?: { [key: string]: string }
 ): Promise<any> {
-  console.log(`Generating question for: ${topicFullName} (${topicId}) at Bloom ${bloomLevel}, dimension: ${dimension}`)
+  console.log(`Generating question for: ${topicFullName} (${topicId}) at Bloom ${bloomLevel}, dimension: ${dimension}, format: ${questionFormat}`)
 
   // Use provided map or fall back to defaults
   const dimDescriptions = dimensionDescriptionMap || KNOWLEDGE_DIMENSIONS
@@ -106,6 +108,46 @@ async function generateQuestionOnDemand(
   const bloomDescription = BLOOM_LEVELS[bloomLevel]
   const dimensionDescription = dimDescriptions[dimension] || dimension
 
+  // Format-specific instructions (same as in /api/questions/generate)
+  const FORMAT_INSTRUCTIONS: Record<string, string> = {
+    mcq_single: `QUESTION FORMAT: Multiple Choice Question (Single Select)
+- Provide 4 answer options (A, B, C, D)
+- EXACTLY ONE correct answer
+- Three plausible distractors`,
+
+    mcq_multi: `QUESTION FORMAT: Multiple Choice Question (Multi Select)
+- Provide 4-6 answer options (A, B, C, D, E, F)
+- MULTIPLE correct answers (typically 2-3)
+- Remaining options are plausible distractors
+- Indicate in correct_answer field as array: ["B", "D"] or comma-separated: "B,D"
+- This tests deeper understanding - students must identify ALL correct options`,
+
+    true_false: `QUESTION FORMAT: True/False
+- Provide exactly 2 options: {"A": "True", "B": "False"}
+- The statement should be clearly true or false based on the context
+- Avoid ambiguous wording`,
+
+    fill_blank: `QUESTION FORMAT: Fill in the Blank
+- Create a statement with a missing key term or concept (use _____)
+- Provide 4 possible answers to complete the blank
+- The correct answer should fit naturally in the sentence`,
+
+    matching: `QUESTION FORMAT: Matching
+- Present the question as "Match the following:"
+- Provide 4 items that need to be matched
+- Options should be the correct matches labeled A, B, C, D
+- Indicate all correct pairings in the explanation`,
+
+    open_ended: `QUESTION FORMAT: Open-ended (with rubric)
+- Ask for explanation, analysis, or opinion
+- Don't provide multiple choice options
+- Instead, provide a detailed rubric with key points that should be included
+- Explain what makes a good vs. excellent answer
+- Format as: {"question_text": "...", "rubric": {...}, "sample_answer": "...", "key_points": [...]}`
+  }
+
+  const formatInstructions = FORMAT_INSTRUCTIONS[questionFormat] || FORMAT_INSTRUCTIONS.mcq_single
+
   const prompt = `You are an expert educator creating comprehensive assessment questions.
 
 BLOOM'S TAXONOMY LEVEL: ${bloomLevel} - ${bloomDescription}
@@ -113,16 +155,18 @@ TOPIC: ${topicFullName}
 KNOWLEDGE DIMENSION: ${dimension}
 DIMENSION FOCUS: ${dimensionDescription}
 
+${formatInstructions}
+
 CONTEXT (from course materials):
 ${context}
 
-TASK: Generate 1 multiple-choice question at Bloom's level ${bloomLevel} about "${topicFullName}", specifically focusing on the "${dimension}" dimension.
+TASK: Generate 1 question at Bloom's level ${bloomLevel} about "${topicFullName}", specifically focusing on the "${dimension}" dimension, using the ${questionFormat} format.
 
 REQUIREMENTS:
 1. Base question ONLY on the provided context
 2. Match the cognitive level of Bloom's ${bloomLevel}
 3. **CRITICALLY IMPORTANT**: The question MUST focus on the ${dimension} dimension - ${dimensionDescription}
-4. Provide 4 answer options (A, B, C, D)
+4. Follow the ${questionFormat} format instructions exactly
 5. Clearly indicate the correct answer
 6. Include a brief, educational explanation
 
@@ -321,6 +365,7 @@ Return ONLY valid JSON, no other text.`
     user_id: userId,  // Track which user generated this question
     question_text: q.question_text,
     question_type: 'mcq',
+    question_format: questionFormat,  // Track which format was used
     options: q.options,
     correct_answer: q.correct_answer,
     explanation: q.explanation,
@@ -523,6 +568,11 @@ export async function POST(request: NextRequest) {
       const targetDimension = dimensionResult || 'definition'  // Default to definition dimension
       console.log(`Target dimension: ${targetDimension}`)
 
+      // Select question format based on Bloom level
+      const availableFormats = getFormatsByBloomLevel(selectedArm.bloomLevel)
+      const selectedFormat = availableFormats[Math.floor(Math.random() * availableFormats.length)] as QuestionFormat
+      console.log(`Selected format: ${selectedFormat} (available for Bloom ${selectedArm.bloomLevel}: ${availableFormats.join(', ')})`)
+
       try {
         selectedQuestion = await generateQuestionOnDemand(
           supabase,
@@ -533,6 +583,7 @@ export async function POST(request: NextRequest) {
           selectedArm.topicFullName,  // Full hierarchical name for RAG and context
           selectedArm.bloomLevel,
           targetDimension,
+          selectedFormat,  // Pass selected format
           subjectDimensionMap
         )
 
