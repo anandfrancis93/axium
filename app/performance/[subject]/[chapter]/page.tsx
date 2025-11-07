@@ -611,7 +611,14 @@ Mastery calculated using EMA (recent performance weighted higher)`
                       </tr>
                     </thead>
                     <tbody>
-                      {masteryHeatmap.map((row, idx) => (
+                      {masteryHeatmap.map((row, idx) => {
+                        // Calculate total unique questions across all Bloom levels for this topic
+                        const totalUniqueCount = bloomLevels.reduce((sum, level) => {
+                          const uniqueCountKey = `${row.topic}-${level.num}`
+                          return sum + (uniqueQuestionCounts[uniqueCountKey] || 0)
+                        }, 0)
+
+                        return (
                         <tr key={idx} className="border-t border-gray-800 hover:bg-gray-900/30 transition-colors">
                           <td className="p-4 text-gray-200 font-medium max-w-xs">
                             <Link
@@ -668,12 +675,26 @@ Mastery calculated using EMA (recent performance weighted higher)`
                             )
                           })}
                           <td className="p-4 text-center">
-                            <div className="text-gray-200 font-medium">
-                              {row.avg_mastery ? Math.round(row.avg_mastery) : 0}%
-                            </div>
+                            {row.avg_mastery ? (
+                              <div className="inline-flex items-center gap-1.5">
+                                <Tooltip content={`${row.topic} - Average Mastery\n\nAverage EMA Score: ${Math.round(row.avg_mastery)}%\n\nTotal Unique Questions: ${totalUniqueCount}`}>
+                                  <div className={`${getMasteryColor(row.avg_mastery, totalUniqueCount)} font-medium`}>
+                                    {Math.round(row.avg_mastery)}%
+                                  </div>
+                                </Tooltip>
+                                {totalUniqueCount < 3 && (
+                                  <Tooltip content={`⚠️ Insufficient Data\n\nOnly ${totalUniqueCount} total unique question${totalUniqueCount === 1 ? '' : 's'} across all Bloom levels.\n\nNeed ${3 - totalUniqueCount} more for reliable assessment.`}>
+                                    <AlertTriangleIcon size={10} className="text-yellow-500" />
+                                  </Tooltip>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="text-gray-600">0%</div>
+                            )}
                           </td>
                         </tr>
-                      ))}
+                        )
+                      })}
                     </tbody>
                   </table>
                 </div>
