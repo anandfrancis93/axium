@@ -33,6 +33,9 @@ export default function LearnPage() {
   const [recognitionMethod, setRecognitionMethod] = useState<RecognitionMethod | null>(null)
   const [feedback, setFeedback] = useState<any>(null)
 
+  // Response time tracking
+  const [questionShownAt, setQuestionShownAt] = useState<number | null>(null)
+
   useEffect(() => {
     fetchChapterAndStart()
   }, [])
@@ -117,6 +120,9 @@ export default function LearnPage() {
       setQuestionMetadata(data.question_metadata) // Store for submission
       setArmSelected(data.arm_selected)
 
+      // Record when question is shown for response time tracking
+      setQuestionShownAt(Date.now())
+
       // Reset state for new question
       setCurrentStep('confidence')
       setConfidence(null)
@@ -148,6 +154,11 @@ export default function LearnPage() {
     try {
       setLoading(true)
 
+      // Calculate response time in seconds
+      const responseTimeSeconds = questionShownAt
+        ? (Date.now() - questionShownAt) / 1000
+        : null
+
       const response = await fetch('/api/rl/submit-response', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -158,7 +169,8 @@ export default function LearnPage() {
           confidence,
           recognition_method: recognitionMethod,
           arm_selected: armSelected,
-          question_metadata: questionMetadata // Include for ephemeral questions
+          question_metadata: questionMetadata, // Include for ephemeral questions
+          response_time_seconds: responseTimeSeconds
         })
       })
 
@@ -312,9 +324,27 @@ Mastery grows with correct answers and confidence calibration`
         }
         break
 
+      case 'responseTime':
+        description = 'Response Time: Reward for retrieval fluency'
+        scale = 'Range: -3 to +5 points (adjusted for Bloom level and question length)'
+        if (value >= 5) {
+          interpretation = 'Fluent mastery! Fast, confident retrieval'
+        } else if (value >= 3) {
+          interpretation = 'Solid knowledge - thoughtful retrieval'
+        } else if (value >= 1) {
+          interpretation = 'Slower retrieval - still learning'
+        } else if (value >= 0) {
+          interpretation = 'Expected pace for this difficulty'
+        } else if (value >= -1) {
+          interpretation = 'Too slow or overthinking'
+        } else {
+          interpretation = 'Rushed answer - slow down and think'
+        }
+        break
+
       case 'total':
         description = 'Total Reward: Combined score from all components'
-        scale = 'Range: -10 to +25 points'
+        scale = 'Range: -21 to +30 points'
         if (value >= 20) {
           interpretation = 'Outstanding! Maximum learning effectiveness'
         } else if (value >= 15) {
@@ -697,6 +727,9 @@ ${interpretation}`
                   </Tooltip>
                   <Tooltip content={getRewardTooltip('spacing', feedback.reward_components?.spacing || 0)}>
                     <div>Spacing: <span className="text-yellow-400">{feedback.reward_components?.spacing?.toFixed(1)}</span></div>
+                  </Tooltip>
+                  <Tooltip content={getRewardTooltip('responseTime', feedback.reward_components?.responseTime || 0)}>
+                    <div>Response Time: <span className="text-cyan-400">{feedback.reward_components?.responseTime?.toFixed(1)}</span></div>
                   </Tooltip>
                 </div>
                 <div className="mt-3 pt-3 border-t border-gray-700">

@@ -6,15 +6,18 @@
  * 2. Confidence calibration
  * 3. Spaced repetition (retention)
  * 4. Recognition method (retrieval strength)
+ * 5. Response time (retrieval fluency)
  */
 
 export type RecognitionMethod = 'memory' | 'recognition' | 'educated_guess' | 'random'
+export type QuestionFormat = 'mcq_single' | 'mcq_multi' | 'true_false' | 'fill_blank' | 'matching' | 'open_ended'
 
 export interface RewardComponents {
   learningGain: number
   calibration: number
   spacing: number
   recognition: number
+  responseTime: number
   total: number
 }
 
@@ -136,6 +139,98 @@ function calculateRecognitionReward(
 }
 
 /**
+ * Count words in text (helper for reading time estimation)
+ */
+function countWords(text: string): number {
+  return text.trim().split(/\s+/).length
+}
+
+/**
+ * Calculate response time reward with Bloom-level and word-count adjustments
+ * Rewards fluent retrieval (fast correct answers) vs. struggling retrieval
+ *
+ * @param responseTimeSeconds - Time taken to answer in seconds
+ * @param isCorrect - Whether answer was correct
+ * @param bloomLevel - Current Bloom level (1-6)
+ * @param questionText - The question text
+ * @param options - Answer options object
+ * @param questionFormat - Format of the question
+ * @returns Reward component (-3 to +5)
+ */
+function calculateResponseTimeReward(
+  responseTimeSeconds: number,
+  isCorrect: boolean,
+  bloomLevel: number,
+  questionText: string,
+  options: Record<string, string> | null,
+  questionFormat: QuestionFormat | null
+): number {
+  // Base thresholds by Bloom level (in seconds)
+  const baseThresholds: Record<number, { fluent: number, good: number, slow: number }> = {
+    1: { fluent: 10, good: 25, slow: 50 },
+    2: { fluent: 10, good: 25, slow: 50 },
+    3: { fluent: 20, good: 40, slow: 70 },
+    4: { fluent: 30, good: 60, slow: 90 },
+    5: { fluent: 45, good: 90, slow: 120 },
+    6: { fluent: 45, good: 90, slow: 120 }
+  }
+
+  // Format-specific reading time modifiers
+  const formatModifiers: Record<string, number> = {
+    true_false: 0.5,      // Faster - only 2 options
+    mcq_single: 1.0,      // Baseline - 4 options
+    fill_blank: 1.1,      // Slightly slower - need to think of term
+    mcq_multi: 1.3,       // Slower - evaluate multiple correct answers
+    matching: 1.4,        // Slower - multiple pairings
+    open_ended: 2.0       // Much slower - write explanation
+  }
+
+  // Get base threshold for this Bloom level
+  const thresholds = baseThresholds[bloomLevel] || baseThresholds[1]
+
+  // Apply format modifier
+  const formatModifier = questionFormat ? (formatModifiers[questionFormat] || 1.0) : 1.0
+
+  // Calculate word count bonus (reading time estimation)
+  const questionWords = countWords(questionText)
+  const optionWords = options
+    ? Object.values(options).reduce((sum, opt) => sum + countWords(opt), 0)
+    : 0
+  const totalWords = questionWords + optionWords
+
+  // Word count adjustment (approximate reading time at 200 words/min)
+  let wordBonus = 0
+  if (totalWords > 150) wordBonus = 15
+  else if (totalWords > 100) wordBonus = 10
+  else if (totalWords > 50) wordBonus = 5
+
+  // Final adjusted thresholds
+  const fluentThreshold = thresholds.fluent * formatModifier + wordBonus
+  const goodThreshold = thresholds.good * formatModifier + wordBonus
+  const slowThreshold = thresholds.slow * formatModifier + wordBonus
+
+  if (isCorrect) {
+    // Correct answer: reward based on speed
+    if (responseTimeSeconds < fluentThreshold) {
+      return 5  // Fluent mastery (automatic retrieval)
+    } else if (responseTimeSeconds < goodThreshold) {
+      return 3  // Solid knowledge (thoughtful retrieval)
+    } else if (responseTimeSeconds < slowThreshold) {
+      return 1  // Slow retrieval (struggling but got it)
+    } else {
+      return -1  // Too slow (very uncertain or overthinking)
+    }
+  } else {
+    // Incorrect answer: penalize carelessness
+    if (responseTimeSeconds < fluentThreshold * 0.75) {
+      return -3  // Careless/impulsive (rushed and wrong)
+    } else {
+      return 0  // Expected (took time but still wrong - honest attempt)
+    }
+  }
+}
+
+/**
  * Calculate total reward for a user response
  *
  * @param params - Reward calculation parameters
@@ -148,6 +243,11 @@ export function calculateReward(params: {
   currentMastery: number
   daysSinceLastPractice: number
   recognitionMethod?: RecognitionMethod | null
+  responseTimeSeconds?: number | null
+  bloomLevel?: number
+  questionText?: string
+  options?: Record<string, string> | null
+  questionFormat?: QuestionFormat | null
 }): RewardComponents {
   const {
     learningGain,
@@ -155,7 +255,12 @@ export function calculateReward(params: {
     confidence,
     currentMastery,
     daysSinceLastPractice,
-    recognitionMethod = null
+    recognitionMethod = null,
+    responseTimeSeconds = null,
+    bloomLevel = 1,
+    questionText = '',
+    options = null,
+    questionFormat = null
   } = params
 
   // Calculate each component
@@ -164,29 +269,34 @@ export function calculateReward(params: {
   const spacingReward = calculateSpacingReward(daysSinceLastPractice, isCorrect)
   const recognitionReward = calculateRecognitionReward(recognitionMethod, isCorrect)
 
-  // Total reward (range: approximately -18 to +25)
-  // Engagement component removed - was penalizing first attempts unfairly
-  const total = learningGainReward + calibrationReward + spacingReward + recognitionReward
+  // Calculate response time reward (only if time is provided)
+  const responseTimeReward = responseTimeSeconds !== null
+    ? calculateResponseTimeReward(responseTimeSeconds, isCorrect, bloomLevel, questionText, options, questionFormat)
+    : 0
+
+  // Total reward (range: approximately -21 to +30)
+  const total = learningGainReward + calibrationReward + spacingReward + recognitionReward + responseTimeReward
 
   return {
     learningGain: learningGainReward,
     calibration: calibrationReward,
     spacing: spacingReward,
     recognition: recognitionReward,
+    responseTime: responseTimeReward,
     total
   }
 }
 
 /**
  * Normalize reward to [0, 1] range for Thompson Sampling
- * Assumes reward range of [-15, 25]
+ * Assumes reward range of [-21, 30]
  *
  * @param reward - Raw reward value
  * @returns Normalized reward in [0, 1]
  */
 export function normalizeReward(reward: number): number {
-  // Map [-15, 25] → [0, 1]
-  const normalized = (reward + 15) / 40
+  // Map [-21, 30] → [0, 1]
+  const normalized = (reward + 21) / 51
   return Math.max(0, Math.min(1, normalized))
 }
 

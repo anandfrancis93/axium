@@ -1,8 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(Application\") \ninstead of just leaf name (\"Application\") for:\n- RAG embedding search - better retrieval of relevant content\n- AI prompt context - clearer understanding of topic scope\n- Question generation - more accurate and contextual questions\n\nChanges:\n- Added topicFullName to Arm interface\n- Updated get_available_arms to return full_name from topics table\n- Updated Thompson Sampling to map full_name\n- Updated generateQuestionOnDemand to use full hierarchical name for embeddings and prompts\n\nThis ensures questions like \"Application\" are properly contextualized as being about \n\"Security Architecture)",
-      "Bash(Application\" rather than generic applications.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+      "Bash(NUL)",
+      "Bash(What is a conflict of interest?\") while remaining bullets appear below.\nOther sections remain unchanged with headers on separate lines.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []

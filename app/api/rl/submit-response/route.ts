@@ -41,7 +41,8 @@ export async function POST(request: NextRequest) {
       confidence: rawConfidence,
       recognition_method,
       arm_selected,
-      question_metadata // For ephemeral questions
+      question_metadata, // For ephemeral questions
+      response_time_seconds // Time taken to answer
     } = body
 
     // Validate all required inputs
@@ -164,7 +165,12 @@ export async function POST(request: NextRequest) {
       confidence,
       currentMastery,
       daysSinceLastPractice: daysSince,
-      recognitionMethod: recognition_method as RecognitionMethod
+      recognitionMethod: recognition_method as RecognitionMethod,
+      responseTimeSeconds: response_time_seconds,
+      bloomLevel: question.bloom_level,
+      questionText: question.question_text,
+      options: question.options,
+      questionFormat: question.question_format
     })
 
     // Update mastery for this topic (using new RPC function that uses topic_id)
@@ -225,6 +231,7 @@ export async function POST(request: NextRequest) {
         is_correct: isCorrect,
         confidence: confidence,
         reward: rewardComponents.total,
+        response_time_seconds: response_time_seconds,
         // created_at will be set by database default
       })
       .select()
