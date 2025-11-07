@@ -156,7 +156,8 @@ export default function PerformancePage() {
       if (topicsData) {
         topicsData.forEach((topic: any) => {
           const topicMastery = masteryMap.get(topic.name)
-          if (!topicMastery) return // Skip topics with no responses
+          // Skip topics with no responses at all
+          if (!topicMastery || topicMastery.size === 0) return
 
           const row: any = {
             user_id: user.id,
