@@ -167,20 +167,25 @@ export async function POST(request: NextRequest) {
     console.log(`Deleted ${dimensionCoverageDeleted} user_dimension_coverage records`)
 
     // Delete AI-generated questions for this user in this chapter
-    const { data: chapterTopics } = await supabase
-      .from('topics')
-      .select('id')
-      .eq('chapter_id', chapter_id)
+    // We need to delete questions one by one or use a subquery since Supabase doesn't support
+    // DELETE with joins directly. First, get the question IDs to delete.
+    const { data: questionsToDelete, error: fetchError } = await supabase
+      .from('questions')
+      .select('id, topic_id, topics!inner(chapter_id)')
+      .eq('user_id', user.id)
+      .eq('topics.chapter_id', chapter_id)
+      .eq('source_type', 'ai_generated_realtime')
 
-    if (chapterTopics && chapterTopics.length > 0) {
-      const topicIds = chapterTopics.map(t => t.id)
+    if (fetchError) {
+      console.error('Error fetching questions to delete:', fetchError)
+    } else if (questionsToDelete && questionsToDelete.length > 0) {
+      const questionIds = questionsToDelete.map(q => q.id)
 
+      // Delete using question IDs (much shorter than topic IDs)
       const { count: questionsCount, error: questionsError } = await supabase
         .from('questions')
         .delete({ count: 'exact' })
-        .eq('user_id', user.id)
-        .in('topic_id', topicIds)
-        .eq('source_type', 'ai_generated_realtime')
+        .in('id', questionIds)
 
       if (questionsError) {
         console.error('Error deleting AI-generated questions:', questionsError)
