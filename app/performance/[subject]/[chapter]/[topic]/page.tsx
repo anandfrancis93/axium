@@ -539,28 +539,29 @@ export default function TopicMasteryPage() {
         )}
 
         {/* Repeated Questions Analysis Section */}
-        {repeatQuestions.length > 0 && (
-          <div className="neuro-card">
-            <button
-              type="button"
-              onClick={() => setRepeatAnalysisExpanded(!repeatAnalysisExpanded)}
-              className="w-full flex items-center justify-between mb-6"
-            >
-              <h2 className="text-xl font-semibold text-gray-200">
-                Spaced Repetition Analysis
-              </h2>
-              <span className="text-gray-400 text-xl">
-                {repeatAnalysisExpanded ? '▼' : '▶'}
-              </span>
-            </button>
+        <div className="neuro-card">
+          <button
+            type="button"
+            onClick={() => setRepeatAnalysisExpanded(!repeatAnalysisExpanded)}
+            className="w-full flex items-center justify-between mb-6"
+          >
+            <h2 className="text-xl font-semibold text-gray-200">
+              Spaced Repetition Analysis
+            </h2>
+            <span className="text-gray-400 text-xl">
+              {repeatAnalysisExpanded ? '▼' : '▶'}
+            </span>
+          </button>
 
-            {repeatAnalysisExpanded && (
-              <div className="space-y-6">
-                <p className="text-sm text-gray-400 mb-4">
-                  Questions you've answered multiple times (spaced repetition). Shows how your mastery evolves with each attempt.
-                </p>
+          {repeatAnalysisExpanded && (
+            <>
+              {repeatQuestions.length > 0 ? (
+                <div className="space-y-6">
+                  <p className="text-sm text-gray-400 mb-4">
+                    Questions you've answered multiple times (spaced repetition). Shows how your mastery evolves with each attempt.
+                  </p>
 
-                {repeatQuestions.map((q, idx) => (
+                  {repeatQuestions.map((q, idx) => (
                   <div key={q.question_id} className="neuro-inset p-6 rounded-lg">
                     <div className="mb-4">
                       <div className="text-sm text-blue-400 font-semibold mb-1">
@@ -616,35 +617,46 @@ export default function TopicMasteryPage() {
                       Total: {q.attempts.length} attempts
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+                  ))}
+                </div>
+              ) : (
+                <div className="neuro-inset p-8 rounded-lg text-center">
+                  <div className="text-gray-400 text-lg font-semibold mb-2">
+                    No Repeated Questions Yet
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Questions you answer multiple times will appear here for spaced repetition tracking
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
 
         {/* Unique Questions History Section */}
-        {uniqueQuestions.length > 0 && (
-          <div className="neuro-card">
-            <button
-              type="button"
-              onClick={() => setQuestionHistoryExpanded(!questionHistoryExpanded)}
-              className="w-full flex items-center justify-between mb-6"
-            >
-              <h2 className="text-xl font-semibold text-gray-200">
-                Question History ({uniqueQuestions.length} unique)
-              </h2>
-              <span className="text-gray-400 text-xl">
-                {questionHistoryExpanded ? '▼' : '▶'}
-              </span>
-            </button>
+        <div className="neuro-card">
+          <button
+            type="button"
+            onClick={() => setQuestionHistoryExpanded(!questionHistoryExpanded)}
+            className="w-full flex items-center justify-between mb-6"
+          >
+            <h2 className="text-xl font-semibold text-gray-200">
+              Question History {uniqueQuestions.length > 0 && `(${uniqueQuestions.length} unique)`}
+            </h2>
+            <span className="text-gray-400 text-xl">
+              {questionHistoryExpanded ? '▼' : '▶'}
+            </span>
+          </button>
 
-            {questionHistoryExpanded && (
-              <div className="space-y-4">
-                <p className="text-sm text-gray-400 mb-4">
-                  All unique questions you've encountered for this topic, in chronological order.
-                </p>
+          {questionHistoryExpanded && (
+            <>
+              {uniqueQuestions.length > 0 ? (
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-400 mb-4">
+                    All unique questions you've encountered for this topic, in chronological order.
+                  </p>
 
-                <div className="overflow-x-auto">
+                  <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-gray-700">
@@ -697,13 +709,23 @@ export default function TopicMasteryPage() {
                   </table>
                 </div>
 
-                <div className="mt-4 text-sm text-gray-500">
-                  Total: {uniqueQuestions.length} unique questions, {uniqueQuestions.reduce((sum, q) => sum + q.total_attempts, 0)} total attempts
+                  <div className="mt-4 text-sm text-gray-500">
+                    Total: {uniqueQuestions.length} unique questions, {uniqueQuestions.reduce((sum, q) => sum + q.total_attempts, 0)} total attempts
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-        )}
+              ) : (
+                <div className="neuro-inset p-8 rounded-lg text-center">
+                  <div className="text-gray-400 text-lg font-semibold mb-2">
+                    No Questions Answered Yet
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Start learning this topic to see your question history here
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
     </div>
   )
