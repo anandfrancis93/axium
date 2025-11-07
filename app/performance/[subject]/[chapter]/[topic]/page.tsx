@@ -472,12 +472,6 @@ export default function TopicMasteryPage() {
               <div className="mb-6 p-4 neuro-inset rounded-lg">
                 <h3 className="text-sm font-medium text-gray-400 mb-4">Mastery Levels:</h3>
                 <div className="flex flex-wrap gap-4 text-sm">
-                  <Tooltip content={`Not Tested\n\nNo questions answered yet for this combination`}>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded bg-gray-800"></div>
-                      <span className="text-gray-500">Not Tested</span>
-                    </div>
-                  </Tooltip>
                   <Tooltip content={`Struggling\n\nAverage score: Less than 40%\n\nRecommendation: Review fundamentals and practice more`}>
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded bg-red-500"></div>
