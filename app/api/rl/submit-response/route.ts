@@ -311,6 +311,13 @@ export async function POST(request: NextRequest) {
         new_mastery: Math.round(newMastery * 10) / 10,
         change: Math.round(learningGain * 10) / 10
       },
+      mastery_updates: [{
+        topic: arm_selected?.topic_name || 'Unknown',
+        bloom_level: question.bloom_level,
+        old_mastery: Math.round(currentMastery * 10) / 10,
+        new_mastery: Math.round(newMastery * 10) / 10,
+        change: Math.round(learningGain * 10) / 10
+      }],
       session_progress: {
         questions_answered: newQuestionsAnswered,
         total_questions: session.total_questions,
