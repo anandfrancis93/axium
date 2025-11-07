@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { RefreshIcon, AlertTriangleIcon, CheckIcon, XIcon, BarChartIcon, TrendingUpIcon, AwardIcon, TargetIcon, ChevronDownIcon, LockIcon, LockOpenIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import { Tooltip } from '@/components/Tooltip'
+import Modal from '@/components/Modal'
 
 export default function PerformancePage() {
   const router = useRouter()
@@ -24,6 +25,9 @@ export default function PerformancePage() {
   const [statsExpanded, setStatsExpanded] = useState(false)
   const [heatmapExpanded, setHeatmapExpanded] = useState(false)
   const [activityExpanded, setActivityExpanded] = useState(false)
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [resetResults, setResetResults] = useState<any>(null)
 
   useEffect(() => {
     loadPerformanceData()
@@ -118,10 +122,6 @@ export default function PerformancePage() {
   }
 
   const handleResetProgress = async () => {
-    if (!confirm('WARNING: Reset all progress for this chapter?\n\nThis will permanently delete:\n• All mastery scores\n• Learning history\n• RL statistics\n• Session data\n\nThis action cannot be undone.')) {
-      return
-    }
-
     try {
       setResetting(true)
 
@@ -137,20 +137,24 @@ export default function PerformancePage() {
         throw new Error(data.error || 'Failed to reset progress')
       }
 
-      // Show deletion details
-      const details = data.deleted ?
-        `\n\nDeleted:\n• ${data.deleted.responses} responses\n• ${data.deleted.sessions} sessions\n• ${data.deleted.mastery} mastery records\n• ${data.deleted.armStats} arm stats\n• ${data.deleted.dimensionCoverage || 0} dimension coverage records\n• ${data.deleted.questions || 0} generated questions`
-        : ''
-
-      alert(`SUCCESS: Progress reset successfully!${details}`)
-
-      // Force full page reload to clear all cached data
-      window.location.reload()
+      // Store results and show success modal
+      setResetResults(data.deleted)
+      setShowConfirmModal(false)
+      setShowSuccessModal(true)
+      setResetting(false)
     } catch (error: any) {
       console.error('Error resetting progress:', error)
-      alert(`ERROR: ${error.message}`)
+      setShowConfirmModal(false)
       setResetting(false)
+      // TODO: Show error modal instead of alert
+      alert(`ERROR: ${error.message}`)
     }
+  }
+
+  const handleSuccessModalClose = () => {
+    setShowSuccessModal(false)
+    // Force full page reload to clear all cached data
+    window.location.reload()
   }
 
   const getMasteryColor = (mastery: number | null) => {
@@ -582,7 +586,7 @@ Mastery grows with correct answers and high confidence`
               </p>
             </div>
             <button
-              onClick={handleResetProgress}
+              onClick={() => setShowConfirmModal(true)}
               disabled={resetting}
               className="neuro-btn text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-red-400 hover:text-red-300 px-6 py-3 whitespace-nowrap"
             >
@@ -592,6 +596,95 @@ Mastery grows with correct answers and high confidence`
           </div>
         </div>
       </main>
+
+      {/* Confirmation Modal */}
+      <Modal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        title="Reset Progress?"
+        type="warning"
+        actions={[
+          {
+            label: 'Cancel',
+            onClick: () => setShowConfirmModal(false),
+            variant: 'secondary'
+          },
+          {
+            label: resetting ? 'Resetting...' : 'Reset Progress',
+            onClick: handleResetProgress,
+            variant: 'danger'
+          }
+        ]}
+      >
+        <div className="space-y-4">
+          <p className="text-gray-300">
+            This will permanently delete all progress for this chapter:
+          </p>
+          <ul className="list-disc list-inside space-y-2 text-gray-400 neuro-inset p-4 rounded-lg">
+            <li>All mastery scores</li>
+            <li>Learning history and responses</li>
+            <li>Thompson Sampling statistics</li>
+            <li>Session data</li>
+            <li>Dimension coverage records</li>
+            <li>Generated questions</li>
+          </ul>
+          <p className="text-red-400 font-semibold">
+            This action cannot be undone.
+          </p>
+        </div>
+      </Modal>
+
+      {/* Success Modal */}
+      <Modal
+        isOpen={showSuccessModal}
+        onClose={handleSuccessModalClose}
+        title="Progress Reset Complete"
+        type="success"
+        actions={[
+          {
+            label: 'Close',
+            onClick: handleSuccessModalClose,
+            variant: 'primary'
+          }
+        ]}
+      >
+        <div className="space-y-4">
+          <p className="text-gray-300 text-center">
+            Your progress has been successfully reset.
+          </p>
+          {resetResults && (
+            <div className="neuro-inset p-4 rounded-lg space-y-2">
+              <div className="text-sm font-medium text-gray-400 mb-3">Deleted Items:</div>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Responses:</span>
+                  <span className="text-blue-400 font-medium">{resetResults.responses}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Sessions:</span>
+                  <span className="text-blue-400 font-medium">{resetResults.sessions}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Mastery Records:</span>
+                  <span className="text-blue-400 font-medium">{resetResults.mastery}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Arm Stats:</span>
+                  <span className="text-blue-400 font-medium">{resetResults.armStats}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Dimension Coverage:</span>
+                  <span className="text-blue-400 font-medium">{resetResults.dimensionCoverage || 0}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Generated Questions:</span>
+                  <span className="text-blue-400 font-medium">{resetResults.questions || 0}</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </Modal>
     </div>
   )
 }
