@@ -244,6 +244,40 @@ ${interpretation}
 Mastery grows with correct answers and confidence calibration`
   }
 
+  const getRewardInterpretation = (component: string, value: number): string => {
+    switch (component) {
+      case 'learningGain':
+        if (value >= 8) return 'Excellent! Significant mastery improvement'
+        if (value >= 5) return 'Very good progress on this topic'
+        if (value >= 2) return 'Steady progress'
+        if (value >= 0) return 'Small progress'
+        if (value >= -3) return 'Slight setback, review recommended'
+        return 'Major gap identified, needs focused review'
+
+      case 'calibration':
+        if (value >= 4) return 'Perfect calibration!'
+        if (value >= 2) return 'Good calibration'
+        if (value >= 0) return 'Decent calibration'
+        if (value >= -2) return 'Over/under confident'
+        return 'Poor calibration'
+
+      case 'recognition':
+        if (value >= 5) return 'Knew from memory'
+        if (value >= 3) return 'Recognized answer'
+        if (value >= 1) return 'Educated guess'
+        return 'Random guess'
+
+      case 'spacing':
+        if (value >= 4) return 'Perfect timing!'
+        if (value >= 2) return 'Good spacing effect'
+        if (value >= 0) return 'Some spacing benefit'
+        return 'Too soon or too late'
+
+      default:
+        return ''
+    }
+  }
+
   const getRewardTooltip = (component: string, value: number) => {
     let description = ''
     let interpretation = ''
@@ -687,16 +721,16 @@ ${interpretation}`
                 <div className="text-sm font-medium text-gray-400 mb-3">Reward Components:</div>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <Tooltip content={getRewardTooltip('learningGain', feedback.reward_components?.learningGain || 0)}>
-                    <div>Learning Gain: <span className="text-blue-400">{feedback.reward_components?.learningGain?.toFixed(1)}</span></div>
+                    <div>Learning Gain: <span className="text-gray-200">{getRewardInterpretation('learningGain', feedback.reward_components?.learningGain || 0)}</span> <span className="text-blue-400">({feedback.reward_components?.learningGain?.toFixed(1)})</span></div>
                   </Tooltip>
                   <Tooltip content={getRewardTooltip('calibration', feedback.reward_components?.calibration || 0)}>
-                    <div>Calibration: <span className="text-purple-400">{feedback.reward_components?.calibration?.toFixed(1)}</span></div>
+                    <div>Calibration: <span className="text-gray-200">{getRewardInterpretation('calibration', feedback.reward_components?.calibration || 0)}</span> <span className="text-blue-400">({feedback.reward_components?.calibration?.toFixed(1)})</span></div>
                   </Tooltip>
                   <Tooltip content={getRewardTooltip('recognition', feedback.reward_components?.recognition || 0)}>
-                    <div>Recognition: <span className="text-green-400">{feedback.reward_components?.recognition?.toFixed(1)}</span></div>
+                    <div>Recognition: <span className="text-gray-200">{getRewardInterpretation('recognition', feedback.reward_components?.recognition || 0)}</span> <span className="text-blue-400">({feedback.reward_components?.recognition?.toFixed(1)})</span></div>
                   </Tooltip>
                   <Tooltip content={getRewardTooltip('spacing', feedback.reward_components?.spacing || 0)}>
-                    <div>Spacing: <span className="text-yellow-400">{feedback.reward_components?.spacing?.toFixed(1)}</span></div>
+                    <div>Spacing: <span className="text-gray-200">{getRewardInterpretation('spacing', feedback.reward_components?.spacing || 0)}</span> <span className="text-blue-400">({feedback.reward_components?.spacing?.toFixed(1)})</span></div>
                   </Tooltip>
                 </div>
                 <div className="mt-3 pt-3 border-t border-gray-700">
