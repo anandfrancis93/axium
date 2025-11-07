@@ -13,18 +13,12 @@ SELECT
   udc.last_tested_at,
   -- Add dimension metadata for display
   CASE udc.dimension
-    WHEN 'core_understanding' THEN 'Core Understanding'
-    WHEN 'measuring_evaluating' THEN 'Measuring & Evaluating'
-    WHEN 'controls' THEN 'Controls'
-    WHEN 'architecture_design' THEN 'Architecture & Design'
-    WHEN 'threats_failures' THEN 'Threats & Failures'
-    WHEN 'validation_assurance' THEN 'Validation & Assurance'
-    WHEN 'legal_compliance' THEN 'Legal & Compliance'
-    WHEN 'incident_response' THEN 'Incident Response'
-    WHEN 'advanced_concepts' THEN 'Advanced Concepts'
-    WHEN 'misconceptions' THEN 'Misconceptions'
-    WHEN 'practical_scenarios' THEN 'Practical Scenarios'
-    WHEN 'strategic_policy' THEN 'Strategic & Policy'
+    WHEN 'definition' THEN 'Definition'
+    WHEN 'example' THEN 'Example'
+    WHEN 'comparison' THEN 'Comparison'
+    WHEN 'scenario' THEN 'Scenario'
+    WHEN 'implementation' THEN 'Implementation'
+    WHEN 'troubleshooting' THEN 'Troubleshooting'
     ELSE udc.dimension
   END as dimension_display_name,
   -- Status flags
@@ -66,21 +60,15 @@ BEGIN
   INTO v_all_dimensions
   FROM get_subject_dimensions(v_subject_id);
 
-  -- Fallback to defaults if no dimensions configured
+  -- Fallback to NEW 6 dimensions if no dimensions configured
   IF v_all_dimensions IS NULL OR ARRAY_LENGTH(v_all_dimensions, 1) IS NULL THEN
     v_all_dimensions := ARRAY[
-      'core_understanding',
-      'measuring_evaluating',
-      'controls',
-      'architecture_design',
-      'threats_failures',
-      'validation_assurance',
-      'legal_compliance',
-      'incident_response',
-      'advanced_concepts',
-      'misconceptions',
-      'practical_scenarios',
-      'strategic_policy'
+      'definition',
+      'example',
+      'comparison',
+      'scenario',
+      'implementation',
+      'troubleshooting'
     ];
   END IF;
 
@@ -101,18 +89,12 @@ BEGIN
     matrix.bl as bloom_level,
     matrix.dim as dimension,
     CASE matrix.dim
-      WHEN 'core_understanding' THEN 'Core Understanding'
-      WHEN 'measuring_evaluating' THEN 'Measuring & Evaluating'
-      WHEN 'controls' THEN 'Controls'
-      WHEN 'architecture_design' THEN 'Architecture & Design'
-      WHEN 'threats_failures' THEN 'Threats & Failures'
-      WHEN 'validation_assurance' THEN 'Validation & Assurance'
-      WHEN 'legal_compliance' THEN 'Legal & Compliance'
-      WHEN 'incident_response' THEN 'Incident Response'
-      WHEN 'advanced_concepts' THEN 'Advanced Concepts'
-      WHEN 'misconceptions' THEN 'Misconceptions'
-      WHEN 'practical_scenarios' THEN 'Practical Scenarios'
-      WHEN 'strategic_policy' THEN 'Strategic & Policy'
+      WHEN 'definition' THEN 'Definition'
+      WHEN 'example' THEN 'Example'
+      WHEN 'comparison' THEN 'Comparison'
+      WHEN 'scenario' THEN 'Scenario'
+      WHEN 'implementation' THEN 'Implementation'
+      WHEN 'troubleshooting' THEN 'Troubleshooting'
       ELSE matrix.dim
     END as dimension_name,
     COALESCE(udc.times_tested, 0) as times_tested,
