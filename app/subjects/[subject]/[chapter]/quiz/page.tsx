@@ -533,7 +533,8 @@ ${interpretation}`
                     {(() => {
                       // Parse the explanation into sections
                       const text = feedback.explanation
-                      const sections: { header: string; bullets: string[] }[] = []
+                      type Section = { header: string; bullets: string[] }
+                      const sections: Section[] = []
 
                       // First, try to identify section headers by looking for common patterns
                       // Split by newlines first if they exist, otherwise by period+space
@@ -541,7 +542,7 @@ ${interpretation}`
                         ? text.split('\n').filter((l: string) => l.trim())
                         : text.split(/\.\s+/).filter((l: string) => l.trim())
 
-                      let currentSection: { header: string; bullets: string[] } | null = null
+                      let currentSection: Section | undefined = undefined
 
                       rawLines.forEach((line: string) => {
                         const trimmed = line.trim()
@@ -555,14 +556,13 @@ ${interpretation}`
 
                         if (headerMatch) {
                           // Save previous section
-                          const prevSection: { header: string; bullets: string[] } | null = currentSection
-                          if (prevSection && prevSection.bullets.length > 0) {
-                            sections.push(prevSection)
+                          if (currentSection && currentSection.bullets.length > 0) {
+                            sections.push(currentSection)
                           }
                           // Start new section
                           const header = headerMatch[1] + ':'
                           const content = headerMatch[2]
-                          currentSection = { header, bullets: content ? [content] : [] } as { header: string; bullets: string[] }
+                          currentSection = { header, bullets: content ? [content] : [] }
                         } else if (currentSection) {
                           // Add as bullet to current section (split by periods if it's a long line)
                           if (cleanedLine.length > 150 && cleanedLine.includes('. ')) {
@@ -574,14 +574,13 @@ ${interpretation}`
                           }
                         } else {
                           // No section yet, create a default one
-                          currentSection = { header: '', bullets: [cleanedLine] } as { header: string; bullets: string[] }
+                          currentSection = { header: '', bullets: [cleanedLine] }
                         }
                       })
 
                       // Add last section
-                      const finalSection: { header: string; bullets: string[] } | null = currentSection
-                      if (finalSection && finalSection.bullets.length > 0) {
-                        sections.push(finalSection)
+                      if (currentSection && currentSection.bullets.length > 0) {
+                        sections.push(currentSection)
                       }
 
                       // If no sections parsed, fall back to simple splitting by sentences
