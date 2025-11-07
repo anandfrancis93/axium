@@ -538,8 +538,8 @@ ${interpretation}`
                       // First, try to identify section headers by looking for common patterns
                       // Split by newlines first if they exist, otherwise by period+space
                       const rawLines = text.includes('\n')
-                        ? text.split('\n').filter(l => l.trim())
-                        : text.split(/\.\s+/).filter(l => l.trim())
+                        ? text.split('\n').filter((l: string) => l.trim())
+                        : text.split(/\.\s+/).filter((l: string) => l.trim())
 
                       let currentSection: { header: string; bullets: string[] } | null = null
 
