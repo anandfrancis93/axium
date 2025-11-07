@@ -139,7 +139,7 @@ export default function PerformancePage() {
 
       // Show deletion details
       const details = data.deleted ?
-        `\n\nDeleted:\n• ${data.deleted.responses} responses\n• ${data.deleted.sessions} sessions\n• ${data.deleted.mastery} mastery records\n• ${data.deleted.armStats} arm stats`
+        `\n\nDeleted:\n• ${data.deleted.responses} responses\n• ${data.deleted.sessions} sessions\n• ${data.deleted.mastery} mastery records\n• ${data.deleted.armStats} arm stats\n• ${data.deleted.dimensionCoverage || 0} dimension coverage records\n• ${data.deleted.questions || 0} generated questions`
         : ''
 
       alert(`SUCCESS: Progress reset successfully!${details}`)
