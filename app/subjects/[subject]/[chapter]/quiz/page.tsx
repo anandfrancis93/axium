@@ -395,16 +395,9 @@ ${interpretation}`
         <div className="neuro-card">
           {/* Question Text */}
           <div className="mb-8">
-            <div className="flex items-start gap-3 mb-4">
-              <div className="neuro-inset w-10 h-10 rounded-full flex items-center justify-center text-blue-400 font-bold flex-shrink-0">
-                Q
-              </div>
-              <div className="flex-1">
-                <p className="text-xl text-gray-200 leading-relaxed">
-                  {question.question_text}
-                </p>
-              </div>
-            </div>
+            <p className="text-xl text-gray-200 leading-relaxed">
+              {question.question_text}
+            </p>
           </div>
 
           {/* STEP 1: Confidence Selection */}
