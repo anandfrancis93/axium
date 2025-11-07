@@ -150,12 +150,12 @@ export default function PerformancePage() {
             user_id: user.id,
             chapter_id: fetchedChapter.id,
             topic: topic.name,
-            bloom_1: topicMastery.get(1) || null,
-            bloom_2: topicMastery.get(2) || null,
-            bloom_3: topicMastery.get(3) || null,
-            bloom_4: topicMastery.get(4) || null,
-            bloom_5: topicMastery.get(5) || null,
-            bloom_6: topicMastery.get(6) || null,
+            bloom_1: topicMastery.get(1) !== undefined ? topicMastery.get(1) : null,
+            bloom_2: topicMastery.get(2) !== undefined ? topicMastery.get(2) : null,
+            bloom_3: topicMastery.get(3) !== undefined ? topicMastery.get(3) : null,
+            bloom_4: topicMastery.get(4) !== undefined ? topicMastery.get(4) : null,
+            bloom_5: topicMastery.get(5) !== undefined ? topicMastery.get(5) : null,
+            bloom_6: topicMastery.get(6) !== undefined ? topicMastery.get(6) : null,
           }
 
           // Calculate average mastery (only from levels with data)
