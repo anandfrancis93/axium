@@ -770,7 +770,6 @@ export default function TopicMasteryPage() {
                         stroke="#10b981"
                         strokeWidth={2}
                         strokeDasharray="5 5"
-                        label={{ value: '80%', position: 'right', fill: '#10b981', fontSize: 12 }}
                       />
                     </AreaChart>
                   </ResponsiveContainer>
