@@ -361,6 +361,13 @@ Return ONLY valid JSON, no other text.`
   // We already have the correct topic_id from the RL arm selection (handles hierarchy correctly)
   console.log(`Storing question for topic_id: ${topicId}`)
 
+  // Find related topics using hybrid embeddings + hierarchy approach
+  const { findRelatedTopics, getRelatedTopicIds } = await import('@/lib/rl/related-topics')
+  const relatedTopics = await findRelatedTopics(topicId, 4) // Get top 4 related topics
+  const relatedTopicIds = getRelatedTopicIds(relatedTopics)
+
+  console.log(`Found ${relatedTopics.length} related topics:`, relatedTopics.map(t => t.name).join(', '))
+
   const questionToInsert = {
     user_id: userId,  // Track which user generated this question
     question_text: q.question_text,
@@ -372,6 +379,8 @@ Return ONLY valid JSON, no other text.`
     bloom_level: bloomLevel,
     topic: topicName,  // Store topic name for reference
     topic_id: topicId,  // ✅ Use topic_id from RL arm selection (handles hierarchy correctly)
+    core_topics: [topicId],  // ✅ New: Primary topic in array format
+    related_topics: relatedTopicIds,  // ✅ New: Auto-discovered related topics
     dimension,  // Track which knowledge dimension this question tests
     difficulty_estimated: bloomLevel >= 4 ? 'hard' : bloomLevel >= 3 ? 'medium' : 'easy',
     source_type: 'ai_generated_realtime',
