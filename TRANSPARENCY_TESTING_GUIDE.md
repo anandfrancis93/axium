@@ -160,11 +160,16 @@ This guide walks you through testing the **100% transparent RL system** in Axium
    - **Times Selected:** Should match number of questions answered for that arm
    - **Avg Reward:** Should be between -1.0 and 1.0 typically
 
-5. **Hover over values:**
+5. **Verify per-topic Bloom progression:**
+   - You may see same topic at multiple Bloom levels (e.g., "Cryptography" at Bloom 1 AND Bloom 2)
+   - Higher Bloom levels only appear after mastering previous level (80% + 3 correct)
+   - Different topics can be at different Bloom levels (e.g., "Cryptography Bloom 2" + "Firewalls Bloom 1")
+
+6. **Hover over values:**
    - Tooltip on "Est. Success" should explain calculation
    - Tooltip on "Avg Reward" should explain higher = better
 
-6. **Check explanation section:**
+7. **Check explanation section:**
    - Should explain what Alpha, Beta, Thompson Sampling mean
    - Should be at bottom of expanded section
 
@@ -175,6 +180,7 @@ This guide walks you through testing the **100% transparent RL system** in Axium
 - ✅ Color coding matches success rate
 - ✅ Tooltips provide helpful explanations
 - ✅ Explanation section is clear and accurate
+- ✅ Per-topic Bloom progression visible (same topic at multiple levels)
 
 ---
 
@@ -202,18 +208,26 @@ This guide walks you through testing the **100% transparent RL system** in Axium
 
 4. **Verify content:**
    - **Reasoning text:** Should explain Thompson Sampling decision
-     - Example: *"Thompson Sampling: Sampled 12 arms, selected Application Security (Bloom 3) with adjusted sample 0.857 (raw: 0.652, mastery: 45.2%)"*
-   - **Alternatives count:** Should show number like *"11 other topics were considered by Thompson Sampling"*
+     - Example: *"Thompson Sampling: Sampled 809 arms, selected Application Security (Bloom 1) with adjusted sample 2.857 (raw: 0.952, mastery: 0.0%)"*
+   - **Arm count:** Should show ~809 arms initially (all topics at Bloom 1)
+   - **Alternatives count:** Should show number like *"808 other topics were considered by Thompson Sampling"*
 
 5. **Test multiple questions:**
    - Answer 3-5 more questions
    - Each should show different reasoning based on current state
    - Topics with lower mastery should be selected more often
 
+6. **After mastering a topic (80% + 3 correct):**
+   - Bloom 2 for that topic should unlock
+   - Arm count should increase (e.g., 809 → 810)
+   - You may see reasoning like *"Sampled 810 arms, selected Cryptography (Bloom 2)..."*
+
 **Pass Criteria:**
 - ✅ "Why This Question?" section appears in feedback
 - ✅ Reasoning explains Thompson Sampling decision
 - ✅ Shows specific topic name and Bloom level selected
+- ✅ Initial arm count is ~809 (all topics at Bloom 1)
+- ✅ Arm count increases as Bloom levels unlock
 - ✅ Shows number of alternatives considered
 - ✅ Text is clear and understandable
 
