@@ -60,6 +60,25 @@ export interface MasteryUpdateLog {
   formula: string
 }
 
+export interface DataDeletionLog {
+  userId: string
+  chapterId?: string
+  topicId?: string
+  bloomLevel?: number
+  reason: string
+  scope: 'chapter' | 'topic' | 'topic_bloom_level'
+  deletedData: {
+    responses: number
+    sessions: number
+    mastery: number
+    armStats: number
+    dimensionCoverage: number
+    progress: number
+    questions: number
+  }
+  snapshot: any // Full snapshot of data before deletion
+}
+
 /**
  * Log arm selection decision (Thompson Sampling)
  */
@@ -196,4 +215,36 @@ export async function getSessionDecisions(sessionId: string): Promise<any[]> {
   }
 
   return data || []
+}
+
+/**
+ * Log data deletion (reset progress)
+ */
+export async function logDataDeletion(log: DataDeletionLog): Promise<void> {
+  try {
+    const supabase = await createClient()
+
+    const { data, error } = await supabase.from('rl_decision_log').insert({
+      user_id: log.userId,
+      decision_type: 'data_deletion',
+      topic_id: log.topicId,
+      bloom_level: log.bloomLevel,
+      selection_reasoning: log.reason,
+      state_snapshot: {
+        scope: log.scope,
+        chapter_id: log.chapterId,
+        deleted_counts: log.deletedData,
+        data_snapshot: log.snapshot,
+        timestamp: new Date().toISOString()
+      }
+    }).select()
+
+    if (error) {
+      console.error('Database error logging data deletion:', error)
+      throw error
+    }
+  } catch (error) {
+    console.error('Failed to log data deletion:', error)
+    throw error
+  }
 }

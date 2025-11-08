@@ -357,6 +357,106 @@ ORDER BY created_at DESC;
 
 ---
 
+### ✅ 5. Test Data Deletion Transparency
+
+**Goal:** Verify all data deletions (reset progress) are logged with full snapshots.
+
+**Steps:**
+
+1. **Navigate to performance page with existing progress:**
+   ```
+   URL: /performance/[subject]/[chapter]
+   ```
+
+2. **Trigger a reset (choose one):**
+
+   **Option A: Reset entire chapter**
+   - Click "Reset Progress" button on chapter performance page
+   - Confirm the reset action
+
+   **Option B: Reset specific topic**
+   - Navigate to topic detail page: `/performance/[subject]/[chapter]/[topic]`
+   - Click "Reset Topic Progress" button
+   - Optionally select specific Bloom level to reset
+
+3. **Check the decision log in Supabase:**
+   ```sql
+   -- View deletion log
+   SELECT
+     decision_type,
+     created_at,
+     selection_reasoning,
+     state_snapshot->'scope' as scope,
+     state_snapshot->'deleted_counts' as deleted_counts
+   FROM rl_decision_log
+   WHERE decision_type = 'data_deletion'
+   ORDER BY created_at DESC
+   LIMIT 5;
+   ```
+
+4. **Expected Results:**
+   - One `data_deletion` log entry created
+   - `selection_reasoning` contains reason (e.g., "User-initiated chapter progress reset")
+   - `state_snapshot.scope` is one of:
+     - `chapter` - Full chapter reset
+     - `topic` - Full topic reset (all Bloom levels)
+     - `topic_bloom_level` - Specific topic×Bloom reset
+   - `state_snapshot.deleted_counts` shows counts:
+     - `responses` - Number of user_responses deleted
+     - `sessions` - Number of learning_sessions deleted
+     - `mastery` - Number of user_topic_mastery deleted
+     - `armStats` - Number of rl_arm_stats deleted
+     - `progress` - Number of user_progress deleted
+     - `questions` - Number of AI-generated questions deleted
+   - `state_snapshot.data_snapshot` contains full snapshot of deleted data
+
+5. **Test audit dashboard:**
+   - Go to `/audit`
+   - Click "Data Deletion" filter
+   - Should see deletion event(s)
+   - Click on deletion event
+   - **Expected:**
+     - Right panel shows "Reason" section
+     - "Scope" section (chapter/topic/topic_bloom_level)
+     - "Records Deleted" with counts
+     - "Data Snapshot" showing recoverable data
+
+6. **Verify data snapshot integrity:**
+   ```sql
+   -- View snapshot details
+   SELECT
+     id,
+     created_at,
+     state_snapshot->'data_snapshot'->'responses' as responses_snapshot,
+     state_snapshot->'data_snapshot'->'mastery' as mastery_snapshot,
+     state_snapshot->'data_snapshot'->'armStats' as arm_stats_snapshot
+   FROM rl_decision_log
+   WHERE decision_type = 'data_deletion'
+   ORDER BY created_at DESC
+   LIMIT 1;
+   ```
+   - Each snapshot should contain array of deleted records
+   - Records should have full data (not just IDs)
+   - Snapshot enables theoretical recovery if needed
+
+**Pass Criteria:**
+- ✅ Deletion event logged immediately after reset
+- ✅ Reason explains why deletion occurred
+- ✅ Scope correctly identifies what was deleted
+- ✅ Deleted counts match actual deletions
+- ✅ Data snapshot contains full records (not just counts)
+- ✅ Audit dashboard displays deletion correctly
+- ✅ All deletion fields populated
+
+**Recovery Potential:**
+While not implemented, the snapshot allows you to:
+- Audit what was deleted and when
+- Verify user didn't accidentally delete important progress
+- Theoretically restore data if needed (manual process)
+- Debug issues related to missing data
+
+---
+
 ## End-to-End Test Scenario
 
 **Complete walkthrough to verify full transparency:**
@@ -416,21 +516,24 @@ The RL system is **100% transparent** when:
    - ✅ Arm selection (Thompson Sampling)
    - ✅ Reward calculation (all components)
    - ✅ Mastery update (EMA formula)
+   - ✅ Data deletion (reset progress with snapshots)
 
 2. **Audit trail is complete:**
    - ✅ Can replay any session
    - ✅ Can debug "Why did I get this question?"
    - ✅ Can verify reward calculations
+   - ✅ Can audit what data was deleted and when
 
 3. **User-facing transparency:**
    - ✅ Users see why questions were selected
    - ✅ Users can view current RL state
-   - ✅ Admins can audit all decisions
+   - ✅ Admins can audit all decisions (including deletions)
 
 4. **Data integrity:**
    - ✅ No missing decisions
    - ✅ Timestamps are sequential
    - ✅ All foreign keys valid
+   - ✅ Deleted data snapshots preserved
 
 ---
 
@@ -482,6 +585,12 @@ If any test fails, check:
 
 ## Conclusion
 
-The RL system is now **100% transparent**. Every decision is logged, auditable, and explainable. Users can see why questions were selected, admins can debug issues, and researchers can analyze the learning process.
+The RL system is now **100% transparent**. Every decision is logged, auditable, and explainable. Users can see why questions were selected, admins can debug issues, researchers can analyze the learning process, and all data deletions are tracked with full snapshots for recovery.
 
-**Happy testing!** 🎉
+**Decision Types Logged:**
+1. `arm_selection` - Thompson Sampling topic selection
+2. `reward_calculation` - Reward component breakdown
+3. `mastery_update` - Mastery score changes (EMA)
+4. `data_deletion` - Progress resets with snapshots
+
+**Happy testing!**

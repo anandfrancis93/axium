@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logDataDeletion } from '@/lib/rl/decision-logger'
 
 /**
  * POST /api/rl/reset-progress
@@ -43,6 +44,9 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString()
     })
 
+    // Capture snapshot of data before deletion for transparency
+    const dataSnapshot: any = {}
+
     // First check what data exists
     const { data: allSessions, error: checkError } = await supabase
       .from('learning_sessions')
@@ -74,6 +78,47 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(`Found ${sessions?.length || 0} sessions to delete`)
+
+    // Capture data snapshots before deletion
+    if (sessions && sessions.length > 0) {
+      const sessionIds = sessions.map(s => s.id)
+
+      // Get responses snapshot
+      const { data: responsesSnapshot } = await supabase
+        .from('user_responses')
+        .select('*')
+        .in('session_id', sessionIds)
+      dataSnapshot.responses = responsesSnapshot || []
+    }
+
+    // Get mastery snapshot
+    const { data: masterySnapshot } = await supabase
+      .from('user_topic_mastery')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('chapter_id', chapter_id)
+    dataSnapshot.mastery = masterySnapshot || []
+
+    // Get arm stats snapshot
+    const { data: armStatsSnapshot } = await supabase
+      .from('rl_arm_stats')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('chapter_id', chapter_id)
+    dataSnapshot.armStats = armStatsSnapshot || []
+
+    // Get progress snapshot
+    const { data: allUserProgress, error: fetchProgressError } = await supabase
+      .from('user_progress')
+      .select('*, topics(chapter_id)')
+      .eq('user_id', user.id)
+
+    if (!fetchProgressError && allUserProgress) {
+      const progressInChapter = allUserProgress.filter(
+        (p: any) => p.topics?.chapter_id === chapter_id
+      )
+      dataSnapshot.progress = progressInChapter
+    }
 
     let responsesDeleted = 0
     let sessionsDeleted = 0
@@ -171,39 +216,23 @@ export async function POST(request: NextRequest) {
     console.log(`Deleted ${dimensionCoverageDeleted} user_dimension_coverage records`)
 
     // Delete user_progress for this chapter
-    // Fetch all user_progress records and filter by chapter
-    const { data: allUserProgress, error: fetchProgressError } = await supabase
-      .from('user_progress')
-      .select('id, topic_id, topics(chapter_id)')
-      .eq('user_id', user.id)
+    const progressInChapter = dataSnapshot.progress || []
+    console.log(`Found ${progressInChapter.length} user_progress records to delete`)
 
-    if (fetchProgressError) {
-      console.error('Error fetching user_progress:', fetchProgressError)
-    } else if (allUserProgress && allUserProgress.length > 0) {
-      // Filter to only records in this chapter
-      const progressInChapter = allUserProgress.filter(
-        (p: any) => p.topics?.chapter_id === chapter_id
-      )
+    if (progressInChapter.length > 0) {
+      const progressIds = progressInChapter.map((p: any) => p.id)
 
-      console.log(`Found ${progressInChapter.length} user_progress records to delete`)
+      const { count: progressCount, error: progressError } = await supabase
+        .from('user_progress')
+        .delete({ count: 'exact' })
+        .in('id', progressIds)
 
-      if (progressInChapter.length > 0) {
-        const progressIds = progressInChapter.map((p: any) => p.id)
-
-        const { count: progressCount, error: progressError } = await supabase
-          .from('user_progress')
-          .delete({ count: 'exact' })
-          .in('id', progressIds)
-
-        if (progressError) {
-          console.error('Error deleting user_progress:', progressError)
-        } else {
-          progressDeleted = progressCount || 0
-          console.log(`Deleted ${progressDeleted} user_progress records`)
-        }
+      if (progressError) {
+        console.error('Error deleting user_progress:', progressError)
+      } else {
+        progressDeleted = progressCount || 0
+        console.log(`Deleted ${progressDeleted} user_progress records`)
       }
-    } else {
-      console.log('No user_progress records found for this user')
     }
 
     // Delete AI-generated questions for this user in this chapter
@@ -236,6 +265,30 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('Reset progress complete')
+
+    // Log deletion for transparency
+    try {
+      await logDataDeletion({
+        userId: user.id,
+        chapterId: chapter_id,
+        reason: 'User-initiated chapter progress reset',
+        scope: 'chapter',
+        deletedData: {
+          responses: responsesDeleted,
+          sessions: sessionsDeleted,
+          mastery: masteryDeleted,
+          armStats: armStatsDeleted,
+          dimensionCoverage: dimensionCoverageDeleted,
+          progress: progressDeleted,
+          questions: questionsDeleted
+        },
+        snapshot: dataSnapshot
+      })
+      console.log('Deletion logged to rl_decision_log')
+    } catch (logError) {
+      console.error('Failed to log deletion (non-fatal):', logError)
+      // Don't fail the request if logging fails
+    }
 
     return NextResponse.json({
       success: true,

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logDataDeletion } from '@/lib/rl/decision-logger'
 
 /**
  * POST /api/rl/reset-topic-progress
@@ -52,6 +53,56 @@ export async function POST(request: NextRequest) {
       scope: resetScope,
       timestamp: new Date().toISOString()
     })
+
+    // Capture snapshot of data before deletion for transparency
+    const dataSnapshot: any = {}
+
+    // Build snapshot queries
+    let responsesSnapshotQuery = supabase
+      .from('user_responses')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('topic_id', topic_id)
+
+    let masterySnapshotQuery = supabase
+      .from('user_topic_mastery')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('chapter_id', chapter_id)
+      .eq('topic_id', topic_id)
+
+    let armStatsSnapshotQuery = supabase
+      .from('rl_arm_stats')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('chapter_id', chapter_id)
+      .eq('topic_id', topic_id)
+
+    // Add bloom_level filter if specified
+    if (bloom_level) {
+      responsesSnapshotQuery = responsesSnapshotQuery.eq('bloom_level', bloom_level)
+      masterySnapshotQuery = masterySnapshotQuery.eq('bloom_level', bloom_level)
+      armStatsSnapshotQuery = armStatsSnapshotQuery.eq('bloom_level', bloom_level)
+    }
+
+    // Get snapshots
+    const { data: responsesSnapshot } = await responsesSnapshotQuery
+    const { data: masterySnapshot } = await masterySnapshotQuery
+    const { data: armStatsSnapshot } = await armStatsSnapshotQuery
+
+    dataSnapshot.responses = responsesSnapshot || []
+    dataSnapshot.mastery = masterySnapshot || []
+    dataSnapshot.armStats = armStatsSnapshot || []
+
+    // Get progress snapshot (only if full topic reset)
+    if (isFullTopicReset) {
+      const { data: progressSnapshot } = await supabase
+        .from('user_progress')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('topic_id', topic_id)
+      dataSnapshot.progress = progressSnapshot || []
+    }
 
     let responsesDeleted = 0
     let masteryDeleted = 0
@@ -226,6 +277,32 @@ export async function POST(request: NextRequest) {
         questions: questionsDeleted
       }
     })
+
+    // Log deletion for transparency
+    try {
+      await logDataDeletion({
+        userId: user.id,
+        chapterId: chapter_id,
+        topicId: topic_id,
+        bloomLevel: bloom_level,
+        reason: `User-initiated ${resetScope} reset`,
+        scope: isFullTopicReset ? 'topic' : 'topic_bloom_level',
+        deletedData: {
+          responses: responsesDeleted,
+          sessions: sessionsDeleted,
+          mastery: masteryDeleted,
+          armStats: armStatsDeleted,
+          dimensionCoverage: dimensionCoverageDeleted,
+          progress: progressDeleted,
+          questions: questionsDeleted
+        },
+        snapshot: dataSnapshot
+      })
+      console.log('Deletion logged to rl_decision_log')
+    } catch (logError) {
+      console.error('Failed to log deletion (non-fatal):', logError)
+      // Don't fail the request if logging fails
+    }
 
     return NextResponse.json({
       success: true,
