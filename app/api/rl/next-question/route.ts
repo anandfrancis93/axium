@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { selectArmThompsonSampling } from '@/lib/rl/thompson-sampling'
 import { getFormatsByBloomLevel, type QuestionFormat } from '@/lib/utils/question-format'
+import { logArmSelection } from '@/lib/rl/decision-logger'
 import OpenAI from 'openai'
 
 const openai = new OpenAI({
@@ -614,6 +615,22 @@ export async function POST(request: NextRequest) {
     // Return the question (without correct answer for display)
     const { correct_answer, explanation, ...questionWithoutAnswer } = selectedQuestion
 
+    // Log arm selection decision for transparency
+    const decisionContext = (selectedArm as any)._decisionContext
+    if (decisionContext) {
+      await logArmSelection({
+        userId: user.id,
+        sessionId: session.id,
+        chapterId: session.chapter_id,
+        allArms: decisionContext.allSamples,
+        selectedArm: decisionContext.selectedSample,
+        reasoning: decisionContext.reasoning,
+        questionId: selectedQuestion.id,
+        topicId: selectedArm.topicId,
+        bloomLevel: selectedArm.bloomLevel
+      })
+    }
+
     return NextResponse.json({
       question: questionWithoutAnswer,
       question_metadata: {
@@ -635,7 +652,12 @@ export async function POST(request: NextRequest) {
         bloom_level: selectedArm.bloomLevel
       },
       is_review: isReview,
-      spaced_repetition: isReview
+      spaced_repetition: isReview,
+      // Include decision context in response for frontend display
+      decision_context: decisionContext ? {
+        reasoning: decisionContext.reasoning,
+        alternatives_count: decisionContext.allSamples.length
+      } : null
     })
   } catch (error) {
     console.error('Error in POST /api/rl/next-question:', error)

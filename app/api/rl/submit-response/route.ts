@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { calculateLearningGain, calculateMultiTopicMasteryUpdates, getDaysSinceLastPractice } from '@/lib/rl/mastery'
 import { calculateReward, RecognitionMethod } from '@/lib/rl/rewards'
 import { findRelatedTopics } from '@/lib/rl/related-topics'
+import { logRewardCalculation, logMasteryUpdate } from '@/lib/rl/decision-logger'
 
 /**
  * POST /api/rl/submit-response
@@ -296,6 +297,33 @@ export async function POST(request: NextRequest) {
     if (responseError) {
       console.error('Error storing response:', responseError)
       throw new Error(`Failed to store response: ${responseError.message}`)
+    }
+
+    // Log reward calculation and mastery updates for transparency
+    for (const [topicId, masteryUpdate] of Object.entries(masteryUpdates)) {
+      await logRewardCalculation({
+        userId: user.id,
+        sessionId: session_id,
+        responseId: response.id,
+        questionId: question_id,
+        topicId,
+        bloomLevel: question.bloom_level,
+        isCorrect,
+        confidence,
+        responseTimeSeconds: responseTime || 0,
+        rewardComponents: masteryUpdate.rewardComponents
+      })
+
+      await logMasteryUpdate({
+        userId: user.id,
+        sessionId: session_id,
+        responseId: response.id,
+        topicId,
+        bloomLevel: question.bloom_level,
+        oldMastery: masteryUpdate.oldMastery,
+        newMastery: masteryUpdate.newMastery,
+        formula: `EMA: ${masteryUpdate.learningGain.toFixed(3)} (learning gain) → ${masteryUpdate.oldMastery.toFixed(1)} to ${masteryUpdate.newMastery.toFixed(1)}`
+      })
     }
 
     // Track dimension coverage for comprehensive mastery with unique question tracking

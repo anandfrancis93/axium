@@ -187,6 +187,12 @@ export async function getUserMastery(
  * @param chapterId - Chapter ID
  * @returns Selected arm (topic, bloom_level)
  */
+export interface ThompsonSamplingResult {
+  selectedArm: Arm
+  allSamples: ArmSample[]
+  reasoning: string
+}
+
 export async function selectArmThompsonSampling(
   userId: string,
   chapterId: string
@@ -276,6 +282,27 @@ export async function selectArmThompsonSampling(
     mastery: selected.masteryScore.toFixed(1),
     totalArms: samples.length
   })
+
+  // Store decision context for logging (will be logged by next-question endpoint)
+  ;(selected.arm as any)._decisionContext = {
+    allSamples: samples.map(s => ({
+      topic_id: s.arm.topicId,
+      topic_name: s.arm.topicName,
+      bloom_level: s.arm.bloomLevel,
+      sampled_value: s.sample,
+      adjusted_value: s.adjustedSample,
+      mastery_score: s.masteryScore
+    })),
+    selectedSample: {
+      topic_id: selected.arm.topicId,
+      topic_name: selected.arm.topicName,
+      bloom_level: selected.arm.bloomLevel,
+      sampled_value: selected.sample,
+      adjusted_value: selected.adjustedSample,
+      mastery_score: selected.masteryScore
+    },
+    reasoning: `Thompson Sampling: Sampled ${samples.length} arms, selected ${selected.arm.topicName} (Bloom ${selected.arm.bloomLevel}) with adjusted sample ${selected.adjustedSample.toFixed(3)} (raw: ${selected.sample.toFixed(3)}, mastery: ${selected.masteryScore.toFixed(1)}%)`
+  }
 
   return selected.arm
 }
