@@ -808,7 +808,7 @@ ${interpretation}`
                             className={color}
                             style={{ marginLeft: `${level * 1.5}rem` }}
                           >
-                            {level > 0 && '└─ '}{part}{isPrimaryTopic ? ' ← You just practiced this' : ''}
+                            {level > 0 && '└─ '}{part}
                           </div>
                         )
                       })
