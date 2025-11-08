@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { CheckIcon, XIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import { Tooltip } from '@/components/Tooltip'
+import Modal from '@/components/Modal'
 
 type ConfidenceLevel = 'low' | 'medium' | 'high'
 type RecognitionMethod = 'memory' | 'recognition' | 'educated_guess' | 'random'
@@ -32,6 +33,7 @@ export default function LearnPage() {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null)
   const [recognitionMethod, setRecognitionMethod] = useState<RecognitionMethod | null>(null)
   const [feedback, setFeedback] = useState<any>(null)
+  const [showEndSessionModal, setShowEndSessionModal] = useState(false)
 
   // Response time tracking
   const [questionShownAt, setQuestionShownAt] = useState<number | null>(null)
@@ -957,11 +959,7 @@ ${interpretation}`
                   Next Question →
                 </button>
                 <button
-                  onClick={() => {
-                    if (confirm('Are you sure you want to end this session?')) {
-                      router.push(`/session-complete/${session.session_id}`)
-                    }
-                  }}
+                  onClick={() => setShowEndSessionModal(true)}
                   className="neuro-btn text-gray-300 px-6 py-4 text-lg"
                 >
                   Done
@@ -971,6 +969,36 @@ ${interpretation}`
           )}
         </div>
       </div>
+
+      {/* End Session Confirmation Modal */}
+      <Modal
+        isOpen={showEndSessionModal}
+        onClose={() => setShowEndSessionModal(false)}
+        title="End Session"
+      >
+        <div className="space-y-4">
+          <p className="text-gray-300 text-center">
+            Are you sure you want to end this session?
+          </p>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setShowEndSessionModal(false)}
+              className="neuro-btn text-gray-300 flex-1 py-3"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                setShowEndSessionModal(false)
+                router.push(`/performance/${subject}/${chapter}`)
+              }}
+              className="neuro-btn text-red-400 flex-1 py-3"
+            >
+              End Session
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   )
 }
