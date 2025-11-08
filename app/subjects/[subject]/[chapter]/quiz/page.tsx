@@ -363,16 +363,16 @@ Mastery grows with correct answers and confidence calibration`
         break
 
       case 'spacing':
-        description = 'Spacing: Rewards long-term retention (time since last practice)'
+        description = 'Spacing: Rewards topic retention over time (not same question, but same concept at this Bloom level)'
         scale = 'Range: 0 to +5 points'
         if (value >= 4) {
-          interpretation = 'Excellent! You remembered after 1+ week'
+          interpretation = 'Excellent! You retained this topic after 1+ week without practice'
         } else if (value >= 2) {
-          interpretation = 'Good retention after 3-7 days'
+          interpretation = 'Good topic retention after 3-7 days'
         } else if (value >= 1) {
           interpretation = 'Decent retention after 1-3 days'
         } else {
-          interpretation = 'First time practicing or same-day review (no spacing bonus)'
+          interpretation = 'First time practicing this topic or same-day review (no spacing bonus)'
         }
         break
 
