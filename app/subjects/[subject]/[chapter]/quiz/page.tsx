@@ -259,49 +259,49 @@ Mastery grows with correct answers and confidence calibration`
   const getRewardLabel = (component: string, value: number): string => {
     switch (component) {
       case 'learningGain':
-        if (value >= 8) return 'excellent progress'
+        if (value >= 8) return 'major breakthrough'
         if (value >= 5) return 'strong improvement'
-        if (value >= 2) return 'steady progress'
-        if (value >= 0) return 'small gain'
-        if (value >= -3) return 'slight setback'
-        return 'needs review'
+        if (value >= 2) return 'steady growth'
+        if (value >= 0) return 'slight progress'
+        if (value >= -3) return 'minor slip'
+        return 'significant drop'
 
       case 'calibration':
-        if (value >= 4) return 'perfectly calibrated'
-        if (value >= 2) return 'well calibrated'
-        if (value >= 0) return 'decent calibration'
-        if (value >= -2) return 'miscalibrated'
-        return 'poor calibration'
+        if (value >= 4) return 'confidence matched performance'
+        if (value >= 2) return 'good self-assessment'
+        if (value >= 0) return 'somewhat accurate'
+        if (value >= -2) return 'overconfident or underconfident'
+        return 'confidence wildly off'
 
       case 'recognition':
-        if (value >= 5) return 'from memory'
-        if (value >= 3) return 'recognized'
-        if (value >= 1) return 'educated guess'
+        if (value >= 5) return 'knew from memory'
+        if (value >= 3) return 'recognized answer'
+        if (value >= 1) return 'reasoned it out'
         if (value >= -1) return 'lucky guess'
-        if (value >= -2) return 'wrong recognition'
-        return 'false memory'
+        if (value >= -2) return 'thought wrong was right'
+        return 'false confidence'
 
       case 'spacing':
-        if (value >= 4) return 'optimal spacing'
-        if (value >= 2) return 'good spacing'
-        if (value >= 1) return 'some spacing'
-        return 'no spacing benefit'
+        if (value >= 4) return '1+ week retention'
+        if (value >= 2) return '3-7 day retention'
+        if (value >= 1) return '1-3 day retention'
+        return 'first time or same day'
 
       case 'responseTime':
         if (value === 0) return 'not tracked'
-        if (value >= 5) return 'fluent retrieval'
-        if (value >= 3) return 'thoughtful retrieval'
-        if (value >= 1) return 'slow retrieval'
-        if (value > 0) return 'expected pace'
-        if (value >= -1) return 'too slow'
-        return 'rushed/careless'
+        if (value >= 5) return 'instant recall'
+        if (value >= 3) return 'thoughtful pace'
+        if (value >= 1) return 'took some time'
+        if (value > 0) return 'acceptable speed'
+        if (value >= -1) return 'overthinking'
+        return 'rushed answer'
 
       case 'streak':
-        if (value >= 5) return 'outstanding streak!'
-        if (value >= 3) return 'excellent streak'
-        if (value >= 2) return 'good streak'
-        if (value >= 1) return 'building momentum'
-        return 'first correct'
+        if (value >= 5) return '10+ in a row!'
+        if (value >= 3) return '5-9 in a row'
+        if (value >= 2) return '3-4 in a row'
+        if (value >= 1) return '2 in a row'
+        return 'streak starting'
 
       default:
         return ''
