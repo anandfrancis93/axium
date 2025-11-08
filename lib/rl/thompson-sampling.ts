@@ -66,7 +66,8 @@ export async function getAvailableArms(
   })
 
   // Use the database function to get arms with unlock status
-  const { data: arms, error } = await supabase.rpc('get_available_arms', {
+  // v2 suffix to bypass Supabase RPC cache
+  const { data: arms, error } = await supabase.rpc('get_available_arms_v2', {
     p_user_id: userId,
     p_chapter_id: chapterId
   })
