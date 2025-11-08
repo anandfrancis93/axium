@@ -171,47 +171,32 @@ export async function POST(request: NextRequest) {
     console.log(`Deleted ${dimensionCoverageDeleted} user_dimension_coverage records`)
 
     // Delete user_progress for this chapter
-    // Need to get all topics in this chapter first
-    const { data: chapterTopics, error: topicsError } = await supabase
-      .from('topics')
-      .select('id, name')
-      .eq('chapter_id', chapter_id)
+    // Use a subquery with topics to filter by chapter_id
+    const { data: progressToDelete, error: fetchProgressError } = await supabase
+      .from('user_progress')
+      .select('id, topics!inner(chapter_id)')
+      .eq('user_id', user.id)
+      .eq('topics.chapter_id', chapter_id)
 
-    if (topicsError) {
-      console.error('Error fetching topics for chapter:', topicsError)
-    }
+    if (fetchProgressError) {
+      console.error('Error fetching user_progress to delete:', fetchProgressError)
+    } else if (progressToDelete && progressToDelete.length > 0) {
+      const progressIds = progressToDelete.map(p => p.id)
+      console.log(`Found ${progressIds.length} user_progress records to delete`)
 
-    console.log(`Found ${chapterTopics?.length || 0} topics in chapter`)
-    console.log('Topic IDs:', chapterTopics?.map(t => `${t.name} (${t.id})`))
+      const { count: progressCount, error: progressError } = await supabase
+        .from('user_progress')
+        .delete({ count: 'exact' })
+        .in('id', progressIds)
 
-    if (chapterTopics && chapterTopics.length > 0) {
-      const topicIds = chapterTopics.map(t => t.id)
-
-      // Batch delete in chunks of 100 to avoid URL length limits
-      const BATCH_SIZE = 100
-      let totalProgressDeleted = 0
-
-      for (let i = 0; i < topicIds.length; i += BATCH_SIZE) {
-        const batch = topicIds.slice(i, i + BATCH_SIZE)
-
-        const { count: batchCount, error: batchError } = await supabase
-          .from('user_progress')
-          .delete({ count: 'exact' })
-          .eq('user_id', user.id)
-          .in('topic_id', batch)
-
-        if (batchError) {
-          console.error(`Error deleting user_progress batch ${i / BATCH_SIZE + 1}:`, batchError)
-        } else {
-          totalProgressDeleted += (batchCount || 0)
-          console.log(`Deleted ${batchCount || 0} user_progress records in batch ${i / BATCH_SIZE + 1}`)
-        }
+      if (progressError) {
+        console.error('Error deleting user_progress:', progressError)
+      } else {
+        progressDeleted = progressCount || 0
+        console.log(`Deleted ${progressDeleted} user_progress records`)
       }
-
-      progressDeleted = totalProgressDeleted
-      console.log(`Total deleted: ${progressDeleted} user_progress records`)
     } else {
-      console.log('No topics found in chapter - skipping user_progress deletion')
+      console.log('No user_progress records found for this chapter')
     }
 
     // Delete AI-generated questions for this user in this chapter
