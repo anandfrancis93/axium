@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { calculateLearningGain, calculateMultiTopicMasteryUpdates, getDaysSinceLastPractice } from '@/lib/rl/mastery'
 import { calculateReward, RecognitionMethod } from '@/lib/rl/rewards'
+import { findRelatedTopics } from '@/lib/rl/related-topics'
 
 /**
  * POST /api/rl/submit-response
@@ -395,13 +396,19 @@ export async function POST(request: NextRequest) {
       })
       .eq('id', session_id)
 
-    // Get related topic details for tree display
+    // Find related topics using hybrid semantic + hierarchy approach
+    // Use the first core topic as the primary topic for finding related topics
+    const primaryTopicId = coreTopics[0]
+    const relatedTopicsDiscovered = await findRelatedTopics(primaryTopicId, 4)
+
+    // Get full details for related topics
     const relatedTopicsWithHierarchy = []
-    if (relatedTopics.length > 0) {
+    if (relatedTopicsDiscovered.length > 0) {
+      const relatedTopicIds = relatedTopicsDiscovered.map(t => t.id)
       const { data: relatedTopicsData } = await supabase
         .from('topics')
         .select('id, name, full_name, depth, parent_topic_id')
-        .in('id', relatedTopics)
+        .in('id', relatedTopicIds)
 
       if (relatedTopicsData) {
         relatedTopicsWithHierarchy.push(...relatedTopicsData)
