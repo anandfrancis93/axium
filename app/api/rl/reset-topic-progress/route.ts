@@ -97,10 +97,16 @@ export async function POST(request: NextRequest) {
       dimensionCoverageQuery = dimensionCoverageQuery.eq('bloom_level', bloom_level)
     }
 
-    // Note: We do NOT delete sessions for topic reset
-    // Sessions may contain responses for multiple topics
-    // Deleting a session would cascade-delete responses for other topics
-    // Sessions are only deleted during full chapter reset
+    // Get session IDs BEFORE deleting responses (to check if they become empty)
+    const { data: responsesToDelete } = await supabase
+      .from('user_responses')
+      .select('session_id')
+      .eq('user_id', user.id)
+      .eq('topic_id', topic_id)
+
+    const affectedSessionIds = responsesToDelete
+      ? [...new Set(responsesToDelete.map(r => r.session_id))]
+      : []
 
     // Execute deletions
     const { count: responsesCount, error: responsesError } = await responsesQuery
@@ -160,9 +166,37 @@ export async function POST(request: NextRequest) {
       }
       progressDeleted = progressCount || 0
 
-      // Note: Sessions are NOT deleted for topic reset
-      // They may contain responses for other topics
-      sessionsDeleted = 0
+      // Delete sessions that became empty after deleting this topic's responses
+      // Check each affected session to see if it has any remaining responses
+      if (affectedSessionIds.length > 0) {
+        const emptySessionIds: string[] = []
+
+        for (const sessionId of affectedSessionIds) {
+          const { count: remainingCount } = await supabase
+            .from('user_responses')
+            .select('id', { count: 'exact', head: true })
+            .eq('session_id', sessionId)
+
+          // If no responses remain, mark session for deletion
+          if (remainingCount === 0) {
+            emptySessionIds.push(sessionId)
+          }
+        }
+
+        if (emptySessionIds.length > 0) {
+          const { count: sessionsCount, error: sessionsError } = await supabase
+            .from('learning_sessions')
+            .delete({ count: 'exact' })
+            .in('id', emptySessionIds)
+
+          if (sessionsError) {
+            console.error('Error deleting empty sessions:', sessionsError)
+          } else {
+            sessionsDeleted = sessionsCount || 0
+            console.log(`Deleted ${sessionsDeleted} empty sessions`)
+          }
+        }
+      }
 
       // Delete AI-generated questions for this user for this topic
       const { count: questionsCount, error: questionsError } = await supabase
