@@ -2,11 +2,14 @@
  * Related Topics Discovery
  *
  * Finds semantically and hierarchically related topics using a hybrid approach:
- * 1. Vector similarity (embeddings) - finds conceptually related topics
- * 2. Hierarchy filtering - excludes unrelated branches
+ * 1. Knowledge Graph - explicit relationships (is_a, part_of, enables, etc.)
+ * 2. Vector similarity (embeddings) - finds conceptually related topics
+ * 3. Hierarchy filtering - excludes unrelated branches
  *
- * This ensures topics like "Policy Engine" show "Control Plane" and "Policy Administrator"
- * but NOT "Data Plane" (different branch under Zero Trust)
+ * This enables cross-branch discovery:
+ * - "Access badge" (physical security) → "Preventative control" (control type)
+ * - Knowledge graph provides explainable relationships
+ * - Embeddings fill gaps where explicit relationships don't exist
  */
 
 import { createClient } from '@/lib/supabase/server'
@@ -15,7 +18,8 @@ export interface RelatedTopic {
   id: string
   name: string
   similarity: number
-  relationship: 'ancestor' | 'prerequisite' | 'semantic'
+  relationship: 'ancestor' | 'prerequisite' | 'semantic' | 'is_a' | 'part_of' | 'requires' | 'contrasts_with' | 'enables' | 'mitigates'
+  reasoning?: string // For knowledge graph relationships
 }
 
 /**
@@ -31,7 +35,32 @@ export async function findRelatedTopics(
 ): Promise<RelatedTopic[]> {
   const supabase = await createClient()
 
-  // Step 1: Get the primary topic with its embedding and hierarchy info
+  // Step 1: Get knowledge graph relationships (priority)
+  const { data: kgRelationships } = await supabase.rpc('get_related_topics_kg', {
+    p_topic_id: topicId,
+    p_min_confidence: 0.7,
+    p_limit: limit
+  })
+
+  const kgTopics: RelatedTopic[] = []
+  if (kgRelationships && kgRelationships.length > 0) {
+    for (const rel of kgRelationships) {
+      kgTopics.push({
+        id: rel.topic_id,
+        name: rel.topic_name,
+        similarity: rel.confidence,
+        relationship: rel.relationship_type,
+        reasoning: rel.reasoning
+      })
+    }
+  }
+
+  // If we have enough high-quality KG relationships, return them
+  if (kgTopics.length >= limit) {
+    return kgTopics.slice(0, limit)
+  }
+
+  // Step 2: Get the primary topic with its embedding and hierarchy info
   const { data: primaryTopic, error: topicError } = await supabase
     .from('topics')
     .select('id, name, embedding, parent_topic_id, path, depth, prerequisites')
@@ -40,12 +69,12 @@ export async function findRelatedTopics(
 
   if (topicError || !primaryTopic) {
     console.error('Error fetching primary topic:', topicError)
-    return []
+    return kgTopics // Return KG topics even if primary topic fetch fails
   }
 
   if (!primaryTopic.embedding) {
     console.warn(`Topic ${primaryTopic.name} has no embedding. Run generate-topic-embeddings script.`)
-    return []
+    return kgTopics // Return KG topics even if no embedding
   }
 
   // Step 2: Get the root domain (depth = 0) for this topic
@@ -156,25 +185,41 @@ export async function findRelatedTopics(
     })
   }
 
-  // Step 5: Sort by priority and limit
-  // Priority: ancestor > prerequisite > semantic
-  // Note: Siblings are excluded (they are alternatives, not contextually related)
-  const priorityOrder = {
-    ancestor: 1,
-    prerequisite: 2,
-    semantic: 3
+  // Step 5: Merge knowledge graph and embedding-based results
+  // Combine both sources, prioritizing KG relationships
+  const allTopics: RelatedTopic[] = [...kgTopics]
+
+  // Add embedding-based topics that aren't already in KG results
+  for (const topic of relatedTopics) {
+    if (!allTopics.find(t => t.id === topic.id)) {
+      allTopics.push(topic)
+    }
   }
 
-  relatedTopics.sort((a, b) => {
+  // Step 6: Sort by priority and limit
+  // Priority: KG relationships > ancestor > prerequisite > semantic
+  const priorityOrder: Record<string, number> = {
+    is_a: 1,
+    part_of: 2,
+    requires: 3,
+    enables: 4,
+    mitigates: 5,
+    contrasts_with: 6,
+    ancestor: 7,
+    prerequisite: 8,
+    semantic: 9
+  }
+
+  allTopics.sort((a, b) => {
     // First by relationship type
     const priorityDiff = priorityOrder[a.relationship] - priorityOrder[b.relationship]
     if (priorityDiff !== 0) return priorityDiff
 
-    // Then by similarity (descending)
+    // Then by similarity/confidence (descending)
     return b.similarity - a.similarity
   })
 
-  return relatedTopics.slice(0, limit)
+  return allTopics.slice(0, limit)
 }
 
 /**
