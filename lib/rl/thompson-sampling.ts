@@ -58,6 +58,12 @@ export async function getAvailableArms(
 ): Promise<ArmSample[]> {
   const supabase = await createClient()
 
+  // 🔍 DIAGNOSTIC: Log parameters being passed
+  console.log('🔍 getAvailableArms called with:', {
+    userId,
+    chapterId
+  })
+
   // Use the database function to get arms with unlock status
   const { data: arms, error } = await supabase.rpc('get_available_arms', {
     p_user_id: userId,
