@@ -995,7 +995,7 @@ ${interpretation}`
             <button
               onClick={() => {
                 setShowEndSessionModal(false)
-                router.push(`/performance/${subject}/${chapter}`)
+                router.replace(`/performance/${subject}/${chapter}`)
               }}
               className="neuro-btn text-red-400 flex-1 py-3"
             >
