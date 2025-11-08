@@ -1,0 +1,455 @@
+# RL System Transparency - Testing Guide
+
+This guide walks you through testing the **100% transparent RL system** in Axium to verify that all decisions are being logged and displayed correctly.
+
+---
+
+## Prerequisites
+
+1. **Run the migration** (if not already done):
+   - Open Supabase SQL Editor
+   - Execute `RUN_DECISION_LOG_MIGRATION.sql`
+   - Verify the `rl_decision_log` table was created
+
+2. **Have an active learning session:**
+   - At least one chapter with topics
+   - Some learning progress (or start fresh)
+
+---
+
+## Testing Checklist
+
+### ✅ 1. Test Decision Logging (Backend)
+
+**Goal:** Verify all RL decisions are being logged to the database.
+
+**Steps:**
+
+1. **Answer 3-5 questions** in a quiz session:
+   ```
+   Navigate to: /subjects/[subject]/[chapter]/quiz
+   ```
+
+2. **Check the decision log table** in Supabase:
+   ```sql
+   -- View all recent decisions
+   SELECT
+     decision_type,
+     created_at,
+     selected_arm->>'topic_name' as topic,
+     selected_arm->>'bloom_level' as bloom
+   FROM rl_decision_log
+   ORDER BY created_at DESC
+   LIMIT 20;
+   ```
+
+3. **Expected Results:**
+   - You should see 3 decision types per question:
+     - `arm_selection` - Thompson Sampling chose this topic×Bloom
+     - `reward_calculation` - Reward breakdown after answer
+     - `mastery_update` - Mastery score changed
+   - Total: 9-15 records for 3-5 questions
+
+**Pass Criteria:**
+- ✅ All 3 decision types logged for each question
+- ✅ `created_at` timestamps are sequential
+- ✅ `user_id` matches your user ID
+
+---
+
+### ✅ 2. Test Audit Dashboard (Admin View)
+
+**Goal:** Verify the audit dashboard displays all logged decisions correctly.
+
+**Steps:**
+
+1. **Navigate to the audit dashboard:**
+   ```
+   URL: /audit
+   ```
+
+2. **Test filtering:**
+   - Click "All Decisions" → Should show all records
+   - Click "Arm Selection" → Should show only Thompson Sampling decisions
+   - Click "Reward Calculation" → Should show only reward breakdowns
+   - Click "Mastery Update" → Should show only mastery changes
+
+3. **Test decision details:**
+   - Click any "Arm Selection" decision
+   - **Expected:**
+     - Right panel shows "REASONING" section
+     - "Selected Arm" section with topic, Bloom level, sampled value
+     - "All Arms Considered" table sorted by adjusted value
+     - Selected arm highlighted in blue
+
+   - Click any "Reward Calculation" decision
+   - **Expected:**
+     - "Response" section (Correct/Incorrect, Confidence, Response Time)
+     - "Reward Breakdown" with all components:
+       - Learning Gain
+       - Calibration
+       - Spacing
+       - Recognition
+       - Response Time
+       - Streak
+       - Total
+
+   - Click any "Mastery Update" decision
+   - **Expected:**
+     - Old Mastery → New Mastery visualization
+     - Change amount (+ or -)
+     - Formula showing EMA calculation
+
+4. **Test refresh:**
+   - Click the refresh button (↻)
+   - Should reload latest decisions
+
+**Pass Criteria:**
+- ✅ All filters work correctly
+- ✅ Decision details display all expected fields
+- ✅ Selected arm is highlighted in "All Arms Considered" table
+- ✅ Reward breakdown shows all 7 components (6 + total)
+- ✅ Mastery formula is displayed
+
+---
+
+### ✅ 3. Test RL State Viewer (Performance Page)
+
+**Goal:** Verify current Thompson Sampling state is displayed with alpha/beta values.
+
+**Steps:**
+
+1. **Navigate to performance page:**
+   ```
+   URL: /performance/[subject]/[chapter]
+   ```
+
+2. **Locate "Thompson Sampling State" section:**
+   - Should appear between "Exam Score Prediction" and "Mastery Heatmap"
+   - Only appears if you have RL arm stats (after answering questions)
+
+3. **Expand the section:**
+   - Click the section header to expand
+   - Should see a table with columns:
+     - Topic
+     - Bloom
+     - Alpha (α)
+     - Beta (β)
+     - Est. Success
+     - Times Selected
+     - Avg Reward
+
+4. **Verify data:**
+   - **Alpha/Beta values:** Should be ≥ 1.00 (start with prior of 1.0)
+   - **Est. Success:** Should be calculated as `α/(α+β) × 100`
+     - Example: α=3.5, β=1.5 → 3.5/(3.5+1.5) = 70%
+   - **Color coding:**
+     - Green (≥70%) - High success rate
+     - Yellow (50-69%) - Medium success rate
+     - Red (<50%) - Low success rate
+   - **Times Selected:** Should match number of questions answered for that arm
+   - **Avg Reward:** Should be between -1.0 and 1.0 typically
+
+5. **Hover over values:**
+   - Tooltip on "Est. Success" should explain calculation
+   - Tooltip on "Avg Reward" should explain higher = better
+
+6. **Check explanation section:**
+   - Should explain what Alpha, Beta, Thompson Sampling mean
+   - Should be at bottom of expanded section
+
+**Pass Criteria:**
+- ✅ Table displays all arms with non-zero stats
+- ✅ Alpha and Beta values are correct (≥1.0)
+- ✅ Estimated success rate calculation is correct
+- ✅ Color coding matches success rate
+- ✅ Tooltips provide helpful explanations
+- ✅ Explanation section is clear and accurate
+
+---
+
+### ✅ 4. Test Decision Explainer (Quiz Feedback)
+
+**Goal:** Verify users see why each question was selected after answering.
+
+**Steps:**
+
+1. **Start a new quiz:**
+   ```
+   URL: /subjects/[subject]/[chapter]/quiz
+   ```
+
+2. **Answer a question:**
+   - Select confidence level
+   - Choose an answer
+   - Select recognition method (how you arrived at answer)
+   - Submit
+
+3. **Check feedback step:**
+   - After submitting, you should see feedback
+   - **Look for "Why This Question?" section**
+   - Should appear after explanation and before mastery updates
+
+4. **Verify content:**
+   - **Reasoning text:** Should explain Thompson Sampling decision
+     - Example: *"Thompson Sampling: Sampled 12 arms, selected Application Security (Bloom 3) with adjusted sample 0.857 (raw: 0.652, mastery: 45.2%)"*
+   - **Alternatives count:** Should show number like *"11 other topics were considered by Thompson Sampling"*
+
+5. **Test multiple questions:**
+   - Answer 3-5 more questions
+   - Each should show different reasoning based on current state
+   - Topics with lower mastery should be selected more often
+
+**Pass Criteria:**
+- ✅ "Why This Question?" section appears in feedback
+- ✅ Reasoning explains Thompson Sampling decision
+- ✅ Shows specific topic name and Bloom level selected
+- ✅ Shows number of alternatives considered
+- ✅ Text is clear and understandable
+
+---
+
+## Verification Queries
+
+Use these SQL queries in Supabase to verify logging is working correctly:
+
+### Check Decision Count by Type
+```sql
+SELECT
+  decision_type,
+  COUNT(*) as count
+FROM rl_decision_log
+WHERE user_id = 'YOUR_USER_ID'
+GROUP BY decision_type
+ORDER BY count DESC;
+```
+
+**Expected:** Roughly equal counts for each type (arm_selection, reward_calculation, mastery_update).
+
+---
+
+### View Recent Arm Selections
+```sql
+SELECT
+  created_at,
+  selected_arm->>'topic_name' as topic,
+  selected_arm->>'bloom_level' as bloom,
+  selected_arm->>'adjusted_value' as adjusted_sample,
+  selection_reasoning
+FROM rl_decision_log
+WHERE decision_type = 'arm_selection'
+  AND user_id = 'YOUR_USER_ID'
+ORDER BY created_at DESC
+LIMIT 10;
+```
+
+**Expected:** See which topics were selected and why.
+
+---
+
+### View Reward Breakdown
+```sql
+SELECT
+  created_at,
+  is_correct,
+  confidence,
+  reward_components->'total' as total_reward,
+  reward_components->'learningGain' as learning_gain,
+  reward_components->'calibration' as calibration,
+  reward_components->'spacing' as spacing
+FROM rl_decision_log
+WHERE decision_type = 'reward_calculation'
+  AND user_id = 'YOUR_USER_ID'
+ORDER BY created_at DESC
+LIMIT 10;
+```
+
+**Expected:** See full reward calculation for each answer.
+
+---
+
+### Track Mastery Progression
+```sql
+SELECT
+  created_at,
+  old_mastery,
+  new_mastery,
+  (new_mastery - old_mastery) as change,
+  mastery_formula
+FROM rl_decision_log
+WHERE decision_type = 'mastery_update'
+  AND user_id = 'YOUR_USER_ID'
+  AND topic_id = 'YOUR_TOPIC_ID'
+ORDER BY created_at DESC;
+```
+
+**Expected:** See how mastery score evolved over time for a specific topic.
+
+---
+
+## Common Issues and Solutions
+
+### Issue 1: No decisions in audit log
+**Symptoms:** Audit page shows empty list or "No decisions yet"
+
+**Solutions:**
+1. Check if migration was run: `SELECT * FROM rl_decision_log LIMIT 1;`
+2. Answer at least one question in quiz
+3. Check browser console for errors
+4. Verify user is logged in
+
+---
+
+### Issue 2: RL State Viewer not showing
+**Symptoms:** "Thompson Sampling State" section missing on performance page
+
+**Solutions:**
+1. Answer at least one question to create arm stats
+2. Check `rl_arm_stats` table: `SELECT COUNT(*) FROM rl_arm_stats WHERE user_id = 'YOUR_USER_ID';`
+3. If count is 0, the section won't appear (working as designed)
+
+---
+
+### Issue 3: Decision explainer not showing in quiz
+**Symptoms:** No "Why This Question?" section in feedback
+
+**Solutions:**
+1. Check if `decision_context` is being returned by API
+2. Open browser DevTools → Network tab
+3. Look for `/api/rl/next-question` response
+4. Verify it includes `decision_context` field with `reasoning` and `alternatives_count`
+
+---
+
+### Issue 4: Alpha/Beta values always 1.0
+**Symptoms:** All arms show α=1.00, β=1.00
+
+**Solutions:**
+1. This is normal for new arms (uniform prior)
+2. Values update after selecting the arm
+3. Check `rl_arm_stats` to see if times_selected > 0
+4. If times_selected > 0 but α/β still 1.0, check `update_arm_stats_by_id` function
+
+---
+
+## End-to-End Test Scenario
+
+**Complete walkthrough to verify full transparency:**
+
+1. **Setup:**
+   - Clear decision log (optional): `DELETE FROM rl_decision_log WHERE user_id = 'YOUR_USER_ID';`
+   - Note current time: `SELECT NOW();`
+
+2. **Answer 5 questions:**
+   - Go to `/subjects/security-plus/architecture-and-design/quiz`
+   - Answer 5 questions with varying correctness
+   - Note the topics/Bloom levels selected
+
+3. **Verify logging (Supabase):**
+   ```sql
+   SELECT decision_type, COUNT(*)
+   FROM rl_decision_log
+   WHERE user_id = 'YOUR_USER_ID'
+     AND created_at > 'YOUR_START_TIME'
+   GROUP BY decision_type;
+   ```
+   - Should see 5 of each type (15 total)
+
+4. **Check audit dashboard:**
+   - Go to `/audit`
+   - Filter to "Arm Selection" → Should see 5 decisions
+   - Click first one → Verify all arms shown with samples
+   - Filter to "Reward Calculation" → Should see 5 decisions
+   - Click first one → Verify all reward components
+   - Filter to "Mastery Update" → Should see 5 decisions
+   - Click first one → Verify old→new mastery with formula
+
+5. **Check performance page:**
+   - Go to `/performance/security-plus/architecture-and-design`
+   - Expand "Thompson Sampling State"
+   - Verify 5 arms have `times_selected ≥ 1`
+   - Check α/β values updated from 1.0 baseline
+
+6. **Check quiz feedback:**
+   - Go back to quiz and answer 1 more question
+   - In feedback, verify "Why This Question?" appears
+   - Note the reasoning matches selected topic
+
+**Pass Criteria:**
+- ✅ All 18 decisions logged (6 questions × 3 types)
+- ✅ Audit dashboard shows all decisions correctly
+- ✅ RL state viewer shows updated α/β values
+- ✅ Decision explainer appears in quiz feedback
+
+---
+
+## Success Metrics
+
+The RL system is **100% transparent** when:
+
+1. **Every decision is logged:**
+   - ✅ Arm selection (Thompson Sampling)
+   - ✅ Reward calculation (all components)
+   - ✅ Mastery update (EMA formula)
+
+2. **Audit trail is complete:**
+   - ✅ Can replay any session
+   - ✅ Can debug "Why did I get this question?"
+   - ✅ Can verify reward calculations
+
+3. **User-facing transparency:**
+   - ✅ Users see why questions were selected
+   - ✅ Users can view current RL state
+   - ✅ Admins can audit all decisions
+
+4. **Data integrity:**
+   - ✅ No missing decisions
+   - ✅ Timestamps are sequential
+   - ✅ All foreign keys valid
+
+---
+
+## Next Steps
+
+After verifying transparency:
+
+1. **Monitor performance:**
+   - Check decision log table size growth
+   - Consider retention policy (e.g., keep 90 days)
+   - Add indexes if queries are slow
+
+2. **Add analytics:**
+   - Track which arms are selected most often
+   - Identify topics with consistently low rewards
+   - Detect calibration issues (overconfident/underconfident users)
+
+3. **Export for research:**
+   - Use decision log for papers/analysis
+   - Demonstrate RL algorithm effectiveness
+   - A/B test different sampling strategies
+
+4. **User education:**
+   - Show users how RL works
+   - Explain why adaptive learning is beneficial
+   - Build trust through transparency
+
+---
+
+## Troubleshooting
+
+If any test fails, check:
+
+1. **Migration:** `\d rl_decision_log` in psql or check table schema in Supabase
+2. **Logging calls:** Add console.logs in `decision-logger.ts` functions
+3. **API responses:** Check Network tab in DevTools for `/api/rl/*` endpoints
+4. **Database permissions:** Verify RLS policies allow inserts/selects
+
+**Need help?** Check `TRANSPARENCY_IMPLEMENTATION.md` for implementation details.
+
+---
+
+## Conclusion
+
+The RL system is now **100% transparent**. Every decision is logged, auditable, and explainable. Users can see why questions were selected, admins can debug issues, and researchers can analyze the learning process.
+
+**Happy testing!** 🎉
