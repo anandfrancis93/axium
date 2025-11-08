@@ -59,17 +59,17 @@ export async function getAvailableArms(
   const supabase = await createClient()
 
   // 🔍 DIAGNOSTIC: Log parameters being passed
-  console.log('🔍 getAvailableArms called with (v2 - cache invalidated):', {
+  console.log('🔍 getAvailableArms called with (v3 - RPC call):', {
     userId,
     chapterId,
     timestamp: new Date().toISOString()
   })
 
-  // Use the database function to get arms with unlock status
-  // v2 suffix to bypass Supabase RPC cache
+  // Call the v2 function via RPC with cache buster (current timestamp)
   const { data: arms, error } = await supabase.rpc('get_available_arms_v2', {
     p_user_id: userId,
-    p_chapter_id: chapterId
+    p_chapter_id: chapterId,
+    p_cache_buster: Date.now()  // Force fresh result by changing parameter
   })
 
   if (error) {
