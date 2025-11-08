@@ -172,13 +172,30 @@ export async function POST(request: NextRequest) {
 
     // Delete user_progress for this chapter
     // Need to get all topics in this chapter first
-    const { data: chapterTopics } = await supabase
+    const { data: chapterTopics, error: topicsError } = await supabase
       .from('topics')
-      .select('id')
+      .select('id, name')
       .eq('chapter_id', chapter_id)
+
+    if (topicsError) {
+      console.error('Error fetching topics for chapter:', topicsError)
+    }
+
+    console.log(`Found ${chapterTopics?.length || 0} topics in chapter`)
+    console.log('Topic IDs:', chapterTopics?.map(t => `${t.name} (${t.id})`))
 
     if (chapterTopics && chapterTopics.length > 0) {
       const topicIds = chapterTopics.map(t => t.id)
+
+      // First check what user_progress exists for these topics
+      const { data: existingProgress } = await supabase
+        .from('user_progress')
+        .select('id, topic_id')
+        .eq('user_id', user.id)
+        .in('topic_id', topicIds)
+
+      console.log(`Found ${existingProgress?.length || 0} user_progress records to delete`)
+
       const { count: progressCount, error: progressError } = await supabase
         .from('user_progress')
         .delete({ count: 'exact' })
@@ -191,6 +208,8 @@ export async function POST(request: NextRequest) {
         progressDeleted = progressCount || 0
         console.log(`Deleted ${progressDeleted} user_progress records`)
       }
+    } else {
+      console.log('No topics found in chapter - skipping user_progress deletion')
     }
 
     // Delete AI-generated questions for this user in this chapter
