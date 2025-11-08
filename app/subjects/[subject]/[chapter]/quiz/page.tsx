@@ -782,40 +782,33 @@ ${interpretation}`
                 </div>
               </div>
 
-              {/* Related Topics (Display Only) - Tree Structure */}
-              {feedback.related_topics && feedback.related_topics.length > 0 && (
+              {/* Topic Hierarchy - Shows primary topic in full context */}
+              {feedback.mastery_updates && feedback.mastery_updates.length > 0 && (
                 <div className="neuro-inset p-4 rounded-lg mb-6">
-                  <div className="text-sm font-medium text-gray-400 mb-3">Related Topics:</div>
-                  <div className="space-y-2 font-mono text-sm">
+                  <div className="text-sm font-medium text-gray-400 mb-3">Topic Hierarchy:</div>
+                  <div className="space-y-1 font-mono text-sm">
                     {(() => {
-                      // Build complete hierarchical trees for each topic
+                      const primaryTopic = feedback.mastery_updates[0]
                       const trees: React.ReactNode[] = []
 
-                      feedback.related_topics.forEach((topic: any, idx: number) => {
-                        // Parse full_name to get complete hierarchy
-                        // Example: "Security Operations > Web filter > Agent-based"
-                        const parts = topic.full_name ? topic.full_name.split(' > ') : [topic.name]
+                      // Parse the full hierarchical path
+                      // Example: "Threats, Vulnerabilities, and Mitigations > Human vectors/social engineering > Business email compromise"
+                      const parts = primaryTopic.topic_full_name
+                        ? primaryTopic.topic_full_name.split(' > ')
+                        : [primaryTopic.topic_name]
 
-                        // Display each level of the hierarchy
-                        const treeLines = parts.map((part, level) => {
-                          const indent = '  '.repeat(level) // 2 spaces per level
-                          const connector = level > 0 ? '└─ ' : ''
-                          const isLastLevel = level === parts.length - 1
-                          const color = isLastLevel ? 'text-gray-300' : 'text-gray-500' // Highlight leaf topic
+                      // Display each level, highlighting the primary topic
+                      parts.forEach((part, level) => {
+                        const indent = '  '.repeat(level)
+                        const connector = level > 0 ? '└─ ' : ''
+                        const isPrimaryTopic = level === parts.length - 1
+                        const color = isPrimaryTopic ? 'text-blue-400 font-semibold' : 'text-gray-500'
 
-                          return (
-                            <div key={`${idx}-${level}`} className={color}>
-                              {indent}{connector}{part}
-                            </div>
-                          )
-                        })
-
-                        // Add spacing between different trees
-                        if (idx > 0) {
-                          trees.push(<div key={`spacer-${idx}`} className="h-2"></div>)
-                        }
-
-                        trees.push(...treeLines)
+                        trees.push(
+                          <div key={level} className={color}>
+                            {indent}{connector}{part}{isPrimaryTopic ? ' ← You just practiced this' : ''}
+                          </div>
+                        )
                       })
 
                       return trees

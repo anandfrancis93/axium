@@ -228,19 +228,23 @@ export async function POST(request: NextRequest) {
         console.log('Successfully updated arm stats for topic:', topicId, 'bloom:', question.bloom_level)
       }
 
-      // Get topic name for display
+      // Get topic details for display
       const { data: topicData } = await supabase
         .from('topics')
-        .select('name')
+        .select('name, full_name, depth')
         .eq('id', topicId)
         .single()
 
       const topicName = topicData?.name || 'Unknown'
+      const topicFullName = topicData?.full_name || topicName
+      const topicDepth = topicData?.depth || 0
 
       // Store mastery update
       masteryUpdates.push({
         topic_id: topicId,
         topic_name: topicName,
+        topic_full_name: topicFullName,
+        topic_depth: topicDepth,
         bloom_level: question.bloom_level,
         old_mastery: Math.round(currentMastery * 10) / 10,
         new_mastery: Math.round(newMastery * 10) / 10,
