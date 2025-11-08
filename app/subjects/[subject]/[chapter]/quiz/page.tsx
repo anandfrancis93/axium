@@ -766,7 +766,7 @@ ${interpretation}`
                 <div className="space-y-2">
                   {feedback.mastery_updates?.map((update: any, idx: number) => (
                     <div key={idx} className="flex justify-between items-center">
-                      <span className="text-gray-300">{update.topic}</span>
+                      <span className="text-gray-300">{update.topic_name || update.topic}</span>
                       <Tooltip content={getMasteryTooltip(update.old_mastery, update.new_mastery, update.change)}>
                         <div className="flex items-center gap-2">
                           <span className="text-gray-500">{update.old_mastery}%</span>
@@ -782,57 +782,137 @@ ${interpretation}`
                 </div>
               </div>
 
-              {/* Reward Breakdown */}
-              <div className="neuro-inset p-4 rounded-lg mb-6">
-                <div className="text-sm font-medium text-gray-400 mb-3">Reward Components:</div>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <Tooltip content={getRewardTooltip('learningGain', feedback.reward_components?.learningGain || 0)}>
-                    <div>
-                      Learning Gain: <span className="text-blue-400">{feedback.reward_components?.learningGain?.toFixed(1)}</span>
-                      <span className="text-gray-200 text-xs ml-1">({getRewardLabel('learningGain', feedback.reward_components?.learningGain || 0)})</span>
-                    </div>
-                  </Tooltip>
-                  <Tooltip content={getRewardTooltip('calibration', feedback.reward_components?.calibration || 0)}>
-                    <div>
-                      Calibration: <span className="text-purple-400">{feedback.reward_components?.calibration?.toFixed(1)}</span>
-                      <span className="text-gray-200 text-xs ml-1">({getRewardLabel('calibration', feedback.reward_components?.calibration || 0)})</span>
-                    </div>
-                  </Tooltip>
-                  <Tooltip content={getRewardTooltip('recognition', feedback.reward_components?.recognition || 0)}>
-                    <div>
-                      Recognition: <span className="text-green-400">{feedback.reward_components?.recognition?.toFixed(1)}</span>
-                      <span className="text-gray-200 text-xs ml-1">({getRewardLabel('recognition', feedback.reward_components?.recognition || 0)})</span>
-                    </div>
-                  </Tooltip>
-                  <Tooltip content={getRewardTooltip('spacing', feedback.reward_components?.spacing || 0)}>
-                    <div>
-                      Spacing: <span className="text-yellow-400">{feedback.reward_components?.spacing?.toFixed(1)}</span>
-                      <span className="text-gray-200 text-xs ml-1">({getRewardLabel('spacing', feedback.reward_components?.spacing || 0)})</span>
-                    </div>
-                  </Tooltip>
-                  <Tooltip content={getRewardTooltip('responseTime', feedback.reward_components?.responseTime || 0)}>
-                    <div>
-                      Response Time: <span className="text-cyan-400">{feedback.reward_components?.responseTime?.toFixed(1)}</span>
-                      <span className="text-gray-200 text-xs ml-1">
-                        ({feedback.response_time_seconds ? `${feedback.response_time_seconds.toFixed(1)}s, ${getRewardLabel('responseTime', feedback.reward_components?.responseTime || 0)}` : getRewardLabel('responseTime', feedback.reward_components?.responseTime || 0)})
-                      </span>
-                    </div>
-                  </Tooltip>
-                  <Tooltip content={getRewardTooltip('streak', feedback.reward_components?.streak || 0)}>
-                    <div>
-                      Streak: <span className="text-orange-400">{feedback.reward_components?.streak?.toFixed(1)}</span>
-                      <span className="text-gray-200 text-xs ml-1">
-                        ({feedback.new_streak !== undefined ? `${feedback.new_streak} correct, ${getRewardLabel('streak', feedback.reward_components?.streak || 0)}` : getRewardLabel('streak', feedback.reward_components?.streak || 0)})
-                      </span>
-                    </div>
-                  </Tooltip>
+              {/* Related Topics (Display Only) */}
+              {feedback.related_topics && feedback.related_topics.length > 0 && (
+                <div className="neuro-inset p-4 rounded-lg mb-6">
+                  <div className="text-sm font-medium text-gray-400 mb-3">Related Topics:</div>
+                  <div className="flex flex-wrap gap-2">
+                    {feedback.related_topics.map((topic: string, idx: number) => (
+                      <div key={idx} className="px-3 py-1 neuro-raised rounded-lg text-sm text-gray-400">
+                        • {topic}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="mt-3 pt-3 border-t border-gray-700">
-                  <Tooltip content={getRewardTooltip('total', feedback.reward_components?.total || 0)}>
-                    <div className="font-medium">Total Reward: <span className="text-blue-400">{feedback.reward_components?.total?.toFixed(1)}</span></div>
-                  </Tooltip>
+              )}
+
+              {/* Reward Breakdown - Show per topic if multi-topic, otherwise show single */}
+              {feedback.rewards_by_topic && feedback.rewards_by_topic.length > 1 ? (
+                // Multi-topic: Separate sections per topic
+                <>
+                  {feedback.rewards_by_topic.map((topicReward: any, topicIdx: number) => (
+                    <div key={topicIdx} className="neuro-inset p-4 rounded-lg mb-6">
+                      <div className="text-sm font-medium text-gray-400 mb-3">
+                        Reward Components ({topicReward.topic_name}):
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <Tooltip content={getRewardTooltip('learningGain', topicReward.reward_components?.learningGain || 0)}>
+                          <div>
+                            Learning Gain: <span className="text-blue-400">{topicReward.reward_components?.learningGain?.toFixed(1)}</span>
+                            <span className="text-gray-200 text-xs ml-1">({getRewardLabel('learningGain', topicReward.reward_components?.learningGain || 0)})</span>
+                          </div>
+                        </Tooltip>
+                        <Tooltip content={getRewardTooltip('calibration', topicReward.reward_components?.calibration || 0)}>
+                          <div>
+                            Calibration: <span className="text-purple-400">{topicReward.reward_components?.calibration?.toFixed(1)}</span>
+                            <span className="text-gray-200 text-xs ml-1">({getRewardLabel('calibration', topicReward.reward_components?.calibration || 0)})</span>
+                          </div>
+                        </Tooltip>
+                        <Tooltip content={getRewardTooltip('recognition', topicReward.reward_components?.recognition || 0)}>
+                          <div>
+                            Recognition: <span className="text-green-400">{topicReward.reward_components?.recognition?.toFixed(1)}</span>
+                            <span className="text-gray-200 text-xs ml-1">({getRewardLabel('recognition', topicReward.reward_components?.recognition || 0)})</span>
+                          </div>
+                        </Tooltip>
+                        <Tooltip content={getRewardTooltip('spacing', topicReward.reward_components?.spacing || 0)}>
+                          <div>
+                            Spacing: <span className="text-yellow-400">{topicReward.reward_components?.spacing?.toFixed(1)}</span>
+                            <span className="text-gray-200 text-xs ml-1">({getRewardLabel('spacing', topicReward.reward_components?.spacing || 0)})</span>
+                          </div>
+                        </Tooltip>
+                        <Tooltip content={getRewardTooltip('responseTime', topicReward.reward_components?.responseTime || 0)}>
+                          <div>
+                            Response Time: <span className="text-cyan-400">{topicReward.reward_components?.responseTime?.toFixed(1)}</span>
+                            <span className="text-gray-200 text-xs ml-1">
+                              ({feedback.response_time_seconds ? `${feedback.response_time_seconds.toFixed(1)}s, ${getRewardLabel('responseTime', topicReward.reward_components?.responseTime || 0)}` : getRewardLabel('responseTime', topicReward.reward_components?.responseTime || 0)})
+                            </span>
+                          </div>
+                        </Tooltip>
+                        <Tooltip content={getRewardTooltip('streak', topicReward.reward_components?.streak || 0)}>
+                          <div>
+                            Streak: <span className="text-orange-400">{topicReward.reward_components?.streak?.toFixed(1)}</span>
+                            <span className="text-gray-200 text-xs ml-1">
+                              ({topicReward.new_streak !== undefined ? `${topicReward.new_streak} correct, ${getRewardLabel('streak', topicReward.reward_components?.streak || 0)}` : getRewardLabel('streak', topicReward.reward_components?.streak || 0)})
+                            </span>
+                          </div>
+                        </Tooltip>
+                      </div>
+                      <div className="mt-3 pt-3 border-t border-gray-700">
+                        <Tooltip content={getRewardTooltip('total', topicReward.reward_components?.total || 0)}>
+                          <div className="font-medium">Topic Reward: <span className="text-blue-400">{topicReward.reward_components?.total?.toFixed(1)}</span></div>
+                        </Tooltip>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="neuro-inset p-4 rounded-lg mb-6 bg-gray-800/30">
+                    <div className="text-lg font-bold text-center">
+                      Combined Total: <span className="text-blue-400">{feedback.total_reward?.toFixed(1)}</span> points
+                    </div>
+                  </div>
+                </>
+              ) : (
+                // Single topic: Show as before
+                <div className="neuro-inset p-4 rounded-lg mb-6">
+                  <div className="text-sm font-medium text-gray-400 mb-3">Reward Components:</div>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <Tooltip content={getRewardTooltip('learningGain', feedback.reward_components?.learningGain || 0)}>
+                      <div>
+                        Learning Gain: <span className="text-blue-400">{feedback.reward_components?.learningGain?.toFixed(1)}</span>
+                        <span className="text-gray-200 text-xs ml-1">({getRewardLabel('learningGain', feedback.reward_components?.learningGain || 0)})</span>
+                      </div>
+                    </Tooltip>
+                    <Tooltip content={getRewardTooltip('calibration', feedback.reward_components?.calibration || 0)}>
+                      <div>
+                        Calibration: <span className="text-purple-400">{feedback.reward_components?.calibration?.toFixed(1)}</span>
+                        <span className="text-gray-200 text-xs ml-1">({getRewardLabel('calibration', feedback.reward_components?.calibration || 0)})</span>
+                      </div>
+                    </Tooltip>
+                    <Tooltip content={getRewardTooltip('recognition', feedback.reward_components?.recognition || 0)}>
+                      <div>
+                        Recognition: <span className="text-green-400">{feedback.reward_components?.recognition?.toFixed(1)}</span>
+                        <span className="text-gray-200 text-xs ml-1">({getRewardLabel('recognition', feedback.reward_components?.recognition || 0)})</span>
+                      </div>
+                    </Tooltip>
+                    <Tooltip content={getRewardTooltip('spacing', feedback.reward_components?.spacing || 0)}>
+                      <div>
+                        Spacing: <span className="text-yellow-400">{feedback.reward_components?.spacing?.toFixed(1)}</span>
+                        <span className="text-gray-200 text-xs ml-1">({getRewardLabel('spacing', feedback.reward_components?.spacing || 0)})</span>
+                      </div>
+                    </Tooltip>
+                    <Tooltip content={getRewardTooltip('responseTime', feedback.reward_components?.responseTime || 0)}>
+                      <div>
+                        Response Time: <span className="text-cyan-400">{feedback.reward_components?.responseTime?.toFixed(1)}</span>
+                        <span className="text-gray-200 text-xs ml-1">
+                          ({feedback.response_time_seconds ? `${feedback.response_time_seconds.toFixed(1)}s, ${getRewardLabel('responseTime', feedback.reward_components?.responseTime || 0)}` : getRewardLabel('responseTime', feedback.reward_components?.responseTime || 0)})
+                        </span>
+                      </div>
+                    </Tooltip>
+                    <Tooltip content={getRewardTooltip('streak', feedback.reward_components?.streak || 0)}>
+                      <div>
+                        Streak: <span className="text-orange-400">{feedback.reward_components?.streak?.toFixed(1)}</span>
+                        <span className="text-gray-200 text-xs ml-1">
+                          ({feedback.new_streak !== undefined ? `${feedback.new_streak} correct, ${getRewardLabel('streak', feedback.reward_components?.streak || 0)}` : getRewardLabel('streak', feedback.reward_components?.streak || 0)})
+                        </span>
+                      </div>
+                    </Tooltip>
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-gray-700">
+                    <Tooltip content={getRewardTooltip('total', feedback.reward_components?.total || 0)}>
+                      <div className="font-medium">Total Reward: <span className="text-blue-400">{feedback.reward_components?.total?.toFixed(1)}</span></div>
+                    </Tooltip>
+                  </div>
                 </div>
-              </div>
+              )}
 
               <button
                 onClick={handleNextQuestion}

@@ -133,90 +133,130 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get topic_id from question or arm_selected
-    const topicId = question.topic_id || arm_selected?.topic_id
+    // Multi-topic support: Check for core_topics array (new schema)
+    // Fall back to topic_id for single-topic questions (backward compatibility)
+    const coreTopics = question.core_topics && question.core_topics.length > 0
+      ? question.core_topics
+      : [question.topic_id || arm_selected?.topic_id]
 
-    if (!topicId) {
+    const relatedTopics = question.related_topics || []
+
+    // Validate at least one core topic exists
+    if (!coreTopics || coreTopics.length === 0 || !coreTopics[0]) {
       return NextResponse.json(
-        { error: 'Question must have topic_id associated with it' },
+        { error: 'Question must have at least one core topic' },
         { status: 400 }
       )
     }
 
-    // Get current mastery for the topic
-    const { data: masteryData } = await supabase
-      .from('user_topic_mastery')
-      .select('*')
-      .eq('user_id', user.id)
-      .eq('chapter_id', session.chapter_id)
-      .eq('topic_id', topicId)
-      .eq('bloom_level', question.bloom_level)
-      .single()
+    // Process each core topic independently
+    const masteryUpdates = []
+    const rewardsByTopic = []
+    let totalReward = 0
 
-    const currentMastery = masteryData?.mastery_score || 0
-    const currentStreak = masteryData?.current_streak || 0
+    for (const topicId of coreTopics) {
+      // Get current mastery for this topic
+      const { data: masteryData } = await supabase
+        .from('user_topic_mastery')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('chapter_id', session.chapter_id)
+        .eq('topic_id', topicId)
+        .eq('bloom_level', question.bloom_level)
+        .single()
 
-    // Calculate learning gain for this topic
-    const learningGain = calculateLearningGain(currentMastery, isCorrect, confidence)
-    const newMastery = Math.max(0, Math.min(100, currentMastery + learningGain))
+      const currentMastery = masteryData?.mastery_score || 0
+      const currentStreak = masteryData?.current_streak || 0
 
-    // Get days since last practice for reward calculation
-    const daysSince = getDaysSinceLastPractice(masteryData?.last_practiced_at || null)
+      // Calculate learning gain for this topic
+      const learningGain = calculateLearningGain(currentMastery, isCorrect, confidence)
+      const newMastery = Math.max(0, Math.min(100, currentMastery + learningGain))
 
-    // Calculate new streak value
-    const newStreak = isCorrect ? currentStreak + 1 : 0
+      // Get days since last practice for reward calculation
+      const daysSince = getDaysSinceLastPractice(masteryData?.last_practiced_at || null)
 
-    // Calculate reward
-    const rewardComponents = calculateReward({
-      learningGain,
-      isCorrect,
-      confidence,
-      currentMastery,
-      daysSinceLastPractice: daysSince,
-      recognitionMethod: recognition_method as RecognitionMethod,
-      responseTimeSeconds: responseTime,
-      bloomLevel: question.bloom_level,
-      questionText: question.question_text,
-      options: question.options,
-      questionFormat: question.question_format,
-      currentStreak: currentStreak
-    })
+      // Calculate new streak value
+      const newStreak = isCorrect ? currentStreak + 1 : 0
 
-    // Update mastery for this topic (using new RPC function that uses topic_id)
-    const { error: masteryError } = await supabase.rpc('update_topic_mastery_by_id', {
-      p_user_id: user.id,
-      p_topic_id: topicId,
-      p_bloom_level: question.bloom_level,
-      p_chapter_id: session.chapter_id,
-      p_is_correct: isCorrect,
-      p_confidence: confidence,
-      p_learning_gain: learningGain,
-      p_weight: 1.0,
-      p_new_streak: newStreak
-    })
+      // Calculate reward for this topic independently
+      const rewardComponents = calculateReward({
+        learningGain,
+        isCorrect,
+        confidence,
+        currentMastery,
+        daysSinceLastPractice: daysSince,
+        recognitionMethod: recognition_method as RecognitionMethod,
+        responseTimeSeconds: responseTime,
+        bloomLevel: question.bloom_level,
+        questionText: question.question_text,
+        options: question.options,
+        questionFormat: question.question_format,
+        currentStreak: currentStreak
+      })
 
-    if (masteryError) {
-      console.error('Error updating mastery:', masteryError)
-      // Don't throw - allow response to be recorded even if mastery update fails
-    } else {
-      console.log('Successfully updated mastery for topic:', topicId, 'bloom:', question.bloom_level)
-    }
+      // Update mastery for this topic
+      const { error: masteryError } = await supabase.rpc('update_topic_mastery_by_id', {
+        p_user_id: user.id,
+        p_topic_id: topicId,
+        p_bloom_level: question.bloom_level,
+        p_chapter_id: session.chapter_id,
+        p_is_correct: isCorrect,
+        p_confidence: confidence,
+        p_learning_gain: learningGain,
+        p_weight: 1.0,
+        p_new_streak: newStreak
+      })
 
-    // Update RL arm stats (Thompson Sampling) using topic_id
-    if (arm_selected && arm_selected.topic_id) {
+      if (masteryError) {
+        console.error('Error updating mastery for topic:', topicId, masteryError)
+      } else {
+        console.log('Successfully updated mastery for topic:', topicId, 'bloom:', question.bloom_level)
+      }
+
+      // Update RL arm stats for this topic
       const { error: armStatsError } = await supabase.rpc('update_arm_stats_by_id', {
         p_user_id: user.id,
         p_chapter_id: session.chapter_id,
-        p_topic_id: arm_selected.topic_id,
-        p_bloom_level: arm_selected.bloom_level,
+        p_topic_id: topicId,
+        p_bloom_level: question.bloom_level,
         p_reward: rewardComponents.total
       })
 
       if (armStatsError) {
-        console.error('Error updating arm stats:', armStatsError)
+        console.error('Error updating arm stats for topic:', topicId, armStatsError)
       } else {
-        console.log('Successfully updated arm stats for topic:', arm_selected.topic_id, 'bloom:', arm_selected.bloom_level)
+        console.log('Successfully updated arm stats for topic:', topicId, 'bloom:', question.bloom_level)
       }
+
+      // Get topic name for display
+      const { data: topicData } = await supabase
+        .from('topics')
+        .select('name')
+        .eq('id', topicId)
+        .single()
+
+      const topicName = topicData?.name || 'Unknown'
+
+      // Store mastery update
+      masteryUpdates.push({
+        topic_id: topicId,
+        topic_name: topicName,
+        bloom_level: question.bloom_level,
+        old_mastery: Math.round(currentMastery * 10) / 10,
+        new_mastery: Math.round(newMastery * 10) / 10,
+        change: Math.round(learningGain * 10) / 10
+      })
+
+      // Store reward breakdown for this topic
+      rewardsByTopic.push({
+        topic_id: topicId,
+        topic_name: topicName,
+        reward_components: rewardComponents,
+        current_streak: currentStreak,
+        new_streak: newStreak
+      })
+
+      totalReward += rewardComponents.total
     }
 
     // Validate question_id is a valid UUID (not ephemeral)
@@ -229,18 +269,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Store user response (only columns that exist in schema)
+    // Use first core topic for backward compatibility with single topic_id column
     const { data: response, error: responseError } = await supabase
       .from('user_responses')
       .insert({
         session_id,
         question_id: question_id,
         user_id: user.id,
-        topic_id: topicId,
+        topic_id: coreTopics[0], // First core topic for backward compatibility
         bloom_level: question.bloom_level,
         user_answer,
         is_correct: isCorrect,
         confidence: confidence,
-        reward: rewardComponents.total,
+        reward: totalReward, // Combined total reward
         time_taken_seconds: responseTime, // Use schema column name
         // created_at will be set by database default
       })
@@ -253,91 +294,87 @@ export async function POST(request: NextRequest) {
     }
 
     // Track dimension coverage for comprehensive mastery with unique question tracking
-    console.log('Checking dimension coverage tracking:', {
-      has_dimension: !!question.dimension,
-      dimension: question.dimension,
-      has_bloom: !!question.bloom_level,
-      bloom_level: question.bloom_level,
-      has_topic: !!topicId,
-      topic_id: topicId
-    })
-
-    if (question.dimension && question.bloom_level && topicId) {
-      const { data: existingCoverage } = await supabase
-        .from('user_dimension_coverage')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('chapter_id', session.chapter_id)
-        .eq('topic_id', topicId)
-        .eq('bloom_level', question.bloom_level)
-        .eq('dimension', question.dimension)
-        .single()
-
+    // Track for all core topics
+    if (question.dimension && question.bloom_level) {
       const scoreForDimension = isCorrect ? 100 : 0
       const questionId = question.id.toString()
 
-      if (existingCoverage) {
-        // Check if this is a unique question (not a spaced repetition repeat)
-        const uniqueQuestions = existingCoverage.unique_questions_answered || []
-        const isNewQuestion = !uniqueQuestions.includes(questionId)
+      for (const topicId of coreTopics) {
+        console.log('Tracking dimension coverage for topic:', topicId, 'dimension:', question.dimension)
 
-        // Add to unique questions array if new
-        const updatedUniqueQuestions = isNewQuestion
-          ? [...uniqueQuestions, questionId]
-          : uniqueQuestions
-
-        // Calculate new average score (only count unique questions for mastery)
-        const newTimesTested = existingCoverage.times_tested + 1
-        const newTotalAttempts = (existingCoverage.total_attempts || existingCoverage.times_tested) + 1
-
-        // For average score, we want to track performance across unique questions
-        // If this is a repeat, we still update the average to reflect current performance
-        const newAvgScore = (
-          (existingCoverage.average_score * existingCoverage.times_tested) + scoreForDimension
-        ) / newTimesTested
-
-        const { error: updateError } = await supabase
+        const { data: existingCoverage } = await supabase
           .from('user_dimension_coverage')
-          .update({
-            times_tested: newTimesTested,
-            total_attempts: newTotalAttempts,
-            unique_questions_answered: updatedUniqueQuestions,
-            average_score: newAvgScore,
-            last_tested_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', existingCoverage.id)
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('chapter_id', session.chapter_id)
+          .eq('topic_id', topicId)
+          .eq('bloom_level', question.bloom_level)
+          .eq('dimension', question.dimension)
+          .single()
 
-        if (updateError) {
-          console.error('Error updating dimension coverage:', updateError)
-        } else {
-          console.log('Successfully updated dimension coverage')
-        }
-      } else {
-        // Insert new coverage record
-        const { error: insertError } = await supabase
-          .from('user_dimension_coverage')
-          .insert({
-            user_id: user.id,
-            chapter_id: session.chapter_id,
-            topic_id: topicId,
-            bloom_level: question.bloom_level,
-            dimension: question.dimension,
-            times_tested: 1,
-            total_attempts: 1,
-            unique_questions_answered: [questionId],
-            average_score: scoreForDimension,
-            last_tested_at: new Date().toISOString()
-          })
+        if (existingCoverage) {
+          // Check if this is a unique question (not a spaced repetition repeat)
+          const uniqueQuestions = existingCoverage.unique_questions_answered || []
+          const isNewQuestion = !uniqueQuestions.includes(questionId)
 
-        if (insertError) {
-          console.error('Error inserting dimension coverage:', insertError)
+          // Add to unique questions array if new
+          const updatedUniqueQuestions = isNewQuestion
+            ? [...uniqueQuestions, questionId]
+            : uniqueQuestions
+
+          // Calculate new average score (only count unique questions for mastery)
+          const newTimesTested = existingCoverage.times_tested + 1
+          const newTotalAttempts = (existingCoverage.total_attempts || existingCoverage.times_tested) + 1
+
+          // For average score, we want to track performance across unique questions
+          // If this is a repeat, we still update the average to reflect current performance
+          const newAvgScore = (
+            (existingCoverage.average_score * existingCoverage.times_tested) + scoreForDimension
+          ) / newTimesTested
+
+          const { error: updateError } = await supabase
+            .from('user_dimension_coverage')
+            .update({
+              times_tested: newTimesTested,
+              total_attempts: newTotalAttempts,
+              unique_questions_answered: updatedUniqueQuestions,
+              average_score: newAvgScore,
+              last_tested_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', existingCoverage.id)
+
+          if (updateError) {
+            console.error('Error updating dimension coverage for topic:', topicId, updateError)
+          } else {
+            console.log('Successfully updated dimension coverage for topic:', topicId)
+          }
         } else {
-          console.log('Successfully inserted dimension coverage')
+          // Insert new coverage record
+          const { error: insertError } = await supabase
+            .from('user_dimension_coverage')
+            .insert({
+              user_id: user.id,
+              chapter_id: session.chapter_id,
+              topic_id: topicId,
+              bloom_level: question.bloom_level,
+              dimension: question.dimension,
+              times_tested: 1,
+              total_attempts: 1,
+              unique_questions_answered: [questionId],
+              average_score: scoreForDimension,
+              last_tested_at: new Date().toISOString()
+            })
+
+          if (insertError) {
+            console.error('Error inserting dimension coverage for topic:', topicId, insertError)
+          } else {
+            console.log('Successfully inserted dimension coverage for topic:', topicId)
+          }
         }
       }
     } else {
-      console.log('Skipping dimension coverage tracking - missing required field')
+      console.log('Skipping dimension coverage tracking - missing required field (dimension or bloom_level)')
     }
 
     // Update session progress
@@ -354,29 +391,37 @@ export async function POST(request: NextRequest) {
       })
       .eq('id', session_id)
 
+    // Get related topic names for display
+    const relatedTopicNames = []
+    if (relatedTopics.length > 0) {
+      const { data: relatedTopicsData } = await supabase
+        .from('topics')
+        .select('name')
+        .in('id', relatedTopics)
+
+      if (relatedTopicsData) {
+        relatedTopicNames.push(...relatedTopicsData.map(t => t.name))
+      }
+    }
+
     return NextResponse.json({
       is_correct: isCorrect,
       correct_answer: question.correct_answer,
       explanation: question.explanation,
-      reward_components: rewardComponents,
-      response_time_seconds: responseTime, // Include actual time taken
-      current_streak: currentStreak,
-      new_streak: newStreak,
-      mastery_update: {
-        topic_id: topicId,
-        topic_name: arm_selected?.topic_name || 'Unknown',
-        bloom_level: question.bloom_level,
-        old_mastery: Math.round(currentMastery * 10) / 10,
-        new_mastery: Math.round(newMastery * 10) / 10,
-        change: Math.round(learningGain * 10) / 10
-      },
-      mastery_updates: [{
-        topic: arm_selected?.topic_name || 'Unknown',
-        bloom_level: question.bloom_level,
-        old_mastery: Math.round(currentMastery * 10) / 10,
-        new_mastery: Math.round(newMastery * 10) / 10,
-        change: Math.round(learningGain * 10) / 10
-      }],
+      response_time_seconds: responseTime,
+
+      // Multi-topic support
+      mastery_updates: masteryUpdates, // Array of all core topics
+      rewards_by_topic: rewardsByTopic, // Individual rewards per topic
+      related_topics: relatedTopicNames, // Display only
+      total_reward: totalReward, // Combined total
+
+      // Legacy fields for backward compatibility (first topic)
+      reward_components: rewardsByTopic[0]?.reward_components,
+      current_streak: rewardsByTopic[0]?.current_streak,
+      new_streak: rewardsByTopic[0]?.new_streak,
+      mastery_update: masteryUpdates[0],
+
       session_progress: {
         questions_answered: newQuestionsAnswered,
         total_questions: session.total_questions,
