@@ -155,12 +155,14 @@ export async function POST(request: NextRequest) {
       }
       progressDeleted = progressCount || 0
 
-      // Delete learning_sessions for this topic
+      // Delete learning_sessions that include this topic
+      // Note: topics_covered is a UUID array, so we use array containment
       const { count: sessionsCount, error: sessionsError } = await supabase
         .from('learning_sessions')
         .delete({ count: 'exact' })
         .eq('user_id', user.id)
-        .eq('topic_id', topic_id)
+        .eq('chapter_id', chapter_id)
+        .contains('topics_covered', [topic_id])
 
       if (sessionsError) {
         console.error('Error deleting learning_sessions:', sessionsError)
