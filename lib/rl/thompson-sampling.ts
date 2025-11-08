@@ -76,8 +76,17 @@ export async function getAvailableArms(
     return []
   }
 
+  // 🔍 DIAGNOSTIC: Check for diagnostic row
+  const diagnosticRow = arms?.find((a: any) => a.bloom_level === -1)
+  if (diagnosticRow) {
+    console.log('🔍 DATABASE DIAGNOSTIC:', diagnosticRow.topic)
+  }
+
+  // Filter out diagnostic row
+  const filteredArms = arms?.filter((a: any) => a.bloom_level !== -1) || []
+
   // 🔍 DIAGNOSTIC: Log what RPC returns
-  const bloom1Arms = arms?.filter((a: any) => a.bloom_level === 1) || []
+  const bloom1Arms = filteredArms?.filter((a: any) => a.bloom_level === 1) || []
   console.log('🔍 RPC get_unlocked_topic_arms returned:', {
     totalArms: arms?.length,
     bloom1Count: bloom1Arms.length,
@@ -97,8 +106,8 @@ export async function getAvailableArms(
   }, {})
   console.log('🔍 Arms by Bloom level:', armsByBloom)
 
-  // Filter to only unlocked arms
-  const availableArms = arms
+  // Filter to only unlocked arms (use filteredArms without diagnostic row)
+  const availableArms = filteredArms
     .filter((arm: any) => arm.is_unlocked)
     .map((arm: any) => ({
       arm: {
