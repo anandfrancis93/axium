@@ -4,6 +4,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import type { ArmSample } from './thompson-sampling'
+import type { RewardComponents } from './rewards'
 
 export interface ArmSelectionLog {
   userId: string
@@ -45,15 +46,7 @@ export interface RewardCalculationLog {
   isCorrect: boolean
   confidence: number
   responseTimeSeconds: number
-  rewardComponents: {
-    learning_gain: number
-    calibration: number
-    spacing: number
-    recognition: number
-    response_time: number
-    streak: number
-    total: number
-  }
+  rewardComponents: RewardComponents
 }
 
 export interface MasteryUpdateLog {
