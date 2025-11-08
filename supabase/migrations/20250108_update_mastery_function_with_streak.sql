@@ -1,6 +1,10 @@
 -- Update update_topic_mastery_by_id function to include streak parameter
 -- Replaces the function to add p_new_streak parameter
 
+-- Drop the existing 8-parameter version first
+DROP FUNCTION IF EXISTS update_topic_mastery_by_id(p_user_id UUID, p_topic_id UUID, p_bloom_level INT, p_chapter_id UUID, p_is_correct BOOLEAN, p_confidence INT, p_learning_gain DECIMAL, p_weight DECIMAL);
+
+-- Create the new 9-parameter version
 CREATE OR REPLACE FUNCTION update_topic_mastery_by_id(
   p_user_id UUID,
   p_topic_id UUID,
