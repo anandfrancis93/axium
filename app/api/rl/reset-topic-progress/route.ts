@@ -97,6 +97,20 @@ export async function POST(request: NextRequest) {
       dimensionCoverageQuery = dimensionCoverageQuery.eq('bloom_level', bloom_level)
     }
 
+    // Get session IDs BEFORE deleting responses (for full topic reset only)
+    let sessionIdsToDelete: string[] = []
+    if (isFullTopicReset) {
+      const { data: responsesWithSessions } = await supabase
+        .from('user_responses')
+        .select('session_id')
+        .eq('user_id', user.id)
+        .eq('topic_id', topic_id)
+
+      if (responsesWithSessions && responsesWithSessions.length > 0) {
+        sessionIdsToDelete = [...new Set(responsesWithSessions.map(r => r.session_id))]
+      }
+    }
+
     // Execute deletions
     const { count: responsesCount, error: responsesError } = await responsesQuery
     if (responsesError) {
@@ -155,24 +169,25 @@ export async function POST(request: NextRequest) {
       }
       progressDeleted = progressCount || 0
 
-      // Delete learning_sessions that include this topic
-      // Note: topics_covered is a UUID array, so we use array containment
-      const { count: sessionsCount, error: sessionsError } = await supabase
-        .from('learning_sessions')
-        .delete({ count: 'exact' })
-        .eq('user_id', user.id)
-        .eq('chapter_id', chapter_id)
-        .contains('topics_covered', [topic_id])
+      // Delete learning_sessions (using pre-fetched session IDs)
+      if (sessionIdsToDelete.length > 0) {
+        const { count: sessionsCount, error: sessionsError } = await supabase
+          .from('learning_sessions')
+          .delete({ count: 'exact' })
+          .in('id', sessionIdsToDelete)
 
-      if (sessionsError) {
-        console.error('Error deleting learning_sessions:', sessionsError)
-        return NextResponse.json(
-          { error: `Failed to delete learning_sessions: ${sessionsError.message}` },
-          { status: 500 }
-        )
+        if (sessionsError) {
+          console.error('Error deleting learning_sessions:', sessionsError)
+          return NextResponse.json(
+            { error: `Failed to delete learning_sessions: ${sessionsError.message}` },
+            { status: 500 }
+          )
+        }
+        sessionsDeleted = sessionsCount || 0
+        console.log(`Deleted ${sessionsDeleted} learning_sessions`)
+      } else {
+        console.log('No sessions found with responses for this topic')
       }
-      sessionsDeleted = sessionsCount || 0
-      console.log(`Deleted ${sessionsDeleted} learning_sessions`)
 
       // Delete AI-generated questions for this user for this topic
       const { count: questionsCount, error: questionsError } = await supabase
