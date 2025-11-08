@@ -488,18 +488,6 @@ ${interpretation}`
               </div>
             </div>
             <div className="flex-shrink-0 flex items-center gap-3">
-              {session && (
-                <button
-                  onClick={() => {
-                    if (confirm('Are you sure you want to end this session?')) {
-                      router.push(`/session-complete/${session.session_id}`)
-                    }
-                  }}
-                  className="neuro-btn text-red-400 text-sm px-4 py-2"
-                >
-                  End Session
-                </button>
-              )}
               <HamburgerMenu />
             </div>
           </div>
