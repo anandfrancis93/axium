@@ -187,27 +187,29 @@ export async function POST(request: NextRequest) {
     if (chapterTopics && chapterTopics.length > 0) {
       const topicIds = chapterTopics.map(t => t.id)
 
-      // First check what user_progress exists for these topics
-      const { data: existingProgress } = await supabase
-        .from('user_progress')
-        .select('id, topic_id')
-        .eq('user_id', user.id)
-        .in('topic_id', topicIds)
+      // Batch delete in chunks of 100 to avoid URL length limits
+      const BATCH_SIZE = 100
+      let totalProgressDeleted = 0
 
-      console.log(`Found ${existingProgress?.length || 0} user_progress records to delete`)
+      for (let i = 0; i < topicIds.length; i += BATCH_SIZE) {
+        const batch = topicIds.slice(i, i + BATCH_SIZE)
 
-      const { count: progressCount, error: progressError } = await supabase
-        .from('user_progress')
-        .delete({ count: 'exact' })
-        .eq('user_id', user.id)
-        .in('topic_id', topicIds)
+        const { count: batchCount, error: batchError } = await supabase
+          .from('user_progress')
+          .delete({ count: 'exact' })
+          .eq('user_id', user.id)
+          .in('topic_id', batch)
 
-      if (progressError) {
-        console.error('Error deleting user_progress:', progressError)
-      } else {
-        progressDeleted = progressCount || 0
-        console.log(`Deleted ${progressDeleted} user_progress records`)
+        if (batchError) {
+          console.error(`Error deleting user_progress batch ${i / BATCH_SIZE + 1}:`, batchError)
+        } else {
+          totalProgressDeleted += (batchCount || 0)
+          console.log(`Deleted ${batchCount || 0} user_progress records in batch ${i / BATCH_SIZE + 1}`)
+        }
       }
+
+      progressDeleted = totalProgressDeleted
+      console.log(`Total deleted: ${progressDeleted} user_progress records`)
     } else {
       console.log('No topics found in chapter - skipping user_progress deletion')
     }
