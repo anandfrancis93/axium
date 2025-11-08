@@ -789,7 +789,7 @@ ${interpretation}`
                   <div className="space-y-2 font-mono text-sm">
                     {(() => {
                       // Build complete hierarchical trees for each topic
-                      const trees: JSX.Element[] = []
+                      const trees: React.ReactNode[] = []
 
                       feedback.related_topics.forEach((topic: any, idx: number) => {
                         // Parse full_name to get complete hierarchy
