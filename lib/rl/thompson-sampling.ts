@@ -69,6 +69,19 @@ export async function getAvailableArms(
     return []
   }
 
+  // 🔍 DIAGNOSTIC: Log what RPC returns
+  console.log('🔍 RPC get_available_arms returned:', {
+    totalArms: arms?.length,
+    bloom1Count: arms?.filter((a: any) => a.bloom_level === 1).length,
+    unlockedCount: arms?.filter((a: any) => a.is_unlocked).length,
+    bloom1UnlockedCount: arms?.filter((a: any) => a.bloom_level === 1 && a.is_unlocked).length,
+    sampleArms: arms?.slice(0, 3).map((a: any) => ({
+      topic: a.topic,
+      bloom: a.bloom_level,
+      unlocked: a.is_unlocked
+    }))
+  })
+
   // Filter to only unlocked arms
   const availableArms = arms
     .filter((arm: any) => arm.is_unlocked)
@@ -84,6 +97,8 @@ export async function getAvailableArms(
       masteryScore: arm.mastery_score || 0,
       isUnlocked: true
     }))
+
+  console.log('🔍 After unlock filter:', availableArms.length, 'arms')
 
   return availableArms
 }
