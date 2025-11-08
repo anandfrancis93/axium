@@ -211,7 +211,7 @@ export function estimateDifficulty(
  * @returns Number of days since last practice
  */
 export function getDaysSinceLastPractice(lastPracticedAt: string | null): number {
-  if (!lastPracticedAt) return 999 // Never practiced
+  if (!lastPracticedAt) return 0 // Never practiced - no spacing benefit
 
   const lastPracticed = new Date(lastPracticedAt)
   const now = new Date()
