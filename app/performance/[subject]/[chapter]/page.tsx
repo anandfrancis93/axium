@@ -279,70 +279,19 @@ export default function PerformancePage() {
 
     setLoadingCounts(true)
     try {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-
-      // Get all sessions for this chapter
-      const { data: sessions } = await supabase
-        .from('learning_sessions')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('chapter_id', chapterData.id)
-
-      const sessionIds = sessions?.map(s => s.id) || []
-
-      // Count responses
-      const { count: responsesCount } = await supabase
-        .from('user_responses')
-        .select('*', { count: 'exact', head: true })
-        .in('session_id', sessionIds)
-
-      // Count sessions
-      const sessionsCount = sessions?.length || 0
-
-      // Count mastery records
-      const { count: masteryCount } = await supabase
-        .from('user_topic_mastery')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .eq('chapter_id', chapterData.id)
-
-      // Count arm stats
-      const { count: armStatsCount } = await supabase
-        .from('rl_arm_stats')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .eq('chapter_id', chapterData.id)
-
-      // Count dimension coverage
-      const { count: dimensionCoverageCount } = await supabase
-        .from('user_dimension_coverage')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .eq('chapter_id', chapterData.id)
-
-      // Count AI-generated questions for this user in this chapter
-      const { count: questionsCount, error: questionsCountError } = await supabase
-        .from('questions')
-        .select('topic_id, topics!inner(chapter_id)', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .eq('topics.chapter_id', chapterData.id)
-        .eq('source_type', 'ai_generated_realtime')
-
-      console.log('AI-generated questions count:', {
-        count: questionsCount,
-        error: questionsCountError
+      const response = await fetch('/api/rl/reset-progress/preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chapter_id: chapterData.id })
       })
 
-      setPreResetCounts({
-        responses: responsesCount || 0,
-        sessions: sessionsCount,
-        mastery: masteryCount || 0,
-        armStats: armStatsCount || 0,
-        dimensionCoverage: dimensionCoverageCount || 0,
-        questions: questionsCount || 0
-      })
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to load counts')
+      }
+
+      setPreResetCounts(data.counts)
     } catch (error) {
       console.error('Error loading counts:', error)
     } finally {
@@ -1092,6 +1041,10 @@ Mastery calculated using EMA (recent performance weighted higher)`
                 <div className="flex justify-between">
                   <span className="text-gray-400">Dimension Coverage:</span>
                   <span className="text-red-400 font-medium">{preResetCounts.dimensionCoverage}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Progress Records:</span>
+                  <span className="text-red-400 font-medium">{preResetCounts.progress}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">Generated Questions:</span>
