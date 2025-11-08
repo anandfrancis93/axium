@@ -76,17 +76,25 @@ export async function getAvailableArms(
   }
 
   // 🔍 DIAGNOSTIC: Log what RPC returns
+  const bloom1Arms = arms?.filter((a: any) => a.bloom_level === 1) || []
   console.log('🔍 RPC get_available_arms returned:', {
     totalArms: arms?.length,
-    bloom1Count: arms?.filter((a: any) => a.bloom_level === 1).length,
+    bloom1Count: bloom1Arms.length,
     unlockedCount: arms?.filter((a: any) => a.is_unlocked).length,
     bloom1UnlockedCount: arms?.filter((a: any) => a.bloom_level === 1 && a.is_unlocked).length,
-    sampleArms: arms?.slice(0, 3).map((a: any) => ({
+    bloom1Sample: bloom1Arms.slice(0, 5).map((a: any) => ({
       topic: a.topic,
-      bloom: a.bloom_level,
       unlocked: a.is_unlocked
-    }))
+    })),
+    allBloomLevels: [...new Set(arms?.map((a: any) => a.bloom_level))].sort()
   })
+
+  // 🔍 Count arms per bloom level
+  const armsByBloom = arms?.reduce((acc: any, arm: any) => {
+    acc[arm.bloom_level] = (acc[arm.bloom_level] || 0) + 1
+    return acc
+  }, {})
+  console.log('🔍 Arms by Bloom level:', armsByBloom)
 
   // Filter to only unlocked arms
   const availableArms = arms
