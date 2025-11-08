@@ -69,13 +69,13 @@ export default function LearnPage() {
       setLoading(true)
       setError('')
 
-      // Start new session
+      // Start new session (unlimited questions)
       const response = await fetch('/api/rl/sessions/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           chapter_id: chapId,
-          num_questions: 10
+          num_questions: 999999  // Effectively unlimited
         })
       })
 
@@ -480,12 +480,24 @@ ${interpretation}`
         <div className="neuro-card mb-6">
           <div className="flex justify-between items-center gap-3">
             <div className="min-w-0 flex-shrink">
-              <div className="text-sm text-gray-500 mb-1">Question {feedback?.session_progress?.questions_answered || 0 + 1} of {session?.questions_remaining || 10}</div>
+              <div className="text-sm text-gray-500 mb-1">Question {feedback?.session_progress?.questions_answered || 1}</div>
               <div className="text-2xl font-bold text-gray-200">
                 Score: {feedback?.session_progress?.current_score || 0}/{feedback?.session_progress?.questions_answered || 0}
               </div>
             </div>
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 flex items-center gap-3">
+              {session && (
+                <button
+                  onClick={() => {
+                    if (confirm('Are you sure you want to end this session?')) {
+                      router.push(`/session-complete/${session.session_id}`)
+                    }
+                  }}
+                  className="neuro-btn text-red-400 text-sm px-4 py-2"
+                >
+                  End Session
+                </button>
+              )}
               <HamburgerMenu />
             </div>
           </div>

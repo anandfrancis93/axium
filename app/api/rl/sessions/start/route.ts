@@ -8,12 +8,12 @@ import { createClient } from '@/lib/supabase/server'
  *
  * Body:
  * - chapter_id: UUID of the chapter to study
- * - num_questions: Number of questions in session (optional, default 10)
+ * - num_questions: Number of questions in session (optional, default unlimited)
  *
  * Returns:
  * - session_id: UUID of created session
  * - chapter_id: UUID of the chapter
- * - questions_remaining: Number of questions in session
+ * - questions_remaining: Number of questions in session (or very high for unlimited)
  */
 export async function POST(request: NextRequest) {
   try {
