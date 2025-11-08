@@ -38,6 +38,8 @@ export default function PerformancePage() {
   const [showTopicResetModal, setShowTopicResetModal] = useState(false)
   const [resetTopicData, setResetTopicData] = useState<{ topic: string, topic_id: string } | null>(null)
   const [resettingTopic, setResettingTopic] = useState(false)
+  const [rlStateExpanded, setRlStateExpanded] = useState(false)
+  const [rlArmStats, setRlArmStats] = useState<any[]>([])
 
   useEffect(() => {
     loadPerformanceData()
@@ -241,6 +243,16 @@ export default function PerformancePage() {
         })
       }
       setTopicUnlockLevels(unlockLevels)
+
+      // Get RL arm stats for Thompson Sampling transparency
+      const { data: armStatsData } = await supabase
+        .from('rl_arm_stats')
+        .select('*, topics(name, full_name)')
+        .eq('user_id', user.id)
+        .eq('chapter_id', fetchedChapter.id)
+        .order('avg_reward', { ascending: false })
+
+      setRlArmStats(armStatsData || [])
 
       // Calculate exam score prediction using IRT
       if (allResponses.length >= 5) {
@@ -696,6 +708,108 @@ Mastery calculated using EMA (recent performance weighted higher)`
                     <div>• <strong>Confidence Interval</strong>: 95% probability your true score falls within this range</div>
                     <div>• <strong>Pass Probability</strong>: Statistical likelihood of scoring ≥750 based on current performance</div>
                     <div>• <strong>Reliability</strong>: Measurement precision based on question coverage and consistency</div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Thompson Sampling RL State - Collapsible */}
+        {rlArmStats.length > 0 && (
+          <div className="neuro-card mb-6">
+            <button
+              onClick={() => setRlStateExpanded(!rlStateExpanded)}
+              className="w-full flex items-center justify-between p-2 -m-2 hover:bg-gray-800/20 rounded-lg transition-colors"
+            >
+              <h2 className="text-xl font-semibold text-gray-200">
+                Thompson Sampling State
+              </h2>
+              <ChevronDownIcon
+                size={24}
+                className={`text-gray-400 transition-transform ${rlStateExpanded ? 'rotate-180' : ''}`}
+              />
+            </button>
+
+            {rlStateExpanded && (
+              <div className="mt-6 pt-6 border-t border-gray-800">
+                <div className="mb-4 text-sm text-gray-400">
+                  Current RL algorithm state showing Beta distribution parameters (α, β) for each topic × Bloom level.
+                  Higher estimated success rate = more likely to be selected.
+                </div>
+
+                <div className="overflow-x-auto">
+                  <div className="max-h-[600px] overflow-y-auto neuro-inset rounded-lg">
+                    <table className="w-full text-sm">
+                      <thead className="sticky top-0 bg-[#0a0a0a] z-10">
+                        <tr>
+                          <th className="text-left p-4 text-gray-400 font-medium">Topic</th>
+                          <th className="text-center p-4 text-gray-400 font-medium">Bloom</th>
+                          <th className="text-right p-4 text-gray-400 font-medium">Alpha (α)</th>
+                          <th className="text-right p-4 text-gray-400 font-medium">Beta (β)</th>
+                          <th className="text-right p-4 text-gray-400 font-medium">Est. Success</th>
+                          <th className="text-right p-4 text-gray-400 font-medium">Times Selected</th>
+                          <th className="text-right p-4 text-gray-400 font-medium">Avg Reward</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {rlArmStats.map((arm: any, idx: number) => {
+                          const alpha = parseFloat(arm.alpha)
+                          const beta = parseFloat(arm.beta)
+                          const estimatedSuccess = (alpha / (alpha + beta)) * 100
+                          const topicName = arm.topics?.name || arm.topic || 'Unknown'
+                          const topicFullName = arm.topics?.full_name || topicName
+
+                          return (
+                            <tr key={idx} className="border-t border-gray-800 hover:bg-gray-900/30 transition-colors">
+                              <td className="p-4 text-gray-200 max-w-xs">
+                                <Tooltip content={topicFullName !== topicName ? topicFullName.replace(/ > /g, '\n') : topicName}>
+                                  <div className="truncate">{topicName}</div>
+                                </Tooltip>
+                              </td>
+                              <td className="p-4 text-center text-gray-400">{arm.bloom_level}</td>
+                              <td className="p-4 text-right text-blue-400 font-mono">{alpha.toFixed(2)}</td>
+                              <td className="p-4 text-right text-purple-400 font-mono">{beta.toFixed(2)}</td>
+                              <td className="p-4 text-right">
+                                <Tooltip content={`Estimated success rate: ${estimatedSuccess.toFixed(1)}%\n\nCalculated as α/(α+β)\n\nHigher values = more likely to be selected by Thompson Sampling`}>
+                                  <span className={`font-semibold ${
+                                    estimatedSuccess >= 70 ? 'text-green-400' :
+                                    estimatedSuccess >= 50 ? 'text-yellow-400' :
+                                    'text-red-400'
+                                  }`}>
+                                    {estimatedSuccess.toFixed(1)}%
+                                  </span>
+                                </Tooltip>
+                              </td>
+                              <td className="p-4 text-right text-gray-400">{arm.times_selected || 0}</td>
+                              <td className="p-4 text-right">
+                                <Tooltip content={`Average reward received for this arm\n\nHigher = better learning outcomes`}>
+                                  <span className={`font-semibold ${
+                                    parseFloat(arm.avg_reward) >= 0.5 ? 'text-green-400' :
+                                    parseFloat(arm.avg_reward) >= 0 ? 'text-yellow-400' :
+                                    'text-red-400'
+                                  }`}>
+                                    {parseFloat(arm.avg_reward).toFixed(3)}
+                                  </span>
+                                </Tooltip>
+                              </td>
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Explanation */}
+                <div className="mt-6 text-xs text-gray-500 neuro-inset rounded-lg p-4">
+                  <div className="font-semibold text-gray-400 mb-2">Understanding the RL State:</div>
+                  <div className="space-y-1">
+                    <div>• <strong>Alpha (α)</strong>: Number of successful outcomes (correct answers) + 1 (prior)</div>
+                    <div>• <strong>Beta (β)</strong>: Number of unsuccessful outcomes (incorrect answers) + 1 (prior)</div>
+                    <div>• <strong>Est. Success</strong>: Expected success rate = α/(α+β)</div>
+                    <div>• <strong>Thompson Sampling</strong>: Randomly samples from Beta(α, β) distribution each time to balance exploration vs exploitation</div>
+                    <div>• <strong>Avg Reward</strong>: Historical average reward (accounts for correctness, confidence calibration, spacing, etc.)</div>
                   </div>
                 </div>
               </div>

@@ -24,6 +24,7 @@ export default function LearnPage() {
   const [question, setQuestion] = useState<any>(null)
   const [questionMetadata, setQuestionMetadata] = useState<any>(null)
   const [armSelected, setArmSelected] = useState<any>(null)
+  const [decisionContext, setDecisionContext] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -121,6 +122,7 @@ export default function LearnPage() {
       setQuestion(data.question)
       setQuestionMetadata(data.question_metadata) // Store for submission
       setArmSelected(data.arm_selected)
+      setDecisionContext(data.decision_context) // Store for transparency
 
       // Record when question is shown for response time tracking
       setQuestionShownAt(Date.now())
@@ -761,6 +763,21 @@ ${interpretation}`
                   </div>
                 </div>
               </div>
+
+              {/* Decision Explainer - Why This Question Was Selected */}
+              {decisionContext && (
+                <div className="neuro-inset p-4 rounded-lg mb-6">
+                  <h3 className="text-lg font-semibold text-gray-300 mb-2">
+                    Why This Question?
+                  </h3>
+                  <p className="text-sm text-gray-400 mb-3">
+                    {decisionContext.reasoning}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {decisionContext.alternatives_count} other topic{decisionContext.alternatives_count !== 1 ? 's' : ''} {decisionContext.alternatives_count !== 1 ? 'were' : 'was'} considered by Thompson Sampling
+                  </p>
+                </div>
+              )}
 
               {/* Mastery Updates */}
               <div className="neuro-inset p-4 rounded-lg mb-6">
