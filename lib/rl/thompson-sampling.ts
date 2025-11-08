@@ -79,7 +79,7 @@ export async function getAvailableArms(
 
   // 🔍 DIAGNOSTIC: Log what RPC returns
   const bloom1Arms = arms?.filter((a: any) => a.bloom_level === 1) || []
-  console.log('🔍 RPC get_available_arms returned:', {
+  console.log('🔍 RPC get_available_arms_v2 returned:', {
     totalArms: arms?.length,
     bloom1Count: bloom1Arms.length,
     unlockedCount: arms?.filter((a: any) => a.is_unlocked).length,
