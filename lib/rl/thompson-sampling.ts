@@ -59,9 +59,10 @@ export async function getAvailableArms(
   const supabase = await createClient()
 
   // 🔍 DIAGNOSTIC: Log parameters being passed
-  console.log('🔍 getAvailableArms called with:', {
+  console.log('🔍 getAvailableArms called with (v2 - cache invalidated):', {
     userId,
-    chapterId
+    chapterId,
+    timestamp: new Date().toISOString()
   })
 
   // Use the database function to get arms with unlock status
