@@ -65,14 +65,12 @@ export async function getAvailableArms(
     timestamp: new Date().toISOString()
   })
 
-  // NUCLEAR OPTION: Call completely renamed function to bypass ALL caching
-  // CRITICAL: Set range header to get ALL results (default limit is 1000!)
-  const { data: arms, error } = await supabase
-    .rpc('get_unlocked_topic_arms', {
-      p_user_id: userId,
-      p_chapter_id: chapterId
-    })
-    .range(0, 9999)  // Request up to 10000 rows
+  // Call function - now returns ONLY unlocked arms (server-side filter)
+  // This works around PostgREST 1000 row limit
+  const { data: arms, error } = await supabase.rpc('get_unlocked_topic_arms', {
+    p_user_id: userId,
+    p_chapter_id: chapterId
+  })
 
   if (error) {
     console.error('Error getting available arms:', error)
@@ -109,9 +107,8 @@ export async function getAvailableArms(
   }, {})
   console.log('🔍 Arms by Bloom level:', armsByBloom)
 
-  // Filter to only unlocked arms (use filteredArms without diagnostic row)
+  // No need to filter - function already returns only unlocked arms
   const availableArms = filteredArms
-    .filter((arm: any) => arm.is_unlocked)
     .map((arm: any) => ({
       arm: {
         topicId: arm.topic_id,
