@@ -1,6 +1,9 @@
 -- Update update_topic_mastery_by_id function to include streak parameter
 -- Replaces the function to add p_new_streak parameter
 
+-- Drop the old function first (with original signature)
+DROP FUNCTION IF EXISTS update_topic_mastery_by_id(UUID, UUID, INT, UUID, BOOLEAN, INT, DECIMAL, DECIMAL);
+
 CREATE OR REPLACE FUNCTION update_topic_mastery_by_id(
   p_user_id UUID,
   p_topic_id UUID,
