@@ -178,6 +178,14 @@ export async function POST(request: NextRequest) {
       .eq('user_id', user.id)
       .eq('topics.chapter_id', chapter_id)
 
+    console.log('Reset - user_progress query:', {
+      chapter_id,
+      user_id: user.id,
+      records: progressToDelete,
+      count: progressToDelete?.length || 0,
+      error: fetchProgressError
+    })
+
     if (fetchProgressError) {
       console.error('Error fetching user_progress to delete:', fetchProgressError)
     } else if (progressToDelete && progressToDelete.length > 0) {

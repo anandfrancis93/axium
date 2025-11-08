@@ -83,11 +83,19 @@ export async function POST(request: NextRequest) {
       .eq('chapter_id', chapter_id)
 
     // Count user_progress using JOIN with topics
-    const { data: progressRecords } = await supabase
+    const { data: progressRecords, error: progressError } = await supabase
       .from('user_progress')
       .select('id, topics!inner(chapter_id)')
       .eq('user_id', user.id)
       .eq('topics.chapter_id', chapter_id)
+
+    console.log('Preview - user_progress query:', {
+      chapter_id,
+      user_id: user.id,
+      records: progressRecords,
+      count: progressRecords?.length || 0,
+      error: progressError
+    })
 
     const progressCount = progressRecords?.length || 0
 
