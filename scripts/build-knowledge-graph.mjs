@@ -218,7 +218,7 @@ async function storeRelationships(sourceTopic, relationships, candidateTopics) {
       .upsert({
         source_topic_id: sourceTopic.id,
         target_topic_id: targetTopic.id,
-        relationship_type: rel.relationship,
+        relationship_type: rel.relationship.toLowerCase(), // Convert to lowercase for enum
         confidence: rel.confidence,
         reasoning: rel.reasoning,
         created_by: 'ai',
