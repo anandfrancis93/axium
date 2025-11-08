@@ -793,17 +793,9 @@ ${interpretation}`
 
                       // Parse the full hierarchical path
                       // Example: "Domain > Objective > Parent > Topic"
-                      // We want to SKIP objectives (depth=1) and show: Domain > Parent > Topic
-                      let parts = primaryTopic.topic_full_name
+                      const parts = primaryTopic.topic_full_name
                         ? primaryTopic.topic_full_name.split(' > ')
                         : [primaryTopic.topic_name]
-
-                      // Filter out objectives (depth=1)
-                      // Strategy: If we have 4+ parts, element at index 1 is the objective
-                      // Keep only: Domain (index 0) + everything from index 2 onwards
-                      if (parts.length >= 4) {
-                        parts = [parts[0], ...parts.slice(2)]
-                      }
 
                       // Display each level with proper tree structure
                       parts.forEach((part: string, level: number) => {
