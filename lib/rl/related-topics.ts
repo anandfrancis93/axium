@@ -48,7 +48,25 @@ export async function findRelatedTopics(
     return []
   }
 
-  // Step 2: Find semantically similar topics using vector similarity
+  // Step 2: Get the root domain (depth = 0) for this topic
+  // Extract root from path (e.g., "1.2.3" → "1")
+  const rootPath = primaryTopic.path ? primaryTopic.path.split('.')[0] : null
+  let rootDomain = null
+
+  if (rootPath) {
+    const { data: domainData } = await supabase
+      .from('topics')
+      .select('id, name, embedding')
+      .eq('depth', 0)
+      .eq('path', rootPath)
+      .single()
+
+    if (domainData && domainData.id !== topicId) {
+      rootDomain = domainData
+    }
+  }
+
+  // Step 3: Find semantically similar topics using vector similarity
   // Use cosine distance for similarity (lower = more similar)
   const { data: similarTopics, error: similarError } = await supabase.rpc(
     'find_similar_topics',
@@ -66,6 +84,15 @@ export async function findRelatedTopics(
   }
 
   if (!similarTopics || similarTopics.length === 0) {
+    // Even if no similar topics, still return root domain if available
+    if (rootDomain) {
+      return [{
+        id: rootDomain.id,
+        name: rootDomain.name,
+        similarity: 1.0,
+        relationship: 'ancestor'
+      }]
+    }
     return []
   }
 
@@ -119,7 +146,17 @@ export async function findRelatedTopics(
     }
   }
 
-  // Step 4: Sort by priority and limit
+  // Step 4: Add root domain if not already included
+  if (rootDomain && !relatedTopics.find(t => t.id === rootDomain.id)) {
+    relatedTopics.push({
+      id: rootDomain.id,
+      name: rootDomain.name,
+      similarity: 1.0, // High priority
+      relationship: 'ancestor'
+    })
+  }
+
+  // Step 5: Sort by priority and limit
   // Priority: ancestor > prerequisite > semantic
   // Note: Siblings are excluded (they are alternatives, not contextually related)
   const priorityOrder = {
