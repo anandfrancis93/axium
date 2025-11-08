@@ -798,7 +798,7 @@ ${interpretation}`
                         : [primaryTopic.topic_name]
 
                       // Display each level, highlighting the primary topic
-                      parts.forEach((part, level) => {
+                      parts.forEach((part: string, level: number) => {
                         const indent = '  '.repeat(level)
                         const connector = level > 0 ? '└─ ' : ''
                         const isPrimaryTopic = level === parts.length - 1
