@@ -782,10 +782,10 @@ ${interpretation}`
                 </div>
               </div>
 
-              {/* Topic Hierarchy - Shows primary topic in full context */}
+              {/* Topic Details - Shows primary topic in full context */}
               {feedback.mastery_updates && feedback.mastery_updates.length > 0 && (
                 <div className="neuro-inset p-4 rounded-lg mb-6">
-                  <div className="text-sm font-medium text-gray-400 mb-3">Topic Hierarchy:</div>
+                  <div className="text-sm font-medium text-gray-400 mb-3">Topic Details:</div>
                   <div className="space-y-1 font-mono text-sm">
                     {(() => {
                       const primaryTopic = feedback.mastery_updates[0]
