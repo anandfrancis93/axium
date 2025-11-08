@@ -1,12 +1,7 @@
 -- Update update_topic_mastery_by_id function to include streak parameter
 -- Replaces the function to add p_new_streak parameter
 
--- Drop existing overloaded versions
-DROP FUNCTION IF EXISTS update_topic_mastery_by_id(UUID, UUID, INT, UUID, BOOLEAN, INT, DECIMAL, DECIMAL);
-DROP FUNCTION IF EXISTS update_topic_mastery_by_id(UUID, UUID, INT, UUID, BOOLEAN, INT, DECIMAL, DECIMAL, INT);
-DROP FUNCTION IF EXISTS update_topic_mastery_by_id(UUID, TEXT, INT, UUID, BOOLEAN, INT, DECIMAL, DECIMAL);
-
-CREATE FUNCTION update_topic_mastery_by_id(
+CREATE OR REPLACE FUNCTION update_topic_mastery_by_id(
   p_user_id UUID,
   p_topic_id UUID,
   p_bloom_level INT,
@@ -41,13 +36,10 @@ BEGIN
     bloom_level,
     chapter_id,
     mastery_score,
-    total_attempts,
-    correct_attempts,
-    confidence_weighted_score,
+    questions_attempted,
+    questions_correct,
     last_practiced_at,
-    current_streak,  -- NEW
-    created_at,
-    updated_at
+    current_streak  -- NEW
   )
   VALUES (
     p_user_id,
@@ -57,24 +49,17 @@ BEGIN
     v_new_mastery,
     1,
     CASE WHEN p_is_correct THEN 1 ELSE 0 END,
-    p_confidence * p_weight,
     NOW(),
-    COALESCE(p_new_streak, 0),  -- NEW: Use provided streak or 0
-    NOW(),
-    NOW()
+    COALESCE(p_new_streak, 0)  -- NEW: Use provided streak or 0
   )
   ON CONFLICT (user_id, topic_id, bloom_level, chapter_id)
   DO UPDATE SET
     mastery_score = v_new_mastery,
-    total_attempts = user_topic_mastery.total_attempts + 1,
-    correct_attempts = user_topic_mastery.correct_attempts + CASE WHEN p_is_correct THEN 1 ELSE 0 END,
-    confidence_weighted_score = (
-      (user_topic_mastery.confidence_weighted_score * user_topic_mastery.total_attempts) +
-      (p_confidence * p_weight)
-    ) / (user_topic_mastery.total_attempts + 1),
+    questions_attempted = user_topic_mastery.questions_attempted + 1,
+    questions_correct = user_topic_mastery.questions_correct + CASE WHEN p_is_correct THEN 1 ELSE 0 END,
     last_practiced_at = NOW(),
-    current_streak = COALESCE(p_new_streak, user_topic_mastery.current_streak),  -- NEW: Update if provided
-    updated_at = NOW();
+    current_streak = COALESCE(p_new_streak, user_topic_mastery.current_streak)  -- NEW: Update if provided
+;
 END;
 $$ LANGUAGE plpgsql;
 
