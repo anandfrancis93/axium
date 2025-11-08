@@ -154,6 +154,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     const currentMastery = masteryData?.mastery_score || 0
+    const currentStreak = masteryData?.current_streak || 0
 
     // Calculate learning gain for this topic
     const learningGain = calculateLearningGain(currentMastery, isCorrect, confidence)
@@ -161,6 +162,9 @@ export async function POST(request: NextRequest) {
 
     // Get days since last practice for reward calculation
     const daysSince = getDaysSinceLastPractice(masteryData?.last_practiced_at || null)
+
+    // Calculate new streak value
+    const newStreak = isCorrect ? currentStreak + 1 : 0
 
     // Calculate reward
     const rewardComponents = calculateReward({
@@ -174,7 +178,8 @@ export async function POST(request: NextRequest) {
       bloomLevel: question.bloom_level,
       questionText: question.question_text,
       options: question.options,
-      questionFormat: question.question_format
+      questionFormat: question.question_format,
+      currentStreak: currentStreak
     })
 
     // Update mastery for this topic (using new RPC function that uses topic_id)
@@ -186,7 +191,8 @@ export async function POST(request: NextRequest) {
       p_is_correct: isCorrect,
       p_confidence: confidence,
       p_learning_gain: learningGain,
-      p_weight: 1.0
+      p_weight: 1.0,
+      p_new_streak: newStreak
     })
 
     if (masteryError) {
@@ -354,6 +360,8 @@ export async function POST(request: NextRequest) {
       explanation: question.explanation,
       reward_components: rewardComponents,
       response_time_seconds: responseTime, // Include actual time taken
+      current_streak: currentStreak,
+      new_streak: newStreak,
       mastery_update: {
         topic_id: topicId,
         topic_name: arm_selected?.topic_name || 'Unknown',

@@ -18,6 +18,7 @@ export interface RewardComponents {
   spacing: number
   recognition: number
   responseTime: number
+  streak: number
   total: number
 }
 
@@ -146,6 +147,39 @@ function countWords(text: string): number {
 }
 
 /**
+ * Calculate streak reward
+ * Rewards consecutive correct answers for the same topic (across Bloom levels)
+ *
+ * @param currentStreak - Number of consecutive correct answers for this topic
+ * @param isCorrect - Whether the current answer was correct
+ * @returns Reward component (0 to +5)
+ */
+function calculateStreakReward(
+  currentStreak: number,
+  isCorrect: boolean
+): number {
+  // Only reward correct answers
+  if (!isCorrect) {
+    return 0  // No reward (streak will be reset to 0)
+  }
+
+  // Reward based on streak length (AFTER this correct answer)
+  const newStreak = currentStreak + 1
+
+  if (newStreak >= 10) {
+    return 5  // Outstanding streak! (10+ in a row)
+  } else if (newStreak >= 5) {
+    return 3  // Excellent streak (5-9 in a row)
+  } else if (newStreak >= 3) {
+    return 2  // Good streak (3-4 in a row)
+  } else if (newStreak >= 2) {
+    return 1  // Building momentum (2 in a row)
+  } else {
+    return 0  // First correct or just broke streak (no bonus yet)
+  }
+}
+
+/**
  * Calculate response time reward with Bloom-level and word-count adjustments
  * Rewards fluent retrieval (fast correct answers) vs. struggling retrieval
  *
@@ -248,6 +282,7 @@ export function calculateReward(params: {
   questionText?: string
   options?: Record<string, string> | null
   questionFormat?: QuestionFormat | null
+  currentStreak?: number
 }): RewardComponents {
   const {
     learningGain,
@@ -260,7 +295,8 @@ export function calculateReward(params: {
     bloomLevel = 1,
     questionText = '',
     options = null,
-    questionFormat = null
+    questionFormat = null,
+    currentStreak = 0
   } = params
 
   // Calculate each component
@@ -274,8 +310,11 @@ export function calculateReward(params: {
     ? calculateResponseTimeReward(responseTimeSeconds, isCorrect, bloomLevel, questionText, options, questionFormat)
     : 0
 
-  // Total reward (range: approximately -21 to +30)
-  const total = learningGainReward + calibrationReward + spacingReward + recognitionReward + responseTimeReward
+  // Calculate streak reward
+  const streakReward = calculateStreakReward(currentStreak, isCorrect)
+
+  // Total reward (range: approximately -21 to +35)
+  const total = learningGainReward + calibrationReward + spacingReward + recognitionReward + responseTimeReward + streakReward
 
   return {
     learningGain: learningGainReward,
@@ -283,6 +322,7 @@ export function calculateReward(params: {
     spacing: spacingReward,
     recognition: recognitionReward,
     responseTime: responseTimeReward,
+    streak: streakReward,
     total
   }
 }

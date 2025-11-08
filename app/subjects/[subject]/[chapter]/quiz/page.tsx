@@ -296,6 +296,13 @@ Mastery grows with correct answers and confidence calibration`
         if (value >= -1) return 'too slow'
         return 'rushed/careless'
 
+      case 'streak':
+        if (value >= 5) return 'outstanding streak!'
+        if (value >= 3) return 'excellent streak'
+        if (value >= 2) return 'good streak'
+        if (value >= 1) return 'building momentum'
+        return 'first correct'
+
       default:
         return ''
     }
@@ -387,19 +394,37 @@ Mastery grows with correct answers and confidence calibration`
         }
         break
 
+      case 'streak':
+        description = 'Streak: Consecutive correct answers for this topic'
+        scale = 'Range: 0 to +5 points'
+        if (value >= 5) {
+          interpretation = 'Outstanding streak! 10+ correct in a row'
+        } else if (value >= 3) {
+          interpretation = 'Excellent streak! 5-9 correct in a row'
+        } else if (value >= 2) {
+          interpretation = 'Good streak - 3-4 correct in a row'
+        } else if (value >= 1) {
+          interpretation = 'Building momentum - 2 correct in a row'
+        } else {
+          interpretation = 'First correct or streak just broke'
+        }
+        break
+
       case 'total':
         description = 'Total Reward: Combined score from all components'
-        scale = 'Range: -21 to +30 points'
-        if (value >= 20) {
+        scale = 'Range: -21 to +35 points'
+        if (value >= 25) {
           interpretation = 'Outstanding! Maximum learning effectiveness'
-        } else if (value >= 15) {
+        } else if (value >= 20) {
           interpretation = 'Excellent learning performance'
-        } else if (value >= 10) {
+        } else if (value >= 15) {
           interpretation = 'Very good progress'
-        } else if (value >= 5) {
+        } else if (value >= 10) {
           interpretation = 'Good progress'
-        } else if (value >= 0) {
+        } else if (value >= 5) {
           interpretation = 'Positive progress'
+        } else if (value >= 0) {
+          interpretation = 'Small gain - keep practicing'
         } else if (value >= -5) {
           interpretation = 'Room for improvement'
         } else {
@@ -790,6 +815,14 @@ ${interpretation}`
                       Response Time: <span className="text-cyan-400">{feedback.reward_components?.responseTime?.toFixed(1)}</span>
                       <span className="text-gray-200 text-xs ml-1">
                         ({feedback.response_time_seconds ? `${feedback.response_time_seconds.toFixed(1)}s, ${getRewardLabel('responseTime', feedback.reward_components?.responseTime || 0)}` : getRewardLabel('responseTime', feedback.reward_components?.responseTime || 0)})
+                      </span>
+                    </div>
+                  </Tooltip>
+                  <Tooltip content={getRewardTooltip('streak', feedback.reward_components?.streak || 0)}>
+                    <div>
+                      Streak: <span className="text-orange-400">{feedback.reward_components?.streak?.toFixed(1)}</span>
+                      <span className="text-gray-200 text-xs ml-1">
+                        ({feedback.new_streak !== undefined ? `${feedback.new_streak} correct, ${getRewardLabel('streak', feedback.reward_components?.streak || 0)}` : getRewardLabel('streak', feedback.reward_components?.streak || 0)})
                       </span>
                     </div>
                   </Tooltip>
