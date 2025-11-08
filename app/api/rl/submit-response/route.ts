@@ -304,29 +304,39 @@ export async function POST(request: NextRequest) {
       const masteryUpdate = masteryUpdates[i]
       const rewardInfo = rewardsByTopic[i]
 
-      await logRewardCalculation({
-        userId: user.id,
-        sessionId: session_id,
-        responseId: response.id,
-        questionId: question_id,
-        topicId: masteryUpdate.topic_id,
-        bloomLevel: question.bloom_level,
-        isCorrect,
-        confidence,
-        responseTimeSeconds: responseTime || 0,
-        rewardComponents: rewardInfo.reward_components
-      })
+      try {
+        await logRewardCalculation({
+          userId: user.id,
+          sessionId: session_id,
+          responseId: response.id,
+          questionId: question_id,
+          topicId: masteryUpdate.topic_id,
+          bloomLevel: question.bloom_level,
+          isCorrect,
+          confidence,
+          responseTimeSeconds: responseTime || 0,
+          rewardComponents: rewardInfo.reward_components
+        })
+      } catch (error) {
+        console.error('Failed to log reward calculation:', error)
+        console.error('Reward components:', JSON.stringify(rewardInfo.reward_components))
+      }
 
-      await logMasteryUpdate({
-        userId: user.id,
-        sessionId: session_id,
-        responseId: response.id,
-        topicId: masteryUpdate.topic_id,
-        bloomLevel: question.bloom_level,
-        oldMastery: masteryUpdate.old_mastery,
-        newMastery: masteryUpdate.new_mastery,
-        formula: `EMA: ${masteryUpdate.change.toFixed(3)} (learning gain) → ${masteryUpdate.old_mastery.toFixed(1)} to ${masteryUpdate.new_mastery.toFixed(1)}`
-      })
+      try {
+        await logMasteryUpdate({
+          userId: user.id,
+          sessionId: session_id,
+          responseId: response.id,
+          topicId: masteryUpdate.topic_id,
+          bloomLevel: question.bloom_level,
+          oldMastery: masteryUpdate.old_mastery,
+          newMastery: masteryUpdate.new_mastery,
+          formula: `EMA: ${masteryUpdate.change.toFixed(3)} (learning gain) → ${masteryUpdate.old_mastery.toFixed(1)} to ${masteryUpdate.new_mastery.toFixed(1)}`
+        })
+      } catch (error) {
+        console.error('Failed to log mastery update:', error)
+        console.error('Mastery update:', JSON.stringify(masteryUpdate))
+      }
     }
 
     // Track dimension coverage for comprehensive mastery with unique question tracking
