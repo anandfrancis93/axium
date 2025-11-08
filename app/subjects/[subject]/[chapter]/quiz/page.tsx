@@ -802,19 +802,13 @@ ${interpretation}`
                         const isPrimaryTopic = level === parts.length - 1
                         const color = isPrimaryTopic ? 'text-blue-400 font-semibold' : 'text-gray-500'
 
-                        // Build tree connector
-                        let prefix = ''
-                        if (level === 0) {
-                          // Domain - no indent
-                          prefix = ''
-                        } else {
-                          // Child levels - add proper indentation and connectors
-                          prefix = '  '.repeat(level) + '└─ '
-                        }
-
                         trees.push(
-                          <div key={level} className={color}>
-                            {prefix}{part}{isPrimaryTopic ? ' ← You just practiced this' : ''}
+                          <div
+                            key={level}
+                            className={color}
+                            style={{ marginLeft: `${level * 1.5}rem` }}
+                          >
+                            {level > 0 && '└─ '}{part}{isPrimaryTopic ? ' ← You just practiced this' : ''}
                           </div>
                         )
                       })
