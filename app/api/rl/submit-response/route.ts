@@ -300,11 +300,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Log reward calculation and mastery updates for transparency
+    console.log('Starting transparency logging for', masteryUpdates.length, 'topics')
+
     for (let i = 0; i < masteryUpdates.length; i++) {
       const masteryUpdate = masteryUpdates[i]
       const rewardInfo = rewardsByTopic[i]
 
+      console.log(`Logging topic ${i + 1}/${masteryUpdates.length}:`, masteryUpdate.topic_name)
+
       try {
+        console.log('Attempting to log reward calculation...')
         await logRewardCalculation({
           userId: user.id,
           sessionId: session_id,
@@ -317,12 +322,19 @@ export async function POST(request: NextRequest) {
           responseTimeSeconds: responseTime || 0,
           rewardComponents: rewardInfo.reward_components
         })
+        console.log('✓ Reward calculation logged successfully')
       } catch (error) {
-        console.error('Failed to log reward calculation:', error)
-        console.error('Reward components:', JSON.stringify(rewardInfo.reward_components))
+        console.error('✗ Failed to log reward calculation:', error)
+        console.error('  userId:', user.id)
+        console.error('  sessionId:', session_id)
+        console.error('  responseId:', response.id)
+        console.error('  questionId:', question_id)
+        console.error('  topicId:', masteryUpdate.topic_id)
+        console.error('  Reward components:', JSON.stringify(rewardInfo.reward_components, null, 2))
       }
 
       try {
+        console.log('Attempting to log mastery update...')
         await logMasteryUpdate({
           userId: user.id,
           sessionId: session_id,
@@ -333,11 +345,16 @@ export async function POST(request: NextRequest) {
           newMastery: masteryUpdate.new_mastery,
           formula: `EMA: ${masteryUpdate.change.toFixed(3)} (learning gain) → ${masteryUpdate.old_mastery.toFixed(1)} to ${masteryUpdate.new_mastery.toFixed(1)}`
         })
+        console.log('✓ Mastery update logged successfully')
       } catch (error) {
-        console.error('Failed to log mastery update:', error)
-        console.error('Mastery update:', JSON.stringify(masteryUpdate))
+        console.error('✗ Failed to log mastery update:', error)
+        console.error('  oldMastery:', masteryUpdate.old_mastery)
+        console.error('  newMastery:', masteryUpdate.new_mastery)
+        console.error('  Mastery update:', JSON.stringify(masteryUpdate, null, 2))
       }
     }
+
+    console.log('Transparency logging complete')
 
     // Track dimension coverage for comprehensive mastery with unique question tracking
     // Track for all core topics
