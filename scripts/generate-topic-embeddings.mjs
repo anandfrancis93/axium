@@ -29,10 +29,14 @@ const openai = new OpenAI({
 async function generateTopicEmbeddings() {
   console.log('🚀 Starting topic embedding generation...\n')
 
-  // Fetch all topics
+  // Fetch all topics EXCEPT objectives (depth = 1)
+  // depth = 0: Domains (e.g., "Security Architecture") ✅
+  // depth = 1: Objectives (e.g., "Given a scenario...") ❌ Skip these
+  // depth >= 2: Actual topics ✅
   const { data: topics, error: fetchError } = await supabase
     .from('topics')
-    .select('id, name, full_name, description')
+    .select('id, name, full_name, description, depth')
+    .neq('depth', 1)  // Exclude objectives
     .order('name')
 
   if (fetchError) {
