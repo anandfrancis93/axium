@@ -1,0 +1,220 @@
+# DEPTH 0 (# - Domains):
+1. General Security Concepts
+2. Threats, Vulnerabilities, and Mitigations
+3. Security Architecture
+4. Security Operations
+5. Security Program Management and Oversight
+
+Total Depth 0: 5
+
+# DEPTH 2 (### - Topics):
+1. Security Control Categories
+2. Security Control types
+3. Confidentiality
+4. Integrity
+5. Availability
+6. Non-repudiation
+7. Identification
+8. Authentication
+9. Authorization
+10. Accounting
+11. Gap analysis
+12. Zero Trust
+13. Physical security
+14. Deception and disruption technology
+15. Business processes impacting security operation
+16. Technical implications
+17. Documentation
+18. Version control
+19. Public key infrastructure (PKI)
+20. Encryption
+21. Tools
+22. Obfuscation
+23. Hashing
+24. Salting
+25. Digital signatures
+26. Key stretching
+27. Blockchain
+28. Open public ledger
+29. Certificates
+30. Threat actors
+31. Attributes of threat actors
+32. Motivations of threat actors
+33. Message-based
+34. Image-based
+35. File-based
+36. Voice call
+37. Removable device
+38. Vulnerable software
+39. Unsupported systems and applications
+40. Unsecure networks
+41. Open service ports
+42. Default credentials
+43. Supply chain
+44. Human vectors/social engineering
+45. Application
+46. Operating system (OS)-based
+47. Web-based
+48. Hardware
+49. Virtualization
+50. Cloud-specific
+51. Supply chain (duplicate - under vulnerabilities)
+52. Cryptographic
+53. Misconfiguration
+54. Mobile device
+55. Zero-day
+56. Malware attacks
+57. Physical attacks
+58. Network attacks
+59. Application attacks
+60. Cryptographic attacks
+61. Password attacks
+62. Indicators
+63. Segmentation
+64. Access control
+65. Application allow list
+66. Isolation
+67. Patching
+68. Encryption (duplicate)
+69. Monitoring
+70. Least privilege
+71. Configuration enforcement
+72. Decommissioning
+73. Hardening techniques
+74. Architecture and infrastructure concepts
+75. Considerations
+76. Infrastructure considerations
+77. Secure communication/access
+78. Selection of effective controls
+79. Data types
+80. Data classifications
+81. General data considerations
+82. Methods to secure data
+83. High availability
+84. Site considerations
+85. Platform diversity
+86. Multi-cloud systems
+87. Continuity of operations
+88. Capacity planning
+89. Testing
+90. Backups
+91. Power
+92. Secure baselines
+93. Hardening targets
+94. Wireless devices
+95. Mobile solutions
+96. Wireless security settings
+97. Application security
+98. Sandboxing
+99. Monitoring (duplicate)
+100. Acquisition/procurement process
+101. Assignment/accounting
+102. Monitoring/asset tracking
+103. Disposal/decommissioning
+104. Identification methods
+105. Analysis
+106. Vulnerability response and remediation
+107. Validation of remediation
+108. Reporting
+109. Monitoring computing resources
+110. Activities
+111. Tools
+112. Firewall
+113. IDS/IPS
+114. Web filter
+115. Operating system security
+116. Implementation of secure protocols
+117. DNS filtering
+118. Email security
+119. File integrity monitoring
+120. DLP
+121. Network access control (NAC)
+122. Endpoint detection and response (EDR)/extended detection and response (XDR)
+123. User behavior analytics
+124. Provisioning / de-provisioning user accounts
+125. Permission assignments and implications
+126. Identity proofing
+127. Federation
+128. Single sign-on (SSO)
+129. Interoperability
+130. Attestation
+131. Access controls
+132. Multifactor authentication
+133. Password concepts
+134. Privileged access management tools
+135. Use cases of automation and scripting
+136. Benefits
+137. Other considerations
+138. Process
+139. Training
+140. Testing (duplicate)
+141. Root cause analysis
+142. Threat hunting
+143. Digital forensics
+144. Log data
+145. Data sources
+146. Guidelines
+147. Policies
+148. Standards
+149. Procedures
+150. External considerations
+151. Monitoring and revision
+152. Types of governance structures
+153. Roles and responsibilities for systems and data
+154. Risk identification
+155. Risk assessment
+156. Risk analysis
+157. Risk register
+158. Risk tolerance
+159. Risk appetite
+160. Risk management strategies
+161. Risk reporting
+162. Business impact analysis
+163. Vendor assessment
+164. Vendor selection
+165. Agreement types
+166. Vendor monitoring
+167. Questionnaires
+168. Rules of engagement
+169. Compliance reporting
+170. Consequences of non-compliance
+171. Compliance monitoring
+172. Privacy
+173. Attestation (duplicate)
+174. Internal
+175. External
+176. Penetration testing
+177. Phishing
+178. Anomalous behavior recognition
+179. User guidance and training
+180. Reporting and monitoring
+181. Development
+182. Execution
+
+Total Depth 2: ~180 (removing duplicates: ~175)
+
+# DEPTH 3 (#### - Subtopics):
+[Counting all #### items...]
+
+Technical, Managerial, Operational, Physical, Preventive, Deterrent, Detective, Corrective, Compensating, Directive, Authenticating people, Authenticating systems, Authorization models, Control Plane, Data Plane, Bollards, Access control vestibule, Fencing, Video surveillance, Security guard, Access badge, Lighting, Sensors, Honeypot, Honeynet, Honeyfile, Honeytoken, Approval process, Ownership, Stakeholders, Impact analysis, Test results, Backout plan, Maintenance window, Standard operating procedure, Allow lists, Deny lists, Restricted activities, Downtime, Service restart, Application restart, Legacy applications, Dependencies, Updating diagrams, Updating policies/procedures, Public key, Private key, Key escrow, Level, Transport/communication, Asymmetric, Symmetric, Key exchange, Algorithms, Key length, Trusted Platform Module (TPM), Hardware security module (HSM), Key management system, Secure enclave, Steganography, Tokenization, Data masking, Certificate authorities, Certificate revocation lists (CRLs), Online Certificate Status Protocol (OCSP), Self-signed, Third-party, Root of trust, Certificate signing request (CSR) generation, Wildcard, Nation-state, Unskilled attacker, Hacktivist, Insider threat, Organized crime, Shadow IT, Internal/external, Resources/funding, Level of sophistication/capability, Data exfiltration, Espionage, Service disruption, Blackmail, Financial gain, Philosophical/political beliefs, Ethical, Revenge, Disruption/chaos, War, Email, Short Message Service (SMS), Instant messaging (IM), Client-based vs. agentless, Wireless, Wired, Bluetooth, Managed service providers (MSPs), Vendors, Suppliers, Phishing, Vishing, Smishing, Misinformation/disinformation, Impersonation, Business email compromise, Pretexting, Watering hole, Brand impersonation, Typosquatting, Memory injection, Buffer overflow, Race conditions, Malicious update, Structured Query Language injection (SQLi), Cross-site scripting (XSS), Firmware, End-of-life, Legacy, Virtual machine (VM) escape, Resource reuse, Service provider, Hardware provider, Software provider, Side loading, Jailbreaking, Ransomware, Trojan, Worm, Spyware, Bloatware, Virus, Keylogger, Logic bomb, Rootkit, Brute force, Radio frequency identification (RFID) cloning, Environmental, Distributed denial-of-service (DDoS), Domain Name System (DNS) attacks, Wireless (duplicate), On-path / Man in the Middle Attack (MiTM), Credential replay, Malicious code, Injection, Buffer overflow (duplicate), Replay, Privilege escalation, Forgery, Directory traversal, Downgrade, Collision, Birthday, Spraying, Brute force (duplicate), Account lockout, Concurrent session usage, Blocked content, Impossible travel, Resource consumption, Resource inaccessibility, Out-of-cycle logging, Published/documented, Missing logs, Access control list (ACL), Permissions, Encryption (duplicate), Installation of endpoint protection, Host-based firewall, Host-based intrusion prevention system (HIPS), Disabling ports/protocols, Default password changes, Removal of unnecessary software, Cloud, Infrastructure as code (IaC), Serverless, Microservices, Network infrastructure, On-premises, Centralized vs. decentralized, Containerization, Virtualization, IoT, Industrial control systems (ICS), Supervisory control and data acquisition (SCADA), Real-time operating system (RTOS), Embedded systems, High availability (duplicate), Availability, Resilience, Cost, Responsiveness, Scalability, Ease of deployment, Risk transference, Ease of recovery, Patch availability, Inability to patch, Power, Compute, Device placement, Security zones, Attack surface, Connectivity, Failure modes, Device attribute, Network appliances, Port security, Firewall types, Virtual private network (VPN), Remote access, Tunneling, Software-defined wide area network (SD-WAN), Secure access service edge (SASE), Regulated, Trade secret, Intellectual property, Legal information, Financial information, Human-readable and non-human-readable, Sensitive, Confidential, Public, Restricted, Private, Critical, Data states, Data sovereignty, Geolocation, Geographic restrictions, Encryption (duplicate), Hashing (duplicate), Masking, Tokenization (duplicate), Obfuscation, Segmentation, Permission restrictions, Load balancing vs. clustering, Hot, Cold, Warm, Geographic dispersion, People, Technology, Infrastructure, Tabletop exercises, Fail over, Simulation, Parallel processing, Onsite/offsite, Frequency, Encryption (duplicate), Snapshots, Recovery, Replication, Journaling, Generators, Uninterruptible power supply (UPS), Establish, Deploy, Maintain, Mobile devices, Workstations, Switches, Routers, Cloud infrastructure, Servers, ICS/SCADA, Embedded systems (duplicate), RTOS, IoT devices, Installation considerations, Mobile device management (MDM), Deployment models, Connection methods, Wi-Fi Protected Access 3 (WPA3), AAA/Remote Authentication Dial-In User Service (RADIUS), Cryptographic protocols, Authentication protocols, Input validation, Secure cookies, Static code analysis, Code signing, Ownership (duplicate), Classification, Inventory, Enumeration, Sanitization, Destruction, Certification, Data retention, Vulnerability scan, Application security (duplicate), Threat feed, Penetration testing (duplicate), Responsible disclosure program, System/process audit, Confirmation, Prioritize, Common Vulnerability Scoring System (CVSS), Common Vulnerability Enumeration (CVE), Vulnerability classification, Exposure factor, Environmental variables, Industry/organizational impact, Risk tolerance (duplicate), Patching (duplicate), Insurance, Segmentation (duplicate), Compensating controls, Exceptions and exemptions, Rescanning, Audit, Verification, Systems, Applications, Infrastructure, Log aggregation, Alerting, Scanning, Reporting (duplicate), Archiving, Alert response and remediation / validation, Security Content Automation Protocol (SCAP), Benchmarks, Agents/agentless, Security information and event management (SIEM), Antivirus, Data loss prevention (DLP), Simple Network Management Protocol (SNMP) traps, NetFlow, Vulnerability scanners, Rules, Access lists, Ports/protocols, Screened subnets, Trends, Signatures, Agent-based, Centralized proxy, Universal Resource Locator (URL) scanning, Content categorization, Block rules, Reputation, Group Policy, SELinux, Protocol selection, Port selection, Transport method, Domain-based Message Authentication Reporting and Conformance (DMARC), DomainKeys Identified Mail (DKIM), Sender Policy Framework (SPF), Gateway, Lightweight Directory Access Protocol (LDAP), Open authorization (OAuth), Security Assertions Markup Language (SAML), Mandatory, Discretionary, Role-based, Rule-based, Attribute-based, Time-of-day restrictions, Least privilege (duplicate), Implementations, Factors, Password best practices, Password managers, Passwordless, Just-in-time permissions, Password vaulting, Ephemeral credentials, User provisioning, Resource provisioning, Guard rails, Security groups, Ticket creation, Escalation, Enabling/disabling services and access, Continuous integration and testing, Integrations and Application programming interfaces (APIs), Efficiency/time saving, Enforcing baselines, Standard infrastructure configurations, Scaling in a secure manner, Employee retention, Reaction time, Workforce multiplier, Complexity, Cost (duplicate), Single point of failure, Technical debt, Ongoing supportability, Preparation, Detection, Analysis (duplicate), Containment, Eradication, Recovery (duplicate), Lessons learned, Tabletop exercise, Simulation (duplicate), Legal hold, Chain of custody, Acquisition, Reporting (duplicate), Preservation, E-discovery, Firewall logs, Application logs, Endpoint logs, OS-specific security logs, IPS/IDS logs, Network logs, Metadata, Vulnerability scans, Automated reports, Dashboards, Packet captures, Acceptable use policy (AUP), Information security policies, Business continuity, Disaster recovery, Incident response, Software development lifecycle (SDLC), Change management, Password, Access control (duplicate), Physical security, Encryption (duplicate), Change management (duplicate), Onboarding/offboarding, Playbooks, Regulatory, Legal, Industry, Local/regional, National, Global, Boards, Committees, Government entities, Centralized/decentralized (duplicate), Owners, Controllers, Processors, Custodians/stewards, Ad hoc, Recurring, One-time, Continuous, Qualitative, Quantitative, Single loss expectancy (SLE), Annualized loss expectancy (ALE), Annualized rate of occurrence (ARO), Probability, Likelihood, Exposure factor (duplicate), Impact, Key risk indicators, Risk owners, Risk threshold, Expansionary, Conservative, Neutral, Transfer, Accept, Avoid, Mitigate, Recovery time objective (RTO), Recovery point objective (RPO), Mean time to repair (MTTR), Mean time between failures (MTBF), Penetration testing (duplicate), Right-to-audit clause, Evidence of internal audits, Independent assessments, Supply chain analysis, Due diligence, Conflict of interest, Service-level agreement (SLA), Memorandum of agreement (MOA), Memorandum of understanding (MOU), Master service agreement (MSA), Work order (WO) / Statement of work (SOW), Non-disclosure agreement (NDA), Business partners agreement (BPA), Internal, External (duplicate), Fines, Sanctions, Reputational damage, Loss of license, Contractual impacts, Due diligence/care, Attestation and acknowledgement, Internal and external, Automation, Legal implications, Data subject, Controller vs. processor, Ownership (duplicate), Data inventory and retention, Right to be forgotten, Compliance, Audit committee, Self-assessments, Regulatory, Examinations, Assessment, Independent third-party audit, Physical, Offensive, Defensive, Integrated, Known environment, Partially known environment, Unknown environment, Reconnaissance, Campaigns (duplicate), Recognizing a phishing attempt, Responding to reported suspicious messages, Risky, Unexpected, Unintentional, Policy/handbooks, Situational awareness, Insider threat (duplicate), Password management, Removable media and cables, Social engineering, Operational security, Hybrid/remote work environments, Initial, Recurring (duplicate)
+
+Total Depth 3: ~500+ items
+
+# DEPTH 4 (##### - Subtopics):
+Infrared, Pressure, Microwave, Ultrasonic, Full-disk, Partition, File, Volume, Database, Record, Time-of-check (TOC), Time-of-use (TOU), Amplified, Reflected, Responsibility matrix, Hybrid considerations, Third-party vendors, Physical isolation, Logical segmentation, Software-defined networking (SDN), Fail-open, Fail-closed, Active vs. passive, Inline vs. tap/monitor, Jump server, Proxy server, Intrusion prevention system (IPS), Intrusion detection system (IDS), Load balancer, Sensors (duplicate), 802.1X, Extensible Authentication Protocol (EAP), Web application firewall (WAF), Transport Layer Security (TLS), Internet protocol security (IPSec), Data at rest, Data in transit, Data in use, Site surveys, Heat maps, Bring your own device (BYOD), Corporate-owned, personally enabled (COPE), Choose your own device (CYOD), Cellular, Wi-Fi, Bluetooth (duplicate), Static analysis, Dynamic analysis, Package monitoring, Open-source intelligence (OSINT), Proprietary/third-party, Information-sharing organization, Dark web, Bug bounty program, False positive, False negative, Exemption, Exception, Quarantine, Alert tuning, Biometrics, Hard/soft authentication tokens, Security keys, Something you know, Something you have, Something you are, Somewhere you are, Length, Complexity (duplicate), Reuse, Expiration, Age, Passive, Active
+
+Total Depth 4: ~80+ items
+
+# DEPTH 5 (######):
+Adaptive identity, Threat scope reduction, Policy-driven access control, Policy Administrator, Policy Engine, Implicit trust zones, Subject/System, Policy Enforcement Point, Air-gapped, Unified threat management (UTM), Next-generation firewall (NGFW), Layer 4/Layer 7, Local/regional (duplicate), National (duplicate), Global (duplicate)
+
+Total Depth 5: ~15 items
+
+GRAND TOTAL (excluding depth 1):
+Depth 0: 5
+Depth 2: ~175
+Depth 3: ~500
+Depth 4: ~80
+Depth 5: ~15
+
+Total: ~775 topics
