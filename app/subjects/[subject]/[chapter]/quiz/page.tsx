@@ -792,21 +792,37 @@ ${interpretation}`
                       const trees: React.ReactNode[] = []
 
                       // Parse the full hierarchical path
-                      // Example: "Threats, Vulnerabilities, and Mitigations > Human vectors/social engineering > Business email compromise"
-                      const parts = primaryTopic.topic_full_name
+                      // Example: "Domain > Objective > Parent > Topic"
+                      // We want to SKIP objectives (depth=1) and show: Domain > Parent > Topic
+                      let parts = primaryTopic.topic_full_name
                         ? primaryTopic.topic_full_name.split(' > ')
                         : [primaryTopic.topic_name]
 
-                      // Display each level, highlighting the primary topic
+                      // Filter out objectives (depth=1)
+                      // Strategy: If we have 4+ parts, element at index 1 is the objective
+                      // Keep only: Domain (index 0) + everything from index 2 onwards
+                      if (parts.length >= 4) {
+                        parts = [parts[0], ...parts.slice(2)]
+                      }
+
+                      // Display each level with proper tree structure
                       parts.forEach((part: string, level: number) => {
-                        const indent = '  '.repeat(level)
-                        const connector = level > 0 ? '└─ ' : ''
                         const isPrimaryTopic = level === parts.length - 1
                         const color = isPrimaryTopic ? 'text-blue-400 font-semibold' : 'text-gray-500'
 
+                        // Build tree connector
+                        let prefix = ''
+                        if (level === 0) {
+                          // Domain - no indent
+                          prefix = ''
+                        } else {
+                          // Child levels - add proper indentation and connectors
+                          prefix = '  '.repeat(level) + '└─ '
+                        }
+
                         trees.push(
                           <div key={level} className={color}>
-                            {indent}{connector}{part}{isPrimaryTopic ? ' ← You just practiced this' : ''}
+                            {prefix}{part}{isPrimaryTopic ? ' ← You just practiced this' : ''}
                           </div>
                         )
                       })
