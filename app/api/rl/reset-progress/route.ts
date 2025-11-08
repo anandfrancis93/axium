@@ -13,7 +13,10 @@ import { createClient } from '@/lib/supabase/server'
  * - user_responses for this chapter
  * - user_topic_mastery for this chapter
  * - rl_arm_stats for this chapter
+ * - user_dimension_coverage for this chapter
  * - learning_sessions for this chapter
+ * - user_progress for this chapter
+ * - AI-generated questions for this chapter
  */
 export async function POST(request: NextRequest) {
   try {
@@ -78,6 +81,7 @@ export async function POST(request: NextRequest) {
     let armStatsDeleted = 0
     let dimensionCoverageDeleted = 0
     let questionsDeleted = 0
+    let progressDeleted = 0
 
     // Delete user_responses for this chapter's sessions
     if (sessions && sessions.length > 0) {
@@ -166,6 +170,29 @@ export async function POST(request: NextRequest) {
     dimensionCoverageDeleted = dimensionCoverageCount || 0
     console.log(`Deleted ${dimensionCoverageDeleted} user_dimension_coverage records`)
 
+    // Delete user_progress for this chapter
+    // Need to get all topics in this chapter first
+    const { data: chapterTopics } = await supabase
+      .from('topics')
+      .select('id')
+      .eq('chapter_id', chapter_id)
+
+    if (chapterTopics && chapterTopics.length > 0) {
+      const topicIds = chapterTopics.map(t => t.id)
+      const { count: progressCount, error: progressError } = await supabase
+        .from('user_progress')
+        .delete({ count: 'exact' })
+        .eq('user_id', user.id)
+        .in('topic_id', topicIds)
+
+      if (progressError) {
+        console.error('Error deleting user_progress:', progressError)
+      } else {
+        progressDeleted = progressCount || 0
+        console.log(`Deleted ${progressDeleted} user_progress records`)
+      }
+    }
+
     // Delete AI-generated questions for this user in this chapter
     // We need to delete questions one by one or use a subquery since Supabase doesn't support
     // DELETE with joins directly. First, get the question IDs to delete.
@@ -206,6 +233,7 @@ export async function POST(request: NextRequest) {
         mastery: masteryDeleted,
         armStats: armStatsDeleted,
         dimensionCoverage: dimensionCoverageDeleted,
+        progress: progressDeleted,
         questions: questionsDeleted
       }
     })

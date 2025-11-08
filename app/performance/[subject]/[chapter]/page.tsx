@@ -1164,6 +1164,10 @@ Mastery calculated using EMA (recent performance weighted higher)`
                   <span className="text-gray-500">Generated Questions:</span>
                   <span className="text-blue-400 font-medium">{resetResults.questions || 0}</span>
                 </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Progress Records:</span>
+                  <span className="text-blue-400 font-medium">{resetResults.progress || 0}</span>
+                </div>
               </div>
             </div>
           )}
