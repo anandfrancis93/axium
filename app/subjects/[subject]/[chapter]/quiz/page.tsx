@@ -819,40 +819,6 @@ ${interpretation}`
                 </div>
               )}
 
-              {/* Related Topics - Semantically and hierarchically related concepts */}
-              {feedback.related_topics && feedback.related_topics.length > 0 && (
-                <div className="neuro-inset p-4 rounded-lg mb-6">
-                  <div className="text-sm font-medium text-gray-400 mb-3">Related Topics:</div>
-                  <div className="space-y-1 font-mono text-sm">
-                    {feedback.related_topics.map((relatedTopic: any, idx: number) => {
-                      // Parse and display each related topic's hierarchy
-                      const parts = relatedTopic.full_name
-                        ? relatedTopic.full_name.split(' > ')
-                        : [relatedTopic.name]
-
-                      return (
-                        <div key={idx} className="mb-3 last:mb-0">
-                          {parts.map((part: string, level: number) => {
-                            const isPrimaryTopic = level === parts.length - 1
-                            const color = isPrimaryTopic ? 'text-cyan-400 font-semibold' : 'text-gray-600'
-
-                            return (
-                              <div
-                                key={`${idx}-${level}`}
-                                className={color}
-                                style={{ marginLeft: `${level * 1.5}rem` }}
-                              >
-                                {level > 0 && '└─ '}{part}
-                              </div>
-                            )
-                          })}
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              )}
-
               {/* Reward Breakdown - Show per topic if multi-topic, otherwise show single */}
               {feedback.rewards_by_topic && feedback.rewards_by_topic.length > 1 ? (
                 // Multi-topic: Separate sections per topic
