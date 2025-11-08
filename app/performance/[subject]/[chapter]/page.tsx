@@ -156,10 +156,16 @@ export default function PerformancePage() {
 
       // Convert masteryMap to heatmap format
       const heatmapData: any[] = []
+      const seenTopics = new Set<string>() // Track unique topic names
+
       if (topicsData) {
         topicsData.forEach((topic: any) => {
           const topicMastery = masteryMap.get(topic.name)
           if (!topicMastery) return // Skip topics with no responses
+
+          // Skip if we've already added this topic name
+          if (seenTopics.has(topic.name)) return
+          seenTopics.add(topic.name)
 
           const row: any = {
             user_id: user.id,
