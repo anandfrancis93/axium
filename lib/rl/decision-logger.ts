@@ -95,7 +95,7 @@ export async function logRewardCalculation(log: RewardCalculationLog): Promise<v
   try {
     const supabase = await createClient()
 
-    await supabase.from('rl_decision_log').insert({
+    const { data, error } = await supabase.from('rl_decision_log').insert({
       user_id: log.userId,
       session_id: log.sessionId,
       decision_type: 'reward_calculation',
@@ -110,9 +110,15 @@ export async function logRewardCalculation(log: RewardCalculationLog): Promise<v
       state_snapshot: {
         timestamp: new Date().toISOString()
       }
-    })
+    }).select()
+
+    if (error) {
+      console.error('Database error logging reward calculation:', error)
+      throw error
+    }
   } catch (error) {
     console.error('Failed to log reward calculation:', error)
+    throw error // Re-throw so caller can see the error
   }
 }
 
@@ -123,7 +129,7 @@ export async function logMasteryUpdate(log: MasteryUpdateLog): Promise<void> {
   try {
     const supabase = await createClient()
 
-    await supabase.from('rl_decision_log').insert({
+    const { data, error } = await supabase.from('rl_decision_log').insert({
       user_id: log.userId,
       session_id: log.sessionId,
       decision_type: 'mastery_update',
@@ -136,9 +142,15 @@ export async function logMasteryUpdate(log: MasteryUpdateLog): Promise<void> {
       state_snapshot: {
         timestamp: new Date().toISOString()
       }
-    })
+    }).select()
+
+    if (error) {
+      console.error('Database error logging mastery update:', error)
+      throw error
+    }
   } catch (error) {
     console.error('Failed to log mastery update:', error)
+    throw error // Re-throw so caller can see the error
   }
 }
 
