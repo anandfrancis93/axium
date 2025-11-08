@@ -15,7 +15,7 @@ export interface RelatedTopic {
   id: string
   name: string
   similarity: number
-  relationship: 'ancestor' | 'sibling' | 'prerequisite' | 'semantic'
+  relationship: 'ancestor' | 'prerequisite' | 'semantic'
 }
 
 /**
@@ -85,13 +85,15 @@ export async function findRelatedTopics(
     if (primaryPath.startsWith(candidatePath) && candidatePath !== '') {
       relationship = 'ancestor'
     }
-    // Check if it's a sibling (same parent)
-    else if (primaryTopic.parent_topic_id === candidate.parent_topic_id && primaryTopic.parent_topic_id !== null) {
-      relationship = 'sibling'
-    }
     // Check if it's a prerequisite
     else if (primaryTopic.prerequisites && primaryTopic.prerequisites.includes(candidate.id)) {
       relationship = 'prerequisite'
+    }
+    // Skip siblings (same parent) - they are alternatives, not conceptually related
+    // Example: "Avoid", "Mitigate", "Transfer" are siblings but not helpful for learning context
+    else if (primaryTopic.parent_topic_id === candidate.parent_topic_id && primaryTopic.parent_topic_id !== null) {
+      shouldInclude = false
+      continue  // Skip siblings entirely
     }
     // Check if it's from a DIFFERENT parent branch at same level
     // Example: "Data Plane" and "Control Plane" are siblings under "Zero Trust"
@@ -118,12 +120,12 @@ export async function findRelatedTopics(
   }
 
   // Step 4: Sort by priority and limit
-  // Priority: ancestor > prerequisite > sibling > semantic
+  // Priority: ancestor > prerequisite > semantic
+  // Note: Siblings are excluded (they are alternatives, not contextually related)
   const priorityOrder = {
     ancestor: 1,
     prerequisite: 2,
-    sibling: 3,
-    semantic: 4
+    semantic: 3
   }
 
   relatedTopics.sort((a, b) => {
