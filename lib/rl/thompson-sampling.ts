@@ -59,17 +59,16 @@ export async function getAvailableArms(
   const supabase = await createClient()
 
   // 🔍 DIAGNOSTIC: Log parameters being passed
-  console.log('🔍 getAvailableArms called with (v3 - RPC call):', {
+  console.log('🔍 getAvailableArms called with (v4 - NUCLEAR RENAME):', {
     userId,
     chapterId,
     timestamp: new Date().toISOString()
   })
 
-  // Call the v2 function via RPC with cache buster (current timestamp)
-  const { data: arms, error } = await supabase.rpc('get_available_arms_v2', {
+  // NUCLEAR OPTION: Call completely renamed function to bypass ALL caching
+  const { data: arms, error } = await supabase.rpc('get_unlocked_topic_arms', {
     p_user_id: userId,
-    p_chapter_id: chapterId,
-    p_cache_buster: Date.now()  // Force fresh result by changing parameter
+    p_chapter_id: chapterId
   })
 
   if (error) {
@@ -79,7 +78,7 @@ export async function getAvailableArms(
 
   // 🔍 DIAGNOSTIC: Log what RPC returns
   const bloom1Arms = arms?.filter((a: any) => a.bloom_level === 1) || []
-  console.log('🔍 RPC get_available_arms_v2 returned:', {
+  console.log('🔍 RPC get_unlocked_topic_arms returned:', {
     totalArms: arms?.length,
     bloom1Count: bloom1Arms.length,
     unlockedCount: arms?.filter((a: any) => a.is_unlocked).length,
