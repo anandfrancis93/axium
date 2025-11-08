@@ -29,7 +29,7 @@ CREATE TABLE rl_decision_log (
   response_id UUID REFERENCES user_responses(id) ON DELETE SET NULL,
   is_correct BOOLEAN,
   confidence INTEGER,
-  response_time_seconds INTEGER,
+  response_time_seconds DECIMAL(10,3), -- Support fractional seconds (e.g., 8.256)
 
   -- Reward calculation breakdown
   reward_components JSONB, -- {learning_gain, calibration, spacing, recognition, response_time, streak, total}
