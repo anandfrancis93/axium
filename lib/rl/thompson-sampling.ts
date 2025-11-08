@@ -66,10 +66,13 @@ export async function getAvailableArms(
   })
 
   // NUCLEAR OPTION: Call completely renamed function to bypass ALL caching
-  const { data: arms, error } = await supabase.rpc('get_unlocked_topic_arms', {
-    p_user_id: userId,
-    p_chapter_id: chapterId
-  })
+  // CRITICAL: Set range header to get ALL results (default limit is 1000!)
+  const { data: arms, error } = await supabase
+    .rpc('get_unlocked_topic_arms', {
+      p_user_id: userId,
+      p_chapter_id: chapterId
+    })
+    .range(0, 9999)  // Request up to 10000 rows
 
   if (error) {
     console.error('Error getting available arms:', error)
