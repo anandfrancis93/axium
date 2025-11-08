@@ -949,12 +949,24 @@ ${interpretation}`
                 </div>
               )}
 
-              <button
-                onClick={handleNextQuestion}
-                className="neuro-btn text-blue-400 w-full py-4 text-lg"
-              >
-                Next Question →
-              </button>
+              <div className="flex gap-4">
+                <button
+                  onClick={handleNextQuestion}
+                  className="neuro-btn text-blue-400 flex-1 py-4 text-lg"
+                >
+                  Next Question →
+                </button>
+                <button
+                  onClick={() => {
+                    if (confirm('Are you sure you want to end this session?')) {
+                      router.push(`/session-complete/${session.session_id}`)
+                    }
+                  }}
+                  className="neuro-btn text-gray-300 px-6 py-4 text-lg"
+                >
+                  Done
+                </button>
+              </div>
             </div>
           )}
         </div>
