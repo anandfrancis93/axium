@@ -293,7 +293,23 @@ export default function TopicMasteryPage() {
         throw new Error(data.error || 'Failed to reset progress')
       }
 
-      alert(`✓ ${data.message}\n\nDeleted:\n- ${data.deleted.responses} responses\n- ${data.deleted.mastery} mastery records\n- ${data.deleted.armStats} RL stats\n- ${data.deleted.dimensionCoverage} dimension coverage\n- ${data.deleted.progress} progress records`)
+      const deletionSummary = [
+        `- ${data.deleted.responses} responses`,
+        `- ${data.deleted.mastery} mastery records`,
+        `- ${data.deleted.armStats} RL stats`,
+        `- ${data.deleted.dimensionCoverage} dimension coverage`,
+        `- ${data.deleted.progress} progress records`
+      ]
+
+      if (data.deleted.sessions > 0) {
+        deletionSummary.push(`- ${data.deleted.sessions} learning sessions`)
+      }
+
+      if (data.deleted.questions > 0) {
+        deletionSummary.push(`- ${data.deleted.questions} AI-generated questions`)
+      }
+
+      alert(`✓ ${data.message}\n\nDeleted:\n${deletionSummary.join('\n')}`)
 
       // Reload the page data
       await loadData()
@@ -675,7 +691,7 @@ export default function TopicMasteryPage() {
 
         {/* Bloom Level Breakdown Section */}
         {summary?.dimensions_per_bloom && (
-          <div className="neuro-card">
+          <div className="neuro-card mb-8">
             <button
               type="button"
               onClick={() => setBloomExpanded(!bloomExpanded)}
@@ -749,6 +765,29 @@ export default function TopicMasteryPage() {
             )}
           </div>
         )}
+
+        {/* Danger Zone - Reset Entire Topic */}
+        <div className="neuro-card border border-red-900/20">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h3 className="text-lg font-semibold text-red-400 mb-2">Danger Zone</h3>
+              <p className="text-sm text-gray-500">
+                Permanently delete all progress for this topic across all Bloom levels. This action cannot be undone.
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                setResetBloomLevel(null)
+                setShowResetModal(true)
+              }}
+              disabled={resetting}
+              className="neuro-btn text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-red-400 hover:text-red-300 px-6 py-3 whitespace-nowrap"
+            >
+              <TrashIcon size={16} />
+              {resetting ? 'Resetting...' : 'Reset Entire Topic'}
+            </button>
+          </div>
+        </div>
 
         {/* Mastery Score Over Time Chart */}
         <div className="neuro-card">
@@ -1153,6 +1192,22 @@ export default function TopicMasteryPage() {
                 <span className="text-red-400 mt-0.5">•</span>
                 <span>RL learning statistics will be cleared</span>
               </div>
+              <div className="flex items-start gap-2">
+                <span className="text-red-400 mt-0.5">•</span>
+                <span>Dimension coverage will be reset</span>
+              </div>
+              {!resetBloomLevel && (
+                <>
+                  <div className="flex items-start gap-2">
+                    <span className="text-red-400 mt-0.5">•</span>
+                    <span>Learning sessions will be deleted</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-red-400 mt-0.5">•</span>
+                    <span>AI-generated questions will be deleted</span>
+                  </div>
+                </>
+              )}
               <div className="flex items-start gap-2">
                 <span className="text-red-400 mt-0.5">•</span>
                 <span>This action cannot be undone</span>

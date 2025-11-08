@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { RefreshIcon, AlertTriangleIcon, CheckIcon, XIcon, BarChartIcon, TrendingUpIcon, AwardIcon, TargetIcon, ChevronDownIcon, LockIcon, LockOpenIcon, TrophyIcon } from '@/components/icons'
+import { RefreshIcon, AlertTriangleIcon, CheckIcon, XIcon, BarChartIcon, TrendingUpIcon, AwardIcon, TargetIcon, ChevronDownIcon, LockIcon, LockOpenIcon, TrophyIcon, TrashIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import { Tooltip } from '@/components/Tooltip'
 import Modal from '@/components/Modal'
@@ -35,6 +35,9 @@ export default function PerformancePage() {
   const [preResetCounts, setPreResetCounts] = useState<any>(null)
   const [loadingCounts, setLoadingCounts] = useState(false)
   const [examPrediction, setExamPrediction] = useState<any>(null)
+  const [showTopicResetModal, setShowTopicResetModal] = useState(false)
+  const [resetTopicData, setResetTopicData] = useState<{ topic: string, topic_id: string } | null>(null)
+  const [resettingTopic, setResettingTopic] = useState(false)
 
   useEffect(() => {
     loadPerformanceData()
@@ -162,6 +165,7 @@ export default function PerformancePage() {
             user_id: user.id,
             chapter_id: fetchedChapter.id,
             topic: topic.name,
+            topic_id: topic.id,
             full_name: topic.full_name || topic.name,
             depth: topic.depth || 0,
             description: topic.description,
@@ -385,6 +389,48 @@ export default function PerformancePage() {
     setShowSuccessModal(false)
     // Force full page reload to clear all cached data
     window.location.reload()
+  }
+
+  const handleShowTopicResetModal = async (topic: string, topicId: string) => {
+    setResetTopicData({ topic, topic_id: topicId })
+    setShowTopicResetModal(true)
+  }
+
+  const handleResetTopic = async () => {
+    if (!resetTopicData) return
+
+    try {
+      setResettingTopic(true)
+
+      const response = await fetch('/api/rl/reset-topic-progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chapter_id: chapterData?.id,
+          topic_id: resetTopicData.topic_id,
+          bloom_level: null // Reset all Bloom levels for this topic
+        })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to reset topic progress')
+      }
+
+      setShowTopicResetModal(false)
+      setResetTopicData(null)
+      setResettingTopic(false)
+
+      // Reload the page data
+      await loadPerformanceData()
+    } catch (error: any) {
+      console.error('Error resetting topic progress:', error)
+      setShowTopicResetModal(false)
+      setResetTopicData(null)
+      setResettingTopic(false)
+      alert(`ERROR: ${error.message}`)
+    }
   }
 
   const getMasteryColor = (mastery: number | null, uniqueCount: number) => {
@@ -764,6 +810,7 @@ Mastery calculated using EMA (recent performance weighted higher)`
                             </th>
                           ))}
                           <th className="p-4 text-center text-gray-400 font-medium">Avg</th>
+                          <th className="p-4 text-center text-gray-400 font-medium">Action</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -850,6 +897,17 @@ Mastery calculated using EMA (recent performance weighted higher)`
                             ) : (
                               <div className="text-gray-600">--</div>
                             )}
+                          </td>
+                          <td className="p-4 text-center">
+                            <Tooltip content={`Reset all progress for ${row.topic}`}>
+                              <button
+                                onClick={() => handleShowTopicResetModal(row.topic, row.topic_id)}
+                                disabled={resettingTopic}
+                                className="neuro-btn text-xs px-2 py-1 text-red-400 hover:text-red-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                <TrashIcon size={14} />
+                              </button>
+                            </Tooltip>
                           </td>
                         </tr>
                         )
@@ -1109,6 +1167,70 @@ Mastery calculated using EMA (recent performance weighted higher)`
               </div>
             </div>
           )}
+        </div>
+      </Modal>
+
+      {/* Topic Reset Confirmation Modal */}
+      <Modal
+        isOpen={showTopicResetModal}
+        onClose={() => {
+          setShowTopicResetModal(false)
+          setResetTopicData(null)
+        }}
+        title={`Reset ${resetTopicData?.topic || 'Topic'}?`}
+        type="warning"
+        actions={[
+          {
+            label: 'Cancel',
+            onClick: () => {
+              setShowTopicResetModal(false)
+              setResetTopicData(null)
+            },
+            variant: 'secondary'
+          },
+          {
+            label: resettingTopic ? 'Resetting...' : 'Reset Topic',
+            onClick: handleResetTopic,
+            variant: 'danger'
+          }
+        ]}
+      >
+        <div className="space-y-4">
+          <p className="text-gray-300">
+            This will permanently delete all progress data for <strong>{resetTopicData?.topic}</strong> across all Bloom levels.
+          </p>
+          <div className="neuro-inset p-4 rounded-lg">
+            <div className="text-sm text-gray-400 space-y-2">
+              <div className="flex items-start gap-2">
+                <span className="text-red-400 mt-0.5">•</span>
+                <span>All question responses for this topic</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-red-400 mt-0.5">•</span>
+                <span>Mastery scores for all Bloom levels</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-red-400 mt-0.5">•</span>
+                <span>RL learning statistics for this topic</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-red-400 mt-0.5">•</span>
+                <span>Dimension coverage records</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-red-400 mt-0.5">•</span>
+                <span>Learning sessions for this topic</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-red-400 mt-0.5">•</span>
+                <span>AI-generated questions for this topic</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-red-400 mt-0.5">•</span>
+                <span>This action cannot be undone</span>
+              </div>
+            </div>
+          </div>
         </div>
       </Modal>
     </div>

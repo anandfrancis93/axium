@@ -16,7 +16,9 @@ import { createClient } from '@/lib/supabase/server'
  * - user_topic_mastery for this topic (and bloom level if specified)
  * - rl_arm_stats for this topic (and bloom level if specified)
  * - user_dimension_coverage for this topic (and bloom level if specified)
- * - user_progress for this topic
+ * - learning_sessions for this topic (only if full topic reset)
+ * - AI-generated questions for this topic (only if full topic reset)
+ * - user_progress for this topic (only if full topic reset)
  */
 export async function POST(request: NextRequest) {
   try {
@@ -56,6 +58,8 @@ export async function POST(request: NextRequest) {
     let armStatsDeleted = 0
     let dimensionCoverageDeleted = 0
     let progressDeleted = 0
+    let sessionsDeleted = 0
+    let questionsDeleted = 0
 
     // Build base queries
     let responsesQuery = supabase
@@ -150,6 +154,38 @@ export async function POST(request: NextRequest) {
         )
       }
       progressDeleted = progressCount || 0
+
+      // Delete learning_sessions for this topic
+      const { count: sessionsCount, error: sessionsError } = await supabase
+        .from('learning_sessions')
+        .delete({ count: 'exact' })
+        .eq('user_id', user.id)
+        .eq('topic_id', topic_id)
+
+      if (sessionsError) {
+        console.error('Error deleting learning_sessions:', sessionsError)
+        return NextResponse.json(
+          { error: `Failed to delete learning_sessions: ${sessionsError.message}` },
+          { status: 500 }
+        )
+      }
+      sessionsDeleted = sessionsCount || 0
+      console.log(`Deleted ${sessionsDeleted} learning_sessions`)
+
+      // Delete AI-generated questions for this user for this topic
+      const { count: questionsCount, error: questionsError } = await supabase
+        .from('questions')
+        .delete({ count: 'exact' })
+        .eq('user_id', user.id)
+        .eq('topic_id', topic_id)
+        .eq('source_type', 'ai_generated_realtime')
+
+      if (questionsError) {
+        console.error('Error deleting AI-generated questions:', questionsError)
+      } else {
+        questionsDeleted = questionsCount || 0
+        console.log(`Deleted ${questionsDeleted} AI-generated questions`)
+      }
     }
 
     console.log('Reset topic progress complete:', {
@@ -159,7 +195,9 @@ export async function POST(request: NextRequest) {
         mastery: masteryDeleted,
         armStats: armStatsDeleted,
         dimensionCoverage: dimensionCoverageDeleted,
-        progress: progressDeleted
+        progress: progressDeleted,
+        sessions: sessionsDeleted,
+        questions: questionsDeleted
       }
     })
 
@@ -172,7 +210,9 @@ export async function POST(request: NextRequest) {
         mastery: masteryDeleted,
         armStats: armStatsDeleted,
         dimensionCoverage: dimensionCoverageDeleted,
-        progress: progressDeleted
+        progress: progressDeleted,
+        sessions: sessionsDeleted,
+        questions: questionsDeleted
       }
     })
   } catch (error) {
