@@ -171,40 +171,39 @@ export async function POST(request: NextRequest) {
     console.log(`Deleted ${dimensionCoverageDeleted} user_dimension_coverage records`)
 
     // Delete user_progress for this chapter
-    // Use a subquery with topics to filter by chapter_id
-    const { data: progressToDelete, error: fetchProgressError } = await supabase
+    // Fetch all user_progress records and filter by chapter
+    const { data: allUserProgress, error: fetchProgressError } = await supabase
       .from('user_progress')
-      .select('id, topics!inner(chapter_id)')
+      .select('id, topic_id, topics(chapter_id)')
       .eq('user_id', user.id)
-      .eq('topics.chapter_id', chapter_id)
-
-    console.log('Reset - user_progress query:', {
-      chapter_id,
-      user_id: user.id,
-      records: progressToDelete,
-      count: progressToDelete?.length || 0,
-      error: fetchProgressError
-    })
 
     if (fetchProgressError) {
-      console.error('Error fetching user_progress to delete:', fetchProgressError)
-    } else if (progressToDelete && progressToDelete.length > 0) {
-      const progressIds = progressToDelete.map(p => p.id)
-      console.log(`Found ${progressIds.length} user_progress records to delete`)
+      console.error('Error fetching user_progress:', fetchProgressError)
+    } else if (allUserProgress && allUserProgress.length > 0) {
+      // Filter to only records in this chapter
+      const progressInChapter = allUserProgress.filter(
+        (p: any) => p.topics?.chapter_id === chapter_id
+      )
 
-      const { count: progressCount, error: progressError } = await supabase
-        .from('user_progress')
-        .delete({ count: 'exact' })
-        .in('id', progressIds)
+      console.log(`Found ${progressInChapter.length} user_progress records to delete`)
 
-      if (progressError) {
-        console.error('Error deleting user_progress:', progressError)
-      } else {
-        progressDeleted = progressCount || 0
-        console.log(`Deleted ${progressDeleted} user_progress records`)
+      if (progressInChapter.length > 0) {
+        const progressIds = progressInChapter.map((p: any) => p.id)
+
+        const { count: progressCount, error: progressError } = await supabase
+          .from('user_progress')
+          .delete({ count: 'exact' })
+          .in('id', progressIds)
+
+        if (progressError) {
+          console.error('Error deleting user_progress:', progressError)
+        } else {
+          progressDeleted = progressCount || 0
+          console.log(`Deleted ${progressDeleted} user_progress records`)
+        }
       }
     } else {
-      console.log('No user_progress records found for this chapter')
+      console.log('No user_progress records found for this user')
     }
 
     // Delete AI-generated questions for this user in this chapter

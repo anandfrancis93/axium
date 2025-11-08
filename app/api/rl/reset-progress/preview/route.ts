@@ -82,22 +82,18 @@ export async function POST(request: NextRequest) {
       .eq('user_id', user.id)
       .eq('chapter_id', chapter_id)
 
-    // Count user_progress using JOIN with topics
-    const { data: progressRecords, error: progressError } = await supabase
+    // Count user_progress - fetch all records for this user and filter by chapter
+    const { data: allUserProgress } = await supabase
       .from('user_progress')
-      .select('id, topics!inner(chapter_id)')
+      .select('id, topic_id, topics(chapter_id)')
       .eq('user_id', user.id)
-      .eq('topics.chapter_id', chapter_id)
 
-    console.log('Preview - user_progress query:', {
-      chapter_id,
-      user_id: user.id,
-      records: progressRecords,
-      count: progressRecords?.length || 0,
-      error: progressError
-    })
+    // Filter to only records in this chapter
+    const progressInChapter = allUserProgress?.filter(
+      (p: any) => p.topics?.chapter_id === chapter_id
+    ) || []
 
-    const progressCount = progressRecords?.length || 0
+    const progressCount = progressInChapter.length
 
     // Count AI-generated questions
     const { data: questionsRecords } = await supabase
