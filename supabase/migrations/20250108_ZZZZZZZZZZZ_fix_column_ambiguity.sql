@@ -1,6 +1,17 @@
 -- ========================================
--- FIX: Column name ambiguity for is_unlocked
+-- Thompson Sampling: Get Available Arms
 -- ========================================
+-- Returns unlocked (topic, bloom_level) arms for Thompson Sampling algorithm
+--
+-- Key features:
+-- 1. Includes domains (depth 0), topics (depth 2+), excludes objectives (depth 1)
+-- 2. Per-topic Bloom progression (each topic unlocks independently)
+-- 3. Returns ONLY unlocked arms (server-side filter to stay under PostgREST 1000 row limit)
+-- 4. Bloom 1 always unlocked; higher levels require 80% mastery + 3 correct on previous level
+--
+-- Expected results:
+-- - ~809 topics at Bloom 1 (all unlocked)
+-- - Fewer at higher levels (requires mastery)
 
 DROP FUNCTION IF EXISTS get_unlocked_topic_arms(UUID, UUID);
 
@@ -78,4 +89,4 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql STABLE;
 
-COMMENT ON FUNCTION get_unlocked_topic_arms IS 'Returns ONLY unlocked arms to work around PostgREST 1000 row limit';
+COMMENT ON FUNCTION get_unlocked_topic_arms IS 'Get unlocked (topic, bloom_level) arms for Thompson Sampling. Filters server-side for PostgREST efficiency.';

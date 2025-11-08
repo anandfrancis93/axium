@@ -58,15 +58,8 @@ export async function getAvailableArms(
 ): Promise<ArmSample[]> {
   const supabase = await createClient()
 
-  // 🔍 DIAGNOSTIC: Log parameters being passed
-  console.log('🔍 getAvailableArms called with (v4 - NUCLEAR RENAME):', {
-    userId,
-    chapterId,
-    timestamp: new Date().toISOString()
-  })
-
-  // Call function - now returns ONLY unlocked arms (server-side filter)
-  // This works around PostgREST 1000 row limit
+  // Get unlocked arms from database function
+  // Function filters server-side to stay under PostgREST's 1000 row limit
   const { data: arms, error } = await supabase.rpc('get_unlocked_topic_arms', {
     p_user_id: userId,
     p_chapter_id: chapterId
@@ -77,38 +70,13 @@ export async function getAvailableArms(
     return []
   }
 
-  // 🔍 DIAGNOSTIC: Check for diagnostic row
-  const diagnosticRow = arms?.find((a: any) => a.bloom_level === -1)
-  if (diagnosticRow) {
-    console.log('🔍 DATABASE DIAGNOSTIC:', diagnosticRow.topic)
+  if (!arms || arms.length === 0) {
+    console.warn('No available arms returned for user', userId, 'in chapter', chapterId)
+    return []
   }
 
-  // Filter out diagnostic row
-  const filteredArms = arms?.filter((a: any) => a.bloom_level !== -1) || []
-
-  // 🔍 DIAGNOSTIC: Log what RPC returns
-  const bloom1Arms = filteredArms?.filter((a: any) => a.bloom_level === 1) || []
-  console.log('🔍 RPC get_unlocked_topic_arms returned:', {
-    totalArms: arms?.length,
-    bloom1Count: bloom1Arms.length,
-    unlockedCount: arms?.filter((a: any) => a.is_unlocked).length,
-    bloom1UnlockedCount: arms?.filter((a: any) => a.bloom_level === 1 && a.is_unlocked).length,
-    bloom1Sample: bloom1Arms.slice(0, 5).map((a: any) => ({
-      topic: a.topic,
-      unlocked: a.is_unlocked
-    })),
-    allBloomLevels: [...new Set(arms?.map((a: any) => a.bloom_level))].sort()
-  })
-
-  // 🔍 Count arms per bloom level
-  const armsByBloom = arms?.reduce((acc: any, arm: any) => {
-    acc[arm.bloom_level] = (acc[arm.bloom_level] || 0) + 1
-    return acc
-  }, {})
-  console.log('🔍 Arms by Bloom level:', armsByBloom)
-
-  // No need to filter - function already returns only unlocked arms
-  const availableArms = filteredArms
+  // Map to ArmSample format
+  const availableArms = arms
     .map((arm: any) => ({
       arm: {
         topicId: arm.topic_id,
@@ -121,8 +89,6 @@ export async function getAvailableArms(
       masteryScore: arm.mastery_score || 0,
       isUnlocked: true
     }))
-
-  console.log('🔍 After unlock filter:', availableArms.length, 'arms')
 
   return availableArms
 }
