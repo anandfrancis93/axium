@@ -363,16 +363,16 @@ Mastery grows with correct answers and confidence calibration`
         break
 
       case 'spacing':
-        description = 'Spacing: Bonus for spaced repetition timing'
+        description = 'Spacing: Rewards long-term retention (time since last practice)'
         scale = 'Range: 0 to +5 points'
         if (value >= 4) {
-          interpretation = 'Perfect timing! Optimal spacing between reviews'
+          interpretation = 'Excellent! You remembered after 1+ week'
         } else if (value >= 2) {
-          interpretation = 'Good spacing effect'
-        } else if (value >= 0) {
-          interpretation = 'Some spacing benefit'
+          interpretation = 'Good retention after 3-7 days'
+        } else if (value >= 1) {
+          interpretation = 'Decent retention after 1-3 days'
         } else {
-          interpretation = 'Too soon or too late for optimal spacing'
+          interpretation = 'First time practicing or same-day review (no spacing bonus)'
         }
         break
 
