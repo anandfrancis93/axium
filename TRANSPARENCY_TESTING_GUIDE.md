@@ -6,14 +6,17 @@ This guide walks you through testing the **100% transparent RL system** in Axium
 
 ## Prerequisites
 
-1. **Run the migration** (if not already done):
+1. **Run the migrations** (if not already done):
    - Open Supabase SQL Editor
    - Execute `RUN_DECISION_LOG_MIGRATION.sql`
+   - **IMPORTANT:** Execute `FIX_RESPONSE_TIME_TYPE.sql` to fix data type issue
    - Verify the `rl_decision_log` table was created
 
 2. **Have an active learning session:**
    - At least one chapter with topics
    - Some learning progress (or start fresh)
+
+**Note:** If you see the error `invalid input syntax for type integer: "8.256"` in logs, you need to run the `FIX_RESPONSE_TIME_TYPE.sql` migration.
 
 ---
 
@@ -32,23 +35,30 @@ This guide walks you through testing the **100% transparent RL system** in Axium
 
 2. **Check the decision log table** in Supabase:
    ```sql
-   -- View all recent decisions
+   -- View all recent decisions (CORRECTED - use topic_id and bloom_level columns)
    SELECT
      decision_type,
      created_at,
-     selected_arm->>'topic_name' as topic,
-     selected_arm->>'bloom_level' as bloom
+     topic_id,
+     bloom_level,
+     selected_arm->>'topic_name' as selected_topic,
+     is_correct,
+     confidence,
+     response_time_seconds,
+     reward_components IS NOT NULL as has_rewards
    FROM rl_decision_log
    ORDER BY created_at DESC
    LIMIT 20;
    ```
 
 3. **Expected Results:**
-   - You should see 3 decision types per question:
-     - `arm_selection` - Thompson Sampling chose this topic×Bloom
-     - `reward_calculation` - Reward breakdown after answer
-     - `mastery_update` - Mastery score changed
-   - Total: 9-15 records for 3-5 questions
+   - You should see 3 decision types per question answered:
+     - `arm_selection` - Thompson Sampling chose this topic×Bloom (logged when question is fetched)
+     - `reward_calculation` - Reward breakdown after answer (logged when answer is submitted)
+     - `mastery_update` - Mastery score changed (logged when answer is submitted)
+   - **Note:** You may see more `arm_selection` logs than the other types if you fetched a question but didn't answer it yet
+   - Total for 3 answered questions: 9 records (3 of each type)
+   - Total if 1 unanswered question is displayed: 10 records (4 arm_selection, 3 reward_calculation, 3 mastery_update)
 
 **Pass Criteria:**
 - ✅ All 3 decision types logged for each question
@@ -332,6 +342,21 @@ ORDER BY created_at DESC;
 
 ---
 
+### Issue 5: reward_calculation logs missing
+**Symptoms:** Only see `arm_selection` and `mastery_update`, no `reward_calculation`
+
+**Solutions:**
+1. Check Vercel logs for error: "invalid input syntax for type integer"
+2. If you see this error, run `FIX_RESPONSE_TIME_TYPE.sql`:
+   ```sql
+   ALTER TABLE rl_decision_log
+   ALTER COLUMN response_time_seconds TYPE DECIMAL(10,3);
+   ```
+3. This fixes the data type mismatch (INTEGER vs DECIMAL for fractional seconds)
+4. After running, answer 1 question to verify fix worked
+
+---
+
 ## End-to-End Test Scenario
 
 **Complete walkthrough to verify full transparency:**
@@ -440,9 +465,16 @@ After verifying transparency:
 If any test fails, check:
 
 1. **Migration:** `\d rl_decision_log` in psql or check table schema in Supabase
-2. **Logging calls:** Add console.logs in `decision-logger.ts` functions
-3. **API responses:** Check Network tab in DevTools for `/api/rl/*` endpoints
-4. **Database permissions:** Verify RLS policies allow inserts/selects
+2. **Data type fix:** Ensure `response_time_seconds` is DECIMAL(10,3), not INTEGER
+   - Run: `SELECT data_type FROM information_schema.columns WHERE table_name = 'rl_decision_log' AND column_name = 'response_time_seconds';`
+   - If returns 'integer', run `FIX_RESPONSE_TIME_TYPE.sql`
+3. **Logging calls:** Check Vercel function logs for errors after answering questions
+4. **API responses:** Check Network tab in DevTools for `/api/rl/*` endpoints
+5. **Database permissions:** Verify RLS policies allow inserts/selects
+
+**Common Error:** `invalid input syntax for type integer: "8.256"`
+- **Cause:** `response_time_seconds` column is INTEGER instead of DECIMAL
+- **Fix:** Run `FIX_RESPONSE_TIME_TYPE.sql` in Supabase SQL Editor
 
 **Need help?** Check `TRANSPARENCY_IMPLEMENTATION.md` for implementation details.
 
