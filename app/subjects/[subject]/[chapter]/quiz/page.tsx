@@ -786,25 +786,39 @@ ${interpretation}`
               {feedback.related_topics && feedback.related_topics.length > 0 && (
                 <div className="neuro-inset p-4 rounded-lg mb-6">
                   <div className="text-sm font-medium text-gray-400 mb-3">Related Topics:</div>
-                  <div className="space-y-1 font-mono text-sm">
+                  <div className="space-y-2 font-mono text-sm">
                     {(() => {
-                      // Build tree structure from full_name paths
-                      // Sort by depth to show domain → parent → topic
-                      const sortedTopics = [...feedback.related_topics].sort((a: any, b: any) => a.depth - b.depth)
+                      // Build complete hierarchical trees for each topic
+                      const trees: JSX.Element[] = []
 
-                      return sortedTopics.map((topic: any, idx: number) => {
-                        // Parse full_name to get hierarchy
+                      feedback.related_topics.forEach((topic: any, idx: number) => {
+                        // Parse full_name to get complete hierarchy
                         // Example: "Security Operations > Web filter > Agent-based"
                         const parts = topic.full_name ? topic.full_name.split(' > ') : [topic.name]
-                        const indent = '  '.repeat(topic.depth) // 2 spaces per depth level
-                        const connector = topic.depth > 0 ? '└─ ' : ''
 
-                        return (
-                          <div key={idx} className="text-gray-300">
-                            {indent}{connector}{parts[parts.length - 1]}
-                          </div>
-                        )
+                        // Display each level of the hierarchy
+                        const treeLines = parts.map((part, level) => {
+                          const indent = '  '.repeat(level) // 2 spaces per level
+                          const connector = level > 0 ? '└─ ' : ''
+                          const isLastLevel = level === parts.length - 1
+                          const color = isLastLevel ? 'text-gray-300' : 'text-gray-500' // Highlight leaf topic
+
+                          return (
+                            <div key={`${idx}-${level}`} className={color}>
+                              {indent}{connector}{part}
+                            </div>
+                          )
+                        })
+
+                        // Add spacing between different trees
+                        if (idx > 0) {
+                          trees.push(<div key={`spacer-${idx}`} className="h-2"></div>)
+                        }
+
+                        trees.push(...treeLines)
                       })
+
+                      return trees
                     })()}
                   </div>
                 </div>
