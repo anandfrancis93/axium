@@ -782,16 +782,30 @@ ${interpretation}`
                 </div>
               </div>
 
-              {/* Related Topics (Display Only) */}
+              {/* Related Topics (Display Only) - Tree Structure */}
               {feedback.related_topics && feedback.related_topics.length > 0 && (
                 <div className="neuro-inset p-4 rounded-lg mb-6">
                   <div className="text-sm font-medium text-gray-400 mb-3">Related Topics:</div>
-                  <div className="flex flex-wrap gap-2">
-                    {feedback.related_topics.map((topic: string, idx: number) => (
-                      <div key={idx} className="px-3 py-1 neuro-raised rounded-lg text-sm text-gray-400">
-                        • {topic}
-                      </div>
-                    ))}
+                  <div className="space-y-1 font-mono text-sm">
+                    {(() => {
+                      // Build tree structure from full_name paths
+                      // Sort by depth to show domain → parent → topic
+                      const sortedTopics = [...feedback.related_topics].sort((a: any, b: any) => a.depth - b.depth)
+
+                      return sortedTopics.map((topic: any, idx: number) => {
+                        // Parse full_name to get hierarchy
+                        // Example: "Security Operations > Web filter > Agent-based"
+                        const parts = topic.full_name ? topic.full_name.split(' > ') : [topic.name]
+                        const indent = '  '.repeat(topic.depth) // 2 spaces per depth level
+                        const connector = topic.depth > 0 ? '└─ ' : ''
+
+                        return (
+                          <div key={idx} className="text-gray-300">
+                            {indent}{connector}{parts[parts.length - 1]}
+                          </div>
+                        )
+                      })
+                    })()}
                   </div>
                 </div>
               )}

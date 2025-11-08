@@ -391,16 +391,16 @@ export async function POST(request: NextRequest) {
       })
       .eq('id', session_id)
 
-    // Get related topic names for display
-    const relatedTopicNames = []
+    // Get related topic details for tree display
+    const relatedTopicsWithHierarchy = []
     if (relatedTopics.length > 0) {
       const { data: relatedTopicsData } = await supabase
         .from('topics')
-        .select('name')
+        .select('id, name, full_name, depth, parent_topic_id')
         .in('id', relatedTopics)
 
       if (relatedTopicsData) {
-        relatedTopicNames.push(...relatedTopicsData.map(t => t.name))
+        relatedTopicsWithHierarchy.push(...relatedTopicsData)
       }
     }
 
@@ -413,7 +413,7 @@ export async function POST(request: NextRequest) {
       // Multi-topic support
       mastery_updates: masteryUpdates, // Array of all core topics
       rewards_by_topic: rewardsByTopic, // Individual rewards per topic
-      related_topics: relatedTopicNames, // Display only
+      related_topics: relatedTopicsWithHierarchy, // Display only with hierarchy info
       total_reward: totalReward, // Combined total
 
       // Legacy fields for backward compatibility (first topic)
