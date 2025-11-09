@@ -848,7 +848,7 @@ ${interpretation}`
                         return (
                           <div key={sIdx} className="space-y-2">
                             {section.header && (
-                              <div className="text-blue-400 font-semibold text-sm mb-1">
+                              <div className="text-blue-400 font-semibold mb-1">
                                 {isFundamentalQuestion && firstBullet
                                   ? `${section.header} ${firstBullet}`
                                   : section.header}
