@@ -170,10 +170,6 @@ export async function POST(request: NextRequest) {
       const currentMastery = masteryData?.mastery_score || 0
       const currentStreak = masteryData?.current_streak || 0
 
-      // Calculate learning gain for this topic
-      const learningGain = calculateLearningGain(currentMastery, isCorrect, confidence)
-      const newMastery = Math.max(0, Math.min(100, currentMastery + learningGain))
-
       // Get days since last practice for reward calculation
       const daysSince = getDaysSinceLastPractice(masteryData?.last_practiced_at || null)
 
@@ -182,7 +178,7 @@ export async function POST(request: NextRequest) {
 
       // Calculate reward for this topic independently
       const rewardComponents = calculateReward({
-        learningGain,
+        learningGain: 0, // Will be calculated from calibration/recognition
         isCorrect,
         confidence,
         currentMastery,
@@ -195,6 +191,14 @@ export async function POST(request: NextRequest) {
         questionFormat: question.question_format,
         currentStreak: currentStreak
       })
+
+      // Calculate mastery change using quality-weighted approach
+      const learningGain = calculateLearningGain(
+        rewardComponents.calibration,
+        rewardComponents.recognition,
+        question.bloom_level
+      )
+      const newMastery = Math.max(0, Math.min(100, currentMastery + learningGain))
 
       // Update mastery for this topic
       const { error: masteryError } = await supabase.rpc('update_topic_mastery_by_id', {
@@ -217,20 +221,18 @@ export async function POST(request: NextRequest) {
 
       // Check if user just unlocked next Bloom level for this topic
       let unlockedLevel: number | null = null
-      if (isCorrect && question.bloom_level < 6) {
+      if (question.bloom_level < 6) {
         // Get updated mastery data for current level
         const { data: updatedMastery } = await supabase
           .from('user_topic_mastery')
-          .select('mastery_score, questions_correct')
+          .select('mastery_score')
           .eq('user_id', user.id)
           .eq('topic_id', topicId)
           .eq('bloom_level', question.bloom_level)
           .single()
 
-        // Check if this level now meets unlock requirements (80% + 3 correct)
-        if (updatedMastery &&
-            updatedMastery.mastery_score >= 80.0 &&
-            updatedMastery.questions_correct >= 3) {
+        // Check if this level now meets unlock requirement (80% mastery)
+        if (updatedMastery && updatedMastery.mastery_score >= 80.0) {
 
           // Check if next level was previously locked
           const { data: nextLevelMastery } = await supabase

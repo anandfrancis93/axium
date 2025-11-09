@@ -41,27 +41,31 @@ function calculateLearningGainReward(learningGain: number): number {
  *
  * @param isCorrect - Whether answer was correct
  * @param confidence - User's confidence (1-5)
- * @returns Reward component (-5 to +5)
+ * @returns Reward component (-3 to +3)
  */
 function calculateCalibrationReward(
   isCorrect: boolean,
   confidence: number
 ): number {
-  if (isCorrect && confidence >= 4) {
-    return 5  // Correctly confident
-  } else if (isCorrect && confidence === 3) {
-    return 2  // Moderately confident, correct
-  } else if (isCorrect && confidence <= 2) {
-    return -2  // Underconfident (correct but uncertain)
-  } else if (!isCorrect && confidence <= 2) {
-    return 2  // Correctly uncertain (good metacognition)
-  } else if (!isCorrect && confidence === 3) {
-    return -2  // Moderately confident but wrong
-  } else if (!isCorrect && confidence >= 4) {
-    return -5  // Overconfident (very wrong - worst case)
+  if (isCorrect) {
+    // Correct answers: reward based on confidence level
+    if (confidence >= 4) {
+      return 3  // High confidence + correct (perfect calibration)
+    } else if (confidence === 3) {
+      return 2  // Medium confidence + correct (moderate calibration)
+    } else {
+      return 1  // Low confidence + correct (underconfident)
+    }
+  } else {
+    // Incorrect answers: penalty based on confidence level
+    if (confidence <= 2) {
+      return -1  // Low confidence + incorrect (good uncertainty)
+    } else if (confidence === 3) {
+      return -2  // Medium confidence + incorrect (moderate overconfidence)
+    } else {
+      return -3  // High confidence + incorrect (severe overconfidence)
+    }
   }
-
-  return 0
 }
 
 /**
@@ -98,7 +102,7 @@ function calculateSpacingReward(
  *
  * @param recognitionMethod - How user arrived at answer
  * @param isCorrect - Whether answer was correct
- * @returns Reward component (-3 to +5)
+ * @returns Reward component (-4 to +3)
  */
 function calculateRecognitionReward(
   recognitionMethod: RecognitionMethod | null,
@@ -112,13 +116,13 @@ function calculateRecognitionReward(
     // Correct answer: reward based on retrieval strength
     switch (recognitionMethod) {
       case 'memory':
-        return 5  // Best: Knew from memory (strong retrieval)
+        return 3  // Best: Knew from memory (strong retrieval)
       case 'recognition':
-        return 3  // Good: Recognized correct answer
+        return 2  // Good: Recognized correct answer
       case 'educated_guess':
         return 1  // Fair: Narrowed down options
       case 'random':
-        return -1  // Lucky guess (not real knowledge)
+        return 0  // Lucky guess (no credit)
       default:
         return 0
     }
@@ -126,13 +130,13 @@ function calculateRecognitionReward(
     // Incorrect answer: penalty for overconfidence in method
     switch (recognitionMethod) {
       case 'memory':
-        return -3  // Thought they knew but were wrong (false memory)
+        return -4  // Thought they knew but were wrong (false memory - worst)
       case 'recognition':
-        return -2  // Thought they recognized but were wrong
+        return -3  // Thought they recognized but were wrong
       case 'educated_guess':
-        return -1  // Guess was wrong
+        return -2  // Guess was wrong
       case 'random':
-        return 0  // Expected (honest about not knowing)
+        return -1  // Expected (honest about not knowing)
       default:
         return 0
     }

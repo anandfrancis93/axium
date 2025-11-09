@@ -65,7 +65,6 @@ BEGIN
           WHERE utm_prev.user_id = p_user_id
             AND utm_prev.topic_id = tbc.topic_id
             AND utm_prev.bloom_level = (tbc.bloom_level - 1)
-            AND utm_prev.questions_correct >= 3
             AND utm_prev.mastery_score >= 80.0
         )
         ELSE false

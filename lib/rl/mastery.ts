@@ -15,28 +15,28 @@ export interface MasteryUpdate {
 
 /**
  * Calculate learning gain from a user response
- * Uses Exponential Moving Average with confidence weighting
+ * Uses quality-weighted approach based on calibration and recognition
  *
- * @param oldMastery - Current mastery score (0-100)
- * @param isCorrect - Whether the user answered correctly
- * @param confidence - User's confidence level (1-5)
+ * @param calibrationReward - Calibration reward (-3 to +3)
+ * @param recognitionReward - Recognition reward (-4 to +3)
+ * @param bloomLevel - Current Bloom level (1-6)
  * @returns Learning gain (delta in mastery score)
  */
 export function calculateLearningGain(
-  oldMastery: number,
-  isCorrect: boolean,
-  confidence: number
+  calibrationReward: number,
+  recognitionReward: number,
+  bloomLevel: number
 ): number {
-  // Learning rate increases with confidence
-  // High confidence → faster updates (user is certain)
-  // Low confidence → slower updates (user is uncertain)
-  const learningRate = confidence >= 4 ? 0.4 : confidence >= 3 ? 0.3 : 0.25
+  // Calculate quality score (average of calibration and recognition)
+  const qualityScore = (calibrationReward + recognitionReward) / 2
 
-  // Target mastery for this response
-  const target = isCorrect ? 100 : 0
+  // Bloom level multiplier
+  // Bloom 1-3: 10x multiplier (need ~5 perfect answers for 80%)
+  // Bloom 4-6: 9x multiplier (need ~3 perfect answers for 80%)
+  const multiplier = bloomLevel >= 4 ? 9 : 10
 
-  // Calculate learning gain (change in mastery)
-  const gain = learningRate * (target - oldMastery)
+  // Calculate mastery change
+  const gain = qualityScore * multiplier
 
   return gain
 }
