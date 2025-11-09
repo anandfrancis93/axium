@@ -39,6 +39,12 @@ export default function LearnPage() {
   const [feedback, setFeedback] = useState<any>(null)
   const [showEndSessionModal, setShowEndSessionModal] = useState(false)
 
+  // Session progress tracking (persists across questions)
+  const [sessionProgress, setSessionProgress] = useState<{
+    questions_answered: number
+    current_score: number
+  } | null>(null)
+
   // Response time tracking
   const [questionShownAt, setQuestionShownAt] = useState<number | null>(null)
 
@@ -208,6 +214,15 @@ export default function LearnPage() {
       }
 
       setFeedback(data)
+
+      // Update session progress (persists across questions)
+      if (data.session_progress) {
+        setSessionProgress({
+          questions_answered: data.session_progress.questions_answered,
+          current_score: data.session_progress.current_score
+        })
+      }
+
       setCurrentStep('feedback')
       setLoading(false)
 
@@ -520,9 +535,11 @@ ${interpretation}`
         <div className="neuro-card mb-6">
           <div className="flex justify-between items-center gap-3">
             <div className="min-w-0 flex-shrink">
-              <div className="text-sm text-gray-500 mb-1">Question {feedback?.session_progress?.questions_answered || 1}</div>
+              <div className="text-sm text-gray-500 mb-1">
+                Question {currentStep === 'feedback' ? (sessionProgress?.questions_answered || 1) : ((sessionProgress?.questions_answered || 0) + 1)}
+              </div>
               <div className="text-2xl font-bold text-gray-200">
-                Score: {feedback?.session_progress?.current_score || 0}/{feedback?.session_progress?.questions_answered || 0}
+                Score: {sessionProgress?.current_score || 0}/{sessionProgress?.questions_answered || 0}
               </div>
             </div>
             <div className="flex-shrink-0 flex items-center gap-3">
