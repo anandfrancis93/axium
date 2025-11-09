@@ -798,6 +798,74 @@ ${interpretation}`
                 </div>
               )}
 
+              {/* Quality Score */}
+              {feedback.reward_components && (
+                <div className="neuro-inset p-4 rounded-lg mb-6">
+                  <div className="text-sm font-medium text-gray-400 mb-3">Answer Quality:</div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-xs text-gray-500 mb-1">Calibration</div>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-2xl font-bold ${
+                          feedback.reward_components.calibration >= 2 ? 'text-green-400' :
+                          feedback.reward_components.calibration >= 0 ? 'text-yellow-400' :
+                          'text-red-400'
+                        }`}>
+                          {feedback.reward_components.calibration > 0 ? '+' : ''}{feedback.reward_components.calibration}
+                        </span>
+                        <span className="text-xs text-gray-400">/ 3</span>
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        {feedback.reward_components.calibration === 3 ? 'Perfect!' :
+                         feedback.reward_components.calibration === 2 ? 'Good' :
+                         feedback.reward_components.calibration === 1 ? 'Underconfident' :
+                         feedback.reward_components.calibration === -1 ? 'Honest uncertainty' :
+                         feedback.reward_components.calibration === -2 ? 'Overconfident' :
+                         'Very overconfident'}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500 mb-1">Recognition</div>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-2xl font-bold ${
+                          feedback.reward_components.recognition >= 2 ? 'text-green-400' :
+                          feedback.reward_components.recognition >= 0 ? 'text-yellow-400' :
+                          'text-red-400'
+                        }`}>
+                          {feedback.reward_components.recognition > 0 ? '+' : ''}{feedback.reward_components.recognition}
+                        </span>
+                        <span className="text-xs text-gray-400">/ 3</span>
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        {feedback.reward_components.recognition === 3 ? 'Knew from memory!' :
+                         feedback.reward_components.recognition === 2 ? 'Recognized' :
+                         feedback.reward_components.recognition === 1 ? 'Educated guess' :
+                         feedback.reward_components.recognition === 0 ? 'Random guess' :
+                         feedback.reward_components.recognition === -1 ? 'Honest guess' :
+                         feedback.reward_components.recognition === -2 ? 'Wrong guess' :
+                         feedback.reward_components.recognition === -3 ? 'False recognition' :
+                         'False memory'}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-4 pt-4 border-t border-gray-700">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-400">Quality Score:</span>
+                      <span className={`text-xl font-bold ${
+                        ((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2) >= 2 ? 'text-green-400' :
+                        ((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2) >= 0 ? 'text-yellow-400' :
+                        'text-red-400'
+                      }`}>
+                        {((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2).toFixed(1)}
+                      </span>
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1 text-right">
+                      Perfect = 3.0 (high conf + memory + correct)
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Mastery Updates */}
               <div className="neuro-inset p-4 rounded-lg mb-6">
                 <div className="text-sm font-medium text-gray-400 mb-3">Mastery Changes:</div>
