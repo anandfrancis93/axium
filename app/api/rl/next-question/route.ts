@@ -516,10 +516,12 @@ export async function POST(request: NextRequest) {
 
         // Check if overdue
         if (daysSince >= optimalInterval) {
+          // Handle topics relation (array or single object)
+          const topic = Array.isArray(m.topics) ? m.topics[0] : m.topics
           overdueTopics.push({
             topicId: m.topic_id,
-            topicName: m.topics?.name || 'Unknown',
-            topicFullName: m.topics?.full_name || m.topics?.name || 'Unknown',
+            topicName: topic?.name || 'Unknown',
+            topicFullName: topic?.full_name || topic?.name || 'Unknown',
             bloomLevel: m.bloom_level,
             daysSince,
             optimalInterval,
