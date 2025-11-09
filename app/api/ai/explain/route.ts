@@ -10,11 +10,13 @@ const grok = new OpenAI({
 /**
  * POST /api/ai/explain
  *
- * Generate AI explanation for selected text
+ * Generate AI explanation for selected text with chat support
  *
  * Body:
  * - selectedText: The text user wants explained
  * - fullContext: (optional) The full explanation text for context
+ * - conversationHistory: (optional) Array of previous messages
+ * - userQuestion: (optional) Follow-up question from user
  *
  * Returns:
  * - explanation: AI-generated explanation in simple terms
@@ -29,7 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { selectedText, fullContext } = body
+    const { selectedText, fullContext, conversationHistory, userQuestion } = body
 
     if (!selectedText || selectedText.trim().length === 0) {
       return NextResponse.json(
@@ -46,9 +48,32 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const prompt = `You are a helpful tutor explaining concepts to a student.
+    // Build messages array for conversation
+    const messages: Array<{ role: 'system' | 'user' | 'assistant', content: string }> = [
+      { role: 'system', content: 'You are a helpful tutor who explains concepts clearly and simply. You answer follow-up questions about the selected text and help students understand better.' }
+    ]
 
-The student selected this text and wants it explained in simpler terms:
+    // If this is a follow-up question, include conversation history
+    if (userQuestion && conversationHistory && conversationHistory.length > 0) {
+      // Add initial context
+      messages.push({
+        role: 'user',
+        content: `The student selected this text: "${selectedText}"${fullContext ? `\n\nFull context:\n${fullContext.substring(0, 1000)}` : ''}`
+      })
+
+      // Add conversation history
+      conversationHistory.forEach((msg: { role: 'user' | 'assistant', content: string }) => {
+        messages.push(msg)
+      })
+
+      // Add new question
+      messages.push({
+        role: 'user',
+        content: userQuestion
+      })
+    } else {
+      // Initial explanation request
+      const prompt = `The student selected this text and wants it explained in simpler terms:
 "${selectedText}"
 
 ${fullContext ? `\nFull context:\n${fullContext.substring(0, 1000)}` : ''}
@@ -65,12 +90,12 @@ GUIDELINES:
 
 Provide the explanation now:`
 
+      messages.push({ role: 'user', content: prompt })
+    }
+
     const completion = await grok.chat.completions.create({
       model: 'grok-2-1212',
-      messages: [
-        { role: 'system', content: 'You are a helpful tutor who explains concepts clearly and simply.' },
-        { role: 'user', content: prompt },
-      ],
+      messages,
       temperature: 0.7,
       max_tokens: 300,
     })

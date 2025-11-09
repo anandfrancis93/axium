@@ -1,6 +1,12 @@
 'use client'
 
 import { XIcon } from '@/components/icons'
+import { useState, useRef, useEffect } from 'react'
+
+interface Message {
+  role: 'user' | 'assistant'
+  content: string
+}
 
 interface ExplanationModalProps {
   isOpen: boolean
@@ -8,10 +14,11 @@ interface ExplanationModalProps {
   selectedText: string
   explanation: string | null
   loading: boolean
+  fullContext?: string
 }
 
 /**
- * Modal that displays AI explanation of selected text
+ * Modal that displays AI explanation of selected text with chat interface
  */
 export default function ExplanationModal({
   isOpen,
@@ -19,17 +26,94 @@ export default function ExplanationModal({
   selectedText,
   explanation,
   loading,
+  fullContext,
 }: ExplanationModalProps) {
+  const [messages, setMessages] = useState<Message[]>([])
+  const [input, setInput] = useState('')
+  const [isSending, setIsSending] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Initialize messages when explanation is loaded
+  useEffect(() => {
+    if (explanation && messages.length === 0) {
+      setMessages([{ role: 'assistant', content: explanation }])
+    }
+  }, [explanation])
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+
+  // Reset state when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setMessages([])
+      setInput('')
+      setIsSending(false)
+    }
+  }, [isOpen])
+
+  const handleSendMessage = async () => {
+    if (!input.trim() || isSending) return
+
+    const userMessage = input.trim()
+    setInput('')
+    setIsSending(true)
+
+    // Add user message to chat
+    setMessages(prev => [...prev, { role: 'user', content: userMessage }])
+
+    try {
+      const response = await fetch('/api/ai/explain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          selectedText,
+          fullContext,
+          conversationHistory: messages,
+          userQuestion: userMessage,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setMessages(prev => [...prev, { role: 'assistant', content: data.explanation }])
+      } else {
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: 'Sorry, I encountered an error. Please try again.'
+        }])
+      }
+    } catch (error) {
+      console.error('Error sending message:', error)
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: 'Sorry, I encountered an error. Please try again.'
+      }])
+    } finally {
+      setIsSending(false)
+    }
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSendMessage()
+    }
+  }
+
   if (!isOpen) return null
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div
-        className="neuro-card max-w-2xl w-full max-h-[80vh] overflow-y-auto animate-in zoom-in-95 duration-200"
+        className="neuro-card max-w-3xl w-full max-h-[85vh] flex flex-col animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-700">
+        <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-700 flex-shrink-0">
           <h2 className="text-xl font-semibold text-gray-200">AI Explanation</h2>
           <button
             onClick={onClose}
@@ -41,38 +125,73 @@ export default function ExplanationModal({
         </div>
 
         {/* Selected Text */}
-        <div className="neuro-inset p-4 rounded-lg mb-4">
+        <div className="neuro-inset p-4 rounded-lg mb-4 flex-shrink-0">
           <div className="text-sm text-gray-500 mb-2">Selected text:</div>
           <div className="text-gray-300 italic">&ldquo;{selectedText}&rdquo;</div>
         </div>
 
-        {/* Explanation */}
-        <div className="neuro-raised p-6 rounded-lg">
+        {/* Chat Messages */}
+        <div className="flex-1 overflow-y-auto mb-4 space-y-4">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-8">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mb-4"></div>
               <div className="text-gray-400">Generating explanation...</div>
             </div>
-          ) : explanation ? (
-            <div className="text-gray-300 whitespace-pre-line leading-relaxed">
-              {explanation}
-            </div>
-          ) : (
+          ) : messages.length === 0 ? (
             <div className="text-gray-500 text-center py-8">
               No explanation available
             </div>
+          ) : (
+            messages.map((message, idx) => (
+              <div
+                key={idx}
+                className={`${
+                  message.role === 'user'
+                    ? 'neuro-raised bg-blue-500/10 ml-8'
+                    : 'neuro-inset mr-8'
+                } p-4 rounded-lg`}
+              >
+                <div className="text-xs text-gray-500 mb-2">
+                  {message.role === 'user' ? 'You' : 'AI Tutor'}
+                </div>
+                <div className="text-gray-200 whitespace-pre-line leading-relaxed">
+                  {message.content}
+                </div>
+              </div>
+            ))
           )}
+          {isSending && (
+            <div className="neuro-inset mr-8 p-4 rounded-lg">
+              <div className="text-xs text-gray-500 mb-2">AI Tutor</div>
+              <div className="flex items-center gap-2 text-gray-400">
+                <div className="animate-pulse">Thinking...</div>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
         </div>
 
-        {/* Close Button */}
+        {/* Chat Input */}
         {!loading && (
-          <div className="mt-6 flex justify-end">
-            <button
-              onClick={onClose}
-              className="neuro-btn text-blue-400 px-6 py-3"
-            >
-              Close
-            </button>
+          <div className="flex-shrink-0 pt-4 border-t border-gray-700">
+            <div className="flex gap-3">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Ask a follow-up question..."
+                disabled={isSending}
+                className="neuro-input flex-1 px-4 py-3 disabled:opacity-50"
+              />
+              <button
+                onClick={handleSendMessage}
+                disabled={!input.trim() || isSending}
+                className="neuro-btn text-blue-400 px-6 py-3 disabled:opacity-50"
+              >
+                Send
+              </button>
+            </div>
           </div>
         )}
       </div>

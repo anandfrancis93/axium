@@ -1218,6 +1218,7 @@ Perfect score = 3.0 (High confidence + Memory + Correct)`}>
         selectedText={selectedTextForExplanation}
         explanation={aiExplanation}
         loading={loadingExplanation}
+        fullContext={feedback?.explanation || question?.explanation || ''}
       />
     </div>
   )
