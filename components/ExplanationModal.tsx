@@ -19,6 +19,7 @@ interface ExplanationModalProps {
 
 /**
  * Modal that displays AI explanation of selected text with chat interface
+ * Draggable so users can move it to see content behind it
  */
 export default function ExplanationModal({
   isOpen,
@@ -32,6 +33,12 @@ export default function ExplanationModal({
   const [input, setInput] = useState('')
   const [isSending, setIsSending] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Draggable state
+  const [position, setPosition] = useState({ x: 0, y: 0 })
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+  const modalRef = useRef<HTMLDivElement>(null)
 
   // Initialize messages when explanation is loaded
   useEffect(() => {
@@ -51,8 +58,63 @@ export default function ExplanationModal({
       setMessages([])
       setInput('')
       setIsSending(false)
+      setPosition({ x: 0, y: 0 })
     }
   }, [isOpen])
+
+  // Drag handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    // Only allow dragging from the header, not from buttons or input fields
+    if (
+      e.target instanceof HTMLElement &&
+      (e.target.tagName === 'INPUT' ||
+       e.target.tagName === 'BUTTON' ||
+       e.target.closest('button'))
+    ) {
+      return
+    }
+
+    setIsDragging(true)
+    setDragStart({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y,
+    })
+  }
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return
+
+      const newX = e.clientX - dragStart.x
+      const newY = e.clientY - dragStart.y
+
+      // Keep modal within viewport bounds
+      if (modalRef.current) {
+        const rect = modalRef.current.getBoundingClientRect()
+        const maxX = window.innerWidth - rect.width
+        const maxY = window.innerHeight - rect.height
+
+        setPosition({
+          x: Math.max(-rect.width / 2, Math.min(maxX / 2, newX)),
+          y: Math.max(-rect.height / 2, Math.min(maxY / 2, newY)),
+        })
+      }
+    }
+
+    const handleMouseUp = () => {
+      setIsDragging(false)
+    }
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [isDragging, dragStart])
 
   const handleSendMessage = async () => {
     if (!input.trim() || isSending) return
@@ -107,14 +169,22 @@ export default function ExplanationModal({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 animate-in fade-in duration-200">
       <div
+        ref={modalRef}
         className="neuro-card max-w-3xl w-full max-h-[85vh] flex flex-col animate-in zoom-in-95 duration-200"
+        style={{
+          transform: `translate(${position.x}px, ${position.y}px)`,
+          cursor: isDragging ? 'grabbing' : 'default',
+        }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-700 flex-shrink-0">
-          <h2 className="text-xl font-semibold text-gray-200">AI Explanation</h2>
+        {/* Header - Draggable area */}
+        <div
+          className="flex items-center justify-between mb-4 pb-4 border-b border-gray-700 flex-shrink-0 cursor-grab active:cursor-grabbing"
+          onMouseDown={handleMouseDown}
+        >
+          <h2 className="text-xl font-semibold text-gray-200 select-none">AI Explanation</h2>
           <button
             onClick={onClose}
             className="neuro-btn p-2 text-gray-400 hover:text-gray-200"
