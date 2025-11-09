@@ -184,6 +184,32 @@ function calculateStreakReward(
 }
 
 /**
+ * Calculate reading time and thinking time breakdown
+ *
+ * @param responseTimeSeconds - Total time taken to answer in seconds
+ * @param questionText - The question text
+ * @param options - Answer options object
+ * @returns Object with readingTime and thinkingTime in seconds
+ */
+export function calculateReadingTimeBreakdown(
+  responseTimeSeconds: number,
+  questionText: string,
+  options: Record<string, string> | null
+): { readingTime: number; thinkingTime: number } {
+  const questionWords = countWords(questionText)
+  const optionWords = options
+    ? Object.values(options).reduce((sum, opt) => sum + countWords(opt), 0)
+    : 0
+  const totalWords = questionWords + optionWords
+
+  const readingSpeedWPM = 220
+  const readingTime = (totalWords / readingSpeedWPM) * 60 // Convert to seconds
+  const thinkingTime = Math.max(0, responseTimeSeconds - readingTime)
+
+  return { readingTime, thinkingTime }
+}
+
+/**
  * Calculate response time reward with reading-time-aware evaluation
  * Separates reading time from thinking time to fairly evaluate retrieval speed
  *

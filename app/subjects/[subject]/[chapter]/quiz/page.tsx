@@ -405,7 +405,20 @@ Mastery grows with correct answers and confidence calibration`
 
       case 'responseTime':
         description = 'Response Time: Reward for retrieval fluency'
-        scale = 'Range: -3 to +5 points (adjusted for Bloom level and question length)'
+
+        // Add reading time breakdown if available
+        if (feedback?.reading_time_breakdown) {
+          const { readingTime, thinkingTime } = feedback.reading_time_breakdown
+          scale = `Expected reading time: ${readingTime.toFixed(1)}s
+Your thinking time: ${thinkingTime.toFixed(1)}s
+Total time: ${feedback.response_time_seconds?.toFixed(1)}s
+
+Reward is based on thinking time only (excludes reading)
+Range: -3 to +5 points`
+        } else {
+          scale = 'Range: -3 to +5 points (adjusted for Bloom level and question length)'
+        }
+
         if (value >= 5) {
           interpretation = 'Fluent mastery! Fast, confident retrieval'
         } else if (value >= 3) {

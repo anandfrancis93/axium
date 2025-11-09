@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { calculateLearningGain, calculateMultiTopicMasteryUpdates, getDaysSinceLastPractice } from '@/lib/rl/mastery'
-import { calculateReward, RecognitionMethod } from '@/lib/rl/rewards'
+import { calculateReward, RecognitionMethod, calculateReadingTimeBreakdown } from '@/lib/rl/rewards'
 import { findRelatedTopics } from '@/lib/rl/related-topics'
 import { logRewardCalculation, logMasteryUpdate } from '@/lib/rl/decision-logger'
 
@@ -526,11 +526,22 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Calculate reading time breakdown for transparency
+    let readingTimeBreakdown = null
+    if (responseTime) {
+      readingTimeBreakdown = calculateReadingTimeBreakdown(
+        responseTime,
+        question.question_text,
+        question.options
+      )
+    }
+
     return NextResponse.json({
       is_correct: isCorrect,
       correct_answer: question.correct_answer,
       explanation: question.explanation,
       response_time_seconds: responseTime,
+      reading_time_breakdown: readingTimeBreakdown, // { readingTime, thinkingTime }
 
       // Multi-topic support
       mastery_updates: masteryUpdates, // Array of all core topics
