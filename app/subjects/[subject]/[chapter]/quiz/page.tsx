@@ -8,6 +8,9 @@ import HamburgerMenu from '@/components/HamburgerMenu'
 import { Tooltip } from '@/components/Tooltip'
 import Modal from '@/components/Modal'
 import UnlockNotification, { UnlockInfo } from '@/components/UnlockNotification'
+import SelectionToolbar from '@/components/SelectionToolbar'
+import ExplanationModal from '@/components/ExplanationModal'
+import { useTextSelection } from '@/hooks/useTextSelection'
 
 type ConfidenceLevel = 'low' | 'medium' | 'high'
 type RecognitionMethod = 'memory' | 'recognition' | 'educated_guess' | 'random'
@@ -50,6 +53,13 @@ export default function LearnPage() {
 
   // Unlock notifications
   const [unlocks, setUnlocks] = useState<UnlockInfo[]>([])
+
+  // AI Explanation feature
+  const { selection, clearSelection } = useTextSelection()
+  const [showExplanationModal, setShowExplanationModal] = useState(false)
+  const [aiExplanation, setAiExplanation] = useState<string | null>(null)
+  const [loadingExplanation, setLoadingExplanation] = useState(false)
+  const [selectedTextForExplanation, setSelectedTextForExplanation] = useState('')
 
   useEffect(() => {
     fetchChapterAndStart()
@@ -237,6 +247,46 @@ export default function LearnPage() {
     if (!session) return
     setLoading(true)
     getNextQuestion(session.session_id)
+  }
+
+  const handleExplainWithAI = async () => {
+    if (!selection) return
+
+    setSelectedTextForExplanation(selection.text)
+    setShowExplanationModal(true)
+    setLoadingExplanation(true)
+    setAiExplanation(null)
+    clearSelection()
+
+    try {
+      const response = await fetch('/api/ai/explain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          selectedText: selection.text,
+          fullContext: questionMetadata?.explanation || feedback?.explanation
+        })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to generate explanation')
+      }
+
+      setAiExplanation(data.explanation)
+    } catch (err: any) {
+      console.error('Error getting AI explanation:', err)
+      setAiExplanation('Sorry, I could not generate an explanation. Please try again.')
+    } finally {
+      setLoadingExplanation(false)
+    }
+  }
+
+  const handleCloseExplanationModal = () => {
+    setShowExplanationModal(false)
+    setAiExplanation(null)
+    setSelectedTextForExplanation('')
   }
 
   const getMasteryTooltip = (oldMastery: number, newMastery: number, change: number) => {
@@ -1148,6 +1198,24 @@ Perfect score = 3.0 (High confidence + Memory + Correct)`}>
           onClose={() => setUnlocks([])}
         />
       )}
+
+      {/* AI Explanation - Selection Toolbar */}
+      {selection && currentStep === 'feedback' && (
+        <SelectionToolbar
+          x={selection.x}
+          y={selection.y}
+          onExplain={handleExplainWithAI}
+        />
+      )}
+
+      {/* AI Explanation Modal */}
+      <ExplanationModal
+        isOpen={showExplanationModal}
+        onClose={handleCloseExplanationModal}
+        selectedText={selectedTextForExplanation}
+        explanation={aiExplanation}
+        loading={loadingExplanation}
+      />
     </div>
   )
 }
