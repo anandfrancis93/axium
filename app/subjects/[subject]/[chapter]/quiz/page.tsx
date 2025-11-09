@@ -978,56 +978,80 @@ ${interpretation}`
               {/* Quality Score */}
               {feedback.reward_components && (
                 <div className="neuro-inset p-4 rounded-lg mb-6">
-                  <div className="text-sm font-medium text-gray-400 mb-3">Answer Quality:</div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <div className="text-xs text-gray-500 mb-1">Calibration</div>
-                      <div className="flex items-center gap-2">
-                        <span className={`text-2xl font-bold ${
+                  <div className="text-sm font-medium text-gray-400 mb-4">Answer Quality Analysis:</div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    {/* Calibration */}
+                    <div className="neuro-raised p-4 rounded-lg">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="text-xs font-semibold text-gray-400">CALIBRATION</div>
+                        <div className="text-xs text-gray-600">Confidence vs Result</div>
+                      </div>
+                      <div className="flex items-baseline gap-2 mb-2">
+                        <span className={`text-3xl font-bold ${
                           feedback.reward_components.calibration >= 2 ? 'text-green-400' :
                           feedback.reward_components.calibration >= 0 ? 'text-yellow-400' :
                           'text-red-400'
                         }`}>
                           {feedback.reward_components.calibration > 0 ? '+' : ''}{feedback.reward_components.calibration}
                         </span>
-                        <span className="text-xs text-gray-400">/ 3</span>
+                        <span className="text-sm text-gray-500">out of +3</span>
                       </div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        {feedback.reward_components.calibration === 3 ? 'Perfect!' :
-                         feedback.reward_components.calibration === 2 ? 'Good' :
-                         feedback.reward_components.calibration === 1 ? 'Underconfident' :
-                         feedback.reward_components.calibration === -1 ? 'Honest uncertainty' :
-                         feedback.reward_components.calibration === -2 ? 'Overconfident' :
-                         'Very overconfident'}
+                      <div className="text-xs text-gray-400 mb-2">
+                        {feedback.reward_components.calibration === 3 ? '✓ Perfect! High confidence + Correct' :
+                         feedback.reward_components.calibration === 2 ? '✓ Good! Medium confidence + Correct' :
+                         feedback.reward_components.calibration === 1 ? '○ Underconfident (correct but uncertain)' :
+                         feedback.reward_components.calibration === -1 ? '○ Good self-awareness (uncertain + incorrect)' :
+                         feedback.reward_components.calibration === -2 ? '✗ Overconfident (medium conf + incorrect)' :
+                         '✗ Very overconfident (high conf + incorrect)'}
+                      </div>
+                      <div className="text-xs text-gray-600">
+                        Scale: -3 (worst) to +3 (best)
                       </div>
                     </div>
-                    <div>
-                      <div className="text-xs text-gray-500 mb-1">Recognition</div>
-                      <div className="flex items-center gap-2">
-                        <span className={`text-2xl font-bold ${
+
+                    {/* Recognition */}
+                    <div className="neuro-raised p-4 rounded-lg">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="text-xs font-semibold text-gray-400">RECOGNITION</div>
+                        <div className="text-xs text-gray-600">How You Knew It</div>
+                      </div>
+                      <div className="flex items-baseline gap-2 mb-2">
+                        <span className={`text-3xl font-bold ${
                           feedback.reward_components.recognition >= 2 ? 'text-green-400' :
                           feedback.reward_components.recognition >= 0 ? 'text-yellow-400' :
                           'text-red-400'
                         }`}>
                           {feedback.reward_components.recognition > 0 ? '+' : ''}{feedback.reward_components.recognition}
                         </span>
-                        <span className="text-xs text-gray-400">/ 3</span>
+                        <span className="text-sm text-gray-500">out of +3</span>
                       </div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        {feedback.reward_components.recognition === 3 ? 'Knew from memory!' :
-                         feedback.reward_components.recognition === 2 ? 'Recognized' :
-                         feedback.reward_components.recognition === 1 ? 'Educated guess' :
-                         feedback.reward_components.recognition === 0 ? 'Random guess' :
-                         feedback.reward_components.recognition === -1 ? 'Honest guess' :
-                         feedback.reward_components.recognition === -2 ? 'Wrong guess' :
-                         feedback.reward_components.recognition === -3 ? 'False recognition' :
-                         'False memory'}
+                      <div className="text-xs text-gray-400 mb-2">
+                        {feedback.reward_components.recognition === 3 ? '✓ Perfect! Knew from memory + Correct' :
+                         feedback.reward_components.recognition === 2 ? '✓ Good! Recognized + Correct' :
+                         feedback.reward_components.recognition === 1 ? '○ Educated guess + Correct' :
+                         feedback.reward_components.recognition === 0 ? '○ Random guess + Correct (lucky)' :
+                         feedback.reward_components.recognition === -1 ? '○ Honest random guess + Incorrect' :
+                         feedback.reward_components.recognition === -2 ? '✗ Wrong educated guess' :
+                         feedback.reward_components.recognition === -3 ? '✗ False recognition' :
+                         '✗ False memory (worst)'}
+                      </div>
+                      <div className="text-xs text-gray-600">
+                        Scale: -4 (worst) to +3 (best)
                       </div>
                     </div>
                   </div>
-                  <div className="mt-4 pt-4 border-t border-gray-700">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-400">Quality Score:</span>
+
+                  {/* Quality Score Calculation */}
+                  <div className="neuro-inset p-4 rounded-lg bg-gray-900/50">
+                    <div className="text-xs font-semibold text-gray-400 mb-3">QUALITY SCORE CALCULATION:</div>
+                    <div className="flex items-center justify-center gap-2 text-sm mb-3">
+                      <span className="text-gray-300">({feedback.reward_components.calibration > 0 ? '+' : ''}{feedback.reward_components.calibration}</span>
+                      <span className="text-gray-600">+</span>
+                      <span className="text-gray-300">{feedback.reward_components.recognition > 0 ? '+' : ''}{feedback.reward_components.recognition})</span>
+                      <span className="text-gray-600">÷</span>
+                      <span className="text-gray-300">2</span>
+                      <span className="text-gray-600">=</span>
                       <span className={`text-xl font-bold ${
                         ((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2) >= 2 ? 'text-green-400' :
                         ((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2) >= 0 ? 'text-yellow-400' :
@@ -1036,8 +1060,19 @@ ${interpretation}`
                         {((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2).toFixed(1)}
                       </span>
                     </div>
-                    <div className="text-xs text-gray-500 mt-1 text-right">
-                      Perfect = 3.0 (high conf + memory + correct)
+                    <div className="text-xs text-gray-500 text-center mb-2">
+                      {((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2) >= 2.5 ?
+                        'Excellent! This answer greatly improves your mastery.' :
+                       ((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2) >= 1 ?
+                        'Good progress! This helps your mastery grow.' :
+                       ((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2) >= 0 ?
+                        'Small gain. Try to be more confident when you know it.' :
+                       ((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2) >= -1 ?
+                        'Honest uncertainty is better than false confidence.' :
+                        'Your mastery decreased. Review this topic carefully.'}
+                    </div>
+                    <div className="text-xs text-gray-600 text-center pt-2 border-t border-gray-800">
+                      Perfect score = 3.0 (High confidence + Memory + Correct)
                     </div>
                   </div>
                 </div>
