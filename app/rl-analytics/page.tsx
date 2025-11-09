@@ -51,7 +51,7 @@ export default function RLAnalyticsPage() {
 
       if (decisions) {
         // Process selections with outcomes
-        const processedSelections = decisions.map(d => {
+        const processedSelections: SelectionData[] = decisions.map(d => {
           const selected = d.selected_arm || {}
           return {
             timestamp: d.created_at,
