@@ -34,6 +34,7 @@ export interface ArmSelectionLog {
   questionId?: string
   topicId: string
   bloomLevel: number
+  selectionMethod?: 'thompson_sampling' | 'forced_spacing'
 }
 
 export interface RewardCalculationLog {
@@ -98,6 +99,7 @@ export async function logArmSelection(log: ArmSelectionLog): Promise<void> {
       bloom_level: log.bloomLevel,
       state_snapshot: {
         chapter_id: log.chapterId,
+        selection_method: log.selectionMethod || 'thompson_sampling',
         timestamp: new Date().toISOString()
       }
     })

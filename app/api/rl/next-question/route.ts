@@ -472,8 +472,103 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Use Thompson Sampling to select next arm (topic, bloom_level)
-    const selectedArm = await selectArmThompsonSampling(user.id, session.chapter_id)
+    // ==============================================================
+    // ADAPTIVE SPACED REPETITION: 80-20 SPLIT
+    // ==============================================================
+    // 80% of questions: Thompson Sampling decides (optimal learning)
+    // 20% of questions: Force review of overdue topics (safety net)
+    // Intervals adapt based on CURRENT mastery (not snapshot)
+    // ==============================================================
+
+    let selectedArm: any = null
+    let selectionMethod: 'thompson_sampling' | 'forced_spacing' = 'thompson_sampling'
+    let spacingReason: string | null = null
+
+    // Step 1: Check for overdue topics based on CURRENT mastery
+    const { data: masteryData } = await supabase
+      .from('user_topic_mastery')
+      .select('topic_id, bloom_level, mastery_score, last_practiced_at, topics(name, full_name)')
+      .eq('user_id', user.id)
+      .not('last_practiced_at', 'is', null)
+
+    const now = new Date()
+    const overdueTopics: Array<{
+      topicId: string
+      topicName: string
+      topicFullName: string
+      bloomLevel: number
+      daysSince: number
+      optimalInterval: number
+      mastery: number
+    }> = []
+
+    if (masteryData && masteryData.length > 0) {
+      for (const m of masteryData) {
+        const lastPracticed = new Date(m.last_practiced_at)
+        const daysSince = Math.floor((now.getTime() - lastPracticed.getTime()) / (1000 * 60 * 60 * 24))
+
+        // Calculate optimal interval based on CURRENT mastery
+        let optimalInterval = 1
+        if (m.mastery_score >= 80) optimalInterval = 14
+        else if (m.mastery_score >= 60) optimalInterval = 7
+        else if (m.mastery_score >= 40) optimalInterval = 3
+        else optimalInterval = 1
+
+        // Check if overdue
+        if (daysSince >= optimalInterval) {
+          overdueTopics.push({
+            topicId: m.topic_id,
+            topicName: m.topics?.name || 'Unknown',
+            topicFullName: m.topics?.full_name || m.topics?.name || 'Unknown',
+            bloomLevel: m.bloom_level,
+            daysSince,
+            optimalInterval,
+            mastery: m.mastery_score
+          })
+        }
+      }
+    }
+
+    console.log(`[SPACED REPETITION] Found ${overdueTopics.length} overdue topics`)
+
+    // Step 2: 80-20 decision
+    const forceSpacedRepetition = Math.random() < 0.20
+
+    if (forceSpacedRepetition && overdueTopics.length > 0) {
+      // Force spaced repetition: Select most overdue topic
+      selectionMethod = 'forced_spacing'
+
+      // Sort by days overdue (daysSince - optimalInterval)
+      overdueTopics.sort((a, b) => {
+        const aOverdue = a.daysSince - a.optimalInterval
+        const bOverdue = b.daysSince - b.optimalInterval
+        return bOverdue - aOverdue // Most overdue first
+      })
+
+      const mostOverdue = overdueTopics[0]
+      selectedArm = {
+        topicId: mostOverdue.topicId,
+        topicName: mostOverdue.topicName,
+        topicFullName: mostOverdue.topicFullName,
+        bloomLevel: mostOverdue.bloomLevel
+      }
+
+      spacingReason = `Overdue by ${mostOverdue.daysSince - mostOverdue.optimalInterval} days (${mostOverdue.daysSince} days since last practice, optimal interval: ${mostOverdue.optimalInterval} days based on ${mostOverdue.mastery}% mastery)`
+
+      console.log('[FORCED SPACING]', {
+        topicName: selectedArm.topicName,
+        bloomLevel: selectedArm.bloomLevel,
+        reason: spacingReason
+      })
+    } else {
+      // Use Thompson Sampling to select next arm (topic, bloom_level)
+      selectedArm = await selectArmThompsonSampling(user.id, session.chapter_id)
+      selectionMethod = 'thompson_sampling'
+
+      if (forceSpacedRepetition && overdueTopics.length === 0) {
+        spacingReason = 'Forced spacing triggered but no overdue topics found, falling back to Thompson Sampling'
+      }
+    }
 
     if (!selectedArm) {
       return NextResponse.json(
@@ -482,10 +577,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('[THOMPSON SAMPLING] Selected arm:', {
+    console.log(`[${selectionMethod === 'forced_spacing' ? 'FORCED SPACING' : 'THOMPSON SAMPLING'}] Selected arm:`, {
       topicId: selectedArm.topicId,
       topicName: selectedArm.topicName,
-      bloomLevel: selectedArm.bloomLevel
+      bloomLevel: selectedArm.bloomLevel,
+      selectionMethod,
+      spacingReason
     })
 
     // Step 1: Check for existing questions for spaced repetition
@@ -617,19 +714,33 @@ export async function POST(request: NextRequest) {
 
     // Log arm selection decision for transparency
     const decisionContext = (selectedArm as any)._decisionContext
-    if (decisionContext) {
-      await logArmSelection({
-        userId: user.id,
-        sessionId: session.id,
-        chapterId: session.chapter_id,
-        allArms: decisionContext.allSamples,
-        selectedArm: decisionContext.selectedSample,
-        reasoning: decisionContext.reasoning,
-        questionId: selectedQuestion.id,
-        topicId: selectedArm.topicId,
-        bloomLevel: selectedArm.bloomLevel
-      })
+
+    // Build reasoning string
+    let finalReasoning = ''
+    if (selectionMethod === 'forced_spacing') {
+      finalReasoning = `[FORCED SPACING] ${spacingReason}`
+    } else if (decisionContext) {
+      finalReasoning = decisionContext.reasoning
     }
+
+    // Always log the selection (even for forced spacing)
+    await logArmSelection({
+      userId: user.id,
+      sessionId: session.id,
+      chapterId: session.chapter_id,
+      allArms: decisionContext?.allSamples || [],
+      selectedArm: decisionContext?.selectedSample || {
+        topicId: selectedArm.topicId,
+        topicName: selectedArm.topicName,
+        bloomLevel: selectedArm.bloomLevel,
+        sample: null
+      },
+      reasoning: finalReasoning,
+      questionId: selectedQuestion.id,
+      topicId: selectedArm.topicId,
+      bloomLevel: selectedArm.bloomLevel,
+      selectionMethod
+    })
 
     return NextResponse.json({
       question: questionWithoutAnswer,
@@ -653,11 +764,17 @@ export async function POST(request: NextRequest) {
       },
       is_review: isReview,
       spaced_repetition: isReview,
+      // TRANSPARENCY: Show how question was selected
+      selection_method: selectionMethod,
+      spacing_reason: spacingReason,
       // Include decision context in response for frontend display
       decision_context: decisionContext ? {
-        reasoning: decisionContext.reasoning,
+        reasoning: finalReasoning,
         alternatives_count: decisionContext.allSamples.length
-      } : null
+      } : (selectionMethod === 'forced_spacing' ? {
+        reasoning: finalReasoning,
+        alternatives_count: 0
+      } : null)
     })
   } catch (error) {
     console.error('Error in POST /api/rl/next-question:', error)

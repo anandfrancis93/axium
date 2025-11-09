@@ -448,8 +448,15 @@ export default function AuditPage() {
                         selectedDecision?.id === decision.id ? 'ring-2 ring-blue-400' : ''
                       }`}
                     >
-                      <div className={`text-sm font-medium ${getDecisionTypeColor(decision.decision_type)}`}>
-                        {decision.decision_type.replace('_', ' ').toUpperCase()}
+                      <div className="flex items-center justify-between">
+                        <div className={`text-sm font-medium ${getDecisionTypeColor(decision.decision_type)}`}>
+                          {decision.decision_type.replace('_', ' ').toUpperCase()}
+                        </div>
+                        {decision.decision_type === 'arm_selection' && decision.state_snapshot?.selection_method === 'forced_spacing' && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+                            FORCED
+                          </span>
+                        )}
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
                         {new Date(decision.created_at).toLocaleString()}
@@ -483,7 +490,19 @@ export default function AuditPage() {
                     <div className="space-y-6">
                       {selectedDecision.selection_reasoning && (
                         <div>
-                          <h3 className="text-lg font-semibold text-gray-300 mb-2">Reasoning</h3>
+                          <div className="flex items-center justify-between mb-2">
+                            <h3 className="text-lg font-semibold text-gray-300">Reasoning</h3>
+                            {selectedDecision.state_snapshot?.selection_method === 'forced_spacing' && (
+                              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+                                Forced Spacing
+                              </span>
+                            )}
+                            {selectedDecision.state_snapshot?.selection_method === 'thompson_sampling' && (
+                              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                                Thompson Sampling
+                              </span>
+                            )}
+                          </div>
                           <div className="neuro-inset p-4 rounded-lg text-sm text-gray-400">
                             {selectedDecision.selection_reasoning}
                           </div>

@@ -26,6 +26,8 @@ export default function LearnPage() {
   const [questionMetadata, setQuestionMetadata] = useState<any>(null)
   const [armSelected, setArmSelected] = useState<any>(null)
   const [decisionContext, setDecisionContext] = useState<any>(null)
+  const [selectionMethod, setSelectionMethod] = useState<'thompson_sampling' | 'forced_spacing' | null>(null)
+  const [spacingReason, setSpacingReason] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -127,6 +129,8 @@ export default function LearnPage() {
       setQuestionMetadata(data.question_metadata) // Store for submission
       setArmSelected(data.arm_selected)
       setDecisionContext(data.decision_context) // Store for transparency
+      setSelectionMethod(data.selection_method || 'thompson_sampling')
+      setSpacingReason(data.spacing_reason || null)
 
       // Record when question is shown for response time tracking
       setQuestionShownAt(Date.now())
@@ -786,15 +790,29 @@ ${interpretation}`
               {/* Decision Explainer - Why This Question Was Selected */}
               {decisionContext && (
                 <div className="neuro-inset p-4 rounded-lg mb-6">
-                  <h3 className="text-lg font-semibold text-gray-300 mb-2">
-                    Why This Question?
-                  </h3>
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-lg font-semibold text-gray-300">
+                      Why This Question?
+                    </h3>
+                    {selectionMethod === 'forced_spacing' && (
+                      <span className="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+                        Spaced Repetition
+                      </span>
+                    )}
+                  </div>
                   <p className="text-sm text-gray-400 mb-3">
                     {decisionContext.reasoning}
                   </p>
-                  <p className="text-xs text-gray-500">
-                    {decisionContext.alternatives_count} other topic{decisionContext.alternatives_count !== 1 ? 's' : ''} {decisionContext.alternatives_count !== 1 ? 'were' : 'was'} considered by Thompson Sampling
-                  </p>
+                  {selectionMethod === 'thompson_sampling' && (
+                    <p className="text-xs text-gray-500">
+                      {decisionContext.alternatives_count} other topic{decisionContext.alternatives_count !== 1 ? 's' : ''} {decisionContext.alternatives_count !== 1 ? 'were' : 'was'} considered by Thompson Sampling
+                    </p>
+                  )}
+                  {selectionMethod === 'forced_spacing' && spacingReason && (
+                    <p className="text-xs text-yellow-500/70">
+                      This topic was forced for review due to spacing interval.
+                    </p>
+                  )}
                 </div>
               )}
 
