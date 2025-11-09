@@ -42,6 +42,10 @@ export interface ArmSample {
   adjustedSample: number
   masteryScore: number
   isUnlocked: boolean
+  masteryBonus?: number
+  spacingBonus?: number
+  explorationBonus?: number
+  unlockBonus?: number
 }
 
 /**
@@ -270,7 +274,11 @@ export async function selectArmThompsonSampling(
     return {
       ...armData,
       sample,
-      adjustedSample
+      adjustedSample,
+      masteryBonus,
+      spacingBonus,
+      explorationBonus,
+      unlockBonus
     }
   })
 
@@ -287,6 +295,46 @@ export async function selectArmThompsonSampling(
     mastery: selected.masteryScore.toFixed(1),
     totalArms: samples.length
   })
+
+  // Build user-friendly reasoning
+  const reasons: string[] = []
+
+  // Get mastery data for selected arm
+  const key = `${selected.arm.topicId}_${selected.arm.bloomLevel}`
+  const masteryData = mastery.get(key)
+  const daysSince = getDaysSinceLastPractice(masteryData?.lastPracticedAt || null)
+
+  // Main reason based on mastery
+  if (selected.masteryScore < 40) {
+    reasons.push(`You're still learning this topic (${selected.masteryScore.toFixed(0)}% mastery)`)
+  } else if (selected.masteryScore < 70) {
+    reasons.push(`You need more practice with this topic (${selected.masteryScore.toFixed(0)}% mastery)`)
+  } else {
+    reasons.push(`Maintaining your knowledge of this topic (${selected.masteryScore.toFixed(0)}% mastery)`)
+  }
+
+  // Spacing reason
+  if (daysSince === null || daysSince > 7) {
+    reasons.push(`It's been a while since you practiced this`)
+  } else if (daysSince > 3) {
+    reasons.push(`Good timing to review before you forget`)
+  }
+
+  // Exploration reason
+  if ((masteryData?.questionsAttempted || 0) === 0) {
+    reasons.push(`This is a new topic for you`)
+  } else if ((masteryData?.questionsAttempted || 0) < 3) {
+    reasons.push(`You've only practiced this ${masteryData?.questionsAttempted || 0} time${(masteryData?.questionsAttempted || 0) === 1 ? '' : 's'} before`)
+  }
+
+  // Unlock reason
+  if (selected.unlockBonus > 0) {
+    reasons.push(`You recently unlocked this level`)
+  }
+
+  const userFriendlyReasoning = reasons.length > 0
+    ? reasons.join('. ') + '.'
+    : `This topic will help you learn most effectively right now.`
 
   // Store decision context for logging (will be logged by next-question endpoint)
   ;(selected.arm as any)._decisionContext = {
@@ -306,7 +354,7 @@ export async function selectArmThompsonSampling(
       adjusted_value: selected.adjustedSample,
       mastery_score: selected.masteryScore
     },
-    reasoning: `Thompson Sampling: Sampled ${samples.length} arms, selected ${selected.arm.topicName} (Bloom ${selected.arm.bloomLevel}) with adjusted sample ${selected.adjustedSample.toFixed(3)} (raw: ${selected.sample.toFixed(3)}, mastery: ${selected.masteryScore.toFixed(1)}%)`
+    reasoning: userFriendlyReasoning
   }
 
   return selected.arm
