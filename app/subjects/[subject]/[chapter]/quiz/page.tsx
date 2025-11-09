@@ -61,9 +61,36 @@ export default function LearnPage() {
   const [loadingExplanation, setLoadingExplanation] = useState(false)
   const [selectedTextForExplanation, setSelectedTextForExplanation] = useState('')
 
+  // Save current question state to localStorage
+  const saveQuestionState = () => {
+    if (!chapterId || !question) return
+
+    const state = {
+      question,
+      questionMetadata,
+      armSelected,
+      decisionContext,
+      selectionMethod,
+      spacingReason,
+      currentStep,
+      confidence,
+      selectedAnswer,
+      recognitionMethod,
+      feedback,
+      questionShownAt
+    }
+
+    localStorage.setItem(`question_state_${chapterId}`, JSON.stringify(state))
+  }
+
   useEffect(() => {
     fetchChapterAndStart()
   }, [])
+
+  // Save question state whenever it changes
+  useEffect(() => {
+    saveQuestionState()
+  }, [question, currentStep, confidence, selectedAnswer, recognitionMethod, feedback])
 
   const fetchChapterAndStart = async () => {
     try {
@@ -102,11 +129,40 @@ export default function LearnPage() {
             questions_answered: sessionData.questions_answered || 0,
             current_score: sessionData.score || 0
           })
+
+          // Check for saved question state
+          const savedQuestionState = localStorage.getItem(`question_state_${chapterData.id}`)
+          if (savedQuestionState) {
+            try {
+              const state = JSON.parse(savedQuestionState)
+              // Restore all question state
+              setQuestion(state.question)
+              setQuestionMetadata(state.questionMetadata)
+              setArmSelected(state.armSelected)
+              setDecisionContext(state.decisionContext)
+              setSelectionMethod(state.selectionMethod)
+              setSpacingReason(state.spacingReason)
+              setCurrentStep(state.currentStep)
+              setConfidence(state.confidence)
+              setSelectedAnswer(state.selectedAnswer)
+              setRecognitionMethod(state.recognitionMethod)
+              setFeedback(state.feedback)
+              setQuestionShownAt(state.questionShownAt)
+              setLoading(false)
+              return
+            } catch (e) {
+              console.error('Error restoring question state:', e)
+              // Fall through to get next question
+            }
+          }
+
+          // No saved question state, get next question
           await getNextQuestion(sessionData.id)
           return
         } else {
           // Session no longer valid, clear localStorage
           localStorage.removeItem(`session_${chapterData.id}`)
+          localStorage.removeItem(`question_state_${chapterData.id}`)
         }
       }
 
@@ -173,6 +229,7 @@ export default function LearnPage() {
         // Clear session from localStorage when session completes
         if (chapterId) {
           localStorage.removeItem(`session_${chapterId}`)
+          localStorage.removeItem(`question_state_${chapterId}`)
         }
         router.push(`/session-complete/${sessionId}`)
         return
@@ -282,6 +339,10 @@ export default function LearnPage() {
 
   const handleNextQuestion = () => {
     if (!session) return
+    // Clear saved question state when moving to next question
+    if (chapterId) {
+      localStorage.removeItem(`question_state_${chapterId}`)
+    }
     setLoading(true)
     getNextQuestion(session.session_id)
   }
@@ -1238,6 +1299,7 @@ Perfect score = 3.0 (High confidence + Memory + Correct)`}>
                 // Clear session from localStorage when ending
                 if (chapterId) {
                   localStorage.removeItem(`session_${chapterId}`)
+                  localStorage.removeItem(`question_state_${chapterId}`)
                 }
                 router.replace(`/performance/${subject}/${chapter}`)
               }}
