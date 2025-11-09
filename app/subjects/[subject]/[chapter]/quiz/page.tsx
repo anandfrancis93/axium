@@ -513,7 +513,7 @@ Range: -3 to +5 points`
         } else {
           // Check if answer was correct to determine appropriate message
           interpretation = feedback?.is_correct
-            ? 'First correct - streak starting!'
+            ? 'First correct - streak starting! You need 2+ in a row to earn streak bonus points'
             : 'Streak broke'
         }
         break
