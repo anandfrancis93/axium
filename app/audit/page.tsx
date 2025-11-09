@@ -12,10 +12,49 @@ export default function AuditPage() {
   const [decisions, setDecisions] = useState<any[]>([])
   const [filter, setFilter] = useState<'all' | 'arm_selection' | 'reward_calculation' | 'mastery_update' | 'data_deletion'>('all')
   const [selectedDecision, setSelectedDecision] = useState<any>(null)
+  const [currentMastery, setCurrentMastery] = useState<Map<string, number>>(new Map())
 
   useEffect(() => {
     loadDecisions()
   }, [filter])
+
+  useEffect(() => {
+    if (selectedDecision?.decision_type === 'arm_selection' && selectedDecision?.all_arms) {
+      loadCurrentMastery()
+    }
+  }, [selectedDecision])
+
+  const loadCurrentMastery = async () => {
+    try {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      // Get unique topic_id + bloom_level combinations
+      const arms = selectedDecision.all_arms as any[]
+      const topicIds = [...new Set(arms.map((a: any) => a.topic_id))].filter(Boolean)
+
+      if (topicIds.length === 0) return
+
+      // Fetch current mastery for all these topics
+      const { data: masteryData } = await supabase
+        .from('user_topic_mastery')
+        .select('topic_id, bloom_level, mastery_score')
+        .eq('user_id', user.id)
+        .in('topic_id', topicIds)
+
+      if (masteryData) {
+        const masteryMap = new Map<string, number>()
+        masteryData.forEach((m: any) => {
+          const key = `${m.topic_id}_${m.bloom_level}`
+          masteryMap.set(key, m.mastery_score)
+        })
+        setCurrentMastery(masteryMap)
+      }
+    } catch (error) {
+      console.error('Error loading current mastery:', error)
+    }
+  }
 
   const loadDecisions = async () => {
     try {
@@ -229,18 +268,33 @@ export default function AuditPage() {
                             <tbody>
                               {selectedDecision.all_arms
                                 .sort((a: any, b: any) => b.adjusted_value - a.adjusted_value)
-                                .map((arm: any, idx: number) => (
-                                  <tr
-                                    key={idx}
-                                    className={arm.topic_id === selectedDecision.selected_arm?.topic_id && arm.bloom_level === selectedDecision.selected_arm?.bloom_level ? 'bg-blue-900/20' : ''}
-                                  >
-                                    <td className="text-gray-300 py-2">{arm.topic_name}</td>
-                                    <td className="text-center text-gray-400">{arm.bloom_level}</td>
-                                    <td className="text-right text-gray-400">{arm.sampled_value?.toFixed(3)}</td>
-                                    <td className="text-right text-blue-400 font-semibold">{arm.adjusted_value?.toFixed(3)}</td>
-                                    <td className="text-right text-gray-400">{arm.mastery_score?.toFixed(1)}%</td>
-                                  </tr>
-                                ))}
+                                .map((arm: any, idx: number) => {
+                                  const masteryKey = `${arm.topic_id}_${arm.bloom_level}`
+                                  const current = currentMastery.get(masteryKey)
+                                  const snapshot = arm.mastery_score
+                                  const hasChanged = current !== undefined && Math.abs(current - snapshot) > 0.1
+
+                                  return (
+                                    <tr
+                                      key={idx}
+                                      className={arm.topic_id === selectedDecision.selected_arm?.topic_id && arm.bloom_level === selectedDecision.selected_arm?.bloom_level ? 'bg-blue-900/20' : ''}
+                                    >
+                                      <td className="text-gray-300 py-2">{arm.topic_name}</td>
+                                      <td className="text-center text-gray-400">{arm.bloom_level}</td>
+                                      <td className="text-right text-gray-400">{arm.sampled_value?.toFixed(3)}</td>
+                                      <td className="text-right text-blue-400 font-semibold">{arm.adjusted_value?.toFixed(3)}</td>
+                                      <td className="text-right">
+                                        {current !== undefined ? (
+                                          <span className={hasChanged ? 'text-green-400' : 'text-gray-400'} title={`Snapshot: ${snapshot?.toFixed(1)}%`}>
+                                            {current?.toFixed(1)}%
+                                          </span>
+                                        ) : (
+                                          <span className="text-gray-400">{snapshot?.toFixed(1)}%</span>
+                                        )}
+                                      </td>
+                                    </tr>
+                                  )
+                                })}
                             </tbody>
                           </table>
                         </div>
