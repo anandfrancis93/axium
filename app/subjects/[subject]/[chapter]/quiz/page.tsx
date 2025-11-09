@@ -798,28 +798,6 @@ ${interpretation}`
                 </div>
               )}
 
-              {/* Mastery Updates */}
-              <div className="neuro-inset p-4 rounded-lg mb-6">
-                <div className="text-sm font-medium text-gray-400 mb-3">Mastery Changes:</div>
-                <div className="space-y-2">
-                  {feedback.mastery_updates?.map((update: any, idx: number) => (
-                    <div key={idx} className="flex justify-between items-center">
-                      <span className="text-gray-300">{update.topic_name || update.topic}</span>
-                      <Tooltip content={getMasteryTooltip(update.old_mastery, update.new_mastery, update.change)}>
-                        <div className="flex items-center gap-2">
-                          <span className="text-gray-500">{update.old_mastery}%</span>
-                          <span className="text-gray-600">→</span>
-                          <span className="text-blue-400 font-medium">{update.new_mastery}%</span>
-                          <span className={`text-sm ${update.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                            ({update.change >= 0 ? '+' : ''}{update.change}%)
-                          </span>
-                        </div>
-                      </Tooltip>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
               {/* Topic Details - Shows primary topic in full context */}
               {feedback.mastery_updates && feedback.mastery_updates.length > 0 && (
                 <div className="neuro-inset p-4 rounded-lg mb-6">
@@ -861,11 +839,30 @@ ${interpretation}`
               {feedback.rewards_by_topic && feedback.rewards_by_topic.length > 1 ? (
                 // Multi-topic: Separate sections per topic
                 <>
-                  {feedback.rewards_by_topic.map((topicReward: any, topicIdx: number) => (
-                    <div key={topicIdx} className="neuro-inset p-4 rounded-lg mb-6">
-                      <div className="text-sm font-medium text-gray-400 mb-3">
-                        Reward Components ({topicReward.topic_name}):
-                      </div>
+                  {feedback.rewards_by_topic.map((topicReward: any, topicIdx: number) => {
+                    // Find matching mastery update for this topic
+                    const masteryUpdate = feedback.mastery_updates?.find((u: any) => u.topic_id === topicReward.topic_id)
+
+                    return (
+                      <div key={topicIdx} className="neuro-inset p-4 rounded-lg mb-6">
+                        {/* Mastery Change - above reward components */}
+                        {masteryUpdate && (
+                          <Tooltip content={getMasteryTooltip(masteryUpdate.old_mastery, masteryUpdate.new_mastery, masteryUpdate.change)}>
+                            <div className="text-sm mb-4 pb-3 border-b border-gray-700 cursor-help">
+                              <span className="text-gray-400">Mastery Change ({topicReward.topic_name}): </span>
+                              <span className="text-gray-500">{masteryUpdate.old_mastery}%</span>
+                              <span className="text-gray-600 mx-1">→</span>
+                              <span className="text-blue-400 font-medium">{masteryUpdate.new_mastery}%</span>
+                              <span className={`ml-1 ${masteryUpdate.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                ({masteryUpdate.change >= 0 ? '+' : ''}{masteryUpdate.change}%)
+                              </span>
+                            </div>
+                          </Tooltip>
+                        )}
+
+                        <div className="text-sm font-medium text-gray-400 mb-3">
+                          Reward Components ({topicReward.topic_name}):
+                        </div>
                       <div className="grid grid-cols-2 gap-2 text-sm">
                         <Tooltip content={getRewardTooltip('learningGain', topicReward.reward_components?.learningGain || 0)}>
                           <div>
@@ -914,7 +911,8 @@ ${interpretation}`
                         </Tooltip>
                       </div>
                     </div>
-                  ))}
+                    )
+                  })}
                   <div className="neuro-inset p-4 rounded-lg mb-6 bg-gray-800/30">
                     <div className="text-lg font-bold text-center">
                       Combined Total: <span className="text-blue-400">{feedback.total_reward?.toFixed(1)}</span> points
@@ -924,6 +922,21 @@ ${interpretation}`
               ) : (
                 // Single topic: Show as before
                 <div className="neuro-inset p-4 rounded-lg mb-6">
+                  {/* Mastery Change - above reward components */}
+                  {feedback.mastery_updates && feedback.mastery_updates.length > 0 && (
+                    <Tooltip content={getMasteryTooltip(feedback.mastery_updates[0].old_mastery, feedback.mastery_updates[0].new_mastery, feedback.mastery_updates[0].change)}>
+                      <div className="text-sm mb-4 pb-3 border-b border-gray-700 cursor-help">
+                        <span className="text-gray-400">Mastery Change: </span>
+                        <span className="text-gray-500">{feedback.mastery_updates[0].old_mastery}%</span>
+                        <span className="text-gray-600 mx-1">→</span>
+                        <span className="text-blue-400 font-medium">{feedback.mastery_updates[0].new_mastery}%</span>
+                        <span className={`ml-1 ${feedback.mastery_updates[0].change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                          ({feedback.mastery_updates[0].change >= 0 ? '+' : ''}{feedback.mastery_updates[0].change}%)
+                        </span>
+                      </div>
+                    </Tooltip>
+                  )}
+
                   <div className="text-sm font-medium text-gray-400 mb-3">Reward Components:</div>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <Tooltip content={getRewardTooltip('learningGain', feedback.reward_components?.learningGain || 0)}>
