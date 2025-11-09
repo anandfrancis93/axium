@@ -366,12 +366,13 @@ Mastery grows with correct answers and confidence calibration`
         return 'confidence wildly off'
 
       case 'recognition':
-        if (value >= 5) return 'knew from memory'
-        if (value >= 3) return 'recognized answer'
+        if (value >= 3) return 'knew from memory'
+        if (value >= 2) return 'recognized answer'
         if (value >= 1) return 'reasoned it out'
-        if (value >= -1) return 'lucky guess'
-        if (value >= -2) return 'thought wrong was right'
-        return 'false confidence'
+        if (value >= 0) return 'lucky guess'
+        if (value >= -2) return 'wrong guess'
+        if (value >= -3) return 'false recognition'
+        return 'false memory'
 
       case 'spacing':
         if (value >= 4) return '1+ week retention'
@@ -442,15 +443,21 @@ Mastery grows with correct answers and confidence calibration`
 
       case 'recognition':
         description = 'Recognition: Reward for your answer method (memory vs guessing)'
-        scale = 'Range: 0 to +5 points'
-        if (value >= 5) {
-          interpretation = 'Maximum bonus! You knew it from memory'
-        } else if (value >= 3) {
+        scale = 'Range: -4 to +3 points'
+        if (value >= 3) {
+          interpretation = 'Maximum bonus! You knew it from memory (correct)'
+        } else if (value >= 2) {
           interpretation = 'Good! You recognized the correct answer'
         } else if (value >= 1) {
-          interpretation = 'You made an educated guess'
+          interpretation = 'You made an educated guess (correct)'
+        } else if (value >= 0) {
+          interpretation = 'Random guess (correct) - no bonus awarded'
+        } else if (value >= -2) {
+          interpretation = 'Your guess was incorrect - minor penalty'
+        } else if (value >= -3) {
+          interpretation = 'You thought you recognized it but were wrong'
         } else {
-          interpretation = 'Random guess - no bonus awarded'
+          interpretation = 'False memory - you thought you knew but were incorrect'
         }
         break
 
