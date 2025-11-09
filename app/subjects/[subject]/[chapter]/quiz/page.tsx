@@ -999,9 +999,9 @@ ${interpretation}`
                         </Tooltip>
                         <Tooltip content={getRewardTooltip('streak', topicReward.reward_components?.streak || 0)}>
                           <div>
-                            Streak: <span className="text-orange-400">{topicReward.reward_components?.streak?.toFixed(1)}</span>
+                            Streak: <span className="text-orange-400">{topicReward.new_streak !== undefined ? topicReward.new_streak : 0}</span>
                             <span className="text-gray-200 text-xs ml-1">
-                              ({topicReward.new_streak !== undefined ? `${topicReward.new_streak} correct, ${getRewardLabel('streak', topicReward.reward_components?.streak || 0)}` : getRewardLabel('streak', topicReward.reward_components?.streak || 0)})
+                              (+{topicReward.reward_components?.streak?.toFixed(1)} pts, {getRewardLabel('streak', topicReward.reward_components?.streak || 0)})
                             </span>
                           </div>
                         </Tooltip>
@@ -1074,9 +1074,9 @@ ${interpretation}`
                     </Tooltip>
                     <Tooltip content={getRewardTooltip('streak', feedback.reward_components?.streak || 0)}>
                       <div>
-                        Streak: <span className="text-orange-400">{feedback.reward_components?.streak?.toFixed(1)}</span>
+                        Streak: <span className="text-orange-400">{feedback.new_streak !== undefined ? feedback.new_streak : 0}</span>
                         <span className="text-gray-200 text-xs ml-1">
-                          ({feedback.new_streak !== undefined ? `${feedback.new_streak} correct, ${getRewardLabel('streak', feedback.reward_components?.streak || 0)}` : getRewardLabel('streak', feedback.reward_components?.streak || 0)})
+                          (+{feedback.reward_components?.streak?.toFixed(1)} pts, {getRewardLabel('streak', feedback.reward_components?.streak || 0)})
                         </span>
                       </div>
                     </Tooltip>
