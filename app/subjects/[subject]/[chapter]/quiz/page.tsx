@@ -1100,12 +1100,11 @@ ${interpretation}`
                       <div className="font-medium">Total Reward: <span className="text-blue-400">{feedback.reward_components?.total?.toFixed(1)}</span></div>
                     </Tooltip>
                   </div>
-                </div>
-              )}
 
-              {/* Quality Score */}
-              {feedback.reward_components && (
-                <Tooltip content={`Quality Score: ${((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2).toFixed(1)}
+                  {/* Quality Score - at the end of reward breakdown */}
+                  {feedback.reward_components && (
+                    <div className="mt-3 pt-3 border-t border-gray-700">
+                      <Tooltip content={`Quality Score: ${((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2).toFixed(1)}
 
 CALCULATION:
 Calibration: ${feedback.reward_components.calibration > 0 ? '+' : ''}${feedback.reward_components.calibration}
@@ -1144,19 +1143,20 @@ ${((feedback.reward_components.calibration + feedback.reward_components.recognit
   'Your mastery decreased. Review this topic carefully.'}
 
 Perfect score = 3.0 (High confidence + Memory + Correct)`}>
-                  <div className="neuro-inset p-4 rounded-lg mb-6 cursor-help">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm md:text-base font-medium text-gray-400">Quality Score:</span>
-                      <span className={`text-lg md:text-xl lg:text-2xl font-bold ${
-                        ((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2) >= 2 ? 'text-green-400' :
-                        ((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2) >= 0 ? 'text-yellow-400' :
-                        'text-red-400'
-                      }`}>
-                        {((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2).toFixed(1)}
-                      </span>
+                        <div className="flex items-center justify-between cursor-help">
+                          <span className="text-sm md:text-base font-medium text-gray-400">Quality Score:</span>
+                          <span className={`text-lg md:text-xl lg:text-2xl font-bold ${
+                            ((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2) >= 2 ? 'text-green-400' :
+                            ((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2) >= 0 ? 'text-yellow-400' :
+                            'text-red-400'
+                          }`}>
+                            {((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2).toFixed(1)}
+                          </span>
+                        </div>
+                      </Tooltip>
                     </div>
-                  </div>
-                </Tooltip>
+                  )}
+                </div>
               )}
 
               <div className="flex gap-4">
