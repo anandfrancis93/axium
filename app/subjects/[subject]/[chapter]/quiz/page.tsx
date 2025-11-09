@@ -1246,7 +1246,7 @@ ${((feedback.reward_components.calibration + feedback.reward_components.recognit
   'Your mastery decreased. Review this topic carefully.'}
 
 Perfect score = 3.0 (High confidence + Memory + Correct)`}>
-                        <div className="text-sm md:text-base flex items-center justify-between cursor-help">
+                        <div className="text-sm md:text-base cursor-help">
                           <span className="font-medium text-gray-400">Quality Score: </span>
                           <span className={`font-bold ${
                             ((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2) >= 2 ? 'text-green-400' :
