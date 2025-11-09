@@ -254,13 +254,65 @@ export default function PerformancePage() {
 
       setRlArmStats(armStatsData || [])
 
-      // Calculate exam score prediction using IRT
+      // Calculate exam score prediction using IRT with quality-weighted correctness
       if (allResponses.length >= 5) {
-        const responses = allResponses.map((r: any) => ({
-          is_correct: r.is_correct,
-          bloom_level: r.bloom_level || 3,
-          question_type: 'mcq_single'
-        }))
+        // Get quality scores (calibration + recognition) from rl_decision_log
+        const responseIds = allResponses.map((r: any) => r.id)
+        const { data: rewardData } = await supabase
+          .from('rl_decision_log')
+          .select('reward_components, created_at')
+          .eq('user_id', user.id)
+          .eq('decision_type', 'reward_calculation')
+          .order('created_at', { ascending: true })
+
+        // Create a map of response quality scores
+        const qualityMap = new Map<string, number>()
+
+        if (rewardData) {
+          // Match rewards to responses by timestamp proximity
+          allResponses.forEach((response: any, idx: number) => {
+            const responseTime = new Date(response.created_at).getTime()
+
+            // Find reward within 1 minute of response
+            const matchingReward = rewardData.find((reward: any) => {
+              const rewardTime = new Date(reward.created_at).getTime()
+              const timeDiff = Math.abs(rewardTime - responseTime)
+              return timeDiff < 60000 // Within 1 minute
+            })
+
+            if (matchingReward && matchingReward.reward_components) {
+              const components = matchingReward.reward_components as any
+              const calibration = components.calibration || 0
+              const recognition = components.recognition || 0
+              const qualityScore = (calibration + recognition) / 2
+              qualityMap.set(response.id, qualityScore)
+            }
+          })
+        }
+
+        // Map responses with quality-weighted correctness
+        const responses = allResponses.map((r: any) => {
+          const qualityScore = qualityMap.get(r.id)
+
+          // Convert quality score (-3 to +3) to weighted correctness (0 to 1)
+          // weighted_correctness = (quality + 3) / 6
+          let weightedCorrectness: number
+
+          if (qualityScore !== undefined) {
+            // Use quality-weighted approach
+            weightedCorrectness = (qualityScore + 3) / 6
+          } else {
+            // Fallback to binary for old responses without quality data
+            weightedCorrectness = r.is_correct ? 1.0 : 0.0
+          }
+
+          return {
+            is_correct: weightedCorrectness > 0.5, // Binary for IRT compatibility
+            weighted_correctness: weightedCorrectness, // For future use
+            bloom_level: r.bloom_level || 3,
+            question_type: r.question_type || 'mcq_single'
+          }
+        })
 
         const { theta, standardError, responsesCount, information } = estimateThetaAuto(responses)
         const predictedScore = thetaToExamScore(theta)
@@ -268,6 +320,12 @@ export default function PerformancePage() {
         const passProbability = calculatePassProbability(theta, standardError, 750)
         const reliability = calculateReliability(information)
         const interpretation = getScoreInterpretation(predictedScore, passProbability, responsesCount)
+
+        // Calculate average quality score for display
+        const qualityScores = Array.from(qualityMap.values())
+        const avgQuality = qualityScores.length > 0
+          ? qualityScores.reduce((sum, q) => sum + q, 0) / qualityScores.length
+          : null
 
         setExamPrediction({
           theta,
@@ -278,7 +336,9 @@ export default function PerformancePage() {
           passProbability,
           reliability,
           responsesCount,
-          interpretation
+          interpretation,
+          avgQuality, // Add average quality score
+          qualityWeightedCount: qualityScores.length // How many had quality data
         })
       } else {
         setExamPrediction(null)
@@ -645,7 +705,7 @@ Mastery calculated using EMA (recent performance weighted higher)`
                 </div>
 
                 {/* Key Metrics */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                   <Tooltip content={`Probability you will score 750 or higher on the exam. Based on ${examPrediction.responsesCount} responses.`}>
                     <div className="neuro-stat group">
                       <div className="flex items-center justify-between mb-3">
@@ -685,6 +745,40 @@ Mastery calculated using EMA (recent performance weighted higher)`
                       </div>
                     </div>
                   </Tooltip>
+
+                  {examPrediction.avgQuality !== null && examPrediction.avgQuality !== undefined && (
+                    <Tooltip content={`Average Quality Score across all responses.
+
+Quality = (Calibration + Recognition) / 2
+
+Range: -3.0 to +3.0
+• +2.0 to +3.0: Excellent (confident + from memory)
+• +1.0 to +2.0: Good (solid performance)
+• 0.0 to +1.0: Fair (some guessing)
+• Below 0.0: Struggling (overconfident or lucky)
+
+${examPrediction.qualityWeightedCount} of ${examPrediction.responsesCount} responses have quality data.
+
+This score weights your IRT prediction - higher quality = more reliable estimate.`}>
+                      <div className="neuro-stat group">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="text-sm text-cyan-400 font-medium">Avg Quality</div>
+                          <TrendingUpIcon size={20} className="text-cyan-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                        <div className={`text-4xl font-bold group-hover:text-cyan-400 transition-colors ${
+                          examPrediction.avgQuality >= 2.0 ? 'text-green-400' :
+                          examPrediction.avgQuality >= 1.0 ? 'text-blue-400' :
+                          examPrediction.avgQuality >= 0.0 ? 'text-yellow-400' :
+                          'text-red-400'
+                        }`}>
+                          {examPrediction.avgQuality >= 0 ? '+' : ''}{examPrediction.avgQuality.toFixed(1)}
+                        </div>
+                        <div className="text-xs text-gray-500 mt-2">
+                          {examPrediction.qualityWeightedCount}/{examPrediction.responsesCount} weighted
+                        </div>
+                      </div>
+                    </Tooltip>
+                  )}
                 </div>
 
                 {/* Data Quality Warning */}
@@ -703,10 +797,12 @@ Mastery calculated using EMA (recent performance weighted higher)`
                 <div className="mt-6 text-xs text-gray-500 neuro-inset rounded-lg p-4">
                   <div className="font-semibold text-gray-400 mb-2">How This Works:</div>
                   <div className="space-y-1">
-                    <div>• <strong>Item Response Theory (IRT)</strong>: Statistical model that estimates your ability (θ) from response patterns</div>
+                    <div>• <strong>Quality-Weighted IRT</strong>: Uses quality scores (calibration + recognition) to weight responses - lucky guesses count less than confident, memory-based answers</div>
+                    <div>• <strong>Item Response Theory (IRT)</strong>: Statistical model that estimates your ability (θ) from weighted response patterns</div>
                     <div>• <strong>Predicted Score</strong>: Your θ mapped to CompTIA's 100-900 scale using percentile transformation</div>
+                    <div>• <strong>Quality Conversion</strong>: Quality score (-3 to +3) → Weighted correctness (0.0 to 1.0) via formula: (quality + 3) / 6</div>
                     <div>• <strong>Confidence Interval</strong>: 95% probability your true score falls within this range</div>
-                    <div>• <strong>Pass Probability</strong>: Statistical likelihood of scoring ≥750 based on current performance</div>
+                    <div>• <strong>Pass Probability</strong>: Statistical likelihood of scoring ≥750 based on weighted performance</div>
                     <div>• <strong>Reliability</strong>: Measurement precision based on question coverage and consistency</div>
                   </div>
                 </div>
