@@ -7,6 +7,7 @@ import { CheckIcon, XIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import { Tooltip } from '@/components/Tooltip'
 import Modal from '@/components/Modal'
+import UnlockNotification, { UnlockInfo } from '@/components/UnlockNotification'
 
 type ConfidenceLevel = 'low' | 'medium' | 'high'
 type RecognitionMethod = 'memory' | 'recognition' | 'educated_guess' | 'random'
@@ -38,6 +39,9 @@ export default function LearnPage() {
 
   // Response time tracking
   const [questionShownAt, setQuestionShownAt] = useState<number | null>(null)
+
+  // Unlock notifications
+  const [unlocks, setUnlocks] = useState<UnlockInfo[]>([])
 
   useEffect(() => {
     fetchChapterAndStart()
@@ -182,6 +186,21 @@ export default function LearnPage() {
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to submit response')
+      }
+
+      // Check for unlocks
+      if (data.mastery_updates) {
+        const newUnlocks = data.mastery_updates
+          .filter((m: any) => m.unlocked_level !== null)
+          .map((m: any) => ({
+            topic_name: m.topic_name,
+            topic_full_name: m.topic_full_name,
+            unlocked_level: m.unlocked_level
+          }))
+
+        if (newUnlocks.length > 0) {
+          setUnlocks(newUnlocks)
+        }
       }
 
       setFeedback(data)
@@ -1004,6 +1023,14 @@ ${interpretation}`
           </div>
         </div>
       </Modal>
+
+      {/* Unlock Notifications */}
+      {unlocks.length > 0 && (
+        <UnlockNotification
+          unlocks={unlocks}
+          onClose={() => setUnlocks([])}
+        />
+      )}
     </div>
   )
 }

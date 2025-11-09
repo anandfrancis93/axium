@@ -215,6 +215,40 @@ export async function POST(request: NextRequest) {
         console.log('Successfully updated mastery for topic:', topicId, 'bloom:', question.bloom_level)
       }
 
+      // Check if user just unlocked next Bloom level for this topic
+      let unlockedLevel: number | null = null
+      if (isCorrect && question.bloom_level < 6) {
+        // Get updated mastery data for current level
+        const { data: updatedMastery } = await supabase
+          .from('user_topic_mastery')
+          .select('mastery_score, questions_correct')
+          .eq('user_id', user.id)
+          .eq('topic_id', topicId)
+          .eq('bloom_level', question.bloom_level)
+          .single()
+
+        // Check if this level now meets unlock requirements (80% + 3 correct)
+        if (updatedMastery &&
+            updatedMastery.mastery_score >= 80.0 &&
+            updatedMastery.questions_correct >= 3) {
+
+          // Check if next level was previously locked
+          const { data: nextLevelMastery } = await supabase
+            .from('user_topic_mastery')
+            .select('questions_attempted')
+            .eq('user_id', user.id)
+            .eq('topic_id', topicId)
+            .eq('bloom_level', question.bloom_level + 1)
+            .single()
+
+          // If next level doesn't exist yet or has 0 attempts, it's newly unlocked
+          if (!nextLevelMastery || nextLevelMastery.questions_attempted === 0) {
+            unlockedLevel = question.bloom_level + 1
+            console.log(`🎉 Unlocked Bloom Level ${unlockedLevel} for topic ${topicId}`)
+          }
+        }
+      }
+
       // Update RL arm stats for this topic
       const { error: armStatsError } = await supabase.rpc('update_arm_stats_by_id', {
         p_user_id: user.id,
@@ -250,7 +284,8 @@ export async function POST(request: NextRequest) {
         bloom_level: question.bloom_level,
         old_mastery: Math.round(currentMastery * 10) / 10,
         new_mastery: Math.round(newMastery * 10) / 10,
-        change: Math.round(learningGain * 10) / 10
+        change: Math.round(learningGain * 10) / 10,
+        unlocked_level: unlockedLevel  // Will be null or the newly unlocked Bloom level
       })
 
       // Store reward breakdown for this topic
