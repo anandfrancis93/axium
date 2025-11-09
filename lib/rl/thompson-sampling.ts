@@ -328,7 +328,7 @@ export async function selectArmThompsonSampling(
   }
 
   // Unlock reason
-  if (selected.unlockBonus > 0) {
+  if (selected.unlockBonus && selected.unlockBonus > 0) {
     reasons.push(`You recently unlocked this level`)
   }
 
