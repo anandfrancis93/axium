@@ -514,7 +514,7 @@ Range: -3 to +5 points`
           // Check if answer was correct to determine appropriate message
           interpretation = feedback?.is_correct
             ? 'First correct - streak starting!'
-            : 'Streak broke or still building'
+            : 'Streak broke'
         }
         break
 
