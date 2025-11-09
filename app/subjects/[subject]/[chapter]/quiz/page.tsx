@@ -393,7 +393,7 @@ Mastery grows with correct answers and confidence calibration`
         if (value >= 3) return '5-9 in a row'
         if (value >= 2) return '3-4 in a row'
         if (value >= 1) return '2 in a row'
-        return 'streak starting'
+        return feedback?.is_correct ? 'streak starting' : 'no streak'
 
       default:
         return ''
@@ -511,7 +511,10 @@ Range: -3 to +5 points`
         } else if (value >= 1) {
           interpretation = 'Building momentum - 2 correct in a row'
         } else {
-          interpretation = 'First correct or streak just broke'
+          // Check if answer was correct to determine appropriate message
+          interpretation = feedback?.is_correct
+            ? 'First correct - streak starting!'
+            : 'Streak broke or still building'
         }
         break
 
