@@ -455,6 +455,50 @@ export default function AuditPage() {
                       </div>
                     </div>
 
+                    {/* Quality Score */}
+                    {selectedDecision.reward_components?.calibration !== undefined && selectedDecision.reward_components?.recognition !== undefined && (
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-300 mb-2">Answer Quality</h3>
+                        <div className="neuro-inset p-4 rounded-lg">
+                          <div className="grid grid-cols-3 gap-4 text-center mb-4">
+                            <div>
+                              <div className="text-xs text-gray-500 mb-1">Calibration</div>
+                              <div className={`text-2xl font-bold ${
+                                selectedDecision.reward_components.calibration >= 2 ? 'text-green-400' :
+                                selectedDecision.reward_components.calibration >= 0 ? 'text-yellow-400' :
+                                'text-red-400'
+                              }`}>
+                                {selectedDecision.reward_components.calibration > 0 ? '+' : ''}{selectedDecision.reward_components.calibration}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-gray-500 mb-1">Recognition</div>
+                              <div className={`text-2xl font-bold ${
+                                selectedDecision.reward_components.recognition >= 2 ? 'text-green-400' :
+                                selectedDecision.reward_components.recognition >= 0 ? 'text-yellow-400' :
+                                'text-red-400'
+                              }`}>
+                                {selectedDecision.reward_components.recognition > 0 ? '+' : ''}{selectedDecision.reward_components.recognition}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-gray-500 mb-1">Quality Score</div>
+                              <div className={`text-2xl font-bold ${
+                                ((selectedDecision.reward_components.calibration + selectedDecision.reward_components.recognition) / 2) >= 2 ? 'text-green-400' :
+                                ((selectedDecision.reward_components.calibration + selectedDecision.reward_components.recognition) / 2) >= 0 ? 'text-yellow-400' :
+                                'text-red-400'
+                              }`}>
+                                {((selectedDecision.reward_components.calibration + selectedDecision.reward_components.recognition) / 2).toFixed(1)}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-xs text-gray-500 text-center border-t border-gray-800 pt-2">
+                            Perfect = 3.0 (high conf + memory + correct)
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     <div>
                       <h3 className="text-lg font-semibold text-gray-300 mb-2">Reward Breakdown</h3>
                       <div className="neuro-inset p-4 rounded-lg space-y-2 text-sm">

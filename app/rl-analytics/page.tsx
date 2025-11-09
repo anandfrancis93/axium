@@ -16,6 +16,9 @@ interface SelectionData {
   was_correct?: boolean
   confidence?: number
   reward?: number
+  calibration?: number
+  recognition?: number
+  quality_score?: number
 }
 
 export default function RLAnalyticsPage() {
@@ -66,7 +69,7 @@ export default function RLAnalyticsPage() {
         // Match with rewards
         const { data: rewards } = await supabase
           .from('rl_decision_log')
-          .select('created_at, is_correct, confidence, total_reward, topic_id, bloom_level')
+          .select('created_at, is_correct, confidence, total_reward, reward_components, topic_id, bloom_level')
           .eq('user_id', user.id)
           .eq('decision_type', 'reward_calculation')
           .order('created_at', { ascending: false })
@@ -83,6 +86,12 @@ export default function RLAnalyticsPage() {
               sel.was_correct = matchingReward.is_correct
               sel.confidence = matchingReward.confidence
               sel.reward = matchingReward.total_reward
+              const components = matchingReward.reward_components as any
+              if (components) {
+                sel.calibration = components.calibration
+                sel.recognition = components.recognition
+                sel.quality_score = (components.calibration + components.recognition) / 2
+              }
             }
           })
         }
@@ -208,17 +217,38 @@ export default function RLAnalyticsPage() {
                   </div>
 
                   {sel.was_correct !== undefined && (
-                    <div className="flex items-center gap-3 text-xs border-t border-gray-800 pt-2 mt-2">
-                      <div className={sel.was_correct ? 'text-green-400' : 'text-red-400'}>
-                        {sel.was_correct ? '✓' : '✗'} {sel.was_correct ? 'Correct' : 'Incorrect'}
+                    <>
+                      <div className="flex items-center gap-3 text-xs border-t border-gray-800 pt-2 mt-2">
+                        <div className={sel.was_correct ? 'text-green-400' : 'text-red-400'}>
+                          {sel.was_correct ? '✓' : '✗'} {sel.was_correct ? 'Correct' : 'Incorrect'}
+                        </div>
+                        <div className="text-gray-500">
+                          Conf: {sel.confidence}/5
+                        </div>
+                        {sel.quality_score !== undefined && (
+                          <div className={`font-semibold ${
+                            sel.quality_score >= 2 ? 'text-green-400' :
+                            sel.quality_score >= 0 ? 'text-yellow-400' :
+                            'text-red-400'
+                          }`}>
+                            Quality: {sel.quality_score.toFixed(1)}
+                          </div>
+                        )}
+                        <div className={`ml-auto font-semibold ${sel.reward && sel.reward >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                          Reward: {sel.reward?.toFixed(1)}
+                        </div>
                       </div>
-                      <div className="text-gray-500">
-                        Confidence: {sel.confidence}/5
-                      </div>
-                      <div className={`ml-auto font-semibold ${sel.reward && sel.reward >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                        Reward: {sel.reward?.toFixed(3)}
-                      </div>
-                    </div>
+                      {(sel.calibration !== undefined || sel.recognition !== undefined) && (
+                        <div className="flex items-center gap-4 text-xs text-gray-500 mt-1">
+                          {sel.calibration !== undefined && (
+                            <div>Cal: {sel.calibration > 0 ? '+' : ''}{sel.calibration}</div>
+                          )}
+                          {sel.recognition !== undefined && (
+                            <div>Rec: {sel.recognition > 0 ? '+' : ''}{sel.recognition}</div>
+                          )}
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               ))}
