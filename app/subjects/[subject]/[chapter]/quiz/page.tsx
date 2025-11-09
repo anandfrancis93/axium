@@ -1020,7 +1020,7 @@ ${interpretation}`
               {feedback.mastery_updates && feedback.mastery_updates.length > 0 && (
                 <div className="neuro-inset p-4 rounded-lg mb-6">
                   <div className="text-sm md:text-base font-medium text-gray-400 mb-3">Topic Details:</div>
-                  <div className="space-y-1 font-mono text-xs md:text-sm">
+                  <div className="space-y-1 font-mono text-sm md:text-base">
                     {(() => {
                       const primaryTopic = feedback.mastery_updates[0]
                       const trees: React.ReactNode[] = []
