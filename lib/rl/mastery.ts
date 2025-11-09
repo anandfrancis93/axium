@@ -87,8 +87,8 @@ export function hasMetMasteryRequirements(
  * @param topicWeights - Weights for topics: { primary: 1.0, secondary: [0.3, 0.2] }
  * @param currentMastery - Map of current mastery scores
  * @param bloomLevel - Bloom level of the question
- * @param isCorrect - Whether user answered correctly
- * @param confidence - User's confidence (1-5)
+ * @param calibrationReward - Calibration reward (-3 to +3)
+ * @param recognitionReward - Recognition reward (-4 to +3)
  * @returns Array of mastery updates for all involved topics
  */
 export function calculateMultiTopicMasteryUpdates(
@@ -97,14 +97,14 @@ export function calculateMultiTopicMasteryUpdates(
   topicWeights: { primary: number; secondary: number[] } | null,
   currentMastery: Map<string, number>,
   bloomLevel: number,
-  isCorrect: boolean,
-  confidence: number
+  calibrationReward: number,
+  recognitionReward: number
 ): MasteryUpdate[] {
   const updates: MasteryUpdate[] = []
 
-  // Calculate base learning gain
+  // Calculate base learning gain using quality-weighted approach
   const oldMasteryPrimary = currentMastery.get(`${primaryTopic}_${bloomLevel}`) || 0
-  const baseLearningGain = calculateLearningGain(oldMasteryPrimary, isCorrect, confidence)
+  const baseLearningGain = calculateLearningGain(calibrationReward, recognitionReward, bloomLevel)
 
   // Update primary topic (full weight)
   const primaryWeight = topicWeights?.primary || 1.0
