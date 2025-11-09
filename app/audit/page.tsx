@@ -681,14 +681,22 @@ export default function AuditPage() {
                       <div>
                         <h3 className="text-lg font-semibold text-gray-300 mb-2">Reward Breakdown</h3>
                         <div className="neuro-inset p-4 rounded-lg space-y-2 text-sm">
-                          {Object.entries(selectedDecision.reward_components).map(([key, value]: [string, any]) => (
-                            <div key={key} className="flex justify-between">
-                              <span className="text-gray-400 capitalize">{key.replace('_', ' ')}:</span>
-                              <span className={`font-semibold ${value >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                                {value.toFixed(3)}
-                              </span>
-                            </div>
-                          ))}
+                          {Object.entries(selectedDecision.reward_components)
+                            .filter(([key]) => key !== 'total') // Exclude total from components (shown separately)
+                            .map(([key, value]: [string, any]) => (
+                              <div key={key} className="flex justify-between">
+                                <span className="text-gray-400 capitalize">{key === 'learningGain' ? 'Learning Gain' : key === 'responseTime' ? 'Response Time' : key.charAt(0).toUpperCase() + key.slice(1)}:</span>
+                                <span className={`font-semibold ${value >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                  {value > 0 ? '+' : ''}{value.toFixed(1)}
+                                </span>
+                              </div>
+                            ))}
+                          <div className="flex justify-between pt-2 border-t border-gray-700">
+                            <span className="text-gray-200 font-semibold">Total:</span>
+                            <span className={`font-bold ${selectedDecision.reward_components.total >= 0 ? 'text-blue-400' : 'text-red-400'}`}>
+                              {selectedDecision.reward_components.total > 0 ? '+' : ''}{selectedDecision.reward_components.total.toFixed(1)}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
