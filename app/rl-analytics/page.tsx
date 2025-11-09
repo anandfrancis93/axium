@@ -175,18 +175,51 @@ export default function RLAnalyticsPage() {
         {/* RL Performance Metrics */}
         {rlMetrics && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="neuro-stat">
-              <div className="text-sm text-blue-400 font-medium mb-2">Total Arms Tracked</div>
-              <div className="text-4xl font-bold text-gray-200">{rlMetrics.totalArms}</div>
-            </div>
-            <div className="neuro-stat">
-              <div className="text-sm text-green-400 font-medium mb-2">Total Selections</div>
-              <div className="text-4xl font-bold text-gray-200">{rlMetrics.totalSelections}</div>
-            </div>
-            <div className="neuro-stat">
-              <div className="text-sm text-purple-400 font-medium mb-2">Avg Reward</div>
-              <div className="text-4xl font-bold text-gray-200">{rlMetrics.avgReward.toFixed(3)}</div>
-            </div>
+            <Tooltip content={`Total Arms Tracked
+
+An "arm" is a unique topic-level combination (e.g., "Authentication × Bloom 2").
+
+Each topic has up to 6 arms (Bloom levels 1-6).
+
+Thompson Sampling tracks performance for each arm independently to find the most effective learning paths for you.`}>
+              <div className="neuro-stat cursor-help">
+                <div className="text-sm text-blue-400 font-medium mb-2">Total Arms Tracked</div>
+                <div className="text-4xl font-bold text-gray-200">{rlMetrics.totalArms}</div>
+              </div>
+            </Tooltip>
+            <Tooltip content={`Total Selections
+
+Total number of questions answered across all topic-level combinations.
+
+More selections = More data for Thompson Sampling to learn your optimal learning path.`}>
+              <div className="neuro-stat cursor-help">
+                <div className="text-sm text-green-400 font-medium mb-2">Total Selections</div>
+                <div className="text-4xl font-bold text-gray-200">{rlMetrics.totalSelections}</div>
+              </div>
+            </Tooltip>
+            <Tooltip content={`Average Reward Score
+
+Measures overall learning effectiveness across all practiced topics.
+
+COMPONENTS (Total: -21 to +35):
+• Learning Gain: -10 to +10 (mastery improvement)
+• Calibration: -3 to +3 (confidence accuracy)
+• Spacing: 0 to +5 (retention over time)
+• Recognition: -4 to +3 (retrieval strength)
+• Response Time: -3 to +5 (retrieval fluency)
+• Streak: 0 to +5 (momentum)
+
+Higher reward = More effective learning
+- Perfect answers: ~15-25 points
+- Struggling but correct: ~5-10 points
+- Incorrect: -10 to 0 points
+
+Thompson Sampling uses these rewards to prioritize topics where you learn most effectively.`}>
+              <div className="neuro-stat cursor-help">
+                <div className="text-sm text-purple-400 font-medium mb-2">Avg Reward</div>
+                <div className="text-4xl font-bold text-gray-200">{rlMetrics.avgReward.toFixed(3)}</div>
+              </div>
+            </Tooltip>
             <Tooltip content={`Selection Diversity (Last 20 Questions)
 
 Measures how many different topic-level combinations you've practiced recently.
