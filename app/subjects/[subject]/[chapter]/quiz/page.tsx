@@ -830,7 +830,7 @@ ${interpretation}`
                         return sentences.map((sentence: string, idx: number) => (
                           <div key={idx} className="flex items-start gap-3">
                             <div className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2 flex-shrink-0" />
-                            <div className="text-gray-200 text-sm leading-relaxed">{sentence.trim()}</div>
+                            <div className="text-gray-200 leading-relaxed">{sentence.trim()}</div>
                           </div>
                         ))
                       }
@@ -855,7 +855,7 @@ ${interpretation}`
                               {(isFundamentalQuestion ? remainingBullets : section.bullets).map((bullet, bIdx) => (
                                 <div key={bIdx} className="flex items-start gap-3 ml-2">
                                   <div className="w-1.5 h-1.5 rounded-full bg-gray-400 mt-2 flex-shrink-0" />
-                                  <div className="text-gray-200 text-sm leading-relaxed">{bullet}</div>
+                                  <div className="text-gray-200 leading-relaxed">{bullet}</div>
                                 </div>
                               ))}
                             </div>
