@@ -330,7 +330,9 @@ export default function AuditPage() {
 
         // Calculate spacing statistics
         const dueForReview = spacedData.filter(d => d.next_intervals.due).length
-        const avgDaysSince = spacedData.reduce((sum, d) => sum + d.days_since, 0) / spacedData.length
+        const avgDaysSince = spacedData.length > 0
+          ? spacedData.reduce((sum, d) => sum + d.days_since, 0) / spacedData.length
+          : 0
 
         // Group by spacing intervals
         const byInterval = {
@@ -343,7 +345,7 @@ export default function AuditPage() {
         setSpacingStats({
           totalTopics: spacedData.length,
           dueForReview,
-          avgDaysSince: avgDaysSince.toFixed(1),
+          avgDaysSince: spacedData.length > 0 ? avgDaysSince.toFixed(1) : 'N/A',
           byInterval
         })
       }
