@@ -359,11 +359,12 @@ Mastery grows with correct answers and confidence calibration`
         return 'significant drop'
 
       case 'calibration':
-        if (value >= 4) return 'confidence matched performance'
-        if (value >= 2) return 'good self-assessment'
-        if (value >= 0) return 'somewhat accurate'
-        if (value >= -2) return 'overconfident or underconfident'
-        return 'confidence wildly off'
+        if (value >= 3) return 'perfectly calibrated'
+        if (value >= 2) return 'well calibrated'
+        if (value >= 1) return 'underconfident'
+        if (value >= -1) return 'good uncertainty'
+        if (value >= -2) return 'moderately overconfident'
+        return 'severely overconfident'
 
       case 'recognition':
         if (value >= 3) return 'knew from memory'
@@ -427,17 +428,19 @@ Mastery grows with correct answers and confidence calibration`
 
       case 'calibration':
         description = 'Calibration: How well your confidence matched your performance'
-        scale = 'Range: -5 to +5 points'
-        if (value >= 4) {
-          interpretation = 'Perfect calibration! Your confidence matched your answer'
+        scale = 'Range: -3 to +3 points'
+        if (value >= 3) {
+          interpretation = 'Perfect calibration! High confidence + correct answer'
         } else if (value >= 2) {
-          interpretation = 'Good calibration'
-        } else if (value >= 0) {
-          interpretation = 'Decent calibration'
+          interpretation = 'Good calibration - medium confidence + correct'
+        } else if (value >= 1) {
+          interpretation = 'Underconfident - low confidence but correct answer'
+        } else if (value >= -1) {
+          interpretation = 'Good uncertainty - low confidence + incorrect (honest self-assessment)'
         } else if (value >= -2) {
-          interpretation = 'Over/under confident - work on self-assessment'
+          interpretation = 'Moderately overconfident - medium confidence but incorrect'
         } else {
-          interpretation = 'Poor calibration - confidence did not match performance'
+          interpretation = 'Severely overconfident - high confidence but incorrect'
         }
         break
 
