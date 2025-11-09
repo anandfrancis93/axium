@@ -870,18 +870,6 @@ Thompson Sampling prioritizes arms with higher average rewards.`}>
                     </table>
                   </div>
                 </div>
-
-                {/* Explanation */}
-                <div className="mt-6 text-xs text-gray-500 neuro-inset rounded-lg p-4">
-                  <div className="font-semibold text-gray-400 mb-2">Understanding the RL State:</div>
-                  <div className="space-y-1">
-                    <div>• <strong>Alpha (α)</strong>: Number of successful outcomes (correct answers) + 1 (prior)</div>
-                    <div>• <strong>Beta (β)</strong>: Number of unsuccessful outcomes (incorrect answers) + 1 (prior)</div>
-                    <div>• <strong>Est. Success</strong>: Expected success rate = α/(α+β)</div>
-                    <div>• <strong>Thompson Sampling</strong>: Randomly samples from Beta(α, β) distribution each time to balance exploration vs exploitation</div>
-                    <div>• <strong>Avg Reward</strong>: Historical average reward (accounts for correctness, confidence calibration, spacing, etc.)</div>
-                  </div>
-                </div>
               </div>
             )}
           </div>
