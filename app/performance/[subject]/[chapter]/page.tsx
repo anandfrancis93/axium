@@ -745,11 +745,85 @@ Mastery calculated using EMA (recent performance weighted higher)`
                         <tr>
                           <th className="text-left p-4 text-gray-400 font-medium">Topic</th>
                           <th className="text-center p-4 text-gray-400 font-medium">Bloom</th>
-                          <th className="text-right p-4 text-gray-400 font-medium">Alpha (α)</th>
-                          <th className="text-right p-4 text-gray-400 font-medium">Beta (β)</th>
-                          <th className="text-right p-4 text-gray-400 font-medium">Est. Success</th>
-                          <th className="text-right p-4 text-gray-400 font-medium">Times Selected</th>
-                          <th className="text-right p-4 text-gray-400 font-medium">Avg Reward</th>
+                          <th className="text-right p-4 text-gray-400 font-medium">
+                            <Tooltip content={`Alpha (α): Success Parameter
+
+Starts at 1.0 (uniform prior).
+
+Increases with positive outcomes:
+• High reward (+9) → +0.95
+• Medium reward (+5) → +0.75
+• Low reward (+1) → +0.55
+• Zero reward (0) → +0.50
+
+Formula: α = α + normalized_reward
+Normalized: (reward + 10) / 20
+
+Higher α = More successful learning on this topic/level`}>
+                              <span className="cursor-help">Alpha (α)</span>
+                            </Tooltip>
+                          </th>
+                          <th className="text-right p-4 text-gray-400 font-medium">
+                            <Tooltip content={`Beta (β): Failure Parameter
+
+Starts at 1.0 (uniform prior).
+
+Increases with negative outcomes:
+• Negative reward (-9) → +0.95
+• Zero reward (0) → +0.50
+• Low reward (+1) → +0.45
+• High reward (+9) → +0.05
+
+Formula: β = β + (1 - normalized_reward)
+Normalized: (reward + 10) / 20
+
+Higher β = More struggling/failures on this topic/level`}>
+                              <span className="cursor-help">Beta (β)</span>
+                            </Tooltip>
+                          </th>
+                          <th className="text-right p-4 text-gray-400 font-medium">
+                            <Tooltip content={`Estimated Success Rate
+
+Calculated as: α / (α + β)
+
+This represents the expected probability of success based on your history.
+
+• 70%+ (green) = Strong performance
+• 50-70% (yellow) = Moderate performance
+• <50% (red) = Needs improvement
+
+Thompson Sampling samples from Beta(α, β) and selects the highest value, naturally balancing exploration vs exploitation.`}>
+                              <span className="cursor-help">Est. Success</span>
+                            </Tooltip>
+                          </th>
+                          <th className="text-right p-4 text-gray-400 font-medium">
+                            <Tooltip content={`Times Selected
+
+Number of questions answered for this topic × Bloom level combination.
+
+More selections = More confidence in α and β estimates.
+
+Thompson Sampling naturally explores less-selected arms due to higher uncertainty.`}>
+                              <span className="cursor-help">Times Selected</span>
+                            </Tooltip>
+                          </th>
+                          <th className="text-right p-4 text-gray-400 font-medium">
+                            <Tooltip content={`Average Reward
+
+Mean reward score across all attempts for this arm.
+
+Calculated as: total_reward / times_selected
+
+Range: -21 to +35
+• 15-25 = Excellent (perfect answers)
+• 5-15 = Good (correct with some struggle)
+• 0-5 = Marginal (lucky or uncertain)
+• <0 = Negative (incorrect or overconfident)
+
+Thompson Sampling prioritizes arms with higher average rewards.`}>
+                              <span className="cursor-help">Avg Reward</span>
+                            </Tooltip>
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
@@ -771,27 +845,23 @@ Mastery calculated using EMA (recent performance weighted higher)`
                               <td className="p-4 text-right text-blue-400 font-mono">{alpha.toFixed(2)}</td>
                               <td className="p-4 text-right text-purple-400 font-mono">{beta.toFixed(2)}</td>
                               <td className="p-4 text-right">
-                                <Tooltip content={`Estimated success rate: ${estimatedSuccess.toFixed(1)}%\n\nCalculated as α/(α+β)\n\nHigher values = more likely to be selected by Thompson Sampling`}>
-                                  <span className={`font-semibold ${
-                                    estimatedSuccess >= 70 ? 'text-green-400' :
-                                    estimatedSuccess >= 50 ? 'text-yellow-400' :
-                                    'text-red-400'
-                                  }`}>
-                                    {estimatedSuccess.toFixed(1)}%
-                                  </span>
-                                </Tooltip>
+                                <span className={`font-semibold ${
+                                  estimatedSuccess >= 70 ? 'text-green-400' :
+                                  estimatedSuccess >= 50 ? 'text-yellow-400' :
+                                  'text-red-400'
+                                }`}>
+                                  {estimatedSuccess.toFixed(1)}%
+                                </span>
                               </td>
                               <td className="p-4 text-right text-gray-400">{arm.times_selected || 0}</td>
                               <td className="p-4 text-right">
-                                <Tooltip content={`Average reward received for this arm\n\nHigher = better learning outcomes`}>
-                                  <span className={`font-semibold ${
-                                    parseFloat(arm.avg_reward) >= 0.5 ? 'text-green-400' :
-                                    parseFloat(arm.avg_reward) >= 0 ? 'text-yellow-400' :
-                                    'text-red-400'
-                                  }`}>
-                                    {parseFloat(arm.avg_reward).toFixed(3)}
-                                  </span>
-                                </Tooltip>
+                                <span className={`font-semibold ${
+                                  parseFloat(arm.avg_reward) >= 0.5 ? 'text-green-400' :
+                                  parseFloat(arm.avg_reward) >= 0 ? 'text-yellow-400' :
+                                  'text-red-400'
+                                }`}>
+                                  {parseFloat(arm.avg_reward).toFixed(3)}
+                                </span>
                               </td>
                             </tr>
                           )
