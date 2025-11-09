@@ -176,9 +176,9 @@ export async function POST(request: NextRequest) {
       // Calculate new streak value
       const newStreak = isCorrect ? currentStreak + 1 : 0
 
-      // Calculate reward for this topic independently
-      const rewardComponents = calculateReward({
-        learningGain: 0, // Will be calculated from calibration/recognition
+      // First calculate reward components that don't depend on mastery change
+      const preliminaryReward = calculateReward({
+        learningGain: 0, // Temporarily 0 - will recalculate after mastery change
         isCorrect,
         confidence,
         currentMastery,
@@ -194,11 +194,27 @@ export async function POST(request: NextRequest) {
 
       // Calculate mastery change using quality-weighted approach
       const learningGain = calculateLearningGain(
-        rewardComponents.calibration,
-        rewardComponents.recognition,
+        preliminaryReward.calibration,
+        preliminaryReward.recognition,
         question.bloom_level
       )
       const newMastery = Math.max(0, Math.min(100, currentMastery + learningGain))
+
+      // Now recalculate with actual learning gain
+      const rewardComponents = calculateReward({
+        learningGain: learningGain, // Actual mastery change!
+        isCorrect,
+        confidence,
+        currentMastery,
+        daysSinceLastPractice: daysSince,
+        recognitionMethod: recognition_method as RecognitionMethod,
+        responseTimeSeconds: responseTime,
+        bloomLevel: question.bloom_level,
+        questionText: question.question_text,
+        options: question.options,
+        questionFormat: question.question_format,
+        currentStreak: currentStreak
+      })
 
       // Update mastery for this topic
       const { error: masteryError } = await supabase.rpc('update_topic_mastery_by_id', {
