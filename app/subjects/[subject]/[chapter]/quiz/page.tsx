@@ -81,6 +81,36 @@ export default function LearnPage() {
       }
 
       setChapterId(chapterData.id)
+
+      // Check for existing active session in localStorage
+      const storedSessionId = localStorage.getItem(`session_${chapterData.id}`)
+      if (storedSessionId) {
+        // Verify session is still active
+        const { data: sessionData } = await supabase
+          .from('learning_sessions')
+          .select('*')
+          .eq('id', storedSessionId)
+          .eq('chapter_id', chapterData.id)
+          .is('completed_at', null)
+          .single()
+
+        if (sessionData) {
+          // Resume existing session
+          setSession(sessionData)
+          // Restore session progress
+          setSessionProgress({
+            questions_answered: sessionData.questions_answered || 0,
+            current_score: sessionData.score || 0
+          })
+          await getNextQuestion(sessionData.id)
+          return
+        } else {
+          // Session no longer valid, clear localStorage
+          localStorage.removeItem(`session_${chapterData.id}`)
+        }
+      }
+
+      // No active session found, start new one
       await startSession(chapterData.id)
     } catch (err: any) {
       console.error('Error fetching chapter:', err)
@@ -112,6 +142,9 @@ export default function LearnPage() {
 
       setSession(data)
 
+      // Store session ID in localStorage to persist across refreshes
+      localStorage.setItem(`session_${chapId}`, data.session_id)
+
       // Get first question
       await getNextQuestion(data.session_id)
 
@@ -137,6 +170,10 @@ export default function LearnPage() {
       }
 
       if (data.session_complete) {
+        // Clear session from localStorage when session completes
+        if (chapterId) {
+          localStorage.removeItem(`session_${chapterId}`)
+        }
         router.push(`/session-complete/${sessionId}`)
         return
       }
@@ -1198,6 +1235,10 @@ Perfect score = 3.0 (High confidence + Memory + Correct)`}>
             <button
               onClick={() => {
                 setShowEndSessionModal(false)
+                // Clear session from localStorage when ending
+                if (chapterId) {
+                  localStorage.removeItem(`session_${chapterId}`)
+                }
                 router.replace(`/performance/${subject}/${chapter}`)
               }}
               className="neuro-btn text-red-400 flex-1 py-3"
