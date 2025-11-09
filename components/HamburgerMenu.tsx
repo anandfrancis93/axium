@@ -83,21 +83,12 @@ export default function HamburgerMenu() {
           </Link>
 
           <Link
-            href="/rl-analytics"
+            href="/audit"
             onClick={() => setIsOpen(false)}
             className="neuro-btn w-full flex items-center gap-3 px-4 py-3 text-purple-400 hover:text-purple-300 transition-colors mb-2"
           >
             <span className="text-lg">📊</span>
-            <span>RL Analytics</span>
-          </Link>
-
-          <Link
-            href="/audit"
-            onClick={() => setIsOpen(false)}
-            className="neuro-btn w-full flex items-center gap-3 px-4 py-3 text-yellow-400 hover:text-yellow-300 transition-colors mb-2"
-          >
-            <span className="text-lg">🔍</span>
-            <span>Audit Log</span>
+            <span>System Analytics</span>
           </Link>
 
           {/* Sign Out Button */}
