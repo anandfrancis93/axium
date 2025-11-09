@@ -1,6 +1,6 @@
 'use client'
 
-import { Sparkles } from 'lucide-react'
+import { SparklesIcon } from '@/components/icons'
 
 interface SelectionToolbarProps {
   x: number
@@ -25,7 +25,7 @@ export default function SelectionToolbar({ x, y, onExplain }: SelectionToolbarPr
         onClick={onExplain}
         className="neuro-btn text-blue-400 px-3 py-2 flex items-center gap-2 text-sm whitespace-nowrap shadow-lg"
       >
-        <Sparkles size={16} />
+        <SparklesIcon size={16} />
         Explain with AI
       </button>
     </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { X } from 'lucide-react'
+import { XIcon } from '@/components/icons'
 
 interface ExplanationModalProps {
   isOpen: boolean
@@ -36,7 +36,7 @@ export default function ExplanationModal({
             className="neuro-btn p-2 text-gray-400 hover:text-gray-200"
             aria-label="Close"
           >
-            <X size={20} />
+            <XIcon size={20} />
           </button>
         </div>
 
