@@ -991,7 +991,7 @@ ${interpretation}`
               {decisionContext && (
                 <div className="neuro-inset p-4 rounded-lg mb-6">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-base md:text-lg lg:text-xl font-semibold text-gray-300">
+                    <h3 className="text-sm md:text-base font-semibold text-gray-300">
                       Why This Question?
                     </h3>
                     {selectionMethod === 'forced_spacing' && (
@@ -1004,12 +1004,12 @@ ${interpretation}`
                     {decisionContext.reasoning}
                   </p>
                   {selectionMethod === 'thompson_sampling' && (
-                    <p className="text-xs md:text-sm text-gray-500">
+                    <p className="text-sm md:text-base text-gray-500">
                       {decisionContext.alternatives_count} other topic{decisionContext.alternatives_count !== 1 ? 's' : ''} {decisionContext.alternatives_count !== 1 ? 'were' : 'was'} considered by Thompson Sampling
                     </p>
                   )}
                   {selectionMethod === 'forced_spacing' && spacingReason && (
-                    <p className="text-xs md:text-sm text-yellow-500/70">
+                    <p className="text-sm md:text-base text-yellow-500/70">
                       This topic was forced for review due to spacing interval.
                     </p>
                   )}
