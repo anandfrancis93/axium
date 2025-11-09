@@ -572,8 +572,8 @@ ${interpretation}`
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#0a0a0a' }}>
         <div className="neuro-card max-w-md text-center">
-          <div className="text-blue-400 text-lg mb-2">Loading...</div>
-          <div className="text-gray-500 text-sm">Preparing your adaptive learning session</div>
+          <div className="text-blue-400 text-base md:text-lg mb-2">Loading...</div>
+          <div className="text-gray-500 text-sm md:text-base">Preparing your adaptive learning session</div>
         </div>
       </div>
     )
@@ -583,7 +583,7 @@ ${interpretation}`
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#0a0a0a' }}>
         <div className="neuro-card max-w-md">
-          <div className="text-red-400 text-lg mb-4">Error</div>
+          <div className="text-red-400 text-base md:text-lg mb-4">Error</div>
           <div className="text-gray-400 mb-6">{error}</div>
           <button onClick={() => router.push('/subjects')} className="neuro-btn">
             Back to Subjects
@@ -602,10 +602,10 @@ ${interpretation}`
         <div className="neuro-card mb-6">
           <div className="flex justify-between items-center gap-3">
             <div className="min-w-0 flex-shrink">
-              <div className="text-sm text-gray-500 mb-1">
+              <div className="text-sm md:text-base text-gray-500 mb-1">
                 Question {currentStep === 'feedback' ? (sessionProgress?.questions_answered || 1) : ((sessionProgress?.questions_answered || 0) + 1)}
               </div>
-              <div className="text-2xl font-bold text-gray-200">
+              <div className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-200">
                 Score: {sessionProgress?.current_score || 0}/{sessionProgress?.questions_answered || 0}
               </div>
             </div>
@@ -619,7 +619,7 @@ ${interpretation}`
         <div className="neuro-card">
           {/* Question Text */}
           <div className="mb-8">
-            <p className="text-xl text-gray-200 leading-relaxed">
+            <p className="text-lg md:text-xl lg:text-2xl text-gray-200 leading-relaxed">
               {question.question_text}
             </p>
           </div>
@@ -656,7 +656,7 @@ ${interpretation}`
           {/* STEP 2: Answer Options */}
           {currentStep === 'options' && (
             <div>
-              <h3 className="text-lg font-semibold text-gray-200 mb-4">
+              <h3 className="text-base md:text-lg lg:text-xl font-semibold text-gray-200 mb-4">
                 Select your answer:
               </h3>
               <div className="space-y-3 mb-6">
@@ -668,15 +668,15 @@ ${interpretation}`
                       selectedAnswer === key ? 'ring-2 ring-blue-400' : ''
                     }`}
                   >
-                    <span className="font-bold text-blue-400 mr-3">{key}.</span>
-                    <span className="text-gray-200">{value}</span>
+                    <span className="text-base md:text-lg font-bold text-blue-400 mr-3">{key}.</span>
+                    <span className="text-base md:text-lg text-gray-200">{value}</span>
                   </button>
                 ))}
               </div>
               <button
                 onClick={handleAnswerSubmit}
                 disabled={!selectedAnswer}
-                className="neuro-btn text-blue-400 w-full py-4 text-lg disabled:opacity-50"
+                className="neuro-btn text-blue-400 w-full py-4 text-base md:text-lg disabled:opacity-50"
               >
                 Submit Answer →
               </button>
@@ -686,7 +686,7 @@ ${interpretation}`
           {/* STEP 3: Recognition Method */}
           {currentStep === 'recognition' && (
             <div>
-              <h3 className="text-lg font-semibold text-gray-200 mb-4">
+              <h3 className="text-base md:text-lg lg:text-xl font-semibold text-gray-200 mb-4">
                 How did you arrive at your answer?
               </h3>
               <div className="space-y-3 mb-6">
@@ -703,14 +703,14 @@ ${interpretation}`
                       recognitionMethod === method.value ? 'ring-2 ring-blue-400 bg-blue-500/10' : ''
                     }`}
                   >
-                    <span className="text-gray-200">{method.label}</span>
+                    <span className="text-base md:text-lg text-gray-200">{method.label}</span>
                   </button>
                 ))}
               </div>
               <button
                 onClick={handleRecognitionSubmit}
                 disabled={!recognitionMethod || loading}
-                className="neuro-btn text-blue-400 w-full py-4 text-lg disabled:opacity-50"
+                className="neuro-btn text-blue-400 w-full py-4 text-base md:text-lg disabled:opacity-50"
               >
                 {loading ? 'Calculating...' : 'Get Feedback →'}
               </button>
@@ -722,7 +722,7 @@ ${interpretation}`
             <div>
               {/* Show options with user's selection highlighted */}
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-200 mb-4">
+                <h3 className="text-base md:text-lg lg:text-xl font-semibold text-gray-200 mb-4">
                   Your Answer:
                 </h3>
                 <div className="space-y-3">
@@ -742,15 +742,15 @@ ${interpretation}`
                             : ''
                         }`}
                       >
-                        <span className="font-bold text-gray-200 mr-3">{key}.</span>
-                        <span className="text-gray-200">{value}</span>
+                        <span className="text-base md:text-lg font-bold text-gray-200 mr-3">{key}.</span>
+                        <span className="text-base md:text-lg text-gray-200">{value}</span>
                         {isSelected && (
-                          <span className={`ml-3 text-sm ${feedback.is_correct ? 'text-green-400' : 'text-red-400'}`}>
+                          <span className={`ml-3 text-sm md:text-base ${feedback.is_correct ? 'text-green-400' : 'text-red-400'}`}>
                             (Your answer)
                           </span>
                         )}
                         {!isSelected && isCorrect && (
-                          <span className="ml-3 text-sm text-green-400">(Correct answer)</span>
+                          <span className="ml-3 text-sm md:text-base text-green-400">(Correct answer)</span>
                         )}
                       </div>
                     )
@@ -773,14 +773,14 @@ ${interpretation}`
                     )}
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-gray-200">
+                    <div className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-200">
                       {feedback.is_correct ? 'Correct!' : 'Incorrect'}
                     </div>
                   </div>
                 </div>
 
                 <div className="neuro-raised p-6 mt-4">
-                  <div className="text-sm text-gray-500 mb-4">Explanation:</div>
+                  <div className="text-sm md:text-base text-gray-500 mb-4">Explanation:</div>
                   <div className="space-y-4">
                     {(() => {
                       // Parse the explanation into sections
@@ -888,25 +888,25 @@ ${interpretation}`
               {decisionContext && (
                 <div className="neuro-inset p-4 rounded-lg mb-6">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-lg font-semibold text-gray-300">
+                    <h3 className="text-base md:text-lg lg:text-xl font-semibold text-gray-300">
                       Why This Question?
                     </h3>
                     {selectionMethod === 'forced_spacing' && (
-                      <span className="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+                      <span className="px-3 py-1 rounded-full text-xs md:text-sm font-semibold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
                         Spaced Repetition
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-400 mb-3">
+                  <p className="text-sm md:text-base text-gray-400 mb-3">
                     {decisionContext.reasoning}
                   </p>
                   {selectionMethod === 'thompson_sampling' && (
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs md:text-sm text-gray-500">
                       {decisionContext.alternatives_count} other topic{decisionContext.alternatives_count !== 1 ? 's' : ''} {decisionContext.alternatives_count !== 1 ? 'were' : 'was'} considered by Thompson Sampling
                     </p>
                   )}
                   {selectionMethod === 'forced_spacing' && spacingReason && (
-                    <p className="text-xs text-yellow-500/70">
+                    <p className="text-xs md:text-sm text-yellow-500/70">
                       This topic was forced for review due to spacing interval.
                     </p>
                   )}
@@ -916,8 +916,8 @@ ${interpretation}`
               {/* Topic Details - Shows primary topic in full context */}
               {feedback.mastery_updates && feedback.mastery_updates.length > 0 && (
                 <div className="neuro-inset p-4 rounded-lg mb-6">
-                  <div className="text-sm font-medium text-gray-400 mb-3">Topic Details:</div>
-                  <div className="space-y-1 font-mono text-sm">
+                  <div className="text-sm md:text-base font-medium text-gray-400 mb-3">Topic Details:</div>
+                  <div className="space-y-1 font-mono text-xs md:text-sm">
                     {(() => {
                       const primaryTopic = feedback.mastery_updates[0]
                       const trees: React.ReactNode[] = []
@@ -963,7 +963,7 @@ ${interpretation}`
                         {/* Mastery Change - above reward components */}
                         {masteryUpdate && (
                           <Tooltip content={getMasteryTooltip(masteryUpdate.old_mastery, masteryUpdate.new_mastery, masteryUpdate.change)}>
-                            <div className="text-sm mb-4 pb-3 border-b border-gray-700 cursor-help">
+                            <div className="text-sm md:text-base mb-4 pb-3 border-b border-gray-700 cursor-help">
                               <span className="text-gray-400">Mastery Change ({topicReward.topic_name}): </span>
                               <span className="text-gray-500">{masteryUpdate.old_mastery}%</span>
                               <span className="text-gray-600 mx-1">→</span>
@@ -975,38 +975,38 @@ ${interpretation}`
                           </Tooltip>
                         )}
 
-                        <div className="text-sm font-medium text-gray-400 mb-3">
+                        <div className="text-sm md:text-base font-medium text-gray-400 mb-3">
                           Reward Components ({topicReward.topic_name}):
                         </div>
-                      <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div className="grid grid-cols-2 gap-2 text-sm md:text-base">
                         <Tooltip content={getRewardTooltip('learningGain', topicReward.reward_components?.learningGain || 0)}>
                           <div>
                             Learning Gain: <span className="text-blue-400">{topicReward.reward_components?.learningGain?.toFixed(1)}</span>
-                            <span className="text-gray-200 text-xs ml-1">({getRewardLabel('learningGain', topicReward.reward_components?.learningGain || 0)})</span>
+                            <span className="text-gray-200 text-xs md:text-sm ml-1">({getRewardLabel('learningGain', topicReward.reward_components?.learningGain || 0)})</span>
                           </div>
                         </Tooltip>
                         <Tooltip content={getRewardTooltip('calibration', topicReward.reward_components?.calibration || 0)}>
                           <div>
                             Calibration: <span className="text-purple-400">{topicReward.reward_components?.calibration?.toFixed(1)}</span>
-                            <span className="text-gray-200 text-xs ml-1">({getRewardLabel('calibration', topicReward.reward_components?.calibration || 0)})</span>
+                            <span className="text-gray-200 text-xs md:text-sm ml-1">({getRewardLabel('calibration', topicReward.reward_components?.calibration || 0)})</span>
                           </div>
                         </Tooltip>
                         <Tooltip content={getRewardTooltip('recognition', topicReward.reward_components?.recognition || 0)}>
                           <div>
                             Recognition: <span className="text-green-400">{topicReward.reward_components?.recognition?.toFixed(1)}</span>
-                            <span className="text-gray-200 text-xs ml-1">({getRewardLabel('recognition', topicReward.reward_components?.recognition || 0)})</span>
+                            <span className="text-gray-200 text-xs md:text-sm ml-1">({getRewardLabel('recognition', topicReward.reward_components?.recognition || 0)})</span>
                           </div>
                         </Tooltip>
                         <Tooltip content={getRewardTooltip('spacing', topicReward.reward_components?.spacing || 0)}>
                           <div>
                             Spacing: <span className="text-yellow-400">{topicReward.reward_components?.spacing?.toFixed(1)}</span>
-                            <span className="text-gray-200 text-xs ml-1">({getRewardLabel('spacing', topicReward.reward_components?.spacing || 0)})</span>
+                            <span className="text-gray-200 text-xs md:text-sm ml-1">({getRewardLabel('spacing', topicReward.reward_components?.spacing || 0)})</span>
                           </div>
                         </Tooltip>
                         <Tooltip content={getRewardTooltip('responseTime', topicReward.reward_components?.responseTime || 0)}>
                           <div>
                             Response Time: <span className="text-cyan-400">{topicReward.reward_components?.responseTime?.toFixed(1)}</span>
-                            <span className="text-gray-200 text-xs ml-1">
+                            <span className="text-gray-200 text-xs md:text-sm ml-1">
                               ({feedback.response_time_seconds ? `${feedback.response_time_seconds.toFixed(1)}s, ${getRewardLabel('responseTime', topicReward.reward_components?.responseTime || 0)}` : getRewardLabel('responseTime', topicReward.reward_components?.responseTime || 0)})
                             </span>
                           </div>
@@ -1014,7 +1014,7 @@ ${interpretation}`
                         <Tooltip content={getRewardTooltip('streak', topicReward.reward_components?.streak || 0)}>
                           <div>
                             Streak: <span className="text-orange-400">{topicReward.new_streak !== undefined ? topicReward.new_streak : 0}</span>
-                            <span className="text-gray-200 text-xs ml-1">
+                            <span className="text-gray-200 text-xs md:text-sm ml-1">
                               (+{topicReward.reward_components?.streak?.toFixed(1)} pts, {getRewardLabel('streak', topicReward.reward_components?.streak || 0)})
                             </span>
                           </div>
@@ -1029,7 +1029,7 @@ ${interpretation}`
                     )
                   })}
                   <div className="neuro-inset p-4 rounded-lg mb-6 bg-gray-800/30">
-                    <div className="text-lg font-bold text-center">
+                    <div className="text-base md:text-lg lg:text-xl font-bold text-center">
                       Combined Total: <span className="text-blue-400">{feedback.total_reward?.toFixed(1)}</span> points
                     </div>
                   </div>
@@ -1040,7 +1040,7 @@ ${interpretation}`
                   {/* Mastery Change - above reward components */}
                   {feedback.mastery_updates && feedback.mastery_updates.length > 0 && (
                     <Tooltip content={getMasteryTooltip(feedback.mastery_updates[0].old_mastery, feedback.mastery_updates[0].new_mastery, feedback.mastery_updates[0].change)}>
-                      <div className="text-sm mb-4 pb-3 border-b border-gray-700 cursor-help">
+                      <div className="text-sm md:text-base mb-4 pb-3 border-b border-gray-700 cursor-help">
                         <span className="text-gray-400">Mastery Change: </span>
                         <span className="text-gray-500">{feedback.mastery_updates[0].old_mastery}%</span>
                         <span className="text-gray-600 mx-1">→</span>
@@ -1052,36 +1052,36 @@ ${interpretation}`
                     </Tooltip>
                   )}
 
-                  <div className="text-sm font-medium text-gray-400 mb-3">Reward Components:</div>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="text-sm md:text-base font-medium text-gray-400 mb-3">Reward Components:</div>
+                  <div className="grid grid-cols-2 gap-2 text-sm md:text-base">
                     <Tooltip content={getRewardTooltip('learningGain', feedback.reward_components?.learningGain || 0)}>
                       <div>
                         Learning Gain: <span className="text-blue-400">{feedback.reward_components?.learningGain?.toFixed(1)}</span>
-                        <span className="text-gray-200 text-xs ml-1">({getRewardLabel('learningGain', feedback.reward_components?.learningGain || 0)})</span>
+                        <span className="text-gray-200 text-xs md:text-sm ml-1">({getRewardLabel('learningGain', feedback.reward_components?.learningGain || 0)})</span>
                       </div>
                     </Tooltip>
                     <Tooltip content={getRewardTooltip('calibration', feedback.reward_components?.calibration || 0)}>
                       <div>
                         Calibration: <span className="text-purple-400">{feedback.reward_components?.calibration?.toFixed(1)}</span>
-                        <span className="text-gray-200 text-xs ml-1">({getRewardLabel('calibration', feedback.reward_components?.calibration || 0)})</span>
+                        <span className="text-gray-200 text-xs md:text-sm ml-1">({getRewardLabel('calibration', feedback.reward_components?.calibration || 0)})</span>
                       </div>
                     </Tooltip>
                     <Tooltip content={getRewardTooltip('recognition', feedback.reward_components?.recognition || 0)}>
                       <div>
                         Recognition: <span className="text-green-400">{feedback.reward_components?.recognition?.toFixed(1)}</span>
-                        <span className="text-gray-200 text-xs ml-1">({getRewardLabel('recognition', feedback.reward_components?.recognition || 0)})</span>
+                        <span className="text-gray-200 text-xs md:text-sm ml-1">({getRewardLabel('recognition', feedback.reward_components?.recognition || 0)})</span>
                       </div>
                     </Tooltip>
                     <Tooltip content={getRewardTooltip('spacing', feedback.reward_components?.spacing || 0)}>
                       <div>
                         Spacing: <span className="text-yellow-400">{feedback.reward_components?.spacing?.toFixed(1)}</span>
-                        <span className="text-gray-200 text-xs ml-1">({getRewardLabel('spacing', feedback.reward_components?.spacing || 0)})</span>
+                        <span className="text-gray-200 text-xs md:text-sm ml-1">({getRewardLabel('spacing', feedback.reward_components?.spacing || 0)})</span>
                       </div>
                     </Tooltip>
                     <Tooltip content={getRewardTooltip('responseTime', feedback.reward_components?.responseTime || 0)}>
                       <div>
                         Response Time: <span className="text-cyan-400">{feedback.reward_components?.responseTime?.toFixed(1)}</span>
-                        <span className="text-gray-200 text-xs ml-1">
+                        <span className="text-gray-200 text-xs md:text-sm ml-1">
                           ({feedback.response_time_seconds ? `${feedback.response_time_seconds.toFixed(1)}s, ${getRewardLabel('responseTime', feedback.reward_components?.responseTime || 0)}` : getRewardLabel('responseTime', feedback.reward_components?.responseTime || 0)})
                         </span>
                       </div>
@@ -1089,7 +1089,7 @@ ${interpretation}`
                     <Tooltip content={getRewardTooltip('streak', feedback.reward_components?.streak || 0)}>
                       <div>
                         Streak: <span className="text-orange-400">{feedback.new_streak !== undefined ? feedback.new_streak : 0}</span>
-                        <span className="text-gray-200 text-xs ml-1">
+                        <span className="text-gray-200 text-xs md:text-sm ml-1">
                           (+{feedback.reward_components?.streak?.toFixed(1)} pts, {getRewardLabel('streak', feedback.reward_components?.streak || 0)})
                         </span>
                       </div>
@@ -1146,8 +1146,8 @@ ${((feedback.reward_components.calibration + feedback.reward_components.recognit
 Perfect score = 3.0 (High confidence + Memory + Correct)`}>
                   <div className="neuro-inset p-4 rounded-lg mb-6 cursor-help">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-400">Quality Score:</span>
-                      <span className={`text-xl font-bold ${
+                      <span className="text-sm md:text-base font-medium text-gray-400">Quality Score:</span>
+                      <span className={`text-lg md:text-xl lg:text-2xl font-bold ${
                         ((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2) >= 2 ? 'text-green-400' :
                         ((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2) >= 0 ? 'text-yellow-400' :
                         'text-red-400'
@@ -1162,13 +1162,13 @@ Perfect score = 3.0 (High confidence + Memory + Correct)`}>
               <div className="flex gap-4">
                 <button
                   onClick={handleNextQuestion}
-                  className="neuro-btn text-blue-400 flex-1 py-4 text-lg"
+                  className="neuro-btn text-blue-400 flex-1 py-4 text-base md:text-lg"
                 >
                   Next Question →
                 </button>
                 <button
                   onClick={() => setShowEndSessionModal(true)}
-                  className="neuro-btn text-gray-300 px-6 py-4 text-lg"
+                  className="neuro-btn text-gray-300 px-6 py-4 text-base md:text-lg"
                 >
                   Done
                 </button>
