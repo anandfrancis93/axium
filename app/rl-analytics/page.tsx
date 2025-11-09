@@ -54,33 +54,16 @@ export default function RLAnalyticsPage() {
         .limit(50)
 
       if (decisions) {
-        // Get current mastery scores for all topic/bloom combinations
-        const { data: currentMastery } = await supabase
-          .from('user_topic_mastery')
-          .select('topic_id, bloom_level, mastery_score')
-          .eq('user_id', user.id)
-
-        // Create a map for quick lookup
-        const masteryMap = new Map<string, number>()
-        currentMastery?.forEach((m: any) => {
-          masteryMap.set(`${m.topic_id}_${m.bloom_level}`, m.mastery_score || 0)
-        })
-
-        // Process selections with outcomes and current mastery
+        // Process selections with outcomes
         const processedSelections: SelectionData[] = decisions.map(d => {
           const selected = d.selected_arm || {}
-          const topicId = d.topic_id
-          const bloomLevel = selected.bloom_level || 0
-          const masteryKey = `${topicId}_${bloomLevel}`
-          const currentMasteryScore = masteryMap.get(masteryKey) || 0
-
           return {
             timestamp: d.created_at,
             topic_name: selected.topic_name || 'Unknown',
-            bloom_level: bloomLevel,
+            bloom_level: selected.bloom_level || 0,
             sampled_value: selected.sampled_value || 0,
             adjusted_value: selected.adjusted_value || 0,
-            mastery_score: currentMasteryScore, // Use CURRENT mastery, not snapshot
+            mastery_score: selected.mastery_score || 0,
           }
         })
 
