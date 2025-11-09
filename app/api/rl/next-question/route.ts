@@ -487,7 +487,7 @@ export async function POST(request: NextRequest) {
     // Step 1: Check for overdue topics based on CURRENT mastery
     const { data: masteryData } = await supabase
       .from('user_topic_mastery')
-      .select('topic_id, bloom_level, mastery_score, last_practiced_at, topics(name, full_name)')
+      .select('topic_id, bloom_level, mastery_score, last_practiced_at, questions_attempted, questions_correct, topics(name, full_name)')
       .eq('user_id', user.id)
       .not('last_practiced_at', 'is', null)
 
@@ -513,6 +513,12 @@ export async function POST(request: NextRequest) {
         else if (m.mastery_score >= 60) optimalInterval = 7
         else if (m.mastery_score >= 40) optimalInterval = 3
         else optimalInterval = 1
+
+        // BONUS: First-time correct answers get minimum 3-day interval
+        // Reward getting it right on first try, regardless of mastery score
+        if (m.questions_attempted === 1 && m.questions_correct === 1) {
+          optimalInterval = Math.max(optimalInterval, 3)
+        }
 
         // Check if overdue
         if (daysSince >= optimalInterval) {

@@ -303,6 +303,12 @@ export default function AuditPage() {
           else if (m.mastery_score >= 40) optimalDays = 3
           else optimalDays = 1
 
+          // BONUS: First-time correct answers get minimum 3-day interval
+          // Reward getting it right on first try, regardless of mastery score
+          if (m.questions_attempted === 1 && m.questions_correct === 1) {
+            optimalDays = Math.max(optimalDays, 3)
+          }
+
           return {
             topic_id: m.topic_id,
             topic_name: m.topics?.name || 'Unknown',
