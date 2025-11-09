@@ -379,7 +379,8 @@ Mastery grows with correct answers and confidence calibration`
         if (value >= 4) return '1+ week retention'
         if (value >= 2) return '3-7 day retention'
         if (value >= 1) return '1-3 day retention'
-        return 'first time or same day'
+        // Check if first practice or same day
+        return feedback?.is_first_practice ? 'first practice' : 'practiced today'
 
       case 'responseTime':
         if (value === 0) return 'not tracked'
@@ -474,7 +475,10 @@ Mastery grows with correct answers and confidence calibration`
         } else if (value >= 1) {
           interpretation = 'Decent retention after 1-3 days'
         } else {
-          interpretation = 'First time practicing this topic or same-day review (no spacing bonus)'
+          // Check if first practice or same day
+          interpretation = feedback?.is_first_practice
+            ? 'First practice on this topic - no spacing benefit yet'
+            : 'Already practiced today - no spacing benefit'
         }
         break
 

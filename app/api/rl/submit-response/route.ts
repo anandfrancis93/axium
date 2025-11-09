@@ -312,7 +312,9 @@ export async function POST(request: NextRequest) {
         topic_name: topicName,
         reward_components: rewardComponents,
         current_streak: currentStreak,
-        new_streak: newStreak
+        new_streak: newStreak,
+        days_since_last_practice: daysSince,
+        is_first_practice: !masteryData?.last_practiced_at
       })
 
       totalReward += rewardComponents.total
@@ -553,6 +555,8 @@ export async function POST(request: NextRequest) {
       reward_components: rewardsByTopic[0]?.reward_components,
       current_streak: rewardsByTopic[0]?.current_streak,
       new_streak: rewardsByTopic[0]?.new_streak,
+      days_since_last_practice: rewardsByTopic[0]?.days_since_last_practice,
+      is_first_practice: rewardsByTopic[0]?.is_first_practice,
       mastery_update: masteryUpdates[0],
 
       session_progress: {
