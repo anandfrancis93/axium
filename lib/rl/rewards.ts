@@ -184,8 +184,8 @@ function calculateStreakReward(
 }
 
 /**
- * Calculate response time reward with Bloom-level and word-count adjustments
- * Rewards fluent retrieval (fast correct answers) vs. struggling retrieval
+ * Calculate response time reward with reading-time-aware evaluation
+ * Separates reading time from thinking time to fairly evaluate retrieval speed
  *
  * @param responseTimeSeconds - Time taken to answer in seconds
  * @param isCorrect - Whether answer was correct
@@ -203,64 +203,65 @@ function calculateResponseTimeReward(
   options: Record<string, string> | null,
   questionFormat: QuestionFormat | null
 ): number {
-  // Base thresholds by Bloom level (in seconds)
-  const baseThresholds: Record<number, { fluent: number, good: number, slow: number }> = {
-    1: { fluent: 10, good: 25, slow: 50 },
-    2: { fluent: 10, good: 25, slow: 50 },
-    3: { fluent: 20, good: 40, slow: 70 },
-    4: { fluent: 30, good: 60, slow: 90 },
-    5: { fluent: 45, good: 90, slow: 120 },
-    6: { fluent: 45, good: 90, slow: 120 }
-  }
-
-  // Format-specific reading time modifiers
-  const formatModifiers: Record<string, number> = {
-    true_false: 0.5,      // Faster - only 2 options
-    mcq_single: 1.0,      // Baseline - 4 options
-    fill_blank: 1.1,      // Slightly slower - need to think of term
-    mcq_multi: 1.3,       // Slower - evaluate multiple correct answers
-    matching: 1.4,        // Slower - multiple pairings
-    open_ended: 2.0       // Much slower - write explanation
-  }
-
-  // Get base threshold for this Bloom level
-  const thresholds = baseThresholds[bloomLevel] || baseThresholds[1]
-
-  // Apply format modifier
-  const formatModifier = questionFormat ? (formatModifiers[questionFormat] || 1.0) : 1.0
-
-  // Calculate word count bonus (reading time estimation)
+  // Calculate total word count
   const questionWords = countWords(questionText)
   const optionWords = options
     ? Object.values(options).reduce((sum, opt) => sum + countWords(opt), 0)
     : 0
   const totalWords = questionWords + optionWords
 
-  // Word count adjustment (approximate reading time at 200 words/min)
-  let wordBonus = 0
-  if (totalWords > 150) wordBonus = 15
-  else if (totalWords > 100) wordBonus = 10
-  else if (totalWords > 50) wordBonus = 5
+  // Calculate estimated reading time
+  // Average reading speed for technical content: 220 WPM (slower than casual 250-300 WPM)
+  const readingSpeedWPM = 220
+  const estimatedReadingTime = (totalWords / readingSpeedWPM) * 60 // Convert to seconds
 
-  // Final adjusted thresholds
-  const fluentThreshold = thresholds.fluent * formatModifier + wordBonus
-  const goodThreshold = thresholds.good * formatModifier + wordBonus
-  const slowThreshold = thresholds.slow * formatModifier + wordBonus
+  // Calculate thinking/processing time (actual cognitive work)
+  // Floor at 0 - student may answer before finishing reading (instant recognition)
+  const thinkingTime = Math.max(0, responseTimeSeconds - estimatedReadingTime)
+
+  // Thinking time thresholds by Bloom level (cognitive processing, not reading)
+  // These are MUCH shorter than old total-time thresholds
+  const thinkingThresholds: Record<number, { fluent: number, good: number, slow: number }> = {
+    1: { fluent: 5, good: 15, slow: 30 },    // Remember - quick recall
+    2: { fluent: 5, good: 15, slow: 30 },    // Understand - quick comprehension
+    3: { fluent: 10, good: 20, slow: 40 },   // Apply - some analysis
+    4: { fluent: 15, good: 30, slow: 60 },   // Analyze - deeper thinking
+    5: { fluent: 20, good: 45, slow: 90 },   // Evaluate - complex judgment
+    6: { fluent: 20, good: 45, slow: 90 }    // Create - synthesis required
+  }
+
+  // Format-specific thinking time modifiers
+  const formatModifiers: Record<string, number> = {
+    true_false: 0.8,      // Simpler decision - 2 options
+    mcq_single: 1.0,      // Baseline - 4 options, one correct
+    fill_blank: 1.2,      // Need to recall exact term
+    mcq_multi: 1.5,       // Evaluate multiple correct answers
+    matching: 1.7,        // Multiple pairings to consider
+    open_ended: 2.5       // Formulate and type explanation
+  }
+
+  const thresholds = thinkingThresholds[bloomLevel] || thinkingThresholds[1]
+  const formatModifier = questionFormat ? (formatModifiers[questionFormat] || 1.0) : 1.0
+
+  // Apply format modifier to thresholds
+  const fluentThreshold = thresholds.fluent * formatModifier
+  const goodThreshold = thresholds.good * formatModifier
+  const slowThreshold = thresholds.slow * formatModifier
 
   if (isCorrect) {
-    // Correct answer: reward based on speed
-    if (responseTimeSeconds < fluentThreshold) {
+    // Correct answer: reward based on thinking speed (not total time)
+    if (thinkingTime < fluentThreshold) {
       return 5  // Fluent mastery (automatic retrieval)
-    } else if (responseTimeSeconds < goodThreshold) {
+    } else if (thinkingTime < goodThreshold) {
       return 3  // Solid knowledge (thoughtful retrieval)
-    } else if (responseTimeSeconds < slowThreshold) {
+    } else if (thinkingTime < slowThreshold) {
       return 1  // Slow retrieval (struggling but got it)
     } else {
       return -1  // Too slow (very uncertain or overthinking)
     }
   } else {
     // Incorrect answer: penalize carelessness
-    if (responseTimeSeconds < fluentThreshold * 0.75) {
+    if (thinkingTime < fluentThreshold * 0.75) {
       return -3  // Careless/impulsive (rushed and wrong)
     } else {
       return 0  // Expected (took time but still wrong - honest attempt)
