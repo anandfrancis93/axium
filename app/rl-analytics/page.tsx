@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import { RefreshIcon } from '@/components/icons'
-import Tooltip from '@/components/Tooltip'
+import { Tooltip } from '@/components/Tooltip'
 
 interface SelectionData {
   timestamp: string
