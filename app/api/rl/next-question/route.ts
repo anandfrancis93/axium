@@ -613,7 +613,7 @@ export async function POST(request: NextRequest) {
     })
 
     // Step 3: Find questions ready for spaced repetition
-    const now = new Date()
+    // (Reusing 'now' from adaptive spaced repetition check above)
     const readyForReview = existingQuestions?.filter(q => {
       const response = responseMap.get(q.id)
       if (!response) return true // Never answered - ready to ask
