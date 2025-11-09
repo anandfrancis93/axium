@@ -123,7 +123,12 @@ export default function LearnPage() {
 
         if (sessionData) {
           // Resume existing session
-          setSession(sessionData)
+          // Normalize session structure to match API response format
+          setSession({
+            session_id: sessionData.id,
+            chapter_id: sessionData.chapter_id,
+            questions_remaining: sessionData.total_questions - sessionData.questions_answered
+          })
           // Restore session progress
           setSessionProgress({
             questions_answered: sessionData.questions_answered || 0,
