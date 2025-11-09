@@ -13,6 +13,9 @@ export default function AuditPage() {
   const [filter, setFilter] = useState<'all' | 'arm_selection' | 'reward_calculation' | 'mastery_update' | 'data_deletion'>('all')
   const [selectedDecision, setSelectedDecision] = useState<any>(null)
   const [currentMastery, setCurrentMastery] = useState<Map<string, number>>(new Map())
+  const [previewMode, setPreviewMode] = useState(false)
+  const [previewData, setPreviewData] = useState<any>(null)
+  const [loadingPreview, setLoadingPreview] = useState(false)
 
   useEffect(() => {
     loadDecisions()
@@ -53,6 +56,33 @@ export default function AuditPage() {
       }
     } catch (error) {
       console.error('Error loading current mastery:', error)
+    }
+  }
+
+  const loadPreviewSelection = async () => {
+    try {
+      setLoadingPreview(true)
+      const response = await fetch('/api/rl/preview-next-selection', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chapter_id: '0517450a-61b2-4fa2-a425-5846b21ba4b0' // Security+ chapter
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to load preview')
+      }
+
+      const data = await response.json()
+      setPreviewData(data)
+      setPreviewMode(true)
+      setSelectedDecision(null)
+    } catch (error) {
+      console.error('Error loading preview:', error)
+      alert('Failed to load preview. See console for details.')
+    } finally {
+      setLoadingPreview(false)
     }
   }
 
@@ -114,6 +144,13 @@ export default function AuditPage() {
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-gray-200">RL Decision Audit Log</h1>
           <div className="flex items-center gap-4">
+            <button
+              onClick={() => loadPreviewSelection()}
+              className="neuro-btn text-green-400 px-4 py-2 text-sm"
+              disabled={loadingPreview}
+            >
+              {loadingPreview ? 'Loading...' : 'Preview Next Selection'}
+            </button>
             <button
               onClick={() => loadDecisions()}
               className="neuro-btn text-blue-400 px-4 py-2 text-sm"
@@ -196,7 +233,99 @@ export default function AuditPage() {
 
           {/* Right: Decision Details */}
           <div className="lg:col-span-2">
-            {selectedDecision ? (
+            {previewMode && previewData ? (
+              <div className="neuro-card">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-semibold text-green-400">
+                    NEXT SELECTION PREVIEW
+                  </h2>
+                  <button
+                    onClick={() => setPreviewMode(false)}
+                    className="neuro-btn text-gray-400 text-sm px-4 py-2"
+                  >
+                    Back to History
+                  </button>
+                </div>
+
+                <div className="space-y-6">
+                  {previewData.reasoning && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-300 mb-2">Reasoning</h3>
+                      <div className="neuro-inset p-4 rounded-lg text-sm text-gray-400">
+                        {previewData.reasoning}
+                      </div>
+                    </div>
+                  )}
+
+                  {previewData.selected_arm && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-300 mb-2">Will Select This Arm</h3>
+                      <div className="neuro-inset p-4 rounded-lg">
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <span className="text-gray-500">Topic:</span>
+                            <span className="text-gray-200 ml-2">{previewData.selected_arm.topic_name}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Bloom Level:</span>
+                            <span className="text-gray-200 ml-2">{previewData.selected_arm.bloom_level}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Sampled Value:</span>
+                            <span className="text-gray-200 ml-2">{previewData.selected_arm.sampled_value?.toFixed(3)}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Adjusted Value:</span>
+                            <span className="text-green-400 ml-2 font-semibold">{previewData.selected_arm.adjusted_value?.toFixed(3)}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Mastery Score:</span>
+                            <span className="text-gray-200 ml-2">{previewData.selected_arm.mastery_score?.toFixed(1)}%</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {previewData.all_arms && previewData.all_arms.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-300 mb-2">
+                        All Arms Available ({previewData.all_arms.length})
+                      </h3>
+                      <div className="neuro-inset p-4 rounded-lg max-h-[400px] overflow-y-auto">
+                        <table className="w-full text-sm">
+                          <thead className="sticky top-0 bg-[#0a0a0a]">
+                            <tr>
+                              <th className="text-left text-gray-500 pb-2">Topic</th>
+                              <th className="text-center text-gray-500 pb-2">Bloom</th>
+                              <th className="text-right text-gray-500 pb-2">Sample</th>
+                              <th className="text-right text-gray-500 pb-2">Adjusted</th>
+                              <th className="text-right text-gray-500 pb-2">Mastery</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {previewData.all_arms
+                              .sort((a: any, b: any) => b.adjusted_value - a.adjusted_value)
+                              .map((arm: any, idx: number) => (
+                                <tr
+                                  key={idx}
+                                  className={arm.topic_id === previewData.selected_arm?.topic_id && arm.bloom_level === previewData.selected_arm?.bloom_level ? 'bg-green-900/20' : ''}
+                                >
+                                  <td className="text-gray-300 py-2">{arm.topic_name}</td>
+                                  <td className="text-center text-gray-400">{arm.bloom_level}</td>
+                                  <td className="text-right text-gray-400">{arm.sampled_value?.toFixed(3)}</td>
+                                  <td className="text-right text-green-400 font-semibold">{arm.adjusted_value?.toFixed(3)}</td>
+                                  <td className="text-right text-gray-400">{arm.mastery_score?.toFixed(1)}%</td>
+                                </tr>
+                              ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : selectedDecision ? (
               <div className="neuro-card">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className={`text-2xl font-semibold ${getDecisionTypeColor(selectedDecision.decision_type)}`}>
