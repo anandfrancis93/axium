@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import { RefreshIcon } from '@/components/icons'
+import Tooltip from '@/components/Tooltip'
 
 interface SelectionData {
   timestamp: string
@@ -120,7 +121,21 @@ export default function RLAnalyticsPage() {
       if (armStats && armStats.length > 0) {
         const totalSelections = armStats.reduce((sum, arm) => sum + (arm.times_selected || 0), 0)
         const avgReward = armStats.reduce((sum, arm) => sum + (arm.avg_reward || 0) * (arm.times_selected || 0), 0) / totalSelections
-        const explorationRate = armStats.filter(arm => (arm.times_selected || 0) < 3).length / armStats.length
+
+        // Calculate exploration rate as selection diversity (last 20 selections)
+        // Higher value = more diverse exploration, lower = concentrated exploitation
+        const recentSelections = decisions?.slice(0, 20) || []
+        const uniqueArmsInRecent = new Set(
+          recentSelections.map(d => {
+            const arm = d.selected_arm as any
+            return arm ? `${arm.topic_id || arm.topic_name}_${arm.bloom_level}` : null
+          }).filter(Boolean)
+        ).size
+
+        // Exploration rate = diversity of recent selections / total available arms
+        // 0% = selecting only 1 arm repeatedly (pure exploitation)
+        // 100% = selecting all available arms equally (pure exploration)
+        const explorationRate = armStats.length > 0 ? uniqueArmsInRecent / Math.min(20, armStats.length) : 0
 
         setRlMetrics({
           totalArms: armStats.length,
@@ -172,10 +187,19 @@ export default function RLAnalyticsPage() {
               <div className="text-sm text-purple-400 font-medium mb-2">Avg Reward</div>
               <div className="text-4xl font-bold text-gray-200">{rlMetrics.avgReward.toFixed(3)}</div>
             </div>
-            <div className="neuro-stat">
-              <div className="text-sm text-yellow-400 font-medium mb-2">Exploration Rate</div>
-              <div className="text-4xl font-bold text-gray-200">{(rlMetrics.explorationRate * 100).toFixed(1)}%</div>
-            </div>
+            <Tooltip content={`Selection Diversity (Last 20 Questions)
+
+Measures how many different topic-level combinations you've practiced recently.
+
+0% = Concentrated exploitation (repeating same topic/level)
+100% = Broad exploration (practicing many different combinations)
+
+Thompson Sampling naturally balances exploration and exploitation based on uncertainty and performance.`}>
+              <div className="neuro-stat cursor-help">
+                <div className="text-sm text-yellow-400 font-medium mb-2">Selection Diversity</div>
+                <div className="text-4xl font-bold text-gray-200">{(rlMetrics.explorationRate * 100).toFixed(1)}%</div>
+              </div>
+            </Tooltip>
           </div>
         )}
 
