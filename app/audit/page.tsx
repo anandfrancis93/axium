@@ -64,6 +64,18 @@ export default function AuditPage() {
     loadData()
   }, [activeTab, filter])
 
+  // Auto-refresh when page becomes visible (e.g., coming back from quiz)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        loadData()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }, [activeTab])
+
   useEffect(() => {
     if (selectedDecision?.decision_type === 'arm_selection' && selectedDecision?.all_arms) {
       loadCurrentMastery()
@@ -998,6 +1010,18 @@ Thompson Sampling naturally balances exploration and exploitation based on uncer
         {/* Spaced Repetition Tab */}
         {activeTab === 'spaced-repetition' && (
           <>
+            {/* Header with Refresh Button */}
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-semibold text-gray-200">Spaced Repetition Dashboard</h2>
+              <button
+                onClick={loadSpacedRepetition}
+                disabled={loading}
+                className="neuro-btn text-blue-400 px-4 py-2 disabled:opacity-50"
+              >
+                {loading ? 'Refreshing...' : 'Refresh'}
+              </button>
+            </div>
+
             {/* Spacing Statistics */}
             {spacingStats && (
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
