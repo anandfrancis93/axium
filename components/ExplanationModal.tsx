@@ -1,6 +1,6 @@
 'use client'
 
-import { XIcon } from '@/components/icons'
+import { XIcon, MicrophoneIcon } from '@/components/icons'
 import { useState, useRef, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkMath from 'remark-math'
@@ -50,6 +50,13 @@ export default function ExplanationModal({
   const [isResizing, setIsResizing] = useState(false)
   const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, width: 0, height: 0, posX: 0, posY: 0 })
   const [resizeDirection, setResizeDirection] = useState<'se' | 'sw' | 'ne' | 'nw' | 'e' | 'w' | 's' | 'n' | null>(null)
+
+  // Gemini Live voice state
+  const [isRecording, setIsRecording] = useState(false)
+  const [isConnecting, setIsConnecting] = useState(false)
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const wsRef = useRef<WebSocket | null>(null)
+  const audioChunksRef = useRef<Blob[]>([])
 
   // Initialize messages when explanation is loaded
   useEffect(() => {
@@ -263,6 +270,91 @@ export default function ExplanationModal({
     }
   }
 
+  const handleVoiceToggle = async () => {
+    if (isRecording) {
+      // Stop recording
+      setIsRecording(false)
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+        mediaRecorderRef.current.stop()
+      }
+      if (wsRef.current) {
+        wsRef.current.close()
+        wsRef.current = null
+      }
+    } else {
+      // Start recording
+      try {
+        setIsConnecting(true)
+
+        // Request microphone access
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            channelCount: 1,
+            sampleRate: 16000,
+          }
+        })
+
+        // Set up MediaRecorder for audio capture
+        const mediaRecorder = new MediaRecorder(stream, {
+          mimeType: 'audio/webm',
+        })
+
+        mediaRecorderRef.current = mediaRecorder
+        audioChunksRef.current = []
+
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            audioChunksRef.current.push(event.data)
+          }
+        }
+
+        mediaRecorder.onstop = async () => {
+          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' })
+
+          // Send audio to backend for Gemini Live processing
+          try {
+            const formData = new FormData()
+            formData.append('audio', audioBlob)
+            formData.append('selectedText', selectedText)
+            formData.append('fullContext', fullContext || '')
+            formData.append('conversationHistory', JSON.stringify(messages))
+
+            const response = await fetch('/api/ai/gemini-live', {
+              method: 'POST',
+              body: formData,
+            })
+
+            const data = await response.json()
+
+            if (response.ok) {
+              // Add transcribed question and AI response to messages
+              if (data.transcription) {
+                setMessages(prev => [...prev, { role: 'user', content: data.transcription }])
+              }
+              if (data.response) {
+                setMessages(prev => [...prev, { role: 'assistant', content: data.response }])
+              }
+            } else {
+              console.error('Gemini Live error:', data.error)
+            }
+          } catch (error) {
+            console.error('Error processing voice:', error)
+          }
+
+          // Clean up
+          stream.getTracks().forEach(track => track.stop())
+        }
+
+        mediaRecorder.start()
+        setIsRecording(true)
+        setIsConnecting(false)
+      } catch (error) {
+        console.error('Error accessing microphone:', error)
+        setIsConnecting(false)
+      }
+    }
+  }
+
   if (!isOpen) return null
 
   return (
@@ -425,12 +517,22 @@ export default function ExplanationModal({
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Ask a follow-up question..."
-                disabled={isSending}
+                disabled={isSending || isRecording}
                 className="neuro-input flex-1 px-4 py-3 disabled:opacity-50"
               />
               <button
+                onClick={handleVoiceToggle}
+                disabled={isSending || isConnecting}
+                className={`neuro-btn px-4 py-3 disabled:opacity-50 transition-colors ${
+                  isRecording ? 'text-red-400 animate-pulse' : 'text-gray-400'
+                }`}
+                title={isRecording ? 'Stop recording' : 'Start voice input'}
+              >
+                <MicrophoneIcon size={20} />
+              </button>
+              <button
                 onClick={handleSendMessage}
-                disabled={!input.trim() || isSending}
+                disabled={!input.trim() || isSending || isRecording}
                 className="neuro-btn text-blue-400 px-6 py-3 disabled:opacity-50"
               >
                 Send
