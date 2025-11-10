@@ -276,21 +276,10 @@ export default function ExplanationModal({
     console.log('Voice toggle clicked, isRecording:', isRecording)
 
     if (isRecording) {
-      // Stop recording and signal turn completion to Gemini
-      console.log('Stopping recording...')
+      // Stop recording - VAD will automatically detect end of speech
+      console.log('Stopping recording... VAD will detect speech end automatically')
       setIsRecording(false)
       setVoiceState('thinking')
-
-      // Send turn completion signal to Gemini
-      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-        console.log('📤 Sending turn completion signal to Gemini...')
-        wsRef.current.send(JSON.stringify({
-          realtimeInput: {
-            mediaChunks: []
-          },
-          turnComplete: true
-        }))
-      }
 
       // Cleanup audio processing
       if (mediaRecorderRef.current) {
@@ -302,7 +291,7 @@ export default function ExplanationModal({
         mediaRecorderRef.current = null
       }
 
-      // Don't close WebSocket yet - wait for Gemini's response
+      // Keep WebSocket open - wait for Gemini's response via VAD
     } else {
       // Start continuous conversation with Gemini Live API
       console.log('Starting Gemini Live...')
@@ -361,6 +350,14 @@ Provide clear, educational explanations. Keep responses concise and conversation
               },
               systemInstruction: {
                 parts: [{ text: systemPrompt }]
+              },
+              // Enable automatic voice activity detection
+              realtimeInputConfig: {
+                automaticActivityDetection: {
+                  disabled: false,  // Enable VAD
+                  // Configure VAD sensitivity (optional)
+                  silenceDurationMs: 1500  // Wait 1.5 seconds of silence before responding
+                }
               }
             }
           }))
@@ -735,17 +732,7 @@ Provide clear, educational explanations. Keep responses concise and conversation
             {/* Close button - always visible */}
             <button
               onClick={() => {
-                // Send turn completion if recording
-                if (isRecording && wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-                  console.log('📤 Sending turn completion signal (close button)...')
-                  wsRef.current.send(JSON.stringify({
-                    realtimeInput: {
-                      mediaChunks: []
-                    },
-                    turnComplete: true
-                  }))
-                }
-
+                console.log('Closing voice interaction...')
                 setShowVoiceOverlay(false)
                 setVoiceState('idle')
                 setIsRecording(false)
@@ -761,13 +748,11 @@ Provide clear, educational explanations. Keep responses concise and conversation
                   mediaRecorderRef.current = null
                 }
 
-                // Close WebSocket after a short delay to allow response
-                setTimeout(() => {
-                  if (wsRef.current) {
-                    wsRef.current.close()
-                    wsRef.current = null
-                  }
-                }, 5000)
+                // Close WebSocket
+                if (wsRef.current) {
+                  wsRef.current.close()
+                  wsRef.current = null
+                }
               }}
               className="absolute top-4 right-4 neuro-btn p-2 text-gray-400 hover:text-red-400 z-10"
               aria-label="Close voice interaction"
