@@ -11,16 +11,17 @@
   --shadow-light: #1a1a1a;
   --shadow-dark: #000000;
 
-  /* Elevation levels */
-  --elevation-1: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
-  --elevation-2: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
-  --elevation-3: 12px 12px 24px var(--shadow-dark), -12px -12px 24px var(--shadow-light);
+  /* Elevation levels - softer, more diffused shadows */
+  --elevation-1: 3px 3px 10px var(--shadow-dark), -3px -3px 10px var(--shadow-light);
+  --elevation-2: 5px 5px 15px var(--shadow-dark), -5px -5px 15px var(--shadow-light);
+  --elevation-3: 8px 8px 25px var(--shadow-dark), -8px -8px 25px var(--shadow-light);
 
   /* Inset (pressed) effect */
-  --inset: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+  --inset: inset 4px 4px 10px 0px var(--shadow-dark), inset -4px -4px 10px 0px var(--shadow-light);
 
   /* Surface colors */
   --surface: #0a0a0a;
+  --surface-subtle: #0d0d0d;
   --surface-raised: #0f0f0f;
   --surface-elevated: #141414;
 
