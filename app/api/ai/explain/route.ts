@@ -27,6 +27,12 @@ export async function POST(request: NextRequest) {
 
     // Initialize Anthropic client with API key
     const apiKey = process.env.ANTHROPIC_API_KEY
+    console.log('API Key check:', {
+      exists: !!apiKey,
+      length: apiKey?.length,
+      firstChars: apiKey?.substring(0, 10)
+    })
+
     if (!apiKey) {
       console.error('ANTHROPIC_API_KEY is not set in environment variables')
       return NextResponse.json(
