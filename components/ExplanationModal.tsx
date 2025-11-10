@@ -293,7 +293,7 @@ export default function ExplanationModal({
         if (processor) processor.disconnect()
         if (source) source.disconnect()
         if (audioContext) audioContext.close()
-        if (stream) stream.getTracks().forEach(track => track.stop())
+        if (stream) stream.getTracks().forEach((track: MediaStreamTrack) => track.stop())
         mediaRecorderRef.current = null
       }
     } else {
