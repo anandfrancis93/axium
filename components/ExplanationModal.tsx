@@ -350,7 +350,10 @@ export default function ExplanationModal({
                 </div>
                 <div className="text-gray-200 leading-relaxed prose prose-invert prose-sm max-w-none [&_code]:bg-gray-800 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_pre]:bg-gray-800 [&_pre]:p-4 [&_pre]:rounded-lg [&_a]:text-blue-400 [&_a]:no-underline hover:[&_a]:underline [&_.katex]:text-gray-200">
                   <ReactMarkdown
-                    remarkPlugins={[remarkMath, remarkGfm]}
+                    remarkPlugins={[
+                      [remarkMath, { singleDollarTextMath: false }],
+                      remarkGfm
+                    ]}
                     rehypePlugins={[rehypeKatex]}
                   >
                     {message.content}
