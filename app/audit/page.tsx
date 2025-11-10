@@ -36,6 +36,7 @@ interface SpacedRepData {
   questions_correct: number
   next_intervals: {
     optimal: string
+    optimal_days: number
     due: boolean
   }
 }
@@ -321,6 +322,7 @@ export default function AuditPage() {
             questions_correct: m.questions_correct,
             next_intervals: {
               optimal: `${optimalDays} days`,
+              optimal_days: optimalDays,
               due: daysSince >= optimalDays
             }
           }
@@ -334,12 +336,12 @@ export default function AuditPage() {
           ? spacedData.reduce((sum, d) => sum + d.days_since, 0) / spacedData.length
           : 0
 
-        // Group by spacing intervals
+        // Group by spacing intervals relative to optimal interval
         const byInterval = {
-          overdue: spacedData.filter(d => d.days_since > 14).length,
-          due: spacedData.filter(d => d.days_since >= 7 && d.days_since <= 14).length,
-          upcoming: spacedData.filter(d => d.days_since >= 3 && d.days_since < 7).length,
-          recent: spacedData.filter(d => d.days_since < 3).length,
+          critical: spacedData.filter(d => d.days_since > d.next_intervals.optimal_days * 2).length,
+          overdue: spacedData.filter(d => d.days_since >= d.next_intervals.optimal_days * 1.5 && d.days_since <= d.next_intervals.optimal_days * 2).length,
+          due: spacedData.filter(d => d.days_since >= d.next_intervals.optimal_days && d.days_since < d.next_intervals.optimal_days * 1.5).length,
+          onTrack: spacedData.filter(d => d.days_since < d.next_intervals.optimal_days).length,
         }
 
         setSpacingStats({
@@ -1063,23 +1065,27 @@ Thompson Sampling naturally balances exploration and exploitation based on uncer
             {/* Interval Distribution */}
             {spacingStats && (
               <div className="neuro-card mb-8">
-                <h2 className="text-2xl font-semibold text-gray-200 mb-6">Spacing Intervals</h2>
+                <h2 className="text-2xl font-semibold text-gray-200 mb-6">Review Status</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="neuro-inset p-4 rounded-lg">
-                    <div className="text-sm text-red-400 mb-2">Overdue (14+ days)</div>
+                    <div className="text-sm text-red-400 mb-2">Critical</div>
+                    <div className="text-3xl font-bold text-gray-200">{spacingStats.byInterval.critical}</div>
+                    <div className="text-xs text-gray-500 mt-1">&gt;2× overdue</div>
+                  </div>
+                  <div className="neuro-inset p-4 rounded-lg">
+                    <div className="text-sm text-orange-400 mb-2">Overdue</div>
                     <div className="text-3xl font-bold text-gray-200">{spacingStats.byInterval.overdue}</div>
+                    <div className="text-xs text-gray-500 mt-1">1.5-2× overdue</div>
                   </div>
                   <div className="neuro-inset p-4 rounded-lg">
-                    <div className="text-sm text-yellow-400 mb-2">Due (7-14 days)</div>
+                    <div className="text-sm text-yellow-400 mb-2">Due</div>
                     <div className="text-3xl font-bold text-gray-200">{spacingStats.byInterval.due}</div>
+                    <div className="text-xs text-gray-500 mt-1">Ready for review</div>
                   </div>
                   <div className="neuro-inset p-4 rounded-lg">
-                    <div className="text-sm text-blue-400 mb-2">Upcoming (3-7 days)</div>
-                    <div className="text-3xl font-bold text-gray-200">{spacingStats.byInterval.upcoming}</div>
-                  </div>
-                  <div className="neuro-inset p-4 rounded-lg">
-                    <div className="text-sm text-green-400 mb-2">Recent (&lt;3 days)</div>
-                    <div className="text-3xl font-bold text-gray-200">{spacingStats.byInterval.recent}</div>
+                    <div className="text-sm text-green-400 mb-2">On Track</div>
+                    <div className="text-3xl font-bold text-gray-200">{spacingStats.byInterval.onTrack}</div>
+                    <div className="text-xs text-gray-500 mt-1">Not due yet</div>
                   </div>
                 </div>
               </div>
