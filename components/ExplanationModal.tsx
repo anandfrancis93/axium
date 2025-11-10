@@ -2,6 +2,11 @@
 
 import { XIcon } from '@/components/icons'
 import { useState, useRef, useEffect } from 'react'
+import ReactMarkdown from 'react-markdown'
+import remarkMath from 'remark-math'
+import rehypeKatex from 'rehype-katex'
+import remarkGfm from 'remark-gfm'
+import 'katex/dist/katex.min.css'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -224,8 +229,13 @@ export default function ExplanationModal({
                 <div className="text-xs text-gray-500 mb-2">
                   {message.role === 'user' ? 'You' : 'AI Tutor'}
                 </div>
-                <div className="text-gray-200 whitespace-pre-line leading-relaxed">
-                  {message.content}
+                <div className="text-gray-200 leading-relaxed prose prose-invert prose-sm max-w-none [&_code]:bg-gray-800 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_pre]:bg-gray-800 [&_pre]:p-4 [&_pre]:rounded-lg [&_a]:text-blue-400 [&_a]:no-underline hover:[&_a]:underline [&_.katex]:text-gray-200">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkMath, remarkGfm]}
+                    rehypePlugins={[rehypeKatex]}
+                  >
+                    {message.content}
+                  </ReactMarkdown>
                 </div>
               </div>
             ))
