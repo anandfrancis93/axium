@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
 /**
  * POST /api/ai/gemini-live
  *
- * Processes audio input using Gemini Live API for voice-based AI explanations
+ * Processes audio input using Gemini API for voice-based AI explanations
  *
  * Body (FormData):
  * - audio: Audio blob (webm format)
@@ -30,40 +31,73 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const apiKey = process.env.GEMINI_API_KEY
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: 'GEMINI_API_KEY not configured' },
+        { status: 500 }
+      )
+    }
+
     const conversationHistory = conversationHistoryStr
       ? JSON.parse(conversationHistoryStr)
       : []
 
-    // TODO: Implement Gemini Live API integration
-    // For now, return a placeholder response
+    // Initialize Gemini API
+    const genAI = new GoogleGenerativeAI(apiKey)
 
     // Step 1: Convert audio to base64 for API
     const audioBuffer = await audioBlob.arrayBuffer()
     const audioBase64 = Buffer.from(audioBuffer).toString('base64')
 
-    // Step 2: Call Gemini Live API for transcription and response
-    // This will require:
-    // - GEMINI_API_KEY environment variable
-    // - Audio transcription
-    // - Context-aware response generation
+    // Step 2: Use Gemini to transcribe and understand the audio
+    // Using Gemini 1.5 Flash with audio support
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
-    // Placeholder implementation
-    const transcription = '[Voice input - Gemini Live integration pending]'
-    const response = `I heard your voice input. To complete this integration, you'll need to:
+    // First, transcribe the audio
+    const transcriptionPrompt = 'Transcribe this audio exactly as spoken. Only provide the transcription, nothing else.'
+    const transcriptionResult = await model.generateContent([
+      transcriptionPrompt,
+      {
+        inlineData: {
+          mimeType: 'audio/webm',
+          data: audioBase64,
+        },
+      },
+    ])
 
-1. Set up a Google Cloud project and enable the Gemini API
-2. Get an API key from https://ai.google.dev
-3. Add GEMINI_API_KEY to your .env.local file
-4. Install the Google AI SDK: \`npm install @google/generative-ai\`
-5. Implement the Gemini Live API WebSocket connection
+    const transcription = transcriptionResult.response.text().trim()
 
-The Gemini Live API supports:
-- Real-time audio transcription (16kHz, 16-bit PCM, mono)
-- Context-aware responses
-- Tool/function calling
-- Session management
+    if (!transcription) {
+      return NextResponse.json(
+        { error: 'Could not transcribe audio' },
+        { status: 400 }
+      )
+    }
 
-For now, you can use text input while we set up the voice integration.`
+    // Step 3: Generate context-aware response
+    // Build conversation context
+    let contextPrompt = `You are an AI tutor helping a student understand educational content.
+
+Selected text the student is asking about:
+"${selectedText}"
+`
+
+    if (fullContext) {
+      contextPrompt += `\nFull context:\n${fullContext}\n`
+    }
+
+    if (conversationHistory.length > 0) {
+      contextPrompt += '\nPrevious conversation:\n'
+      conversationHistory.forEach((msg: any) => {
+        contextPrompt += `${msg.role === 'user' ? 'Student' : 'AI Tutor'}: ${msg.content}\n`
+      })
+    }
+
+    contextPrompt += `\nStudent's question (from voice): ${transcription}\n\nProvide a clear, educational explanation. Use markdown formatting and LaTeX for math equations when appropriate. For inline math use $...$ and for display math use $$...$$`
+
+    const responseResult = await model.generateContent(contextPrompt)
+    const response = responseResult.response.text()
 
     return NextResponse.json({
       transcription,
