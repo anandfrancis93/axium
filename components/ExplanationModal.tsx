@@ -366,8 +366,9 @@ Provide clear, educational explanations. Keep responses concise and conversation
           if (data instanceof Blob) {
             data = await data.text()
           }
-          console.log('WebSocket message received:', typeof data === 'string' ? data.substring(0, 100) : data)
+
           const response = JSON.parse(data)
+          console.log('📨 WebSocket message:', JSON.stringify(response, null, 2))
 
           // Setup complete
           if (response.setupComplete) {
@@ -392,6 +393,7 @@ Provide clear, educational explanations. Keep responses concise and conversation
             source.connect(processor)
             processor.connect(audioContext.destination)
 
+            let chunkCount = 0
             processor.onaudioprocess = (e) => {
               if (ws.readyState !== WebSocket.OPEN) return
 
@@ -410,6 +412,11 @@ Provide clear, educational explanations. Keep responses concise and conversation
               )
 
               // Send to Gemini
+              chunkCount++
+              if (chunkCount % 50 === 0) {
+                console.log(`🎤 Sent ${chunkCount} audio chunks (${inputData.length} samples each)`)
+              }
+
               ws.send(JSON.stringify({
                 realtimeInput: {
                   mediaChunks: [{
@@ -424,13 +431,15 @@ Provide clear, educational explanations. Keep responses concise and conversation
             mediaRecorderRef.current = { stream, audioContext, processor, source } as any
           }
 
-          // Handle server audio response
+          // Handle server audio/text response
           if (response.serverContent?.modelTurn?.parts) {
+            console.log('🤖 Gemini is responding!')
             setVoiceState('speaking')
 
             for (const part of response.serverContent.modelTurn.parts) {
               // Handle text response
               if (part.text) {
+                console.log('💬 Text response:', part.text)
                 setMessages(prev => {
                   // Append to last assistant message or create new one
                   const last = prev[prev.length - 1]
@@ -443,6 +452,7 @@ Provide clear, educational explanations. Keep responses concise and conversation
 
               // Handle audio response
               if (part.inlineData?.mimeType?.includes('audio') && part.inlineData.data) {
+                console.log('🔊 Audio response received, playing...')
                 // Play audio response
                 playAudioResponse(part.inlineData.data)
               }
@@ -454,6 +464,8 @@ Provide clear, educational explanations. Keep responses concise and conversation
                 setVoiceState('listening')
               }
             }, 500)
+          } else if (response.serverContent) {
+            console.log('⚠️ Received serverContent but no modelTurn:', response.serverContent)
           }
         }
 
