@@ -28,7 +28,7 @@ export default function PerformancePage() {
   const [statsExpanded, setStatsExpanded] = useState(false)
   const [heatmapExpanded, setHeatmapExpanded] = useState(false)
   const [activityExpanded, setActivityExpanded] = useState(false)
-  const [examPredictionExpanded, setExamPredictionExpanded] = useState(true)
+  const [examPredictionExpanded, setExamPredictionExpanded] = useState(false)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [resetResults, setResetResults] = useState<any>(null)
@@ -595,10 +595,10 @@ Mastery calculated using EMA (recent performance weighted higher)`
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         {/* Overall Stats - Collapsible */}
-        <div className="mb-6">
+        <div className="mb-8">
           <button
             onClick={() => setStatsExpanded(!statsExpanded)}
-            className="w-full flex items-center justify-between mb-4"
+            className="w-full flex items-center justify-between mb-6"
           >
             <h2 className="text-xl font-semibold text-gray-200">
               Overall Statistics
@@ -610,7 +610,7 @@ Mastery calculated using EMA (recent performance weighted higher)`
           </button>
 
           {statsExpanded && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               <Tooltip content="Topics explored">
                 <div className="neuro-stat">
                   <div className="flex items-center justify-between mb-3">
@@ -669,10 +669,10 @@ Mastery calculated using EMA (recent performance weighted higher)`
 
         {/* Exam Score Prediction - Collapsible */}
         {examPrediction && (
-          <div className="mb-6">
+          <div className="mb-8">
             <button
               onClick={() => setExamPredictionExpanded(!examPredictionExpanded)}
-              className="w-full flex items-center justify-between p-2 -m-2 hover:bg-gray-800/20 rounded-lg transition-colors"
+              className="w-full flex items-center justify-between mb-6"
             >
               <h2 className="text-xl font-semibold text-gray-200">
                 CompTIA Security+ Exam Prediction
@@ -684,7 +684,7 @@ Mastery calculated using EMA (recent performance weighted higher)`
             </button>
 
             {examPredictionExpanded && (
-              <div className="mt-6 pt-6 border-t border-gray-800">
+              <div>
                 {/* Predicted Score */}
                 <div className="neuro-raised rounded-2xl p-8 mb-6 text-center">
                   <div className="text-sm text-gray-400 mb-2">Your Predicted Exam Score</div>
@@ -811,10 +811,10 @@ This score weights your IRT prediction - higher quality = more reliable estimate
 
         {/* Thompson Sampling RL State - Collapsible */}
         {rlArmStats.length > 0 && (
-          <div className="mb-6">
+          <div className="mb-8">
             <button
               onClick={() => setRlStateExpanded(!rlStateExpanded)}
-              className="w-full flex items-center justify-between p-2 -m-2 hover:bg-gray-800/20 rounded-lg transition-colors"
+              className="w-full flex items-center justify-between mb-6"
             >
               <h2 className="text-xl font-semibold text-gray-200">
                 Thompson Sampling State
@@ -826,7 +826,7 @@ This score weights your IRT prediction - higher quality = more reliable estimate
             </button>
 
             {rlStateExpanded && (
-              <div className="mt-6 pt-6 border-t border-gray-800">
+              <div>
                 <div className="mb-4 text-sm text-gray-400">
                   Current RL algorithm state showing Beta distribution parameters (α, β) for each topic × Bloom level.
                   Higher estimated success rate = more likely to be selected.
@@ -970,10 +970,10 @@ Thompson Sampling prioritizes arms with higher average rewards.`}>
         )}
 
         {/* Mastery Heatmap - Collapsible */}
-        <div className="mb-6">
+        <div className="mb-8">
           <button
             onClick={() => setHeatmapExpanded(!heatmapExpanded)}
-            className="w-full flex items-center justify-between p-2 -m-2 hover:bg-gray-800/20 rounded-lg transition-colors"
+            className="w-full flex items-center justify-between mb-6"
           >
             <h2 className="text-xl font-semibold text-gray-200">
               Mastery Heatmap
@@ -985,7 +985,7 @@ Thompson Sampling prioritizes arms with higher average rewards.`}>
           </button>
 
           {heatmapExpanded && (
-            <div className="mt-6 pt-6 border-t border-gray-800">
+            <div>
               {/* Legend */}
               <div className="mb-6">
                 <div className="flex items-center gap-4 text-sm mb-3 flex-wrap">
@@ -1151,10 +1151,10 @@ Thompson Sampling prioritizes arms with higher average rewards.`}>
         </div>
 
         {/* Recent Activity - Collapsible */}
-        <div className="mb-6">
+        <div className="mb-8">
           <button
             onClick={() => setActivityExpanded(!activityExpanded)}
-            className="w-full flex items-center justify-between mb-4"
+            className="w-full flex items-center justify-between mb-6"
           >
             <h2 className="text-xl font-semibold text-gray-200">
               Recent Activity
@@ -1166,7 +1166,7 @@ Thompson Sampling prioritizes arms with higher average rewards.`}>
           </button>
 
           {activityExpanded && (
-            <div className="mt-6 pt-6 border-t border-gray-800">
+            <div>
               {recentActivity.length > 0 ? (
                 <div className="space-y-6">
                   {recentActivity.slice(0, 10).map((response: any) => {
