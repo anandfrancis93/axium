@@ -64,6 +64,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Build messages array for conversation (Claude format)
+    const systemPrompt = `Provide clear, well-structured responses.
+For technical topics, use headers and organize information clearly.
+Use bullet points and numbered lists when explaining steps,
+options, or technical details.`
+
     const messages: Array<{ role: 'user' | 'assistant', content: string }> = []
 
     // If this is a follow-up question, include conversation history
@@ -110,6 +115,7 @@ Provide the explanation now:`
       model: 'claude-sonnet-4-5-20250929',
       max_tokens: 300,
       temperature: 0.7,
+      system: systemPrompt,
       messages,
     })
 
