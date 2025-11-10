@@ -560,7 +560,7 @@ Mastery calculated using EMA (recent performance weighted higher)`
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#0a0a0a' }}>
-        <div className="neuro-card max-w-md text-center">
+        <div className="neuro-raised max-w-md text-center p-8">
           <div className="text-blue-400 text-lg">Loading performance data...</div>
         </div>
       </div>
@@ -1151,10 +1151,10 @@ Thompson Sampling prioritizes arms with higher average rewards.`}>
         </div>
 
         {/* Recent Activity - Collapsible */}
-        <div className="neuro-card">
+        <div className="mb-6">
           <button
             onClick={() => setActivityExpanded(!activityExpanded)}
-            className="w-full flex items-center justify-between p-2 -m-2 hover:bg-gray-800/20 rounded-lg transition-colors"
+            className="w-full flex items-center justify-between mb-4"
           >
             <h2 className="text-xl font-semibold text-gray-200">
               Recent Activity
@@ -1242,7 +1242,7 @@ Thompson Sampling prioritizes arms with higher average rewards.`}>
         </div>
 
         {/* Danger Zone - Reset Progress */}
-        <div className="neuro-card mt-8 border border-red-900/20">
+        <div className="neuro-raised mt-8 border border-red-900/20">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h3 className="text-lg font-semibold text-red-400 mb-2">Danger Zone</h3>
