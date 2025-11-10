@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import OpenAI from 'openai'
+import Anthropic from '@anthropic-ai/sdk'
 
-const grok = new OpenAI({
-  apiKey: process.env.XAI_API_KEY,
-  baseURL: 'https://api.x.ai/v1',
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
 })
 
 /**
@@ -48,10 +47,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Build messages array for conversation
-    const messages: Array<{ role: 'system' | 'user' | 'assistant', content: string }> = [
-      { role: 'system', content: 'You are a helpful tutor who explains concepts clearly and simply. You answer follow-up questions about the selected text and help students understand better.' }
-    ]
+    // Build messages array for conversation (Claude format)
+    const systemPrompt = 'You are a helpful tutor who explains concepts clearly and simply. You answer follow-up questions about the selected text and help students understand better.'
+
+    const messages: Array<{ role: 'user' | 'assistant', content: string }> = []
 
     // If this is a follow-up question, include conversation history
     if (userQuestion && conversationHistory && conversationHistory.length > 0) {
@@ -93,14 +92,17 @@ Provide the explanation now:`
       messages.push({ role: 'user', content: prompt })
     }
 
-    const completion = await grok.chat.completions.create({
-      model: 'grok-2-1212',
-      messages,
-      temperature: 0.7,
+    const completion = await anthropic.messages.create({
+      model: 'claude-sonnet-4-5-20250929',
       max_tokens: 300,
+      temperature: 0.7,
+      system: systemPrompt,
+      messages,
     })
 
-    const explanation = completion.choices[0]?.message?.content || 'Sorry, I could not generate an explanation.'
+    const explanation = completion.content[0]?.type === 'text'
+      ? completion.content[0].text
+      : 'Sorry, I could not generate an explanation.'
 
     return NextResponse.json({
       explanation: explanation.trim()
