@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { PlayIcon, BarChartIcon, BookIcon, SettingsIcon, ArrowLeftIcon } from '@/components/icons'
+import { ArrowLeftIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 
 interface Chapter {
@@ -74,10 +74,6 @@ export function SubjectContent({ subject, chapters }: SubjectContentProps) {
             <div className="content-wrapper">
               {/* Page Title Section */}
               <div className="page-title-section">
-                <div className="title-icon-container">
-                  <div className="title-icon-glow"></div>
-                  <BookIcon size={28} weight="regular" className="relative z-10 text-blue-400" />
-                </div>
                 <h2 className="page-title">
                   Chapters ({chapters.length})
                 </h2>
@@ -113,14 +109,12 @@ export function SubjectContent({ subject, chapters }: SubjectContentProps) {
                         href={`/subjects/${subject.slug}/${chapter.slug}/quiz`}
                         className="action-button action-button-primary"
                       >
-                        <PlayIcon size={18} weight="regular" className="relative z-10" />
                         <span className="relative z-10">Start Learning</span>
                       </Link>
                       <Link
                         href={`/performance/${subject.slug}/${chapter.slug}`}
                         className="action-button action-button-secondary"
                       >
-                        <BarChartIcon size={18} weight="regular" className="relative z-10" />
                         <span className="relative z-10">Performance</span>
                       </Link>
                     </div>
@@ -132,10 +126,6 @@ export function SubjectContent({ subject, chapters }: SubjectContentProps) {
             // Empty State
             <div className="empty-state-wrapper">
               <div className="empty-state-card">
-                <div className="empty-icon-container">
-                  <div className="empty-icon-glow"></div>
-                  <BookIcon size={56} weight="light" className="relative z-10 text-gray-600" />
-                </div>
                 <h2 className="empty-title">
                   No Chapters Yet
                 </h2>
@@ -146,7 +136,6 @@ export function SubjectContent({ subject, chapters }: SubjectContentProps) {
                   href="/admin"
                   className="empty-action-button"
                 >
-                  <SettingsIcon size={20} weight="regular" className="relative z-10" />
                   <span className="relative z-10">Go to Admin Panel</span>
                 </Link>
               </div>
@@ -371,37 +360,6 @@ export function SubjectContent({ subject, chapters }: SubjectContentProps) {
           align-items: center;
           gap: 1rem;
           margin-bottom: 2rem;
-        }
-
-        .title-icon-container {
-          position: relative;
-          width: 4rem;
-          height: 4rem;
-          background: rgba(18, 18, 18, 0.7);
-          backdrop-filter: blur(30px) saturate(180%);
-          -webkit-backdrop-filter: blur(30px) saturate(180%);
-          border-radius: 1.25rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border: 1px solid rgba(255, 255, 255, 0.07);
-          box-shadow:
-            0 6px 20px 0 rgba(0, 0, 0, 0.7),
-            inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
-        }
-
-        .title-icon-glow {
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          background: radial-gradient(
-            circle,
-            rgba(59, 130, 246, 0.35) 0%,
-            transparent 70%
-          );
-          border-radius: 1.25rem;
-          filter: blur(22px);
-          opacity: 0.75;
         }
 
         .page-title {
@@ -685,38 +643,6 @@ export function SubjectContent({ subject, chapters }: SubjectContentProps) {
           text-align: center;
         }
 
-        .empty-icon-container {
-          position: relative;
-          width: 7rem;
-          height: 7rem;
-          margin: 0 auto 1.75rem;
-          background: rgba(22, 22, 22, 0.75);
-          backdrop-filter: blur(35px) saturate(180%);
-          -webkit-backdrop-filter: blur(35px) saturate(180%);
-          border-radius: 1.75rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          box-shadow:
-            0 6px 24px 0 rgba(0, 0, 0, 0.7),
-            inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
-        }
-
-        .empty-icon-glow {
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          background: radial-gradient(
-            circle,
-            rgba(107, 114, 128, 0.25) 0%,
-            transparent 70%
-          );
-          border-radius: 1.75rem;
-          filter: blur(28px);
-          opacity: 0.5;
-        }
-
         .empty-title {
           font-size: 2rem;
           font-weight: 700;
@@ -816,11 +742,6 @@ export function SubjectContent({ subject, chapters }: SubjectContentProps) {
 
           .empty-state-card {
             padding: 2.5rem 1.5rem;
-          }
-
-          .empty-icon-container {
-            width: 6rem;
-            height: 6rem;
           }
 
           .empty-title {
