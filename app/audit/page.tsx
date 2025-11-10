@@ -379,12 +379,20 @@ export default function AuditPage() {
         const upcomingTopics = spacedData.filter(d => !d.next_intervals.is_overdue)
 
         if (overdueTopics.length > 0) {
-          // Sort by most overdue
-          overdueTopics.sort((a, b) => b.hours_since - a.hours_since)
+          // Sort by most overdue (most hours past optimal)
+          overdueTopics.sort((a, b) => {
+            const aOverdue = a.hours_since - (a.next_intervals.optimal_days * 24)
+            const bOverdue = b.hours_since - (b.next_intervals.optimal_days * 24)
+            return bOverdue - aOverdue
+          })
           nextReviewDue = overdueTopics[0].next_intervals.time_remaining
         } else if (upcomingTopics.length > 0) {
-          // Sort by soonest due
-          upcomingTopics.sort((a, b) => a.hours_since - b.hours_since)
+          // Sort by soonest due (least hours remaining until optimal)
+          upcomingTopics.sort((a, b) => {
+            const aRemaining = (a.next_intervals.optimal_days * 24) - a.hours_since
+            const bRemaining = (b.next_intervals.optimal_days * 24) - b.hours_since
+            return aRemaining - bRemaining
+          })
           nextReviewDue = upcomingTopics[0].next_intervals.time_remaining
         }
 
