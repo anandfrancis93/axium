@@ -440,9 +440,17 @@ export function SubjectsContent({ subjects }: SubjectsContentProps) {
         .subject-name {
           font-size: 1.5rem;
           font-weight: 600;
-          color: rgba(255, 255, 255, 0.95);
+          background: linear-gradient(
+            135deg,
+            #ffffff 0%,
+            #e0e7ff 60%,
+            #bfdbfe 100%
+          );
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          filter: drop-shadow(0 2px 12px rgba(59, 130, 246, 0.3));
           margin-bottom: 0.75rem;
-          text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
           letter-spacing: -0.01em;
           transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -451,13 +459,13 @@ export function SubjectsContent({ subjects }: SubjectsContentProps) {
           background: linear-gradient(
             135deg,
             #ffffff 0%,
-            #dbeafe 50%,
-            #93c5fd 100%
+            #bfdbfe 40%,
+            #60a5fa 100%
           );
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
-          filter: drop-shadow(0 2px 15px rgba(59, 130, 246, 0.5));
+          filter: drop-shadow(0 2px 18px rgba(59, 130, 246, 0.7));
         }
 
         /* Subject Description */
