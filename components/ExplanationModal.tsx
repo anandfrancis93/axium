@@ -276,19 +276,24 @@ export default function ExplanationModal({
     console.log('Voice toggle clicked, isRecording:', isRecording)
 
     if (isRecording) {
-      // Stop recording and close WebSocket
+      // Stop recording and signal turn completion to Gemini
       console.log('Stopping recording...')
       setIsRecording(false)
-      setVoiceState('idle')
-      setShowVoiceOverlay(false)
+      setVoiceState('thinking')
 
-      if (wsRef.current) {
-        wsRef.current.close()
-        wsRef.current = null
+      // Send turn completion signal to Gemini
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        console.log('📤 Sending turn completion signal to Gemini...')
+        wsRef.current.send(JSON.stringify({
+          realtimeInput: {
+            mediaChunks: []
+          },
+          turnComplete: true
+        }))
       }
 
+      // Cleanup audio processing
       if (mediaRecorderRef.current) {
-        // Cleanup audio processing
         const { stream, audioContext, processor, source } = mediaRecorderRef.current as any
         if (processor) processor.disconnect()
         if (source) source.disconnect()
@@ -296,6 +301,8 @@ export default function ExplanationModal({
         if (stream) stream.getTracks().forEach((track: MediaStreamTrack) => track.stop())
         mediaRecorderRef.current = null
       }
+
+      // Don't close WebSocket yet - wait for Gemini's response
     } else {
       // Start continuous conversation with Gemini Live API
       console.log('Starting Gemini Live...')
@@ -458,12 +465,16 @@ Provide clear, educational explanations. Keep responses concise and conversation
               }
             }
 
-            // Return to listening after speaking
+            // Hide overlay and close connection after response
             setTimeout(() => {
-              if (wsRef.current?.readyState === WebSocket.OPEN) {
-                setVoiceState('listening')
+              console.log('✅ Response complete, closing overlay')
+              setShowVoiceOverlay(false)
+              setVoiceState('idle')
+              if (wsRef.current) {
+                wsRef.current.close()
+                wsRef.current = null
               }
-            }, 500)
+            }, 1500)
           } else if (response.serverContent) {
             console.log('⚠️ Received serverContent but no modelTurn:', response.serverContent)
           }
@@ -724,14 +735,23 @@ Provide clear, educational explanations. Keep responses concise and conversation
             {/* Close button - always visible */}
             <button
               onClick={() => {
+                // Send turn completion if recording
+                if (isRecording && wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+                  console.log('📤 Sending turn completion signal (close button)...')
+                  wsRef.current.send(JSON.stringify({
+                    realtimeInput: {
+                      mediaChunks: []
+                    },
+                    turnComplete: true
+                  }))
+                }
+
                 setShowVoiceOverlay(false)
                 setVoiceState('idle')
                 setIsRecording(false)
                 setIsConnecting(false)
-                if (wsRef.current) {
-                  wsRef.current.close()
-                  wsRef.current = null
-                }
+
+                // Cleanup audio processing
                 if (mediaRecorderRef.current) {
                   const { stream, audioContext, processor, source } = mediaRecorderRef.current as any
                   if (processor) processor.disconnect()
@@ -740,6 +760,14 @@ Provide clear, educational explanations. Keep responses concise and conversation
                   if (stream) stream.getTracks().forEach((track: MediaStreamTrack) => track.stop())
                   mediaRecorderRef.current = null
                 }
+
+                // Close WebSocket after a short delay to allow response
+                setTimeout(() => {
+                  if (wsRef.current) {
+                    wsRef.current.close()
+                    wsRef.current = null
+                  }
+                }, 5000)
               }}
               className="absolute top-4 right-4 neuro-btn p-2 text-gray-400 hover:text-red-400 z-10"
               aria-label="Close voice interaction"
