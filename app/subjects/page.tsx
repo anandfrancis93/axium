@@ -80,7 +80,7 @@ export default async function DashboardPage() {
                 <Link
                   key={subject.id}
                   href={`/subjects/${subject.slug}`}
-                  className="neuro-raised p-6 hover:shadow-lg transition-all group cursor-pointer"
+                  className="neuro-raised p-6 transition-all group cursor-pointer"
                 >
                   {/* Subject Icon */}
                   <div className="neuro-inset w-16 h-16 rounded-2xl flex items-center justify-center mb-4">
@@ -112,7 +112,7 @@ export default async function DashboardPage() {
         ) : (
           // Empty state
           <div className="neuro-card mb-6">
-            <div className="neuro-inset p-8 rounded-lg text-center">
+            <div className="p-8 text-center">
               <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <BookIcon size={40} className="text-gray-600" />
               </div>
