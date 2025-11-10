@@ -49,31 +49,42 @@ export function GoogleSignInButton() {
       </button>
 
       <style jsx>{`
+        /* Liquid Glass Button - tuned for #0a0a0a background */
         .glass-button {
           position: relative;
           width: 100%;
           padding: 1rem 1.5rem;
-          background: rgba(59, 130, 246, 0.15);
-          backdrop-filter: blur(20px) saturate(150%);
-          -webkit-backdrop-filter: blur(20px) saturate(150%);
+
+          /* Liquid Glass material */
+          background: rgba(59, 130, 246, 0.18);
+          backdrop-filter: blur(25px) saturate(180%);
+          -webkit-backdrop-filter: blur(25px) saturate(180%);
+
           border-radius: 1rem;
-          border: 1px solid rgba(59, 130, 246, 0.3);
-          color: rgba(255, 255, 255, 0.95);
+          border: 1px solid rgba(59, 130, 246, 0.35);
+
+          color: rgba(255, 255, 255, 0.97);
           font-weight: 500;
+
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 0.75rem;
+
           cursor: pointer;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+          /* Multi-layer shadows for depth on dark bg */
           box-shadow:
-            0 4px 20px 0 rgba(59, 130, 246, 0.2),
-            0 2px 8px 0 rgba(0, 0, 0, 0.3),
-            inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
-            inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
+            0 5px 25px 0 rgba(59, 130, 246, 0.25),
+            0 2px 10px 0 rgba(0, 0, 0, 0.5),
+            inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
+            inset 0 -1px 0 0 rgba(0, 0, 0, 0.3);
+
           overflow: hidden;
         }
 
+        /* Shimmer gradient overlay */
         .glass-button::before {
           content: '';
           position: absolute;
@@ -83,7 +94,7 @@ export function GoogleSignInButton() {
           bottom: 0;
           background: linear-gradient(
             135deg,
-            rgba(255, 255, 255, 0.1) 0%,
+            rgba(255, 255, 255, 0.15) 0%,
             rgba(255, 255, 255, 0) 50%,
             rgba(0, 0, 0, 0.1) 100%
           );
@@ -92,29 +103,34 @@ export function GoogleSignInButton() {
           pointer-events: none;
         }
 
+        /* Hover state - enhanced for dark background */
         .glass-button:hover {
-          background: rgba(59, 130, 246, 0.25);
-          border-color: rgba(59, 130, 246, 0.5);
+          background: rgba(59, 130, 246, 0.28);
+          border-color: rgba(59, 130, 246, 0.55);
           transform: translateY(-2px);
+
           box-shadow:
-            0 6px 30px 0 rgba(59, 130, 246, 0.35),
-            0 4px 12px 0 rgba(0, 0, 0, 0.4),
-            inset 0 1px 0 0 rgba(255, 255, 255, 0.15),
-            inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
+            0 8px 35px 0 rgba(59, 130, 246, 0.4),
+            0 4px 15px 0 rgba(0, 0, 0, 0.6),
+            inset 0 1px 0 0 rgba(255, 255, 255, 0.18),
+            inset 0 -1px 0 0 rgba(0, 0, 0, 0.3);
         }
 
         .glass-button:hover::before {
           opacity: 1;
         }
 
+        /* Active/pressed state */
         .glass-button:active {
           transform: translateY(0);
+
           box-shadow:
-            0 2px 12px 0 rgba(59, 130, 246, 0.3),
-            0 1px 4px 0 rgba(0, 0, 0, 0.3),
-            inset 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+            0 3px 15px 0 rgba(59, 130, 246, 0.35),
+            0 1px 5px 0 rgba(0, 0, 0, 0.5),
+            inset 0 2px 5px 0 rgba(0, 0, 0, 0.3);
         }
 
+        /* Radial glow effect */
         .button-glow {
           position: absolute;
           top: 50%;
@@ -122,15 +138,15 @@ export function GoogleSignInButton() {
           transform: translate(-50%, -50%);
           width: 100%;
           height: 100%;
-          background: radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%);
-          filter: blur(30px);
+          background: radial-gradient(circle, rgba(59, 130, 246, 0.45) 0%, transparent 70%);
+          filter: blur(35px);
           opacity: 0;
           transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           pointer-events: none;
         }
 
         .glass-button:hover .button-glow {
-          opacity: 0.8;
+          opacity: 0.9;
         }
       `}</style>
     </>

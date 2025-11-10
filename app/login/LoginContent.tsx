@@ -7,7 +7,7 @@ export function LoginContent() {
   return (
     <>
       <div className="login-background">
-        {/* Animated gradient orbs for depth */}
+        {/* Animated gradient orbs for depth - reduced opacity for #0a0a0a */}
         <div className="orb orb-1"></div>
         <div className="orb orb-2"></div>
         <div className="orb orb-3"></div>
@@ -54,46 +54,49 @@ export function LoginContent() {
       </div>
 
       <style jsx>{`
+        /* Base background - strict #0a0a0a */
         .login-background {
           position: fixed;
           top: 0;
           left: 0;
           width: 100%;
           height: 100%;
-          background: linear-gradient(135deg, #0a0a14 0%, #0f0f1e 25%, #14142d 50%, #0f0f1e 75%, #0a0a14 100%);
+          background: #0a0a0a;
           overflow: hidden;
           z-index: 0;
         }
 
+        /* Ambient light orbs - more visible on dark background */
         .orb {
           position: absolute;
           border-radius: 50%;
-          filter: blur(80px);
-          opacity: 0.3;
+          filter: blur(100px);
+          opacity: 0.35;
           animation: float 20s ease-in-out infinite;
+          mix-blend-mode: screen;
         }
 
         .orb-1 {
-          width: 400px;
-          height: 400px;
-          background: radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, rgba(59, 130, 246, 0) 70%);
-          top: -10%;
-          left: -10%;
+          width: 500px;
+          height: 500px;
+          background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, rgba(59, 130, 246, 0) 70%);
+          top: -15%;
+          left: -15%;
           animation-delay: 0s;
         }
 
         .orb-2 {
-          width: 500px;
-          height: 500px;
-          background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, rgba(139, 92, 246, 0) 70%);
-          bottom: -15%;
-          right: -15%;
+          width: 600px;
+          height: 600px;
+          background: radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, rgba(139, 92, 246, 0) 70%);
+          bottom: -20%;
+          right: -20%;
           animation-delay: 7s;
         }
 
         .orb-3 {
-          width: 350px;
-          height: 350px;
+          width: 400px;
+          height: 400px;
           background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0) 70%);
           top: 50%;
           left: 50%;
@@ -106,13 +109,13 @@ export function LoginContent() {
             transform: translate(0, 0) scale(1);
           }
           25% {
-            transform: translate(30px, -30px) scale(1.1);
+            transform: translate(40px, -40px) scale(1.1);
           }
           50% {
-            transform: translate(-20px, 20px) scale(0.9);
+            transform: translate(-30px, 30px) scale(0.9);
           }
           75% {
-            transform: translate(20px, 30px) scale(1.05);
+            transform: translate(30px, 40px) scale(1.05);
           }
         }
 
@@ -138,21 +141,30 @@ export function LoginContent() {
           }
         }
 
+        /* Main Glass Card - Liquid Glass Material */
         .glass-card {
           position: relative;
           max-width: 28rem;
           width: 100%;
-          background: rgba(20, 20, 35, 0.4);
-          backdrop-filter: blur(40px) saturate(180%);
-          -webkit-backdrop-filter: blur(40px) saturate(180%);
+
+          /* Liquid Glass core properties */
+          background: rgba(18, 18, 18, 0.7);
+          backdrop-filter: blur(50px) saturate(200%);
+          -webkit-backdrop-filter: blur(50px) saturate(200%);
+
           border-radius: 2rem;
           padding: 3rem 2rem;
-          border: 1px solid rgba(255, 255, 255, 0.08);
+
+          /* Subtle glass border */
+          border: 1px solid rgba(255, 255, 255, 0.07);
+
+          /* Multi-layer depth shadows */
           box-shadow:
-            0 8px 32px 0 rgba(0, 0, 0, 0.5),
-            0 2px 8px 0 rgba(0, 0, 0, 0.3),
+            0 10px 40px 0 rgba(0, 0, 0, 0.8),
+            0 4px 12px 0 rgba(0, 0, 0, 0.6),
             inset 0 1px 0 0 rgba(255, 255, 255, 0.05),
             inset 0 -1px 0 0 rgba(255, 255, 255, 0.02);
+
           transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -162,6 +174,7 @@ export function LoginContent() {
           }
         }
 
+        /* Glass border gradient overlay */
         .glass-card::before {
           content: '';
           position: absolute;
@@ -173,8 +186,8 @@ export function LoginContent() {
           padding: 1px;
           background: linear-gradient(
             135deg,
-            rgba(255, 255, 255, 0.1) 0%,
-            rgba(255, 255, 255, 0.05) 50%,
+            rgba(255, 255, 255, 0.12) 0%,
+            rgba(255, 255, 255, 0.06) 50%,
             rgba(255, 255, 255, 0.02) 100%
           );
           -webkit-mask:
@@ -185,23 +198,30 @@ export function LoginContent() {
           pointer-events: none;
         }
 
+        /* Glass Icon Container */
         .glass-icon-container {
           position: relative;
           width: 6rem;
           height: 6rem;
           margin: 0 auto 1.5rem;
-          background: rgba(30, 30, 50, 0.5);
-          backdrop-filter: blur(30px) saturate(150%);
-          -webkit-backdrop-filter: blur(30px) saturate(150%);
+
+          /* Liquid Glass material */
+          background: rgba(25, 25, 25, 0.7);
+          backdrop-filter: blur(35px) saturate(180%);
+          -webkit-backdrop-filter: blur(35px) saturate(180%);
+
           border-radius: 1.5rem;
           display: flex;
           align-items: center;
           justify-content: center;
+
           border: 1px solid rgba(255, 255, 255, 0.1);
+
           box-shadow:
-            0 4px 16px 0 rgba(0, 0, 0, 0.4),
+            0 6px 20px 0 rgba(0, 0, 0, 0.7),
             inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
-            inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
+            inset 0 -1px 0 0 rgba(0, 0, 0, 0.4);
+
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -209,21 +229,25 @@ export function LoginContent() {
           position: absolute;
           width: 100%;
           height: 100%;
-          background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
+          background: radial-gradient(circle, rgba(59, 130, 246, 0.35) 0%, transparent 70%);
           border-radius: 1.5rem;
-          filter: blur(20px);
-          opacity: 0.6;
+          filter: blur(25px);
+          opacity: 0.7;
         }
 
+        /* Glass Title with Gradient */
         .glass-title {
           font-size: 3rem;
           font-weight: 700;
-          background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 50%, #c7d2fe 100%);
+
+          /* Vibrant gradient for dark background */
+          background: linear-gradient(135deg, #ffffff 0%, #dbeafe 50%, #93c5fd 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
+
           margin-bottom: 0.75rem;
-          text-shadow: 0 2px 20px rgba(59, 130, 246, 0.3);
+          filter: drop-shadow(0 3px 25px rgba(59, 130, 246, 0.5));
           letter-spacing: -0.02em;
         }
 
@@ -233,12 +257,14 @@ export function LoginContent() {
           }
         }
 
+        /* Glass Text Elements */
         .glass-subtitle {
           font-size: 0.875rem;
           color: rgba(255, 255, 255, 0.5);
           font-weight: 400;
           letter-spacing: 0.05em;
           text-transform: uppercase;
+          text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
         }
 
         .glass-heading {
@@ -246,7 +272,7 @@ export function LoginContent() {
           font-weight: 700;
           color: rgba(255, 255, 255, 0.95);
           margin-bottom: 0.5rem;
-          text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+          text-shadow: 0 2px 15px rgba(0, 0, 0, 0.6);
           letter-spacing: -0.01em;
         }
 
@@ -260,6 +286,7 @@ export function LoginContent() {
           font-size: 0.875rem;
           color: rgba(255, 255, 255, 0.6);
           font-weight: 400;
+          text-shadow: 0 1px 5px rgba(0, 0, 0, 0.5);
         }
 
         .glass-legal {
@@ -267,6 +294,7 @@ export function LoginContent() {
           color: rgba(255, 255, 255, 0.4);
           text-align: center;
           line-height: 1.4;
+          text-shadow: 0 1px 5px rgba(0, 0, 0, 0.6);
         }
 
         :global(.space-y-6 > * + *) {
