@@ -54,6 +54,8 @@ export default function ExplanationModal({
   // Gemini Live voice state
   const [isRecording, setIsRecording] = useState(false)
   const [isConnecting, setIsConnecting] = useState(false)
+  const [voiceState, setVoiceState] = useState<'idle' | 'listening' | 'thinking' | 'speaking'>('idle')
+  const [showVoiceOverlay, setShowVoiceOverlay] = useState(false)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const wsRef = useRef<WebSocket | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
@@ -272,8 +274,9 @@ export default function ExplanationModal({
 
   const handleVoiceToggle = async () => {
     if (isRecording) {
-      // Stop recording
+      // Stop recording and process
       setIsRecording(false)
+      setVoiceState('thinking')
       if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
         mediaRecorderRef.current.stop()
       }
@@ -285,6 +288,7 @@ export default function ExplanationModal({
       // Start recording
       try {
         setIsConnecting(true)
+        setShowVoiceOverlay(true)
 
         // Request microphone access
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -327,6 +331,9 @@ export default function ExplanationModal({
             const data = await response.json()
 
             if (response.ok) {
+              // Show speaking state briefly
+              setVoiceState('speaking')
+
               // Add transcribed question and AI response to messages
               if (data.transcription) {
                 setMessages(prev => [...prev, { role: 'user', content: data.transcription }])
@@ -334,11 +341,21 @@ export default function ExplanationModal({
               if (data.response) {
                 setMessages(prev => [...prev, { role: 'assistant', content: data.response }])
               }
+
+              // Hide overlay after a brief moment
+              setTimeout(() => {
+                setShowVoiceOverlay(false)
+                setVoiceState('idle')
+              }, 1500)
             } else {
               console.error('Gemini Live error:', data.error)
+              setShowVoiceOverlay(false)
+              setVoiceState('idle')
             }
           } catch (error) {
             console.error('Error processing voice:', error)
+            setShowVoiceOverlay(false)
+            setVoiceState('idle')
           }
 
           // Clean up
@@ -347,10 +364,13 @@ export default function ExplanationModal({
 
         mediaRecorder.start()
         setIsRecording(true)
+        setVoiceState('listening')
         setIsConnecting(false)
       } catch (error) {
         console.error('Error accessing microphone:', error)
         setIsConnecting(false)
+        setShowVoiceOverlay(false)
+        setVoiceState('idle')
       }
     }
   }
@@ -537,6 +557,76 @@ export default function ExplanationModal({
               >
                 Send
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* Voice Interaction Overlay */}
+        {showVoiceOverlay && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50 rounded-lg">
+            <div className="flex flex-col items-center gap-6">
+              {/* Animated Microphone Visual */}
+              <div className="relative">
+                {/* Pulsing rings for listening state */}
+                {voiceState === 'listening' && (
+                  <>
+                    <div className="absolute inset-0 rounded-full bg-blue-400/30 animate-ping" style={{ animationDuration: '1.5s' }} />
+                    <div className="absolute inset-0 rounded-full bg-blue-400/20 animate-ping" style={{ animationDuration: '2s' }} />
+                  </>
+                )}
+
+                {/* Thinking spinner */}
+                {voiceState === 'thinking' && (
+                  <div className="absolute inset-0 rounded-full border-4 border-blue-400/30 border-t-blue-400 animate-spin" />
+                )}
+
+                {/* Speaking pulse */}
+                {voiceState === 'speaking' && (
+                  <div className="absolute inset-0 rounded-full bg-green-400/30 animate-pulse" />
+                )}
+
+                {/* Microphone Icon */}
+                <div className={`neuro-raised w-24 h-24 rounded-full flex items-center justify-center ${
+                  voiceState === 'listening' ? 'bg-blue-500/20' :
+                  voiceState === 'thinking' ? 'bg-yellow-500/20' :
+                  voiceState === 'speaking' ? 'bg-green-500/20' :
+                  'bg-gray-500/20'
+                }`}>
+                  <MicrophoneIcon
+                    size={48}
+                    className={
+                      voiceState === 'listening' ? 'text-blue-400' :
+                      voiceState === 'thinking' ? 'text-yellow-400' :
+                      voiceState === 'speaking' ? 'text-green-400' :
+                      'text-gray-400'
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* State Text */}
+              <div className="text-center">
+                <div className="text-2xl font-semibold text-gray-200 mb-2">
+                  {voiceState === 'listening' && 'Listening...'}
+                  {voiceState === 'thinking' && 'Thinking...'}
+                  {voiceState === 'speaking' && 'Response Ready'}
+                </div>
+                <div className="text-sm text-gray-400">
+                  {voiceState === 'listening' && 'Speak your question'}
+                  {voiceState === 'thinking' && 'Processing your question'}
+                  {voiceState === 'speaking' && 'Check the chat below'}
+                </div>
+              </div>
+
+              {/* Action Button */}
+              {voiceState === 'listening' && (
+                <button
+                  onClick={handleVoiceToggle}
+                  className="neuro-btn text-red-400 px-8 py-3 text-lg"
+                >
+                  Stop Recording
+                </button>
+              )}
             </div>
           </div>
         )}
