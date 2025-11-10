@@ -801,29 +801,6 @@ export default function TopicMasteryPage() {
           </div>
         )}
 
-        {/* Danger Zone - Reset Entire Topic */}
-        <div className="neuro-raised mt-8 border border-red-900/20">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h3 className="text-lg font-semibold text-red-400 mb-2">Danger Zone</h3>
-              <p className="text-sm text-gray-500">
-                Permanently delete all progress for this topic across all Bloom levels. This action cannot be undone.
-              </p>
-            </div>
-            <button
-              onClick={() => {
-                setResetBloomLevel(null)
-                setShowResetModal(true)
-              }}
-              disabled={resetting}
-              className="neuro-btn text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-red-400 hover:text-red-300 px-6 py-3 whitespace-nowrap"
-            >
-              <TrashIcon size={16} />
-              {resetting ? 'Resetting...' : 'Reset Entire Topic'}
-            </button>
-          </div>
-        </div>
-
         {/* Mastery Score Over Time Chart */}
         <div className="mb-8">
           <button
@@ -1178,6 +1155,29 @@ export default function TopicMasteryPage() {
               )}
             </>
           )}
+        </div>
+
+        {/* Danger Zone - Reset Entire Topic */}
+        <div className="neuro-raised mt-8 border border-red-900/20">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h3 className="text-lg font-semibold text-red-400 mb-2">Danger Zone</h3>
+              <p className="text-sm text-gray-500">
+                Permanently delete all progress for this topic across all Bloom levels. This action cannot be undone.
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                setResetBloomLevel(null)
+                setShowResetModal(true)
+              }}
+              disabled={resetting}
+              className="neuro-btn text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-red-400 hover:text-red-300 px-6 py-3 whitespace-nowrap"
+            >
+              <TrashIcon size={16} />
+              {resetting ? 'Resetting...' : 'Reset Entire Topic'}
+            </button>
+          </div>
         </div>
       </main>
 
