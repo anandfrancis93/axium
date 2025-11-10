@@ -370,7 +370,7 @@ export default function ExplanationModal({
                   <ReactMarkdown
                     remarkPlugins={[
                       remarkGfm,
-                      [remarkMath, { singleDollarTextMath: false }]
+                      remarkMath
                     ]}
                     rehypePlugins={[
                       [rehypeKatex, {
@@ -381,13 +381,23 @@ export default function ExplanationModal({
                     ]}
                   >
                     {
-                      // Convert LaTeX \[ \] and \( \) delimiters to $$ $$ for remark-math
-                      // This avoids single $ conflicts with dollar amounts
-                      message.content
-                        .replace(/\\\[/g, '\n$$\n')
-                        .replace(/\\\]/g, '\n$$\n')
-                        .replace(/\\\(/g, '$$')
-                        .replace(/\\\)/g, '$$')
+                      (() => {
+                        let content = message.content
+
+                        // Convert \[ \] and \( \) delimiters to $$ $$
+                        content = content
+                          .replace(/\\\[/g, '\n$$\n')
+                          .replace(/\\\]/g, '\n$$\n')
+                          .replace(/\\\(/g, '$')
+                          .replace(/\\\)/g, '$')
+
+                        // Escape dollar amounts so they're not treated as math
+                        // Match $NUMBER patterns (dollar amounts like $1000, $1,000.99, etc.)
+                        // Add backslash to escape them from being interpreted as math
+                        content = content.replace(/\$(\d{1,3}(,\d{3})*(\.\d{2})?|\d+(\.\d{2})?)/g, '\\$$$1')
+
+                        return content
+                      })()
                     }
                   </ReactMarkdown>
                 </div>
