@@ -8,47 +8,47 @@ export function LoginContent() {
     <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden" style={{
       fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, sans-serif'
     }}>
-      {/* Liquid Glass: Rich, vibrant gradient background with animation */}
+      {/* Liquid Glass: Dark gradient background with subtle color accents */}
       <div className="absolute inset-0" style={{
-        background: 'radial-gradient(circle at 30% 20%, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%)',
+        background: 'radial-gradient(circle at 30% 20%, #1a1f35 0%, #0f1419 40%, #0a0a0a 100%)',
         animation: 'gradientShift 15s ease infinite'
       }} />
 
-      {/* Liquid Glass: Animated gradient orbs for depth */}
-      <div className="absolute top-0 left-0 w-96 h-96 rounded-full blur-3xl opacity-30 animate-pulse" style={{
-        background: 'radial-gradient(circle, #667eea, transparent)',
+      {/* Liquid Glass: Animated gradient orbs for depth - darker with subtle blue/purple */}
+      <div className="absolute top-0 left-0 w-96 h-96 rounded-full blur-3xl opacity-20" style={{
+        background: 'radial-gradient(circle, #1e3a8a, transparent)',
         animation: 'float 20s ease-in-out infinite'
       }} />
-      <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full blur-3xl opacity-30" style={{
-        background: 'radial-gradient(circle, #f093fb, transparent)',
+      <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full blur-3xl opacity-15" style={{
+        background: 'radial-gradient(circle, #4c1d95, transparent)',
         animation: 'float 25s ease-in-out infinite reverse'
       }} />
 
-      {/* Liquid Glass: Main frosted glass container */}
+      {/* Liquid Glass: Main frosted glass container - dark theme */}
       <div className="max-w-md w-full relative z-10">
         <div className="relative" style={{
-          backdropFilter: 'blur(40px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-          backgroundColor: 'rgba(255, 255, 255, 0.08)',
+          backdropFilter: 'blur(40px) saturate(120%)',
+          WebkitBackdropFilter: 'blur(40px) saturate(120%)',
+          backgroundColor: 'rgba(20, 20, 30, 0.4)',
           borderRadius: '32px',
-          border: '1px solid rgba(255, 255, 255, 0.18)',
-          boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 1px 0 0 rgba(255, 255, 255, 0.1)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.6), inset 0 1px 0 0 rgba(255, 255, 255, 0.05)',
           padding: '48px 40px',
         }}>
           {/* Content */}
           <div className="text-center">
-            {/* Liquid Glass: Floating glass icon container */}
+            {/* Liquid Glass: Floating glass icon container - dark theme */}
             <div className="inline-flex items-center justify-center w-28 h-28 mb-8 relative" style={{
-              backdropFilter: 'blur(20px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-              backgroundColor: 'rgba(255, 255, 255, 0.12)',
+              backdropFilter: 'blur(20px) saturate(120%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(120%)',
+              backgroundColor: 'rgba(30, 30, 50, 0.4)',
               borderRadius: '24px',
-              border: '1px solid rgba(255, 255, 255, 0.25)',
-              boxShadow: '0 8px 32px rgba(102, 126, 234, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+              border: '1px solid rgba(59, 130, 246, 0.3)',
+              boxShadow: '0 8px 32px rgba(59, 130, 246, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
             }}>
-              {/* Vibrant glow behind icon */}
-              <div className="absolute inset-0 rounded-[24px] blur-xl opacity-50" style={{
-                background: 'linear-gradient(135deg, #667eea, #764ba2)',
+              {/* Subtle glow behind icon - dark theme */}
+              <div className="absolute inset-0 rounded-[24px] blur-xl opacity-30" style={{
+                background: 'linear-gradient(135deg, #1e3a8a, #3b82f6)',
               }} />
               <div className="relative z-10" style={{
                 filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3))'

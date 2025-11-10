@@ -36,32 +36,32 @@ export function GoogleSignInButton() {
       style={{
         height: '56px',
         borderRadius: '16px',
-        border: '1px solid rgba(255, 255, 255, 0.25)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
         cursor: 'pointer',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         transform: isPressed ? 'scale(0.97) translateY(1px)' : isHovered ? 'scale(1.02) translateY(-2px)' : 'scale(1)',
         fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',
-        // Liquid Glass: Frosted glass effect
-        backdropFilter: 'blur(30px) saturate(150%)',
-        WebkitBackdropFilter: 'blur(30px) saturate(150%)',
+        // Liquid Glass: Frosted glass effect - dark theme
+        backdropFilter: 'blur(30px) saturate(120%)',
+        WebkitBackdropFilter: 'blur(30px) saturate(120%)',
         backgroundColor: isPressed
-          ? 'rgba(255, 255, 255, 0.25)'
+          ? 'rgba(40, 40, 60, 0.5)'
           : isHovered
-            ? 'rgba(255, 255, 255, 0.22)'
-            : 'rgba(255, 255, 255, 0.18)',
+            ? 'rgba(35, 35, 55, 0.45)'
+            : 'rgba(30, 30, 50, 0.4)',
         boxShadow: isPressed
-          ? '0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15)'
+          ? '0 4px 16px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08)'
           : isHovered
-            ? '0 12px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1)'
-            : '0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15)',
+            ? '0 12px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 0 1px rgba(59, 130, 246, 0.2)'
+            : '0 8px 24px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
       }}
     >
-      {/* Liquid Glass: Vibrant gradient overlay on hover */}
+      {/* Liquid Glass: Subtle gradient overlay on hover - dark theme */}
       <div
         className="absolute inset-0 transition-opacity duration-300"
         style={{
-          opacity: isHovered ? 0.08 : 0,
-          background: 'linear-gradient(135deg, #667eea, #764ba2)',
+          opacity: isHovered ? 0.15 : 0,
+          background: 'linear-gradient(135deg, #1e3a8a, #3b82f6)',
           borderRadius: '16px',
           pointerEvents: 'none'
         }}
@@ -80,14 +80,14 @@ export function GoogleSignInButton() {
 
       {/* Button content */}
       <div className="relative flex items-center justify-center gap-3 h-full px-6">
-        {/* Google Icon with glass container */}
+        {/* Google Icon with glass container - dark theme */}
         <div className="relative" style={{
           backdropFilter: 'blur(10px)',
           WebkitBackdropFilter: 'blur(10px)',
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
           borderRadius: '8px',
           padding: '6px',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
         }}>
           <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
             <path
