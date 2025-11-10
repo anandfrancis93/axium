@@ -75,33 +75,28 @@ export default async function SubjectPage({
   return (
     <div className="min-h-screen" style={{ background: '#0a0a0a' }}>
       {/* Header */}
-      <header className="neuro-container mx-4 my-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center gap-3">
-          <div className="neuro-raised px-6 py-3 flex items-center gap-3 min-w-0 flex-shrink">
-            <BookIcon size={24} className="text-blue-400 flex-shrink-0" />
+      <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex justify-between items-center gap-3">
+          <div className="flex items-center gap-3">
+            <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0">
+              <BookIcon size={24} className="text-blue-400" />
+            </div>
             <h1 className="text-2xl font-bold text-blue-400 truncate">
               {subject.name}
             </h1>
           </div>
-          <div className="flex-shrink-0">
-            <HamburgerMenu />
-          </div>
+          <HamburgerMenu />
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         {/* Chapters List */}
         {chapters.length > 0 ? (
-          <div className="neuro-card mb-6">
+          <>
             <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center">
-                  <BookIcon size={20} className="text-blue-400" />
-                </div>
-                <h2 className="text-xl font-semibold text-gray-200">
-                  Chapters ({chapters.length})
-                </h2>
-              </div>
+              <h2 className="text-xl font-semibold text-gray-200">
+                Chapters ({chapters.length})
+              </h2>
               {subject.description && (
                 <div className="text-sm text-gray-500 max-w-md text-right">
                   {subject.description}
@@ -117,7 +112,7 @@ export default async function SubjectPage({
                 return (
                   <div
                     key={chapter.id}
-                    className="neuro-raised p-6 hover:shadow-lg transition-all group"
+                    className="neuro-raised p-6 transition-all group"
                   >
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                       <div className="flex-1 flex gap-4">
@@ -159,25 +154,23 @@ export default async function SubjectPage({
                 )
               })}
             </div>
-          </div>
+          </>
         ) : (
           // Empty state
-          <div className="neuro-card">
-            <div className="neuro-inset p-8 rounded-lg text-center">
-              <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <BookIcon size={40} className="text-gray-600" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-200 mb-2">
-                No Chapters Yet
-              </h3>
-              <p className="text-sm text-gray-500 mb-8 max-w-md mx-auto">
-                Create chapters for this subject to start your learning journey.
-              </p>
-              <Link href="/admin" className="neuro-btn-primary inline-flex items-center gap-2 px-6 py-3">
-                <SettingsIcon size={18} />
-                <span>Go to Admin Panel</span>
-              </Link>
+          <div className="text-center py-16">
+            <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <BookIcon size={40} className="text-gray-600" />
             </div>
+            <h3 className="text-2xl font-bold text-gray-200 mb-2">
+              No Chapters Yet
+            </h3>
+            <p className="text-sm text-gray-500 mb-8 max-w-md mx-auto">
+              Create chapters for this subject to start your learning journey.
+            </p>
+            <Link href="/admin" className="neuro-btn-primary inline-flex items-center gap-2 px-6 py-3">
+              <SettingsIcon size={18} />
+              <span>Go to Admin Panel</span>
+            </Link>
           </div>
         )}
       </main>
