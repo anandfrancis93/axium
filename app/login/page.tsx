@@ -23,39 +23,40 @@ export default async function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8" style={{ background: '#0a0a0a' }}>
-      <div className="max-w-md w-full">
-        <div className="neuro-container">
-          {/* Branding */}
-          <div className="text-center mb-8">
-            <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <BookIcon size={40} className="text-blue-400" />
-            </div>
-            <h1 className="text-4xl font-bold text-blue-400 mb-3">
-              Axium
-            </h1>
-            <p className="text-sm text-gray-500">
-              Adaptive Learning Platform
-            </p>
+    <div className="min-h-screen flex items-center justify-center px-4" style={{
+      background: 'linear-gradient(to bottom, #000000, #1a1a1a)',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, sans-serif'
+    }}>
+      <div className="max-w-sm w-full">
+        {/* Apple HIG: Centered content with generous spacing */}
+        <div className="text-center">
+          {/* Icon - Apple HIG: Large, recognizable app icon */}
+          <div className="inline-flex items-center justify-center w-24 h-24 mb-8 rounded-[20px] bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/50">
+            <BookIcon size={48} className="text-white" />
           </div>
 
-          {/* Sign In Section */}
-          <div className="space-y-6">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-200 mb-2">
-                Welcome Back
-              </h2>
-              <p className="text-sm text-gray-500">
-                Sign in to continue learning
-              </p>
-            </div>
+          {/* Typography - Apple HIG: Clear hierarchy with SF Pro weights */}
+          <h1 className="text-5xl font-semibold tracking-tight text-white mb-3" style={{
+            fontWeight: 600,
+            letterSpacing: '-0.02em'
+          }}>
+            Axium
+          </h1>
 
+          {/* Apple HIG: Secondary text with reduced opacity */}
+          <p className="text-[17px] font-normal text-white/60 mb-12 leading-snug">
+            Adaptive Learning Platform
+          </p>
+
+          {/* Apple HIG: Single primary action, prominent placement */}
+          <div className="mb-8">
             <GoogleSignInButton />
-
-            <p className="text-xs text-gray-600 text-center">
-              By signing in, you agree to use this platform responsibly.
-            </p>
           </div>
+
+          {/* Apple HIG: Legal text, smallest size, lowest hierarchy */}
+          <p className="text-[13px] font-normal text-white/40 leading-relaxed px-8">
+            By continuing, you agree to our Terms of Service and Privacy Policy
+          </p>
         </div>
       </div>
     </div>
