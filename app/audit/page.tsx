@@ -221,7 +221,7 @@ export default function AuditPage() {
           })
         }
 
-        setSelections(processedSelections.reverse())
+        setSelections(processedSelections)
       }
 
       // Calculate topic-level stats
@@ -229,7 +229,7 @@ export default function AuditPage() {
         .from('user_topic_mastery')
         .select('topic_id, topics(name, full_name), bloom_level, mastery_score, questions_correct, questions_attempted, last_practiced_at')
         .eq('user_id', user.id)
-        .order('questions_attempted', { ascending: false })
+        .order('last_practiced_at', { ascending: false })
         .limit(20)
 
       if (masteryData) {
