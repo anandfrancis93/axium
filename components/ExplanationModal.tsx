@@ -45,6 +45,12 @@ export default function ExplanationModal({
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
   const modalRef = useRef<HTMLDivElement>(null)
 
+  // Resizable state
+  const [size, setSize] = useState({ width: 768, height: 600 }) // Default size
+  const [isResizing, setIsResizing] = useState(false)
+  const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, width: 0, height: 0 })
+  const [resizeDirection, setResizeDirection] = useState<'se' | 'sw' | 'ne' | 'nw' | 'e' | 'w' | 's' | 'n' | null>(null)
+
   // Initialize messages when explanation is loaded
   useEffect(() => {
     if (explanation && messages.length === 0) {
@@ -64,11 +70,15 @@ export default function ExplanationModal({
       setInput('')
       setIsSending(false)
       setPosition({ x: 0, y: 0 })
+      setSize({ width: 768, height: 600 })
     }
   }, [isOpen])
 
   // Drag handlers
   const handleMouseDown = (e: React.MouseEvent) => {
+    // Don't drag if resizing
+    if (isResizing) return
+
     // Only allow dragging from the header, not from buttons or input fields
     if (
       e.target instanceof HTMLElement &&
@@ -120,6 +130,70 @@ export default function ExplanationModal({
       document.removeEventListener('mouseup', handleMouseUp)
     }
   }, [isDragging, dragStart])
+
+  // Resize handlers
+  const handleResizeMouseDown = (e: React.MouseEvent, direction: typeof resizeDirection) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsResizing(true)
+    setResizeDirection(direction)
+    setResizeStart({
+      x: e.clientX,
+      y: e.clientY,
+      width: size.width,
+      height: size.height,
+    })
+  }
+
+  useEffect(() => {
+    const handleResizeMove = (e: MouseEvent) => {
+      if (!isResizing || !resizeDirection) return
+
+      const deltaX = e.clientX - resizeStart.x
+      const deltaY = e.clientY - resizeStart.y
+
+      let newWidth = resizeStart.width
+      let newHeight = resizeStart.height
+      let newX = position.x
+      let newY = position.y
+
+      // Calculate new dimensions based on resize direction
+      if (resizeDirection.includes('e')) {
+        newWidth = Math.max(400, Math.min(window.innerWidth - 100, resizeStart.width + deltaX))
+      }
+      if (resizeDirection.includes('w')) {
+        newWidth = Math.max(400, Math.min(window.innerWidth - 100, resizeStart.width - deltaX))
+        newX = position.x + (resizeStart.width - newWidth)
+      }
+      if (resizeDirection.includes('s')) {
+        newHeight = Math.max(400, Math.min(window.innerHeight - 100, resizeStart.height + deltaY))
+      }
+      if (resizeDirection.includes('n')) {
+        newHeight = Math.max(400, Math.min(window.innerHeight - 100, resizeStart.height - deltaY))
+        newY = position.y + (resizeStart.height - newHeight)
+      }
+
+      setSize({ width: newWidth, height: newHeight })
+      if (newX !== position.x || newY !== position.y) {
+        setPosition({ x: newX, y: newY })
+      }
+    }
+
+    const handleResizeUp = () => {
+      setIsResizing(false)
+      setResizeDirection(null)
+    }
+
+    if (isResizing) {
+      document.addEventListener('mousemove', handleResizeMove)
+      document.addEventListener('mouseup', handleResizeUp)
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleResizeMove)
+      document.removeEventListener('mouseup', handleResizeUp)
+    }
+  }, [isResizing, resizeDirection, resizeStart, position, size])
 
   const handleSendMessage = async () => {
     if (!input.trim() || isSending) return
@@ -177,13 +251,58 @@ export default function ExplanationModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 animate-in fade-in duration-200">
       <div
         ref={modalRef}
-        className="neuro-card max-w-3xl w-full max-h-[85vh] flex flex-col animate-in zoom-in-95 duration-200"
+        className="neuro-card flex flex-col animate-in zoom-in-95 duration-200 relative"
         style={{
+          width: `${size.width}px`,
+          height: `${size.height}px`,
           transform: `translate(${position.x}px, ${position.y}px)`,
-          cursor: isDragging ? 'grabbing' : 'default',
+          cursor: isDragging ? 'grabbing' : isResizing ? 'grabbing' : 'default',
         }}
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Resize Handles */}
+        {/* Corner handles - visible indicators */}
+        <div
+          className="absolute top-0 right-0 w-3 h-3 cursor-ne-resize hover:bg-blue-400/30 transition-colors"
+          onMouseDown={(e) => handleResizeMouseDown(e, 'ne')}
+          style={{ zIndex: 10 }}
+        />
+        <div
+          className="absolute top-0 left-0 w-3 h-3 cursor-nw-resize hover:bg-blue-400/30 transition-colors"
+          onMouseDown={(e) => handleResizeMouseDown(e, 'nw')}
+          style={{ zIndex: 10 }}
+        />
+        <div
+          className="absolute bottom-0 right-0 w-3 h-3 cursor-se-resize hover:bg-blue-400/30 transition-colors"
+          onMouseDown={(e) => handleResizeMouseDown(e, 'se')}
+          style={{ zIndex: 10 }}
+        />
+        <div
+          className="absolute bottom-0 left-0 w-3 h-3 cursor-sw-resize hover:bg-blue-400/30 transition-colors"
+          onMouseDown={(e) => handleResizeMouseDown(e, 'sw')}
+          style={{ zIndex: 10 }}
+        />
+        {/* Edge handles - invisible but functional */}
+        <div
+          className="absolute top-0 left-3 right-3 h-1 cursor-n-resize hover:bg-blue-400/20 transition-colors"
+          onMouseDown={(e) => handleResizeMouseDown(e, 'n')}
+          style={{ zIndex: 10 }}
+        />
+        <div
+          className="absolute bottom-0 left-3 right-3 h-1 cursor-s-resize hover:bg-blue-400/20 transition-colors"
+          onMouseDown={(e) => handleResizeMouseDown(e, 's')}
+          style={{ zIndex: 10 }}
+        />
+        <div
+          className="absolute top-3 bottom-3 left-0 w-1 cursor-w-resize hover:bg-blue-400/20 transition-colors"
+          onMouseDown={(e) => handleResizeMouseDown(e, 'w')}
+          style={{ zIndex: 10 }}
+        />
+        <div
+          className="absolute top-3 bottom-3 right-0 w-1 cursor-e-resize hover:bg-blue-400/20 transition-colors"
+          onMouseDown={(e) => handleResizeMouseDown(e, 'e')}
+          style={{ zIndex: 10 }}
+        />
         {/* Header - Draggable area */}
         <div
           className="flex items-center justify-between mb-4 pb-4 border-b border-gray-700 flex-shrink-0 cursor-grab active:cursor-grabbing"
