@@ -26,16 +26,14 @@ export default async function AdminPage() {
   return (
     <div className="min-h-screen" style={{ background: '#0a0a0a' }}>
       {/* Header */}
-      <header className="neuro-container mx-4 my-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between gap-3 mb-4">
-            <div className="min-w-0 flex-shrink">
-              <h1 className="text-2xl font-bold text-blue-400">Admin Panel</h1>
-              <div className="text-sm text-gray-500">Content Management</div>
-            </div>
-            <div className="flex-shrink-0">
-              <HamburgerMenu />
-            </div>
+      <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0 flex-shrink">
+            <h1 className="text-2xl font-bold text-blue-400">Admin Panel</h1>
+            <div className="text-sm text-gray-500">Content Management</div>
+          </div>
+          <div className="flex-shrink-0">
+            <HamburgerMenu />
           </div>
         </div>
       </header>
