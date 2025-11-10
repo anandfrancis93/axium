@@ -454,15 +454,22 @@ Provide clear, educational explanations. Keep responses concise and conversation
 
         ws.onerror = (error) => {
           console.error('❌ WebSocket error:', error)
-          alert('WebSocket connection failed. Check console for details.')
           setIsRecording(false)
           setVoiceState('idle')
           setShowVoiceOverlay(false)
           setIsConnecting(false)
+          // Show error message after overlay closes
+          setTimeout(() => {
+            alert('Voice connection failed. Please check:\n1. Your internet connection\n2. That NEXT_PUBLIC_GEMINI_API_KEY is set in Vercel\n3. Browser console for details')
+          }, 100)
         }
 
         ws.onclose = (event) => {
           console.log('WebSocket closed. Code:', event.code, 'Reason:', event.reason)
+          if (event.code !== 1000) {
+            // Abnormal closure
+            console.error('Abnormal WebSocket closure:', event.code, event.reason)
+          }
           setIsRecording(false)
           setVoiceState('idle')
           setShowVoiceOverlay(false)
@@ -471,10 +478,10 @@ Provide clear, educational explanations. Keep responses concise and conversation
 
       } catch (error) {
         console.error('❌ Error starting Gemini Live:', error)
-        alert('Failed to start Gemini Live: ' + (error as Error).message)
         setIsConnecting(false)
         setShowVoiceOverlay(false)
         setVoiceState('idle')
+        alert('Failed to start voice: ' + (error as Error).message)
       }
     }
   }
@@ -697,6 +704,32 @@ Provide clear, educational explanations. Keep responses concise and conversation
         {/* Voice Interaction Overlay */}
         {showVoiceOverlay && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50 rounded-lg">
+            {/* Close button - always visible */}
+            <button
+              onClick={() => {
+                setShowVoiceOverlay(false)
+                setVoiceState('idle')
+                setIsRecording(false)
+                setIsConnecting(false)
+                if (wsRef.current) {
+                  wsRef.current.close()
+                  wsRef.current = null
+                }
+                if (mediaRecorderRef.current) {
+                  const { stream, audioContext, processor, source } = mediaRecorderRef.current as any
+                  if (processor) processor.disconnect()
+                  if (source) source.disconnect()
+                  if (audioContext) audioContext.close()
+                  if (stream) stream.getTracks().forEach((track: MediaStreamTrack) => track.stop())
+                  mediaRecorderRef.current = null
+                }
+              }}
+              className="absolute top-4 right-4 neuro-btn p-2 text-gray-400 hover:text-red-400 z-10"
+              aria-label="Close voice interaction"
+            >
+              <XIcon size={24} />
+            </button>
+
             <div className="flex flex-col items-center gap-6">
               {/* Animated Microphone Visual */}
               <div className="relative">
