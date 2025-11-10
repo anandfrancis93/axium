@@ -443,9 +443,9 @@ export default function AuditPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-gray-200">
       {/* Header */}
-      <div className="neuro-container mb-8">
+      <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-200">System Transparency & Analytics</h1>
+          <h1 className="text-2xl font-bold text-blue-400">System Transparency & Analytics</h1>
           <div className="flex items-center gap-4">
             <button
               onClick={() => loadData()}
@@ -457,10 +457,10 @@ export default function AuditPage() {
             <HamburgerMenu />
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Tabs */}
-      <div className="neuro-container mb-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
         <div className="flex gap-4">
           <button
             onClick={() => setActiveTab('audit')}
@@ -483,7 +483,7 @@ export default function AuditPage() {
         </div>
       </div>
 
-      <div className="neuro-container">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         {/* Audit Log Tab */}
         {activeTab === 'audit' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -1220,7 +1220,7 @@ Thompson Sampling naturally balances exploration and exploitation based on uncer
             </div>
           </>
         )}
-      </div>
+      </main>
     </div>
   )
 }
