@@ -274,27 +274,14 @@ export default function ExplanationModal({
     }
   }
 
-  const handleVoiceToggle = async () => {
-    console.log('Voice toggle clicked, isRecording:', isRecording)
+  const handleVoiceStart = async () => {
+    console.log('Starting Gemini Live conversation...')
 
-    if (isRecording) {
-      // Stop recording - VAD will automatically detect end of speech
-      console.log('Stopping recording... VAD will detect speech end automatically')
-      setIsRecording(false)
-      setVoiceState('thinking')
-
-      // Cleanup audio processing
-      if (mediaRecorderRef.current) {
-        const { stream, audioContext, processor, source } = mediaRecorderRef.current as any
-        if (processor) processor.disconnect()
-        if (source) source.disconnect()
-        if (audioContext) audioContext.close()
-        if (stream) stream.getTracks().forEach((track: MediaStreamTrack) => track.stop())
-        mediaRecorderRef.current = null
-      }
-
-      // Keep WebSocket open - wait for Gemini's response via VAD
-    } else {
+    // Don't allow starting if already in a conversation
+    if (isRecording || isConnecting || showVoiceOverlay) {
+      console.log('Already in conversation, ignoring')
+      return
+    }
       // Start continuous conversation with Gemini Live API
       console.log('Starting Gemini Live...')
       try {
@@ -474,21 +461,14 @@ Provide clear, educational explanations. Keep responses concise and conversation
               }
             }
 
-            // Don't close overlay immediately - keep it open to show it's speaking
-            // Let user manually close or wait longer for audio to finish
-            if (!hasAudio) {
-              // If no audio (text-only), close after short delay
-              setTimeout(() => {
-                console.log('✅ Text response complete, closing overlay')
-                setShowVoiceOverlay(false)
-                setVoiceState('idle')
-                if (wsRef.current) {
-                  wsRef.current.close()
-                  wsRef.current = null
-                }
-              }, 2000)
-            }
-            // If has audio, keep overlay open - user can close manually
+            // After Gemini speaks, return to listening for continuous conversation
+            setTimeout(() => {
+              if (wsRef.current?.readyState === WebSocket.OPEN) {
+                console.log('🔄 Returning to listening state for continuous conversation')
+                setVoiceState('listening')
+                // Keep WebSocket open, keep streaming audio - true bidirectional conversation!
+              }
+            }, hasAudio ? 500 : 1000) // Wait a bit after audio starts playing
           } else if (response.serverContent) {
             console.log('⚠️ Received serverContent but no modelTurn:', response.serverContent)
           }
@@ -518,13 +498,12 @@ Provide clear, educational explanations. Keep responses concise and conversation
           setIsConnecting(false)
         }
 
-      } catch (error) {
-        console.error('❌ Error starting Gemini Live:', error)
-        setIsConnecting(false)
-        setShowVoiceOverlay(false)
-        setVoiceState('idle')
-        alert('Failed to start voice: ' + (error as Error).message)
-      }
+    } catch (error) {
+      console.error('❌ Error starting Gemini Live:', error)
+      setIsConnecting(false)
+      setShowVoiceOverlay(false)
+      setVoiceState('idle')
+      alert('Failed to start voice: ' + (error as Error).message)
     }
   }
 
@@ -751,12 +730,12 @@ Provide clear, educational explanations. Keep responses concise and conversation
                 className="neuro-input flex-1 px-4 py-3 disabled:opacity-50"
               />
               <button
-                onClick={handleVoiceToggle}
-                disabled={isSending || isConnecting}
+                onClick={handleVoiceStart}
+                disabled={isSending || isConnecting || isRecording}
                 className={`neuro-btn px-4 py-3 disabled:opacity-50 transition-colors ${
-                  isRecording ? 'text-red-400 animate-pulse' : 'text-gray-400'
+                  isRecording ? 'text-blue-400 animate-pulse' : 'text-gray-400'
                 }`}
-                title={isRecording ? 'Stop recording' : 'Start voice input'}
+                title={isRecording ? 'In conversation...' : 'Start voice conversation'}
               >
                 <MicrophoneIcon size={20} />
               </button>
@@ -859,14 +838,21 @@ Provide clear, educational explanations. Keep responses concise and conversation
                 </div>
               </div>
 
-              {/* Action Button */}
+              {/* Status - no action button needed, conversation is continuous */}
               {voiceState === 'listening' && (
-                <button
-                  onClick={handleVoiceToggle}
-                  className="neuro-btn text-red-400 px-8 py-3 text-lg"
-                >
-                  Stop Recording
-                </button>
+                <div className="text-sm text-gray-500">
+                  Just speak naturally - I'll respond when you pause
+                </div>
+              )}
+              {voiceState === 'thinking' && (
+                <div className="text-sm text-gray-500">
+                  Processing your question...
+                </div>
+              )}
+              {voiceState === 'speaking' && (
+                <div className="text-sm text-gray-500">
+                  You can interrupt me anytime by speaking
+                </div>
               )}
             </div>
           </div>
