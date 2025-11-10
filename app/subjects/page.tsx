@@ -65,15 +65,10 @@ export default async function DashboardPage() {
 
         {/* Subjects Grid */}
         {subjects.length > 0 ? (
-          <div className="neuro-card mb-6">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center">
-                <BookIcon size={20} className="text-blue-400" />
-              </div>
-              <h2 className="text-2xl font-semibold text-gray-200">
-                Your Subjects
-              </h2>
-            </div>
+          <>
+            <h2 className="text-2xl font-semibold text-gray-200 mb-6">
+              Your Subjects
+            </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {subjects.map((subject) => (
@@ -108,28 +103,26 @@ export default async function DashboardPage() {
                 </Link>
               ))}
             </div>
-          </div>
+          </>
         ) : (
           // Empty state
-          <div className="neuro-card mb-6">
-            <div className="p-8 text-center">
-              <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <BookIcon size={40} className="text-gray-600" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-200 mb-2">
-                No Subjects Yet
-              </h2>
-              <p className="text-sm text-gray-500 mb-8 max-w-md mx-auto">
-                Create your first subject to start your adaptive learning journey.
-              </p>
-              <Link
-                href="/admin"
-                className="neuro-btn-primary inline-flex items-center gap-2 px-6 py-3"
-              >
-                <SettingsIcon size={18} />
-                <span>Go to Admin Panel</span>
-              </Link>
+          <div className="text-center py-16">
+            <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <BookIcon size={40} className="text-gray-600" />
             </div>
+            <h2 className="text-2xl font-bold text-gray-200 mb-2">
+              No Subjects Yet
+            </h2>
+            <p className="text-sm text-gray-500 mb-8 max-w-md mx-auto">
+              Create your first subject to start your adaptive learning journey.
+            </p>
+            <Link
+              href="/admin"
+              className="neuro-btn-primary inline-flex items-center gap-2 px-6 py-3"
+            >
+              <SettingsIcon size={18} />
+              <span>Go to Admin Panel</span>
+            </Link>
           </div>
         )}
       </main>
