@@ -361,8 +361,13 @@ Provide clear, educational explanations. Keep responses concise and conversation
         }
 
         ws.onmessage = async (event) => {
-          console.log('WebSocket message received:', event.data.substring(0, 100))
-          const response = JSON.parse(event.data)
+          // Handle both string and Blob data
+          let data = event.data
+          if (data instanceof Blob) {
+            data = await data.text()
+          }
+          console.log('WebSocket message received:', typeof data === 'string' ? data.substring(0, 100) : data)
+          const response = JSON.parse(data)
 
           // Setup complete
           if (response.setupComplete) {
