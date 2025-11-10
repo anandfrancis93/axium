@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Build messages array for conversation (Claude format)
-    const systemPrompt = 'You are a helpful tutor who explains concepts clearly and simply. You answer follow-up questions about the selected text and help students understand better.'
+    const systemPrompt = 'You are a helpful tutor who explains concepts clearly and with examples and analogies where relevant.'
 
     const messages: Array<{ role: 'user' | 'assistant', content: string }> = []
 
