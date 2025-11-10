@@ -59,6 +59,8 @@ export default function ExplanationModal({
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const wsRef = useRef<WebSocket | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
+  const audioContextRef = useRef<AudioContext | null>(null)
+  const currentAudioSourceRef = useRef<AudioBufferSourceNode | null>(null)
 
   // Initialize messages when explanation is loaded
   useEffect(() => {
@@ -440,6 +442,9 @@ Provide clear, educational explanations. Keep responses concise and conversation
             console.log('🤖 Gemini is responding!')
             setVoiceState('speaking')
 
+            let hasAudio = false
+            let maxAudioDuration = 0
+
             for (const part of response.serverContent.modelTurn.parts) {
               // Handle text response
               if (part.text) {
@@ -456,22 +461,34 @@ Provide clear, educational explanations. Keep responses concise and conversation
 
               // Handle audio response
               if (part.inlineData?.mimeType?.includes('audio') && part.inlineData.data) {
+                hasAudio = true
                 console.log('🔊 Audio response received, playing...')
+
+                // Estimate audio duration (very rough, will be updated when playing)
+                const bytes = atob(part.inlineData.data).length
+                const estimatedDuration = (bytes / 2) / 24000 // PCM 16-bit @ 24kHz
+                maxAudioDuration = Math.max(maxAudioDuration, estimatedDuration)
+
                 // Play audio response
                 playAudioResponse(part.inlineData.data)
               }
             }
 
-            // Hide overlay and close connection after response
-            setTimeout(() => {
-              console.log('✅ Response complete, closing overlay')
-              setShowVoiceOverlay(false)
-              setVoiceState('idle')
-              if (wsRef.current) {
-                wsRef.current.close()
-                wsRef.current = null
-              }
-            }, 1500)
+            // Don't close overlay immediately - keep it open to show it's speaking
+            // Let user manually close or wait longer for audio to finish
+            if (!hasAudio) {
+              // If no audio (text-only), close after short delay
+              setTimeout(() => {
+                console.log('✅ Text response complete, closing overlay')
+                setShowVoiceOverlay(false)
+                setVoiceState('idle')
+                if (wsRef.current) {
+                  wsRef.current.close()
+                  wsRef.current = null
+                }
+              }, 2000)
+            }
+            // If has audio, keep overlay open - user can close manually
           } else if (response.serverContent) {
             console.log('⚠️ Received serverContent but no modelTurn:', response.serverContent)
           }
@@ -514,6 +531,12 @@ Provide clear, educational explanations. Keep responses concise and conversation
   // Play audio response from Gemini
   const playAudioResponse = (base64Audio: string) => {
     try {
+      // Create or reuse audio context
+      if (!audioContextRef.current) {
+        audioContextRef.current = new AudioContext({ sampleRate: 24000 })
+      }
+      const audioContext = audioContextRef.current
+
       // Decode base64 to PCM
       const binaryString = atob(base64Audio)
       const bytes = new Uint8Array(binaryString.length)
@@ -522,7 +545,6 @@ Provide clear, educational explanations. Keep responses concise and conversation
       }
 
       // Convert PCM to playable audio
-      const audioContext = new AudioContext({ sampleRate: 24000 })
       const audioBuffer = audioContext.createBuffer(1, bytes.length / 2, 24000)
       const channelData = audioBuffer.getChannelData(0)
 
@@ -531,9 +553,32 @@ Provide clear, educational explanations. Keep responses concise and conversation
         channelData[i] = pcmData[i] / (pcmData[i] < 0 ? 0x8000 : 0x7FFF)
       }
 
+      // Stop current audio if playing
+      if (currentAudioSourceRef.current) {
+        try {
+          currentAudioSourceRef.current.stop()
+        } catch (e) {
+          // Already stopped
+        }
+      }
+
       const source = audioContext.createBufferSource()
       source.buffer = audioBuffer
       source.connect(audioContext.destination)
+
+      // Calculate duration
+      const durationSeconds = audioBuffer.duration
+      console.log(`🔊 Playing audio: ${durationSeconds.toFixed(2)}s (${bytes.length} bytes)`)
+
+      // Keep reference to prevent GC
+      currentAudioSourceRef.current = source
+
+      // Clear reference when done
+      source.onended = () => {
+        console.log('✅ Audio playback finished')
+        currentAudioSourceRef.current = null
+      }
+
       source.start()
     } catch (error) {
       console.error('Error playing audio:', error)
