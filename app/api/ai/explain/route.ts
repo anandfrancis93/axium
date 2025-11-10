@@ -64,8 +64,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Build messages array for conversation (Claude format)
-    const systemPrompt = 'You are a helpful tutor who explains concepts clearly and with examples and analogies where relevant.'
-
     const messages: Array<{ role: 'user' | 'assistant', content: string }> = []
 
     // If this is a follow-up question, include conversation history
@@ -112,7 +110,6 @@ Provide the explanation now:`
       model: 'claude-sonnet-4-5-20250929',
       max_tokens: 300,
       temperature: 0.7,
-      system: systemPrompt,
       messages,
     })
 
