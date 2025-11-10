@@ -41,6 +41,36 @@ export default function PerformancePage() {
   const [rlStateExpanded, setRlStateExpanded] = useState(false)
   const [rlArmStats, setRlArmStats] = useState<any[]>([])
 
+  // Accordion behavior: only one section expanded at a time
+  const handleExpandSection = (section: 'stats' | 'heatmap' | 'activity' | 'examPrediction' | 'rlState') => {
+    const currentState = {
+      stats: statsExpanded,
+      heatmap: heatmapExpanded,
+      activity: activityExpanded,
+      examPrediction: examPredictionExpanded,
+      rlState: rlStateExpanded
+    }
+
+    // If clicking the currently expanded section, just collapse it
+    if (currentState[section]) {
+      switch(section) {
+        case 'stats': setStatsExpanded(false); break
+        case 'heatmap': setHeatmapExpanded(false); break
+        case 'activity': setActivityExpanded(false); break
+        case 'examPrediction': setExamPredictionExpanded(false); break
+        case 'rlState': setRlStateExpanded(false); break
+      }
+      return
+    }
+
+    // Otherwise, collapse all and expand the clicked one
+    setStatsExpanded(section === 'stats')
+    setHeatmapExpanded(section === 'heatmap')
+    setActivityExpanded(section === 'activity')
+    setExamPredictionExpanded(section === 'examPrediction')
+    setRlStateExpanded(section === 'rlState')
+  }
+
   useEffect(() => {
     loadPerformanceData()
   }, [])
@@ -597,7 +627,7 @@ Mastery calculated using EMA (recent performance weighted higher)`
         {/* Overall Stats - Collapsible */}
         <div className="mb-8">
           <button
-            onClick={() => setStatsExpanded(!statsExpanded)}
+            onClick={() => handleExpandSection('stats')}
             className="w-full flex items-center justify-between mb-6"
           >
             <h2 className="text-xl font-semibold text-gray-200">
@@ -671,7 +701,7 @@ Mastery calculated using EMA (recent performance weighted higher)`
         {examPrediction && (
           <div className="mb-8">
             <button
-              onClick={() => setExamPredictionExpanded(!examPredictionExpanded)}
+              onClick={() => handleExpandSection('examPrediction')}
               className="w-full flex items-center justify-between mb-6"
             >
               <h2 className="text-xl font-semibold text-gray-200">
@@ -813,7 +843,7 @@ This score weights your IRT prediction - higher quality = more reliable estimate
         {rlArmStats.length > 0 && (
           <div className="mb-8">
             <button
-              onClick={() => setRlStateExpanded(!rlStateExpanded)}
+              onClick={() => handleExpandSection('rlState')}
               className="w-full flex items-center justify-between mb-6"
             >
               <h2 className="text-xl font-semibold text-gray-200">
@@ -972,7 +1002,7 @@ Thompson Sampling prioritizes arms with higher average rewards.`}>
         {/* Mastery Heatmap - Collapsible */}
         <div className="mb-8">
           <button
-            onClick={() => setHeatmapExpanded(!heatmapExpanded)}
+            onClick={() => handleExpandSection('heatmap')}
             className="w-full flex items-center justify-between mb-6"
           >
             <h2 className="text-xl font-semibold text-gray-200">
@@ -1153,7 +1183,7 @@ Thompson Sampling prioritizes arms with higher average rewards.`}>
         {/* Recent Activity - Collapsible */}
         <div className="mb-8">
           <button
-            onClick={() => setActivityExpanded(!activityExpanded)}
+            onClick={() => handleExpandSection('activity')}
             className="w-full flex items-center justify-between mb-6"
           >
             <h2 className="text-xl font-semibold text-gray-200">
