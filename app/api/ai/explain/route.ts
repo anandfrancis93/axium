@@ -93,22 +93,12 @@ Do NOT use bullet point characters (•). Always use hyphens (-) or asterisks (*
       })
     } else {
       // Initial explanation request
-      const prompt = `The student selected this text and wants it explained in simpler terms:
+      const prompt = `Explain this text:
 "${selectedText}"
 
-${fullContext ? `\nFull context:\n${fullContext.substring(0, 1000)}` : ''}
+${fullContext ? `\nContext:\n${fullContext.substring(0, 1000)}` : ''}
 
-TASK: Explain the selected text in a clear, concise way that a beginner can understand.
-
-GUIDELINES:
-1. Start with a simple definition or core concept
-2. Use analogies or examples if helpful
-3. Break down technical terms
-4. Keep it concise (3-5 sentences max)
-5. Be encouraging and educational
-6. Don't repeat the selected text verbatim
-
-Provide the explanation now:`
+Do NOT add any headers, labels, or titles like "Explanation:" or "Simple Explanation:". Start directly with your bullet points.`
 
       messages.push({ role: 'user', content: prompt })
     }
