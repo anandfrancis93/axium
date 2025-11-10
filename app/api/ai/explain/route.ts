@@ -2,10 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import Anthropic from '@anthropic-ai/sdk'
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-})
-
 /**
  * POST /api/ai/explain
  *
@@ -28,6 +24,20 @@ export async function POST(request: NextRequest) {
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    // Initialize Anthropic client with API key
+    const apiKey = process.env.ANTHROPIC_API_KEY
+    if (!apiKey) {
+      console.error('ANTHROPIC_API_KEY is not set in environment variables')
+      return NextResponse.json(
+        { error: 'AI service configuration error' },
+        { status: 500 }
+      )
+    }
+
+    const anthropic = new Anthropic({
+      apiKey: apiKey,
+    })
 
     const body = await request.json()
     const { selectedText, fullContext, conversationHistory, userQuestion } = body
@@ -110,6 +120,11 @@ Provide the explanation now:`
 
   } catch (error) {
     console.error('Error in POST /api/ai/explain:', error)
+    console.error('Error details:', {
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack trace'
+    })
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }
