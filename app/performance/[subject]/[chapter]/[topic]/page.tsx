@@ -9,7 +9,7 @@ import Modal from '@/components/Modal'
 import { RLPhaseBadge } from '@/components/RLPhaseBadge'
 import { getAllRLPhasesData } from '@/lib/utils/rl-phase'
 import { Tooltip } from '@/components/Tooltip'
-import { LockIcon, LockOpenIcon, AlertTriangleIcon, TrashIcon } from '@/components/icons'
+import { LockIcon, LockOpenIcon, AlertTriangleIcon, TrashIcon, ChevronDownIcon } from '@/components/icons'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Area, AreaChart, ReferenceLine } from 'recharts'
 
 const BLOOM_LEVELS = [
@@ -34,9 +34,9 @@ export default function TopicMasteryPage() {
   const [chapterData, setChapterData] = useState<any>(null)
   const [rlPhase, setRlPhase] = useState<string | null>(null)
   const [currentBloomLevel, setCurrentBloomLevel] = useState<number>(1)
-  const [statsExpanded, setStatsExpanded] = useState(true)
-  const [matrixExpanded, setMatrixExpanded] = useState(true)
-  const [bloomExpanded, setBloomExpanded] = useState(true)
+  const [statsExpanded, setStatsExpanded] = useState(false)
+  const [matrixExpanded, setMatrixExpanded] = useState(false)
+  const [bloomExpanded, setBloomExpanded] = useState(false)
   const [repeatAnalysisExpanded, setRepeatAnalysisExpanded] = useState(false)
   const [questionHistoryExpanded, setQuestionHistoryExpanded] = useState(false)
   const [repeatQuestions, setRepeatQuestions] = useState<any[]>([])
@@ -46,6 +46,39 @@ export default function TopicMasteryPage() {
   const [showResetModal, setShowResetModal] = useState(false)
   const [resetBloomLevel, setResetBloomLevel] = useState<number | null>(null)
   const [resetting, setResetting] = useState(false)
+
+  // Accordion behavior: only one section expanded at a time
+  const handleExpandSection = (section: 'stats' | 'matrix' | 'bloom' | 'masteryTrend' | 'repeatAnalysis' | 'questionHistory') => {
+    const currentState = {
+      stats: statsExpanded,
+      matrix: matrixExpanded,
+      bloom: bloomExpanded,
+      masteryTrend: masteryTrendExpanded,
+      repeatAnalysis: repeatAnalysisExpanded,
+      questionHistory: questionHistoryExpanded
+    }
+
+    // If clicking the currently expanded section, just collapse it
+    if (currentState[section]) {
+      switch(section) {
+        case 'stats': setStatsExpanded(false); break
+        case 'matrix': setMatrixExpanded(false); break
+        case 'bloom': setBloomExpanded(false); break
+        case 'masteryTrend': setMasteryTrendExpanded(false); break
+        case 'repeatAnalysis': setRepeatAnalysisExpanded(false); break
+        case 'questionHistory': setQuestionHistoryExpanded(false); break
+      }
+      return
+    }
+
+    // Otherwise, collapse all and expand the clicked one
+    setStatsExpanded(section === 'stats')
+    setMatrixExpanded(section === 'matrix')
+    setBloomExpanded(section === 'bloom')
+    setMasteryTrendExpanded(section === 'masteryTrend')
+    setRepeatAnalysisExpanded(section === 'repeatAnalysis')
+    setQuestionHistoryExpanded(section === 'questionHistory')
+  }
 
   useEffect(() => {
     loadData()
@@ -379,7 +412,7 @@ export default function TopicMasteryPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#0a0a0a' }}>
-        <div className="neuro-card max-w-md text-center">
+        <div className="neuro-raised max-w-md text-center p-8">
           <div className="text-blue-400 text-lg">Loading...</div>
         </div>
       </div>
@@ -400,53 +433,53 @@ export default function TopicMasteryPage() {
 
   return (
     <div className="min-h-screen" style={{ background: '#0a0a0a' }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="neuro-card mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div className="min-w-0 flex-1">
-              <h1 className="text-2xl font-semibold text-gray-200 truncate">
-                {topic}
-              </h1>
-            </div>
-            <HamburgerMenu />
-          </div>
-
-          {/* RL Phase Badge */}
-          {rlPhase && (
-            <Tooltip content={
-              <div className="space-y-3">
-                {getAllRLPhasesData(rlPhase).map((phase) => (
-                  <div key={phase.key}>
-                    <div className={phase.isCurrent ? 'text-blue-400 font-semibold' : 'text-gray-300 font-medium'}>
-                      {phase.name}{phase.isCurrent && ' (Current)'}
-                    </div>
-                    <div className="text-gray-400 text-xs mt-1">
-                      {phase.description}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            }>
-              <RLPhaseBadge phase={rlPhase} showDescription={false} showIcon={false} />
-            </Tooltip>
-          )}
+      {/* Header */}
+      <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex justify-between items-center gap-3 mb-4">
+          <h1 className="text-2xl font-bold text-blue-400 truncate">
+            {topic}
+          </h1>
+          <HamburgerMenu />
         </div>
+
+        {/* RL Phase Badge */}
+        {rlPhase && (
+          <Tooltip content={
+            <div className="space-y-3">
+              {getAllRLPhasesData(rlPhase).map((phase) => (
+                <div key={phase.key}>
+                  <div className={phase.isCurrent ? 'text-blue-400 font-semibold' : 'text-gray-300 font-medium'}>
+                    {phase.name}{phase.isCurrent && ' (Current)'}
+                  </div>
+                  <div className="text-gray-400 text-xs mt-1">
+                    {phase.description}
+                  </div>
+                </div>
+              ))}
+            </div>
+          }>
+            <RLPhaseBadge phase={rlPhase} showDescription={false} showIcon={false} />
+          </Tooltip>
+        )}
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
 
         {/* Summary Stats Section */}
         {summary && (
-          <div className="neuro-card mb-8">
+          <div className="mb-8">
             <button
               type="button"
-              onClick={() => setStatsExpanded(!statsExpanded)}
+              onClick={() => handleExpandSection('stats')}
               className="w-full flex items-center justify-between mb-6"
             >
               <h2 className="text-xl font-semibold text-gray-200">
                 Mastery Overview
               </h2>
-              <span className="text-gray-400 text-xl">
-                {statsExpanded ? '▼' : '▶'}
-              </span>
+              <ChevronDownIcon
+                size={24}
+                className={`text-gray-400 transition-transform ${statsExpanded ? 'rotate-180' : ''}`}
+              />
             </button>
 
             {statsExpanded && (
@@ -501,18 +534,19 @@ export default function TopicMasteryPage() {
         )}
 
         {/* Mastery Matrix Section */}
-        <div className="neuro-card mb-8">
+        <div className="mb-8">
           <button
             type="button"
-            onClick={() => setMatrixExpanded(!matrixExpanded)}
+            onClick={() => handleExpandSection('matrix')}
             className="w-full flex items-center justify-between mb-6"
           >
             <h2 className="text-xl font-semibold text-gray-200">
               Comprehensive Mastery Matrix
             </h2>
-            <span className="text-gray-400 text-xl">
-              {matrixExpanded ? '▼' : '▶'}
-            </span>
+            <ChevronDownIcon
+              size={24}
+              className={`text-gray-400 transition-transform ${matrixExpanded ? 'rotate-180' : ''}`}
+            />
           </button>
 
           {matrixExpanded && (
@@ -691,18 +725,19 @@ export default function TopicMasteryPage() {
 
         {/* Bloom Level Breakdown Section */}
         {summary?.dimensions_per_bloom && (
-          <div className="neuro-card mb-8">
+          <div className="mb-8">
             <button
               type="button"
-              onClick={() => setBloomExpanded(!bloomExpanded)}
+              onClick={() => handleExpandSection('bloom')}
               className="w-full flex items-center justify-between mb-6"
             >
               <h2 className="text-xl font-semibold text-gray-200">
                 Progress by Bloom Level
               </h2>
-              <span className="text-gray-400 text-xl">
-                {bloomExpanded ? '▼' : '▶'}
-              </span>
+              <ChevronDownIcon
+                size={24}
+                className={`text-gray-400 transition-transform ${bloomExpanded ? 'rotate-180' : ''}`}
+              />
             </button>
 
             {bloomExpanded && (
@@ -767,7 +802,7 @@ export default function TopicMasteryPage() {
         )}
 
         {/* Danger Zone - Reset Entire Topic */}
-        <div className="neuro-card border border-red-900/20">
+        <div className="neuro-raised mt-8 border border-red-900/20">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h3 className="text-lg font-semibold text-red-400 mb-2">Danger Zone</h3>
@@ -790,18 +825,19 @@ export default function TopicMasteryPage() {
         </div>
 
         {/* Mastery Score Over Time Chart */}
-        <div className="neuro-card">
+        <div className="mb-8">
           <button
             type="button"
-            onClick={() => setMasteryTrendExpanded(!masteryTrendExpanded)}
+            onClick={() => handleExpandSection('masteryTrend')}
             className="w-full flex items-center justify-between mb-6"
           >
             <h2 className="text-xl font-semibold text-gray-200">
               Mastery Score Over Time
             </h2>
-            <span className="text-gray-400 text-xl">
-              {masteryTrendExpanded ? '▼' : '▶'}
-            </span>
+            <ChevronDownIcon
+              size={24}
+              className={`text-gray-400 transition-transform ${masteryTrendExpanded ? 'rotate-180' : ''}`}
+            />
           </button>
 
           {masteryTrendExpanded && (
@@ -908,18 +944,19 @@ export default function TopicMasteryPage() {
         </div>
 
         {/* Repeated Questions Analysis Section */}
-        <div className="neuro-card">
+        <div className="mb-8">
           <button
             type="button"
-            onClick={() => setRepeatAnalysisExpanded(!repeatAnalysisExpanded)}
+            onClick={() => handleExpandSection('repeatAnalysis')}
             className="w-full flex items-center justify-between mb-6"
           >
             <h2 className="text-xl font-semibold text-gray-200">
               Spaced Repetition Analysis
             </h2>
-            <span className="text-gray-400 text-xl">
-              {repeatAnalysisExpanded ? '▼' : '▶'}
-            </span>
+            <ChevronDownIcon
+              size={24}
+              className={`text-gray-400 transition-transform ${repeatAnalysisExpanded ? 'rotate-180' : ''}`}
+            />
           </button>
 
           {repeatAnalysisExpanded && (
@@ -1003,18 +1040,19 @@ export default function TopicMasteryPage() {
         </div>
 
         {/* Unique Questions History Section */}
-        <div className="neuro-card">
+        <div className="mb-8">
           <button
             type="button"
-            onClick={() => setQuestionHistoryExpanded(!questionHistoryExpanded)}
+            onClick={() => handleExpandSection('questionHistory')}
             className="w-full flex items-center justify-between mb-6"
           >
             <h2 className="text-xl font-semibold text-gray-200">
               Question History {uniqueQuestions.length > 0 && `(${uniqueQuestions.length} unique)`}
             </h2>
-            <span className="text-gray-400 text-xl">
-              {questionHistoryExpanded ? '▼' : '▶'}
-            </span>
+            <ChevronDownIcon
+              size={24}
+              className={`text-gray-400 transition-transform ${questionHistoryExpanded ? 'rotate-180' : ''}`}
+            />
           </button>
 
           {questionHistoryExpanded && (
@@ -1141,7 +1179,7 @@ export default function TopicMasteryPage() {
             </>
           )}
         </div>
-      </div>
+      </main>
 
       {/* Confirmation Modal for Reset */}
       <Modal
