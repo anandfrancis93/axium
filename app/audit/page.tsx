@@ -365,11 +365,6 @@ export default function AuditPage() {
         setSpacedRepData(spacedData)
 
         // Calculate spacing statistics
-        const dueForReview = spacedData.filter(d => d.next_intervals.due).length
-        const avgDaysSince = spacedData.length > 0
-          ? spacedData.reduce((sum, d) => sum + d.days_since, 0) / spacedData.length
-          : 0
-
         // Group by spacing intervals relative to optimal interval
         const byInterval = {
           critical: spacedData.filter(d => d.days_since > d.next_intervals.optimal_days * 2).length,
@@ -378,10 +373,39 @@ export default function AuditPage() {
           onTrack: spacedData.filter(d => d.days_since < d.next_intervals.optimal_days).length,
         }
 
+        // Find next review due (soonest overdue or upcoming)
+        let nextReviewDue = 'None'
+        const overdueTopics = spacedData.filter(d => d.next_intervals.is_overdue)
+        const upcomingTopics = spacedData.filter(d => !d.next_intervals.is_overdue)
+
+        if (overdueTopics.length > 0) {
+          // Sort by most overdue
+          overdueTopics.sort((a, b) => b.hours_since - a.hours_since)
+          nextReviewDue = overdueTopics[0].next_intervals.time_remaining
+        } else if (upcomingTopics.length > 0) {
+          // Sort by soonest due
+          upcomingTopics.sort((a, b) => a.hours_since - b.hours_since)
+          nextReviewDue = upcomingTopics[0].next_intervals.time_remaining
+        }
+
+        // Calculate average accuracy
+        const avgAccuracy = spacedData.length > 0
+          ? spacedData.reduce((sum, d) => {
+              const accuracy = d.questions_attempted > 0
+                ? (d.questions_correct / d.questions_attempted) * 100
+                : 0
+              return sum + accuracy
+            }, 0) / spacedData.length
+          : 0
+
+        // Count high mastery topics
+        const highMasteryCount = spacedData.filter(d => d.mastery_score >= 80).length
+
         setSpacingStats({
           totalTopics: spacedData.length,
-          dueForReview,
-          avgDaysSince: spacedData.length > 0 ? avgDaysSince.toFixed(1) : 'N/A',
+          nextReviewDue,
+          avgAccuracy: avgAccuracy.toFixed(0),
+          highMasteryCount,
           byInterval
         })
       }
@@ -1078,20 +1102,21 @@ Thompson Sampling naturally balances exploration and exploitation based on uncer
             {spacingStats && (
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 <div className="neuro-stat">
-                  <div className="text-sm text-blue-400 font-medium mb-2">Total Topics Practiced</div>
+                  <div className="text-sm text-blue-400 font-medium mb-2">Total Topics</div>
                   <div className="text-4xl font-bold text-gray-200">{spacingStats.totalTopics}</div>
                 </div>
                 <div className="neuro-stat">
-                  <div className="text-sm text-red-400 font-medium mb-2">Due for Review</div>
-                  <div className="text-4xl font-bold text-gray-200">{spacingStats.dueForReview}</div>
+                  <div className="text-sm text-yellow-400 font-medium mb-2">Next Review</div>
+                  <div className="text-lg font-bold text-gray-200">{spacingStats.nextReviewDue}</div>
                 </div>
                 <div className="neuro-stat">
-                  <div className="text-sm text-yellow-400 font-medium mb-2">Avg Days Since</div>
-                  <div className="text-4xl font-bold text-gray-200">{spacingStats.avgDaysSince}</div>
+                  <div className="text-sm text-green-400 font-medium mb-2">Avg Accuracy</div>
+                  <div className="text-4xl font-bold text-gray-200">{spacingStats.avgAccuracy}%</div>
                 </div>
                 <div className="neuro-stat">
-                  <div className="text-sm text-green-400 font-medium mb-2">Recently Practiced</div>
-                  <div className="text-4xl font-bold text-gray-200">{spacingStats.byInterval.recent}</div>
+                  <div className="text-sm text-purple-400 font-medium mb-2">High Mastery</div>
+                  <div className="text-4xl font-bold text-gray-200">{spacingStats.highMasteryCount}</div>
+                  <div className="text-xs text-gray-500 mt-1">≥80% mastery</div>
                 </div>
               </div>
             )}
