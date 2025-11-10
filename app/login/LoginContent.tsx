@@ -50,9 +50,11 @@ export function LoginContent() {
               <div className="absolute inset-0 rounded-[24px] blur-xl opacity-50" style={{
                 background: 'linear-gradient(135deg, #667eea, #764ba2)',
               }} />
-              <BookIcon size={56} className="text-white relative z-10" style={{
+              <div className="relative z-10" style={{
                 filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3))'
-              }} />
+              }}>
+                <BookIcon size={56} className="text-white" />
+              </div>
             </div>
 
             {/* Typography with vibrancy */}
