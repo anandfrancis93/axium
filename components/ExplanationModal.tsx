@@ -273,8 +273,11 @@ export default function ExplanationModal({
   }
 
   const handleVoiceToggle = async () => {
+    console.log('Voice toggle clicked, isRecording:', isRecording)
+
     if (isRecording) {
       // Stop recording and close WebSocket
+      console.log('Stopping recording...')
       setIsRecording(false)
       setVoiceState('idle')
       setShowVoiceOverlay(false)
@@ -284,20 +287,30 @@ export default function ExplanationModal({
         wsRef.current = null
       }
 
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-        mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop())
+      if (mediaRecorderRef.current) {
+        // Cleanup audio processing
+        const { stream, audioContext, processor, source } = mediaRecorderRef.current as any
+        if (processor) processor.disconnect()
+        if (source) source.disconnect()
+        if (audioContext) audioContext.close()
+        if (stream) stream.getTracks().forEach(track => track.stop())
         mediaRecorderRef.current = null
       }
     } else {
       // Start continuous conversation with Gemini Live API
+      console.log('Starting Gemini Live...')
       try {
         setIsConnecting(true)
         setShowVoiceOverlay(true)
 
         // Connect to Gemini Live API WebSocket
         const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY
+        console.log('API Key available:', !!apiKey)
+        console.log('API Key prefix:', apiKey?.substring(0, 10))
+
         if (!apiKey) {
           console.error('GEMINI_API_KEY not configured')
+          alert('Gemini API Key not configured. Please restart your dev server after setting NEXT_PUBLIC_GEMINI_API_KEY in .env.local')
           setIsConnecting(false)
           setShowVoiceOverlay(false)
           return
@@ -308,9 +321,10 @@ export default function ExplanationModal({
         )
 
         wsRef.current = ws
+        console.log('WebSocket created, connecting...')
 
         ws.onopen = async () => {
-          console.log('WebSocket connected')
+          console.log('✓ WebSocket connected successfully')
 
           // Send setup message
           const systemPrompt = `You are an AI tutor helping a student understand educational content.
@@ -324,6 +338,7 @@ ${messages.length > 0 ? `Previous conversation:\n${messages.map(m => `${m.role =
 
 Provide clear, educational explanations. Keep responses concise and conversational for voice interaction.`
 
+          console.log('Sending setup message...')
           ws.send(JSON.stringify({
             setup: {
               model: 'models/gemini-2.0-flash-exp',
@@ -342,14 +357,16 @@ Provide clear, educational explanations. Keep responses concise and conversation
               }
             }
           }))
+          console.log('✓ Setup message sent')
         }
 
         ws.onmessage = async (event) => {
+          console.log('WebSocket message received:', event.data.substring(0, 100))
           const response = JSON.parse(event.data)
 
           // Setup complete
           if (response.setupComplete) {
-            console.log('Setup complete, starting audio stream')
+            console.log('✓ Setup complete, starting audio stream')
             setVoiceState('listening')
             setIsConnecting(false)
             setIsRecording(true)
@@ -436,15 +453,16 @@ Provide clear, educational explanations. Keep responses concise and conversation
         }
 
         ws.onerror = (error) => {
-          console.error('WebSocket error:', error)
+          console.error('❌ WebSocket error:', error)
+          alert('WebSocket connection failed. Check console for details.')
           setIsRecording(false)
           setVoiceState('idle')
           setShowVoiceOverlay(false)
           setIsConnecting(false)
         }
 
-        ws.onclose = () => {
-          console.log('WebSocket closed')
+        ws.onclose = (event) => {
+          console.log('WebSocket closed. Code:', event.code, 'Reason:', event.reason)
           setIsRecording(false)
           setVoiceState('idle')
           setShowVoiceOverlay(false)
@@ -452,7 +470,8 @@ Provide clear, educational explanations. Keep responses concise and conversation
         }
 
       } catch (error) {
-        console.error('Error starting Gemini Live:', error)
+        console.error('❌ Error starting Gemini Live:', error)
+        alert('Failed to start Gemini Live: ' + (error as Error).message)
         setIsConnecting(false)
         setShowVoiceOverlay(false)
         setVoiceState('idle')
