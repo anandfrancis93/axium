@@ -274,104 +274,218 @@ export default function ExplanationModal({
 
   const handleVoiceToggle = async () => {
     if (isRecording) {
-      // Stop recording and process
+      // Stop recording and close WebSocket
       setIsRecording(false)
-      setVoiceState('thinking')
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-        mediaRecorderRef.current.stop()
-      }
+      setVoiceState('idle')
+      setShowVoiceOverlay(false)
+
       if (wsRef.current) {
         wsRef.current.close()
         wsRef.current = null
       }
+
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+        mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop())
+        mediaRecorderRef.current = null
+      }
     } else {
-      // Start recording
+      // Start continuous conversation with Gemini Live API
       try {
         setIsConnecting(true)
         setShowVoiceOverlay(true)
 
-        // Request microphone access
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: {
-            channelCount: 1,
-            sampleRate: 16000,
-          }
-        })
-
-        // Set up MediaRecorder for audio capture
-        const mediaRecorder = new MediaRecorder(stream, {
-          mimeType: 'audio/webm',
-        })
-
-        mediaRecorderRef.current = mediaRecorder
-        audioChunksRef.current = []
-
-        mediaRecorder.ondataavailable = (event) => {
-          if (event.data.size > 0) {
-            audioChunksRef.current.push(event.data)
-          }
+        // Connect to Gemini Live API WebSocket
+        const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY
+        if (!apiKey) {
+          console.error('GEMINI_API_KEY not configured')
+          setIsConnecting(false)
+          setShowVoiceOverlay(false)
+          return
         }
 
-        mediaRecorder.onstop = async () => {
-          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' })
+        const ws = new WebSocket(
+          `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key=${apiKey}`
+        )
 
-          // Send audio to backend for Gemini Live processing
-          try {
-            const formData = new FormData()
-            formData.append('audio', audioBlob)
-            formData.append('selectedText', selectedText)
-            formData.append('fullContext', fullContext || '')
-            formData.append('conversationHistory', JSON.stringify(messages))
+        wsRef.current = ws
 
-            const response = await fetch('/api/ai/gemini-live', {
-              method: 'POST',
-              body: formData,
+        ws.onopen = async () => {
+          console.log('WebSocket connected')
+
+          // Send setup message
+          const systemPrompt = `You are an AI tutor helping a student understand educational content.
+
+Selected text the student is asking about:
+"${selectedText}"
+
+${fullContext ? `Full context:\n${fullContext}\n` : ''}
+
+${messages.length > 0 ? `Previous conversation:\n${messages.map(m => `${m.role === 'user' ? 'Student' : 'AI Tutor'}: ${m.content}`).join('\n')}\n` : ''}
+
+Provide clear, educational explanations. Keep responses concise and conversational for voice interaction.`
+
+          ws.send(JSON.stringify({
+            setup: {
+              model: 'models/gemini-2.0-flash-exp',
+              generationConfig: {
+                responseModalities: 'audio',
+                speechConfig: {
+                  voiceConfig: {
+                    prebuiltVoiceConfig: {
+                      voiceName: 'Aoede'
+                    }
+                  }
+                }
+              },
+              systemInstruction: {
+                parts: [{ text: systemPrompt }]
+              }
+            }
+          }))
+        }
+
+        ws.onmessage = async (event) => {
+          const response = JSON.parse(event.data)
+
+          // Setup complete
+          if (response.setupComplete) {
+            console.log('Setup complete, starting audio stream')
+            setVoiceState('listening')
+            setIsConnecting(false)
+            setIsRecording(true)
+
+            // Start capturing and streaming audio
+            const stream = await navigator.mediaDevices.getUserMedia({
+              audio: {
+                channelCount: 1,
+                sampleRate: 16000,
+              }
             })
 
-            const data = await response.json()
+            // Use AudioContext to convert to 16kHz PCM
+            const audioContext = new AudioContext({ sampleRate: 16000 })
+            const source = audioContext.createMediaStreamSource(stream)
+            const processor = audioContext.createScriptProcessor(4096, 1, 1)
 
-            if (response.ok) {
-              // Show speaking state briefly
-              setVoiceState('speaking')
+            source.connect(processor)
+            processor.connect(audioContext.destination)
 
-              // Add transcribed question and AI response to messages
-              if (data.transcription) {
-                setMessages(prev => [...prev, { role: 'user', content: data.transcription }])
+            processor.onaudioprocess = (e) => {
+              if (ws.readyState !== WebSocket.OPEN) return
+
+              const inputData = e.inputBuffer.getChannelData(0)
+
+              // Convert Float32 to Int16 PCM
+              const pcmData = new Int16Array(inputData.length)
+              for (let i = 0; i < inputData.length; i++) {
+                const s = Math.max(-1, Math.min(1, inputData[i]))
+                pcmData[i] = s < 0 ? s * 0x8000 : s * 0x7FFF
               }
-              if (data.response) {
-                setMessages(prev => [...prev, { role: 'assistant', content: data.response }])
-              }
 
-              // Hide overlay after a brief moment
-              setTimeout(() => {
-                setShowVoiceOverlay(false)
-                setVoiceState('idle')
-              }, 1500)
-            } else {
-              console.error('Gemini Live error:', data.error)
-              setShowVoiceOverlay(false)
-              setVoiceState('idle')
+              // Convert to base64
+              const base64Audio = btoa(
+                String.fromCharCode(...new Uint8Array(pcmData.buffer))
+              )
+
+              // Send to Gemini
+              ws.send(JSON.stringify({
+                realtimeInput: {
+                  mediaChunks: [{
+                    mimeType: 'audio/pcm;rate=16000',
+                    data: base64Audio
+                  }]
+                }
+              }))
             }
-          } catch (error) {
-            console.error('Error processing voice:', error)
-            setShowVoiceOverlay(false)
-            setVoiceState('idle')
+
+            // Store for cleanup
+            mediaRecorderRef.current = { stream, audioContext, processor, source } as any
           }
 
-          // Clean up
-          stream.getTracks().forEach(track => track.stop())
+          // Handle server audio response
+          if (response.serverContent?.modelTurn?.parts) {
+            setVoiceState('speaking')
+
+            for (const part of response.serverContent.modelTurn.parts) {
+              // Handle text response
+              if (part.text) {
+                setMessages(prev => {
+                  // Append to last assistant message or create new one
+                  const last = prev[prev.length - 1]
+                  if (last && last.role === 'assistant') {
+                    return [...prev.slice(0, -1), { ...last, content: last.content + part.text }]
+                  }
+                  return [...prev, { role: 'assistant', content: part.text }]
+                })
+              }
+
+              // Handle audio response
+              if (part.inlineData?.mimeType?.includes('audio') && part.inlineData.data) {
+                // Play audio response
+                playAudioResponse(part.inlineData.data)
+              }
+            }
+
+            // Return to listening after speaking
+            setTimeout(() => {
+              if (wsRef.current?.readyState === WebSocket.OPEN) {
+                setVoiceState('listening')
+              }
+            }, 500)
+          }
         }
 
-        mediaRecorder.start()
-        setIsRecording(true)
-        setVoiceState('listening')
-        setIsConnecting(false)
+        ws.onerror = (error) => {
+          console.error('WebSocket error:', error)
+          setIsRecording(false)
+          setVoiceState('idle')
+          setShowVoiceOverlay(false)
+          setIsConnecting(false)
+        }
+
+        ws.onclose = () => {
+          console.log('WebSocket closed')
+          setIsRecording(false)
+          setVoiceState('idle')
+          setShowVoiceOverlay(false)
+          setIsConnecting(false)
+        }
+
       } catch (error) {
-        console.error('Error accessing microphone:', error)
+        console.error('Error starting Gemini Live:', error)
         setIsConnecting(false)
         setShowVoiceOverlay(false)
         setVoiceState('idle')
       }
+    }
+  }
+
+  // Play audio response from Gemini
+  const playAudioResponse = (base64Audio: string) => {
+    try {
+      // Decode base64 to PCM
+      const binaryString = atob(base64Audio)
+      const bytes = new Uint8Array(binaryString.length)
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i)
+      }
+
+      // Convert PCM to playable audio
+      const audioContext = new AudioContext({ sampleRate: 24000 })
+      const audioBuffer = audioContext.createBuffer(1, bytes.length / 2, 24000)
+      const channelData = audioBuffer.getChannelData(0)
+
+      const pcmData = new Int16Array(bytes.buffer)
+      for (let i = 0; i < pcmData.length; i++) {
+        channelData[i] = pcmData[i] / (pcmData[i] < 0 ? 0x8000 : 0x7FFF)
+      }
+
+      const source = audioContext.createBufferSource()
+      source.buffer = audioBuffer
+      source.connect(audioContext.destination)
+      source.start()
+    } catch (error) {
+      console.error('Error playing audio:', error)
     }
   }
 
