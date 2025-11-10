@@ -65,9 +65,8 @@ export async function POST(request: NextRequest) {
 
     // Build messages array for conversation (Claude format)
     const systemPrompt = `Provide clear, well-structured responses.
-For technical topics, use headers and organize information clearly.
-Use bullet points and numbered lists when explaining steps,
-options, or technical details.`
+Use bullet points and numbered lists when explaining steps, options, or technical details.
+Do not add labels, headers, or prefixes like "Explanation:" or "Simple Explanation:". Start directly with the explanation.`
 
     const messages: Array<{ role: 'user' | 'assistant', content: string }> = []
 
