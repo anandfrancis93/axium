@@ -32,12 +32,15 @@ interface SpacedRepData {
   mastery_score: number
   last_practiced_at: string
   days_since: number
+  hours_since: number
   questions_attempted: number
   questions_correct: number
   next_intervals: {
     optimal: string
     optimal_days: number
     due: boolean
+    time_remaining: string
+    is_overdue: boolean
   }
 }
 
@@ -295,7 +298,9 @@ export default function AuditPage() {
         const now = new Date()
         const spacedData: SpacedRepData[] = masteryData.map((m: any) => {
           const lastPracticed = new Date(m.last_practiced_at)
-          const daysSince = Math.floor((now.getTime() - lastPracticed.getTime()) / (1000 * 60 * 60 * 24))
+          const timeSinceMs = now.getTime() - lastPracticed.getTime()
+          const daysSince = Math.floor(timeSinceMs / (1000 * 60 * 60 * 24))
+          const hoursSince = Math.floor(timeSinceMs / (1000 * 60 * 60))
 
           // Determine optimal interval based on mastery
           let optimalDays = 1
@@ -310,6 +315,32 @@ export default function AuditPage() {
             optimalDays = Math.max(optimalDays, 3)
           }
 
+          // Calculate time remaining until due
+          const dueDate = new Date(lastPracticed.getTime() + optimalDays * 24 * 60 * 60 * 1000)
+          const timeUntilDueMs = dueDate.getTime() - now.getTime()
+          const isOverdue = timeUntilDueMs < 0
+          const absTimeMs = Math.abs(timeUntilDueMs)
+
+          // Format time remaining
+          const days = Math.floor(absTimeMs / (1000 * 60 * 60 * 24))
+          const hours = Math.floor((absTimeMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+          const minutes = Math.floor((absTimeMs % (1000 * 60 * 60)) / (1000 * 60))
+
+          let timeRemaining = ''
+          if (days > 0) {
+            timeRemaining = `${days} day${days > 1 ? 's' : ''} ${hours} hr${hours !== 1 ? 's' : ''}`
+          } else if (hours > 0) {
+            timeRemaining = `${hours} hr${hours !== 1 ? 's' : ''} ${minutes} min`
+          } else {
+            timeRemaining = `${minutes} min`
+          }
+
+          if (isOverdue) {
+            timeRemaining = `Overdue by ${timeRemaining}`
+          } else {
+            timeRemaining = `Due in ${timeRemaining}`
+          }
+
           return {
             topic_id: m.topic_id,
             topic_name: m.topics?.name || 'Unknown',
@@ -318,12 +349,15 @@ export default function AuditPage() {
             mastery_score: m.mastery_score,
             last_practiced_at: m.last_practiced_at,
             days_since: daysSince,
+            hours_since: hoursSince,
             questions_attempted: m.questions_attempted,
             questions_correct: m.questions_correct,
             next_intervals: {
-              optimal: `${optimalDays} days`,
+              optimal: `${optimalDays} day${optimalDays > 1 ? 's' : ''}`,
               optimal_days: optimalDays,
-              due: daysSince >= optimalDays
+              due: isOverdue,
+              time_remaining: timeRemaining,
+              is_overdue: isOverdue
             }
           }
         })
@@ -1112,20 +1146,19 @@ Thompson Sampling naturally balances exploration and exploitation based on uncer
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-4 gap-3 text-xs">
+                    <div className="grid grid-cols-2 gap-3 text-xs mb-2">
                       <div>
-                        <div className="text-gray-500">Days Since</div>
+                        <div className="text-gray-500">Time Status</div>
                         <div className={`font-semibold ${
-                          topic.days_since > 14 ? 'text-red-400' :
-                          topic.days_since >= 7 ? 'text-yellow-400' :
-                          topic.days_since >= 3 ? 'text-blue-400' :
-                          'text-green-400'
-                        }`}>{topic.days_since}d</div>
+                          topic.next_intervals.is_overdue ? 'text-red-400' : 'text-green-400'
+                        }`}>{topic.next_intervals.time_remaining}</div>
                       </div>
                       <div>
-                        <div className="text-gray-500">Optimal</div>
+                        <div className="text-gray-500">Optimal Interval</div>
                         <div className="text-gray-200 font-semibold">{topic.next_intervals.optimal}</div>
                       </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 text-xs">
                       <div>
                         <div className="text-gray-500">Attempts</div>
                         <div className="text-gray-200 font-semibold">{topic.questions_attempted}</div>
