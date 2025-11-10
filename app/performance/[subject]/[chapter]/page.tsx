@@ -579,28 +579,26 @@ Mastery calculated using EMA (recent performance weighted higher)`
   return (
     <div className="min-h-screen" style={{ background: '#0a0a0a' }}>
       {/* Header */}
-      <header className="neuro-container mx-4 my-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center gap-3">
-          <div className="neuro-raised px-6 py-3 flex items-center gap-3 min-w-0 flex-shrink">
-            <BarChartIcon size={24} className="text-blue-400 flex-shrink-0" />
-            <div className="min-w-0">
-              <h1 className="text-xl font-bold text-gray-200 truncate">
-                {chapterData?.name}
-              </h1>
+      <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex justify-between items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0">
+              <BarChartIcon size={24} className="text-blue-400" />
             </div>
+            <h1 className="text-xl font-bold text-gray-200 truncate">
+              {chapterData?.name}
+            </h1>
           </div>
-          <div className="flex-shrink-0">
-            <HamburgerMenu />
-          </div>
+          <HamburgerMenu />
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         {/* Overall Stats - Collapsible */}
-        <div className="neuro-card mb-6">
+        <div className="mb-6">
           <button
             onClick={() => setStatsExpanded(!statsExpanded)}
-            className="w-full flex items-center justify-between p-2 -m-2 hover:bg-gray-800/20 rounded-lg transition-colors"
+            className="w-full flex items-center justify-between mb-4"
           >
             <h2 className="text-xl font-semibold text-gray-200">
               Overall Statistics
@@ -612,9 +610,9 @@ Mastery calculated using EMA (recent performance weighted higher)`
           </button>
 
           {statsExpanded && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6 pt-6 border-t border-gray-800">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <Tooltip content="Topics explored">
-                <div className="neuro-inset p-4 rounded-lg group">
+                <div className="neuro-stat">
                   <div className="flex items-center justify-between mb-3">
                     <div className="text-sm text-blue-400 font-medium">
                       Topics Started
@@ -627,7 +625,7 @@ Mastery calculated using EMA (recent performance weighted higher)`
                 </div>
               </Tooltip>
               <Tooltip content="80%+ mastery achieved">
-                <div className="neuro-inset p-4 rounded-lg group">
+                <div className="neuro-stat">
                   <div className="flex items-center justify-between mb-3">
                     <div className="text-sm text-green-400 font-medium">
                       Topics Mastered
@@ -640,7 +638,7 @@ Mastery calculated using EMA (recent performance weighted higher)`
                 </div>
               </Tooltip>
               <Tooltip content="Total attempts made">
-                <div className="neuro-inset p-4 rounded-lg group">
+                <div className="neuro-stat">
                   <div className="flex items-center justify-between mb-3">
                     <div className="text-sm text-cyan-400 font-medium">
                       Questions Answered
@@ -653,7 +651,7 @@ Mastery calculated using EMA (recent performance weighted higher)`
                 </div>
               </Tooltip>
               <Tooltip content="Correct answers">
-                <div className="neuro-inset p-4 rounded-lg group">
+                <div className="neuro-stat">
                   <div className="flex items-center justify-between mb-3">
                     <div className="text-sm text-blue-400 font-medium">
                       Overall Accuracy
@@ -671,7 +669,7 @@ Mastery calculated using EMA (recent performance weighted higher)`
 
         {/* Exam Score Prediction - Collapsible */}
         {examPrediction && (
-          <div className="neuro-card mb-6">
+          <div className="mb-6">
             <button
               onClick={() => setExamPredictionExpanded(!examPredictionExpanded)}
               className="w-full flex items-center justify-between p-2 -m-2 hover:bg-gray-800/20 rounded-lg transition-colors"
@@ -813,7 +811,7 @@ This score weights your IRT prediction - higher quality = more reliable estimate
 
         {/* Thompson Sampling RL State - Collapsible */}
         {rlArmStats.length > 0 && (
-          <div className="neuro-card mb-6">
+          <div className="mb-6">
             <button
               onClick={() => setRlStateExpanded(!rlStateExpanded)}
               className="w-full flex items-center justify-between p-2 -m-2 hover:bg-gray-800/20 rounded-lg transition-colors"
@@ -972,7 +970,7 @@ Thompson Sampling prioritizes arms with higher average rewards.`}>
         )}
 
         {/* Mastery Heatmap - Collapsible */}
-        <div className="neuro-card mb-6">
+        <div className="mb-6">
           <button
             onClick={() => setHeatmapExpanded(!heatmapExpanded)}
             className="w-full flex items-center justify-between p-2 -m-2 hover:bg-gray-800/20 rounded-lg transition-colors"
