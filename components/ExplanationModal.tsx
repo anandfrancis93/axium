@@ -48,7 +48,7 @@ export default function ExplanationModal({
   // Resizable state
   const [size, setSize] = useState({ width: 768, height: 600 }) // Default size
   const [isResizing, setIsResizing] = useState(false)
-  const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, width: 0, height: 0 })
+  const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, width: 0, height: 0, posX: 0, posY: 0 })
   const [resizeDirection, setResizeDirection] = useState<'se' | 'sw' | 'ne' | 'nw' | 'e' | 'w' | 's' | 'n' | null>(null)
 
   // Initialize messages when explanation is loaded
@@ -142,6 +142,8 @@ export default function ExplanationModal({
       y: e.clientY,
       width: size.width,
       height: size.height,
+      posX: position.x,
+      posY: position.y,
     })
   }
 
@@ -158,8 +160,8 @@ export default function ExplanationModal({
 
       let newWidth = resizeStart.width
       let newHeight = resizeStart.height
-      let newX = position.x
-      let newY = position.y
+      let newX = resizeStart.posX
+      let newY = resizeStart.posY
 
       // Calculate new dimensions based on resize direction
       if (resizeDirection.includes('e')) {
@@ -173,7 +175,7 @@ export default function ExplanationModal({
         const maxWidth = rect.right - 50
         newWidth = Math.max(400, Math.min(maxWidth, proposedWidth))
         const widthDiff = resizeStart.width - newWidth
-        newX = position.x + widthDiff
+        newX = resizeStart.posX + widthDiff
       }
       if (resizeDirection.includes('s')) {
         // Resize from bottom edge - constrain to viewport
@@ -186,11 +188,11 @@ export default function ExplanationModal({
         const maxHeight = rect.bottom - 50
         newHeight = Math.max(400, Math.min(maxHeight, proposedHeight))
         const heightDiff = resizeStart.height - newHeight
-        newY = position.y + heightDiff
+        newY = resizeStart.posY + heightDiff
       }
 
       setSize({ width: newWidth, height: newHeight })
-      if (newX !== position.x || newY !== position.y) {
+      if (newX !== resizeStart.posX || newY !== resizeStart.posY) {
         setPosition({ x: newX, y: newY })
       }
     }
