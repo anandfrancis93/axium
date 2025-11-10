@@ -147,10 +147,14 @@ export default function ExplanationModal({
 
   useEffect(() => {
     const handleResizeMove = (e: MouseEvent) => {
-      if (!isResizing || !resizeDirection) return
+      if (!isResizing || !resizeDirection || !modalRef.current) return
 
       const deltaX = e.clientX - resizeStart.x
       const deltaY = e.clientY - resizeStart.y
+
+      const rect = modalRef.current.getBoundingClientRect()
+      const viewportWidth = window.innerWidth
+      const viewportHeight = window.innerHeight
 
       let newWidth = resizeStart.width
       let newHeight = resizeStart.height
@@ -159,18 +163,30 @@ export default function ExplanationModal({
 
       // Calculate new dimensions based on resize direction
       if (resizeDirection.includes('e')) {
-        newWidth = Math.max(400, Math.min(window.innerWidth - 100, resizeStart.width + deltaX))
+        // Resize from right edge - constrain to viewport
+        const maxWidth = viewportWidth - rect.left - 50
+        newWidth = Math.max(400, Math.min(maxWidth, resizeStart.width + deltaX))
       }
       if (resizeDirection.includes('w')) {
-        newWidth = Math.max(400, Math.min(window.innerWidth - 100, resizeStart.width - deltaX))
-        newX = position.x + (resizeStart.width - newWidth)
+        // Resize from left edge - constrain position and size
+        const proposedWidth = resizeStart.width - deltaX
+        const maxWidth = rect.right - 50
+        newWidth = Math.max(400, Math.min(maxWidth, proposedWidth))
+        const widthDiff = resizeStart.width - newWidth
+        newX = position.x + widthDiff
       }
       if (resizeDirection.includes('s')) {
-        newHeight = Math.max(400, Math.min(window.innerHeight - 100, resizeStart.height + deltaY))
+        // Resize from bottom edge - constrain to viewport
+        const maxHeight = viewportHeight - rect.top - 50
+        newHeight = Math.max(400, Math.min(maxHeight, resizeStart.height + deltaY))
       }
       if (resizeDirection.includes('n')) {
-        newHeight = Math.max(400, Math.min(window.innerHeight - 100, resizeStart.height - deltaY))
-        newY = position.y + (resizeStart.height - newHeight)
+        // Resize from top edge - constrain position and size
+        const proposedHeight = resizeStart.height - deltaY
+        const maxHeight = rect.bottom - 50
+        newHeight = Math.max(400, Math.min(maxHeight, proposedHeight))
+        const heightDiff = resizeStart.height - newHeight
+        newY = position.y + heightDiff
       }
 
       setSize({ width: newWidth, height: newHeight })
