@@ -64,7 +64,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Build messages array for conversation (Claude format)
-    const systemPrompt = `Use bullet points to answer the question.`
+    const systemPrompt = `Use markdown bullet points to answer the question. Format lists with hyphens like this:
+- First point
+- Second point
+- Third point
+
+Do NOT use bullet point characters (•). Always use hyphens (-) or asterisks (*) for lists.`
 
     const messages: Array<{ role: 'user' | 'assistant', content: string }> = []
 
