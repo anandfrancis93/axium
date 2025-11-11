@@ -257,22 +257,51 @@ export async function POST(request: NextRequest) {
           .eq('bloom_level', question.bloom_level)
           .single()
 
-        // Check if this level now meets unlock requirement (80% mastery)
+        // Check if this level now meets unlock requirements:
+        // 1. 80% mastery score
+        // 2. At least one correct answer for each of the 7 knowledge dimensions
         if (updatedMastery && updatedMastery.mastery_score >= 80.0) {
 
-          // Check if next level was previously locked
-          const { data: nextLevelMastery } = await supabase
-            .from('user_topic_mastery')
-            .select('questions_attempted')
+          // Get dimension coverage for current level
+          const { data: dimensionCoverage } = await supabase
+            .from('user_dimension_coverage')
+            .select('dimension, average_score, times_tested')
             .eq('user_id', user.id)
+            .eq('chapter_id', session.chapter_id)
             .eq('topic_id', topicId)
-            .eq('bloom_level', question.bloom_level + 1)
-            .single()
+            .eq('bloom_level', question.bloom_level)
 
-          // If next level doesn't exist yet or has 0 attempts, it's newly unlocked
-          if (!nextLevelMastery || nextLevelMastery.questions_attempted === 0) {
-            unlockedLevel = question.bloom_level + 1
-            console.log(`🎉 Unlocked Bloom Level ${unlockedLevel} for topic ${topicId}`)
+          // Check if all 7 dimensions have been answered correctly at least once
+          const requiredDimensions = ['definition', 'example', 'comparison', 'implementation', 'scenario', 'troubleshooting', 'pitfalls']
+          const dimensionsWithCorrectAnswer = dimensionCoverage?.filter(d => d.average_score > 0) || []
+          const coveredDimensions = new Set(dimensionsWithCorrectAnswer.map(d => d.dimension))
+          const allDimensionsCovered = requiredDimensions.every(dim => coveredDimensions.has(dim))
+
+          console.log(`Dimension coverage check for topic ${topicId}, Bloom ${question.bloom_level}:`, {
+            requiredDimensions,
+            coveredDimensions: Array.from(coveredDimensions),
+            allDimensionsCovered,
+            masteryScore: updatedMastery.mastery_score
+          })
+
+          if (allDimensionsCovered) {
+            // Check if next level was previously locked
+            const { data: nextLevelMastery } = await supabase
+              .from('user_topic_mastery')
+              .select('questions_attempted')
+              .eq('user_id', user.id)
+              .eq('topic_id', topicId)
+              .eq('bloom_level', question.bloom_level + 1)
+              .single()
+
+            // If next level doesn't exist yet or has 0 attempts, it's newly unlocked
+            if (!nextLevelMastery || nextLevelMastery.questions_attempted === 0) {
+              unlockedLevel = question.bloom_level + 1
+              console.log(`🎉 Unlocked Bloom Level ${unlockedLevel} for topic ${topicId} - All dimensions mastered!`)
+            }
+          } else {
+            const missingDimensions = requiredDimensions.filter(dim => !coveredDimensions.has(dim))
+            console.log(`⏳ Cannot unlock next level yet - missing correct answers for: ${missingDimensions.join(', ')}`)
           }
         }
       }
