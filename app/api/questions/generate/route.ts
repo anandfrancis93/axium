@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logAPICall } from '@/lib/utils/api-logger'
 import OpenAI from 'openai'
 
 const openai = new OpenAI({
@@ -196,11 +197,25 @@ export async function POST(request: NextRequest) {
 
     // Step 1: Generate embedding for the topic using full hierarchical path
     console.log('Generating topic embedding using full path...')
+    const embeddingStartTime = Date.now()
     const embeddingResponse = await openai.embeddings.create({
       model: 'text-embedding-3-small',
       input: topicFullName,  // Use full hierarchical path for better matching
     })
     const topicEmbedding = embeddingResponse.data[0].embedding
+
+    // Log embedding API call
+    await logAPICall({
+      userId: user.id,
+      provider: 'openai',
+      model: 'text-embedding-3-small',
+      endpoint: '/api/questions/generate',
+      inputTokens: embeddingResponse.usage?.prompt_tokens || 0,
+      outputTokens: 0,
+      latencyMs: Date.now() - embeddingStartTime,
+      purpose: 'rag_embedding',
+      metadata: { topic_id, topic, bloom_level: bloomLevelNum, dimension, question_format }
+    })
 
     // Step 2: Vector similarity search to find relevant chunks
     console.log('Searching for relevant chunks...')
@@ -332,6 +347,7 @@ FORMAT YOUR RESPONSE AS VALID JSON:
 
 Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other text.`
 
+    const grokStartTime = Date.now()
     const completion = await grok.chat.completions.create({
       model: 'grok-4-fast-reasoning',
       messages: [
@@ -346,6 +362,19 @@ Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other 
       ],
       temperature: 0.7,
       max_tokens: 2000,
+    })
+
+    // Log Grok API call
+    await logAPICall({
+      userId: user.id,
+      provider: 'openai',
+      model: 'grok-4-fast-reasoning',
+      endpoint: '/api/questions/generate',
+      inputTokens: completion.usage?.prompt_tokens || 0,
+      outputTokens: completion.usage?.completion_tokens || 0,
+      latencyMs: Date.now() - grokStartTime,
+      purpose: 'question_generation',
+      metadata: { topic_id, topic, bloom_level: bloomLevelNum, dimension, question_format, num_questions }
     })
 
     // Extract JSON from Grok's response

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logAPICall } from '@/lib/utils/api-logger'
 import Anthropic from '@anthropic-ai/sdk'
 
 /**
@@ -103,12 +104,26 @@ Do NOT add any headers, labels, or titles like "Explanation:" or "Simple Explana
       messages.push({ role: 'user', content: prompt })
     }
 
+    const claudeStartTime = Date.now()
     const completion = await anthropic.messages.create({
       model: 'claude-sonnet-4-5-20250929',
       max_tokens: 300,
       temperature: 0.7,
       system: systemPrompt,
       messages,
+    })
+
+    // Log Claude API call
+    await logAPICall({
+      userId: user.id,
+      provider: 'anthropic',
+      model: 'claude-sonnet-4-5-20250929',
+      endpoint: '/api/ai/explain',
+      inputTokens: completion.usage.input_tokens,
+      outputTokens: completion.usage.output_tokens,
+      latencyMs: Date.now() - claudeStartTime,
+      purpose: 'explanation',
+      metadata: { has_conversation: !!userQuestion, text_length: selectedText.length }
     })
 
     const explanation = completion.content[0]?.type === 'text'

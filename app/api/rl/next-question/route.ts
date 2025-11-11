@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { selectArmThompsonSampling } from '@/lib/rl/thompson-sampling'
 import { getFormatsByBloomLevel, type QuestionFormat } from '@/lib/utils/question-format'
 import { logArmSelection } from '@/lib/rl/decision-logger'
+import { logAPICall } from '@/lib/utils/api-logger'
 import OpenAI from 'openai'
 
 const openai = new OpenAI({
@@ -100,11 +101,25 @@ async function generateQuestionOnDemand(
 
   // Step 1: Generate embedding for the FULL hierarchical topic name
   // This provides better context for RAG search
+  const embeddingStartTime = Date.now()
   const embeddingResponse = await openai.embeddings.create({
     model: 'text-embedding-3-small',
     input: topicFullName,  // Use full hierarchical name for better context
   })
   const topicEmbedding = embeddingResponse.data[0].embedding
+
+  // Log embedding API call
+  await logAPICall({
+    userId,
+    provider: 'openai',
+    model: 'text-embedding-3-small',
+    endpoint: '/api/rl/next-question',
+    inputTokens: embeddingResponse.usage?.prompt_tokens || 0,
+    outputTokens: 0, // Embeddings don't have output tokens
+    latencyMs: Date.now() - embeddingStartTime,
+    purpose: 'rag_embedding',
+    metadata: { topic_id: topicId, topic_name: topicName, bloom_level: bloomLevel }
+  })
 
   // Step 2: Vector search for relevant chunks
   const embeddingString = `[${topicEmbedding.join(',')}]`
@@ -364,6 +379,7 @@ FORMAT YOUR RESPONSE AS VALID JSON:
 
 Return ONLY valid JSON, no other text.`
 
+  const grokStartTime = Date.now()
   const completion = await grok.chat.completions.create({
     model: 'grok-4-fast-reasoning',
     messages: [
@@ -372,6 +388,19 @@ Return ONLY valid JSON, no other text.`
     ],
     temperature: 0.7,
     max_tokens: 2000,
+  })
+
+  // Log Grok API call
+  await logAPICall({
+    userId,
+    provider: 'openai', // Grok uses OpenAI-compatible API
+    model: 'grok-4-fast-reasoning',
+    endpoint: '/api/rl/next-question',
+    inputTokens: completion.usage?.prompt_tokens || 0,
+    outputTokens: completion.usage?.completion_tokens || 0,
+    latencyMs: Date.now() - grokStartTime,
+    purpose: 'question_generation',
+    metadata: { topic_id: topicId, topic_name: topicName, bloom_level: bloomLevel, dimension, format: questionFormat }
   })
 
   // Step 5: Parse response
