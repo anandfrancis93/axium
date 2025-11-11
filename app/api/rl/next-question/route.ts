@@ -371,6 +371,20 @@ Return ONLY valid JSON, no other text.`
 
   const q = questionsData.questions[0]
 
+  // Capitalize first letter of each option
+  if (q.options && typeof q.options === 'object') {
+    const capitalizedOptions: Record<string, string> = {}
+    for (const [key, value] of Object.entries(q.options)) {
+      if (typeof value === 'string' && value.length > 0) {
+        // Capitalize first letter, keep rest as-is
+        capitalizedOptions[key] = value.charAt(0).toUpperCase() + value.slice(1)
+      } else {
+        capitalizedOptions[key] = value as string
+      }
+    }
+    q.options = capitalizedOptions
+  }
+
   // Store question for spaced repetition with topic_id
   // We already have the correct topic_id from the RL arm selection (handles hierarchy correctly)
   console.log(`Storing question for topic_id: ${topicId}`)
@@ -736,6 +750,19 @@ export async function POST(request: NextRequest) {
           { status: 500 }
         )
       }
+    }
+
+    // Ensure all option values start with uppercase (for both new and review questions)
+    if (selectedQuestion.options && typeof selectedQuestion.options === 'object') {
+      const capitalizedOptions: Record<string, string> = {}
+      for (const [key, value] of Object.entries(selectedQuestion.options)) {
+        if (typeof value === 'string' && value.length > 0) {
+          capitalizedOptions[key] = value.charAt(0).toUpperCase() + value.slice(1)
+        } else {
+          capitalizedOptions[key] = value as string
+        }
+      }
+      selectedQuestion.options = capitalizedOptions
     }
 
     // Return the question (without correct answer for display)
