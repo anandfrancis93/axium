@@ -205,7 +205,7 @@ export default function TopicMasteryPage() {
           // Calculate EMA-based mastery for each dimension × Bloom level cell
           // Group responses by bloom_level and dimension
           const cellEMAMap = new Map<string, number>()
-          const alpha = 0.3 // Same EMA smoothing factor
+          // Reuse alpha from above (0.3)
 
           responses.forEach((r: any) => {
             const dimension = r.questions?.dimension || 'unknown'
