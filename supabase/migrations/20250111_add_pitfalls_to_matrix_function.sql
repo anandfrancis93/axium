@@ -1,5 +1,8 @@
 -- Update get_topic_dimension_matrix to include pitfalls dimension (7th dimension)
 
+-- Drop existing function first (return type is changing)
+DROP FUNCTION IF EXISTS get_topic_dimension_matrix(UUID, UUID, TEXT);
+
 CREATE OR REPLACE FUNCTION get_topic_dimension_matrix(
   p_user_id UUID,
   p_chapter_id UUID,
