@@ -116,15 +116,21 @@ export default function PerformancePage() {
         setRecentActivity([])
       }
 
-      // Calculate EMA-based mastery heatmap from responses
-      // Group responses by topic and bloom_level
-      const masteryMap = new Map<string, Map<number, number>>() // topic -> bloom_level -> EMA
-      const latestResponseMap = new Map<string, Date>() // topic -> latest response timestamp
-      const alpha = 0.3 // Same EMA smoothing factor
+      // Get mastery scores from user_dimension_coverage (pre-calculated with correct rewards)
+      const { data: dimensionCoverageData } = await supabase
+        .from('user_dimension_coverage')
+        .select('topic_id, bloom_level, average_score, last_tested_at, topics(name)')
+        .eq('user_id', user.id)
+        .eq('chapter_id', fetchedChapter.id)
 
-      allResponses.forEach((response: any) => {
-        const topicName = response.topics?.name
-        const bloomLevel = response.bloom_level
+      // Group by topic and bloom_level, taking average across all dimensions
+      const masteryMap = new Map<string, Map<number, number>>() // topic -> bloom_level -> avg score
+      const latestResponseMap = new Map<string, Date>() // topic -> latest response timestamp
+
+      dimensionCoverageData?.forEach((coverage: any) => {
+        const topicName = coverage.topics?.name
+        const bloomLevel = coverage.bloom_level
+        const score = coverage.average_score
         if (!topicName || !bloomLevel) return
 
         if (!masteryMap.has(topicName)) {
@@ -132,23 +138,23 @@ export default function PerformancePage() {
         }
 
         // Track latest response timestamp for this topic
-        const responseDate = new Date(response.created_at)
-        const currentLatest = latestResponseMap.get(topicName)
-        if (!currentLatest || responseDate > currentLatest) {
-          latestResponseMap.set(topicName, responseDate)
+        if (coverage.last_tested_at) {
+          const responseDate = new Date(coverage.last_tested_at)
+          const currentLatest = latestResponseMap.get(topicName)
+          if (!currentLatest || responseDate > currentLatest) {
+            latestResponseMap.set(topicName, responseDate)
+          }
         }
 
         const topicMap = masteryMap.get(topicName)!
-        const currentScore = response.is_correct ? 100 : 0
-        const existingEMA = topicMap.get(bloomLevel)
 
-        if (existingEMA === undefined) {
-          // First response for this topic-bloom combination
-          topicMap.set(bloomLevel, currentScore)
+        // Average scores across all dimensions for this topic-bloom combination
+        const existingScores = topicMap.get(bloomLevel)
+        if (existingScores === undefined) {
+          topicMap.set(bloomLevel, score)
         } else {
-          // Update EMA: new_ema = alpha * current + (1-alpha) * old
-          const newEMA = alpha * currentScore + (1 - alpha) * existingEMA
-          topicMap.set(bloomLevel, newEMA)
+          // Average with existing (for multiple dimensions)
+          topicMap.set(bloomLevel, (existingScores + score) / 2)
         }
       })
 
