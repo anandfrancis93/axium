@@ -703,6 +703,7 @@ Mastery calculated using EMA (recent performance weighted higher)`
               <div>
                 {/* Predicted Score */}
                 <div className="neuro-raised rounded-2xl p-8 mb-6 text-center">
+                  <div className="text-sm text-gray-400 mb-2">Your Predicted Exam Score</div>
                   <Tooltip content={`CompTIA Security+ Score Scale
 
 Score Range: 100-900
@@ -719,11 +720,10 @@ Score Interpretation:
 • Below 550: Early stage - Focus on fundamentals
 
 Your score is calculated using Item Response Theory (IRT), which accounts for question difficulty, your ability level, and response quality. The 95% confidence interval shows the range where your true score likely falls.`}>
-                    <div className="text-sm text-gray-400 mb-2 cursor-help">Your Predicted Exam Score</div>
+                    <div className={`text-6xl font-bold mb-3 cursor-help ${examPrediction.predictedScore >= 750 ? 'text-green-400' : 'text-yellow-400'}`}>
+                      {examPrediction.predictedScore}
+                    </div>
                   </Tooltip>
-                  <div className={`text-6xl font-bold mb-3 ${examPrediction.predictedScore >= 750 ? 'text-green-400' : 'text-yellow-400'}`}>
-                    {examPrediction.predictedScore}
-                  </div>
                   <div className="text-sm text-gray-500 mb-2">
                     95% CI: {examPrediction.confidenceLower} - {examPrediction.confidenceUpper}
                   </div>
