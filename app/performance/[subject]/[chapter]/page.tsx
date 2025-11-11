@@ -468,8 +468,9 @@ export default function PerformancePage() {
     if (uniqueCount >= 5 && mastery >= 80) return 'text-green-700' // Deep mastery
     if (mastery >= 80) return 'text-green-500' // Mastered
     if (mastery >= 60) return 'text-blue-500' // Proficient
-    if (mastery >= 40) return 'text-yellow-500' // Developing
-    return 'text-red-500' // Struggling
+    if (mastery >= 40) return 'text-yellow-500' // Building
+    if (mastery >= 0) return 'text-red-500' // Emerging
+    return 'text-red-400' // Needs Review (negative)
   }
 
   const getMasteryLabel = (mastery: number | null, uniqueCount: number) => {
@@ -478,8 +479,9 @@ export default function PerformancePage() {
     if (uniqueCount >= 5 && mastery >= 80) return 'Deep Mastery'
     if (mastery >= 80) return 'Mastered'
     if (mastery >= 60) return 'Proficient'
-    if (mastery >= 40) return 'Developing'
-    return 'Struggling'
+    if (mastery >= 40) return 'Building'
+    if (mastery >= 0) return 'Emerging'
+    return 'Needs Review'
   }
 
   const getMasteryTooltip = (mastery: number, uniqueCount: number) => {
@@ -503,9 +505,12 @@ export default function PerformancePage() {
     } else if (mastery >= 40) {
       range = '40-59%'
       meaning = 'Building understanding'
+    } else if (mastery >= 0) {
+      range = '0-39%'
+      meaning = 'Emerging understanding, continue practicing'
     } else {
-      range = '<40%'
-      meaning = 'Review fundamentals and practice more'
+      range = '<0%'
+      meaning = 'Needs review - revisit fundamentals'
     }
 
     return `${Math.round(mastery)}% Mastery (${label})
@@ -1010,12 +1015,16 @@ Thompson Sampling prioritizes arms with higher average rewards.`}>
                 <div className="flex items-center gap-4 text-sm mb-3 flex-wrap">
                   <span className="text-gray-400 font-medium">Mastery Levels:</span>
                   <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 rounded bg-red-400"></div>
+                    <span className="text-gray-500">Needs Review (&lt;0%)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
                     <div className="w-4 h-4 rounded bg-red-500"></div>
-                    <span className="text-gray-500">Struggling (&lt;40%)</span>
+                    <span className="text-gray-500">Emerging (0-39%)</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 rounded bg-yellow-500"></div>
-                    <span className="text-gray-500">Developing (40-59%)</span>
+                    <span className="text-gray-500">Building (40-59%)</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 rounded bg-blue-500"></div>
