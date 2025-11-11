@@ -15,8 +15,7 @@ BEGIN
     SELECT DISTINCT
       user_id,
       topic_id,
-      bloom_level,
-      chapter_id
+      bloom_level
     FROM user_responses
     ORDER BY user_id, topic_id, bloom_level
   )
@@ -60,8 +59,7 @@ BEGIN
         updated_at = NOW()
     WHERE user_id = rec.user_id
       AND topic_id = rec.topic_id
-      AND bloom_level = rec.bloom_level
-      AND chapter_id = rec.chapter_id;
+      AND bloom_level = rec.bloom_level;
 
     RAISE NOTICE 'Updated mastery for user % topic % bloom % to %',
       rec.user_id, rec.topic_id, rec.bloom_level, current_mastery;
