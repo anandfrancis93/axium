@@ -304,6 +304,7 @@ export default function TopicMasteryPage() {
                    status === 'struggling' ? 30 : 0)
 
     // Color based on score, not data sufficiency
+    if (score < 0) return 'text-red-900' // Needs Review (negative)
     if (masteryLevel === 'deep' || (uniqueCount >= 5 && score >= 80)) {
       return 'text-green-700'
     }
@@ -318,11 +319,12 @@ export default function TopicMasteryPage() {
   const getAvgColor = (avgScore: number, avgUniqueCount: number) => {
     if (avgUniqueCount === 0) return 'text-gray-600'
     // Show color based on actual score, regardless of data sufficiency
+    if (avgScore < 0) return 'text-red-900' // Needs Review (negative)
     if (avgUniqueCount >= 15 && avgScore >= 80) return 'text-green-700' // Deep mastery (5+ per dimension avg)
     if (avgScore >= 80) return 'text-green-500' // Mastered
     if (avgScore >= 60) return 'text-blue-500' // Proficient
-    if (avgScore >= 40) return 'text-yellow-500' // Developing
-    return 'text-red-500' // Struggling
+    if (avgScore >= 40) return 'text-yellow-500' // Building
+    return 'text-red-500' // Emerging
   }
 
   const getStatusLabel = (status: string, masteryLevel: string, uniqueCount: number, totalAttempts: number) => {
@@ -509,16 +511,22 @@ export default function TopicMasteryPage() {
               <div className="mb-6 p-4 neuro-inset rounded-lg">
                 <h3 className="text-sm font-medium text-gray-400 mb-4">Mastery Levels:</h3>
                 <div className="flex flex-wrap gap-4 text-sm">
-                  <Tooltip content={`Struggling\n\nAverage score: Less than 40%\n\nRecommendation: Review fundamentals and practice more`}>
+                  <Tooltip content={`Needs Review\n\nNegative mastery score indicates wrong answers with high confidence\n\nRecommendation: Review fundamentals and improve self-assessment`}>
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded bg-red-500"></div>
-                      <span className="text-gray-500">Struggling (&lt;40%)</span>
+                      <div className="w-4 h-4 rounded bg-red-900"></div>
+                      <span className="text-gray-500">Needs Review (&lt;0%)</span>
                     </div>
                   </Tooltip>
-                  <Tooltip content={`Developing\n\nAverage score: 40-59%\n\nRecommendation: Continue practicing to improve mastery`}>
+                  <Tooltip content={`Emerging\n\nAverage score: 0-39%\n\nRecommendation: Continue learning and practicing fundamentals`}>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded bg-red-500"></div>
+                      <span className="text-gray-500">Emerging (0-39%)</span>
+                    </div>
+                  </Tooltip>
+                  <Tooltip content={`Building\n\nAverage score: 40-59%\n\nRecommendation: Continue practicing to improve mastery`}>
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded bg-yellow-500"></div>
-                      <span className="text-gray-500">Developing (40-59%)</span>
+                      <span className="text-gray-500">Building (40-59%)</span>
                     </div>
                   </Tooltip>
                   <Tooltip content={`Proficient\n\nAverage score: 60-79%\n\nRecommendation: Good progress, almost ready to advance`}>
@@ -848,6 +856,7 @@ export default function TopicMasteryPage() {
                             </td>
                             <td className="py-3 px-3">
                               <span className={
+                                q.current_attempt.mastery < 0 ? 'text-red-900' :
                                 q.current_attempt.mastery >= 80 ? 'text-green-400' :
                                 q.current_attempt.mastery >= 60 ? 'text-blue-400' :
                                 q.current_attempt.mastery >= 40 ? 'text-yellow-400' :
