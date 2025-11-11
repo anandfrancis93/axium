@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { RefreshIcon, AlertTriangleIcon, CheckIcon, XIcon, BarChartIcon, TrendingUpIcon, AwardIcon, TargetIcon, ChevronDownIcon, LockIcon, LockOpenIcon, TrophyIcon, TrashIcon } from '@/components/icons'
+import { RefreshIcon, AlertTriangleIcon, CheckIcon, XIcon, BarChartIcon, TrendingUpIcon, AwardIcon, TargetIcon, LockIcon, LockOpenIcon, TrophyIcon, TrashIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import { Tooltip } from '@/components/Tooltip'
 import Modal from '@/components/Modal'
@@ -25,10 +25,7 @@ export default function PerformancePage() {
   const [topicUnlockLevels, setTopicUnlockLevels] = useState<Record<string, number>>({})
   const [uniqueQuestionCounts, setUniqueQuestionCounts] = useState<Record<string, number>>({})
   const [resetting, setResetting] = useState(false)
-  const [statsExpanded, setStatsExpanded] = useState(false)
-  const [heatmapExpanded, setHeatmapExpanded] = useState(false)
-  const [activityExpanded, setActivityExpanded] = useState(false)
-  const [examPredictionExpanded, setExamPredictionExpanded] = useState(false)
+  const [activeTab, setActiveTab] = useState<'stats' | 'heatmap' | 'activity' | 'examPrediction' | 'rlState'>('heatmap')
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [resetResults, setResetResults] = useState<any>(null)
@@ -38,38 +35,7 @@ export default function PerformancePage() {
   const [showTopicResetModal, setShowTopicResetModal] = useState(false)
   const [resetTopicData, setResetTopicData] = useState<{ topic: string, topic_id: string } | null>(null)
   const [resettingTopic, setResettingTopic] = useState(false)
-  const [rlStateExpanded, setRlStateExpanded] = useState(false)
   const [rlArmStats, setRlArmStats] = useState<any[]>([])
-
-  // Accordion behavior: only one section expanded at a time
-  const handleExpandSection = (section: 'stats' | 'heatmap' | 'activity' | 'examPrediction' | 'rlState') => {
-    const currentState = {
-      stats: statsExpanded,
-      heatmap: heatmapExpanded,
-      activity: activityExpanded,
-      examPrediction: examPredictionExpanded,
-      rlState: rlStateExpanded
-    }
-
-    // If clicking the currently expanded section, just collapse it
-    if (currentState[section]) {
-      switch(section) {
-        case 'stats': setStatsExpanded(false); break
-        case 'heatmap': setHeatmapExpanded(false); break
-        case 'activity': setActivityExpanded(false); break
-        case 'examPrediction': setExamPredictionExpanded(false); break
-        case 'rlState': setRlStateExpanded(false); break
-      }
-      return
-    }
-
-    // Otherwise, collapse all and expand the clicked one
-    setStatsExpanded(section === 'stats')
-    setHeatmapExpanded(section === 'heatmap')
-    setActivityExpanded(section === 'activity')
-    setExamPredictionExpanded(section === 'examPrediction')
-    setRlStateExpanded(section === 'rlState')
-  }
 
   useEffect(() => {
     loadPerformanceData()
@@ -624,22 +590,58 @@ Mastery calculated using EMA (recent performance weighted higher)`
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        {/* Overall Stats - Collapsible */}
-        <div className="mb-8">
+        {/* Tab Navigation */}
+        <div className="mb-8 flex gap-3 overflow-x-auto">
           <button
-            onClick={() => handleExpandSection('stats')}
-            className="w-full flex items-center justify-between mb-6"
+            onClick={() => setActiveTab('heatmap')}
+            className={`neuro-btn px-6 py-3 whitespace-nowrap transition-colors ${
+              activeTab === 'heatmap' ? 'text-blue-400' : 'text-gray-400'
+            }`}
           >
-            <h2 className="text-xl font-semibold text-gray-200">
-              Overall Statistics
-            </h2>
-            <ChevronDownIcon
-              size={24}
-              className={`text-gray-400 transition-transform ${statsExpanded ? 'rotate-180' : ''}`}
-            />
+            Mastery Heatmap
           </button>
+          <button
+            onClick={() => setActiveTab('stats')}
+            className={`neuro-btn px-6 py-3 whitespace-nowrap transition-colors ${
+              activeTab === 'stats' ? 'text-blue-400' : 'text-gray-400'
+            }`}
+          >
+            Overall Statistics
+          </button>
+          {examPrediction && (
+            <button
+              onClick={() => setActiveTab('examPrediction')}
+              className={`neuro-btn px-6 py-3 whitespace-nowrap transition-colors ${
+                activeTab === 'examPrediction' ? 'text-blue-400' : 'text-gray-400'
+              }`}
+            >
+              Exam Prediction
+            </button>
+          )}
+          {rlArmStats.length > 0 && (
+            <button
+              onClick={() => setActiveTab('rlState')}
+              className={`neuro-btn px-6 py-3 whitespace-nowrap transition-colors ${
+                activeTab === 'rlState' ? 'text-blue-400' : 'text-gray-400'
+              }`}
+            >
+              Thompson Sampling
+            </button>
+          )}
+          <button
+            onClick={() => setActiveTab('activity')}
+            className={`neuro-btn px-6 py-3 whitespace-nowrap transition-colors ${
+              activeTab === 'activity' ? 'text-blue-400' : 'text-gray-400'
+            }`}
+          >
+            Recent Activity
+          </button>
+        </div>
 
-          {statsExpanded && (
+        {/* Tab Content */}
+        <div className="mb-8">
+          {/* Overall Stats Tab */}
+          {activeTab === 'stats' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               <Tooltip content="Topics explored">
                 <div className="neuro-stat">
@@ -695,25 +697,9 @@ Mastery calculated using EMA (recent performance weighted higher)`
               </Tooltip>
             </div>
           )}
-        </div>
 
-        {/* Exam Score Prediction - Collapsible */}
-        {examPrediction && (
-          <div className="mb-8">
-            <button
-              onClick={() => handleExpandSection('examPrediction')}
-              className="w-full flex items-center justify-between mb-6"
-            >
-              <h2 className="text-xl font-semibold text-gray-200">
-                CompTIA Security+ Exam Prediction
-              </h2>
-              <ChevronDownIcon
-                size={24}
-                className={`text-gray-400 transition-transform ${examPredictionExpanded ? 'rotate-180' : ''}`}
-              />
-            </button>
-
-            {examPredictionExpanded && (
+          {/* Exam Prediction Tab */}
+          {activeTab === 'examPrediction' && examPrediction && (
               <div>
                 {/* Predicted Score */}
                 <div className="neuro-raised rounded-2xl p-8 mb-6 text-center">
@@ -835,27 +821,10 @@ This score weights your IRT prediction - higher quality = more reliable estimate
                   </div>
                 </div>
               </div>
-            )}
-          </div>
-        )}
+          )}
 
-        {/* Thompson Sampling RL State - Collapsible */}
-        {rlArmStats.length > 0 && (
-          <div className="mb-8">
-            <button
-              onClick={() => handleExpandSection('rlState')}
-              className="w-full flex items-center justify-between mb-6"
-            >
-              <h2 className="text-xl font-semibold text-gray-200">
-                Thompson Sampling State
-              </h2>
-              <ChevronDownIcon
-                size={24}
-                className={`text-gray-400 transition-transform ${rlStateExpanded ? 'rotate-180' : ''}`}
-              />
-            </button>
-
-            {rlStateExpanded && (
+          {/* Thompson Sampling Tab */}
+          {activeTab === 'rlState' && rlArmStats.length > 0 && (
               <div>
                 <div className="mb-4 text-sm text-gray-400">
                   Current RL algorithm state showing Beta distribution parameters (α, β) for each topic × Bloom level.
@@ -995,26 +964,10 @@ Thompson Sampling prioritizes arms with higher average rewards.`}>
                   </div>
                 </div>
               </div>
-            )}
-          </div>
-        )}
+          )}
 
-        {/* Mastery Heatmap - Collapsible */}
-        <div className="mb-8">
-          <button
-            onClick={() => handleExpandSection('heatmap')}
-            className="w-full flex items-center justify-between mb-6"
-          >
-            <h2 className="text-xl font-semibold text-gray-200">
-              Mastery Heatmap
-            </h2>
-            <ChevronDownIcon
-              size={24}
-              className={`text-gray-400 transition-transform ${heatmapExpanded ? 'rotate-180' : ''}`}
-            />
-          </button>
-
-          {heatmapExpanded && (
+          {/* Mastery Heatmap Tab */}
+          {activeTab === 'heatmap' && (
             <div>
               {/* Legend */}
               <div className="mb-6">
@@ -1178,24 +1131,9 @@ Thompson Sampling prioritizes arms with higher average rewards.`}>
               )}
             </div>
           )}
-        </div>
 
-        {/* Recent Activity - Collapsible */}
-        <div className="mb-8">
-          <button
-            onClick={() => handleExpandSection('activity')}
-            className="w-full flex items-center justify-between mb-6"
-          >
-            <h2 className="text-xl font-semibold text-gray-200">
-              Recent Activity
-            </h2>
-            <ChevronDownIcon
-              size={24}
-              className={`text-gray-400 transition-transform ${activityExpanded ? 'rotate-180' : ''}`}
-            />
-          </button>
-
-          {activityExpanded && (
+          {/* Recent Activity Tab */}
+          {activeTab === 'activity' && (
             <div>
               {recentActivity.length > 0 ? (
                 <div className="space-y-6">
