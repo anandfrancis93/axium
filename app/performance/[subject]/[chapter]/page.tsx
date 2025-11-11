@@ -703,7 +703,24 @@ Mastery calculated using EMA (recent performance weighted higher)`
               <div>
                 {/* Predicted Score */}
                 <div className="neuro-raised rounded-2xl p-8 mb-6 text-center">
-                  <div className="text-sm text-gray-400 mb-2">Your Predicted Exam Score</div>
+                  <Tooltip content={`CompTIA Security+ Score Scale
+
+Score Range: 100-900
+Passing Score: 750
+
+This scaled score represents your predicted performance on the CompTIA Security+ certification exam.
+
+Score Interpretation:
+• 900: Near-perfect performance (99th percentile)
+• 850-900: Exceptional mastery
+• 750-850: Passing - Strong understanding
+• 650-750: Close - More practice needed
+• 550-650: Developing - Significant gaps remain
+• Below 550: Early stage - Focus on fundamentals
+
+Your score is calculated using Item Response Theory (IRT), which accounts for question difficulty, your ability level, and response quality. The 95% confidence interval shows the range where your true score likely falls.`}>
+                    <div className="text-sm text-gray-400 mb-2 cursor-help">Your Predicted Exam Score</div>
+                  </Tooltip>
                   <div className={`text-6xl font-bold mb-3 ${examPrediction.predictedScore >= 750 ? 'text-green-400' : 'text-yellow-400'}`}>
                     {examPrediction.predictedScore}
                   </div>
