@@ -233,7 +233,7 @@ export default function TopicMasteryPage() {
           // Calculate EMA-based mastery for each dimension × Bloom level cell
           // Group responses by bloom_level and dimension
           const cellEMAMap = new Map<string, number>()
-          // Reuse alpha from above (0.3)
+          const cellAlpha = 0.3 // EMA smoothing factor for cell calculations
 
           responses.forEach((r: any) => {
             const dimension = r.questions?.dimension || 'unknown'
@@ -247,8 +247,8 @@ export default function TopicMasteryPage() {
               // First response for this cell
               cellEMAMap.set(cellKey, currentScore)
             } else {
-              // Update EMA: new_ema = alpha * current + (1-alpha) * old
-              const newEMA = alpha * currentScore + (1 - alpha) * existingEMA
+              // Update EMA: new_ema = cellAlpha * current + (1-cellAlpha) * old
+              const newEMA = cellAlpha * currentScore + (1 - cellAlpha) * existingEMA
               cellEMAMap.set(cellKey, newEMA)
             }
           })
