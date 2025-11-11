@@ -1,4 +1,5 @@
 -- Fix ambiguous column reference in get_topic_dimension_matrix
+-- Uses subquery instead of CTE to avoid ambiguous column name
 
 DROP FUNCTION IF EXISTS get_topic_dimension_matrix(UUID, UUID, TEXT);
 
@@ -69,20 +70,12 @@ BEGIN
     SELECT bl.bl, dim.dim
     FROM bloom_levels bl
     CROSS JOIN dimensions dim
-  ),
-  dim_config AS (
-    SELECT
-      dimension_key,
-      dimension_name AS dim_display_name
-    FROM subject_dimension_config
-    WHERE subject_id = v_subject_id
-      AND is_active = true
   )
   SELECT
-    matrix.bl::INT as bloom_level,
-    matrix.dim::TEXT as dimension,
+    matrix.bl::INT,
+    matrix.dim::TEXT,
     COALESCE(
-      dc.dim_display_name,
+      (SELECT sdc.dimension_name FROM subject_dimension_config sdc WHERE sdc.dimension_key = matrix.dim AND sdc.subject_id = v_subject_id LIMIT 1),
       CASE matrix.dim
         WHEN 'definition' THEN 'Definition'
         WHEN 'example' THEN 'Example'
@@ -93,26 +86,25 @@ BEGIN
         WHEN 'pitfalls' THEN 'Common Pitfalls'
         ELSE matrix.dim
       END
-    )::TEXT as dimension_name,
-    COALESCE(udc.times_tested, 0)::INT as times_tested,
-    COALESCE(ARRAY_LENGTH(udc.unique_questions_answered, 1), 0)::INT as unique_questions_count,
-    COALESCE(udc.total_attempts, 0)::INT as total_attempts,
-    COALESCE(udc.average_score, 0)::DECIMAL as average_score,
+    )::TEXT,
+    COALESCE(udc.times_tested, 0)::INT,
+    COALESCE(ARRAY_LENGTH(udc.unique_questions_answered, 1), 0)::INT,
+    COALESCE(udc.total_attempts, 0)::INT,
+    COALESCE(udc.average_score, 0)::DECIMAL,
     CASE
       WHEN udc.times_tested IS NULL OR udc.times_tested = 0 THEN 'not_tested'
       WHEN udc.average_score >= 80 THEN 'mastered'
       WHEN udc.average_score >= 60 THEN 'proficient'
       WHEN udc.average_score >= 40 THEN 'developing'
       ELSE 'struggling'
-    END::TEXT as mastery_status,
+    END::TEXT,
     CASE
       WHEN COALESCE(ARRAY_LENGTH(udc.unique_questions_answered, 1), 0) >= 5 AND udc.average_score >= 80 THEN 'deep'
       ELSE 'none'
-    END::TEXT as mastery_level,
+    END::TEXT,
     udc.last_tested_at,
-    v_topic_id as topic_id
+    v_topic_id
   FROM matrix
-  LEFT JOIN dim_config dc ON dc.dimension_key = matrix.dim
   LEFT JOIN user_dimension_coverage udc
     ON udc.user_id = p_user_id
     AND udc.chapter_id = p_chapter_id
