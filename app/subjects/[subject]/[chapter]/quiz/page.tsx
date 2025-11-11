@@ -152,7 +152,9 @@ export default function LearnPage() {
               setSelectedAnswer(state.selectedAnswer)
               setRecognitionMethod(state.recognitionMethod)
               setFeedback(state.feedback)
-              setQuestionShownAt(state.questionShownAt)
+              // If questionShownAt is missing or null (old localStorage), reset to now
+              // This ensures response time tracking works for restored sessions
+              setQuestionShownAt(state.questionShownAt || Date.now())
               setLoading(false)
               return
             } catch (e) {
@@ -285,6 +287,14 @@ export default function LearnPage() {
       const responseTimeSeconds = questionShownAt
         ? (Date.now() - questionShownAt) / 1000
         : null
+
+      // Debug logging to track response time
+      console.log('Response time tracking:', {
+        questionShownAt,
+        currentTime: Date.now(),
+        responseTimeSeconds,
+        calculated: questionShownAt ? `${((Date.now() - questionShownAt) / 1000).toFixed(1)}s` : 'not tracked'
+      })
 
       const response = await fetch('/api/rl/submit-response', {
         method: 'POST',

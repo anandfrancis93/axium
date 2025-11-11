@@ -48,8 +48,18 @@ export async function POST(request: NextRequest) {
       time_taken_seconds // Alternative name (legacy support)
     } = body
 
-    // Use whichever is provided
-    const responseTime = response_time_seconds ?? time_taken_seconds
+    // Use whichever is provided (ensure undefined becomes null for consistent handling)
+    const responseTime = response_time_seconds ?? time_taken_seconds ?? null
+
+    // Debug logging for response time tracking
+    console.log('Response time received:', {
+      response_time_seconds,
+      time_taken_seconds,
+      responseTime,
+      isNull: responseTime === null,
+      isUndefined: responseTime === undefined,
+      isZero: responseTime === 0
+    })
 
     // Validate all required inputs
     if (!session_id || !question_id || !user_answer) {

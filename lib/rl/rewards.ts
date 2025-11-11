@@ -336,8 +336,8 @@ export function calculateReward(params: {
   const spacingReward = calculateSpacingReward(daysSinceLastPractice, isCorrect)
   const recognitionReward = calculateRecognitionReward(recognitionMethod, isCorrect)
 
-  // Calculate response time reward (only if time is provided)
-  const responseTimeReward = responseTimeSeconds !== null
+  // Calculate response time reward (only if time is provided and valid)
+  const responseTimeReward = (responseTimeSeconds !== null && responseTimeSeconds !== undefined && responseTimeSeconds > 0)
     ? calculateResponseTimeReward(responseTimeSeconds, isCorrect, bloomLevel, questionText, options, questionFormat)
     : 0
 
