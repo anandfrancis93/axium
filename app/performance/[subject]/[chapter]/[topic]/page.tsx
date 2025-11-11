@@ -9,7 +9,7 @@ import Modal from '@/components/Modal'
 import { RLPhaseBadge } from '@/components/RLPhaseBadge'
 import { getAllRLPhasesData } from '@/lib/utils/rl-phase'
 import { Tooltip } from '@/components/Tooltip'
-import { LockIcon, LockOpenIcon, AlertTriangleIcon, TrashIcon } from '@/components/icons'
+import { LockIcon, TrashIcon } from '@/components/icons'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Area, AreaChart, ReferenceLine } from 'recharts'
 
 const BLOOM_LEVELS = [
@@ -321,7 +321,6 @@ export default function TopicMasteryPage() {
 
   const getStatusLabel = (status: string, masteryLevel: string, uniqueCount: number, totalAttempts: number) => {
     if (uniqueCount === 0) return 'Not Tested'
-    if (uniqueCount < 3) return `Need More (${uniqueCount}/3 min)`
 
     if (status === 'mastered') {
       if (masteryLevel === 'deep') {
@@ -497,7 +496,7 @@ export default function TopicMasteryPage() {
             <div>
               {/* Description */}
               <div className="text-sm text-gray-400 mb-6">
-                Mastery scores calculated using Exponential Moving Average (EMA), giving more weight to recent performance. Requires 3+ unique questions for valid assessment.
+                Mastery scores calculated using Exponential Moving Average (EMA), giving more weight to recent performance.
               </div>
 
               {/* Legend */}
@@ -534,10 +533,6 @@ export default function TopicMasteryPage() {
                       <span className="text-gray-500">Deep Mastery (5+, 80%+)</span>
                     </div>
                   </Tooltip>
-                </div>
-                <div className="mt-4 text-xs text-gray-500 flex items-start gap-2">
-                  <AlertTriangleIcon size={12} className="text-yellow-500 mt-0.5" />
-                  <span>Warning triangle indicates insufficient data (&lt;3 unique questions). Scores shown but may not reflect true mastery.</span>
                 </div>
               </div>
 
@@ -602,10 +597,7 @@ export default function TopicMasteryPage() {
                                 ) : (
                                   <div className="inline-flex items-center gap-2">
                                     <Tooltip
-                                      content={uniqueCount < 3
-                                        ? `${topic} - ${bloomLevel.name} - ${dim.name}\n\nEMA Score: ${Math.round(cell?.average_score || 0)}%\n\n⚠️ Insufficient Data (${uniqueCount}/3 questions)\n\nNeed ${3 - uniqueCount} more question${3 - uniqueCount === 1 ? '' : 's'} for accurate mastery assessment.\n\nTotal Attempts: ${totalAttempts} (${totalAttempts - uniqueCount} repeats)\n\nCurrent score may not reflect true understanding.`
-                                        : `${topic} - ${bloomLevel.name} - ${dim.name}\n\nEMA Score: ${Math.round(cell?.average_score || 0)}%\n\nUnique Questions: ${uniqueCount}\n\nTotal Attempts: ${totalAttempts} (${totalAttempts - uniqueCount} repeats)\n\nStatus: ${getStatusLabel(status, masteryLevel, uniqueCount, totalAttempts)}`
-                                      }
+                                      content={`${topic} - ${bloomLevel.name} - ${dim.name}\n\nEMA Score: ${Math.round(cell?.average_score || 0)}%\n\nUnique Questions: ${uniqueCount}\n\nTotal Attempts: ${totalAttempts} (${totalAttempts - uniqueCount} repeats)\n\nStatus: ${getStatusLabel(status, masteryLevel, uniqueCount, totalAttempts)}`}
                                     >
                                       <div className={`${getStatusColor(status, masteryLevel, uniqueCount, cell?.average_score)} relative inline-block`}>
                                         <div className="font-bold text-lg">
@@ -613,11 +605,6 @@ export default function TopicMasteryPage() {
                                         </div>
                                       </div>
                                     </Tooltip>
-                                    {uniqueCount < 3 && (
-                                      <Tooltip content={`⚠️ Insufficient Data\n\nOnly ${uniqueCount} unique question${uniqueCount === 1 ? '' : 's'} answered.\n\nNeed ${3 - uniqueCount} more for reliable assessment.`}>
-                                        <AlertTriangleIcon size={14} className="text-yellow-500" />
-                                      </Tooltip>
-                                    )}
                                   </div>
                                 )}
                               </td>
@@ -634,16 +621,11 @@ export default function TopicMasteryPage() {
                               <div className="text-gray-600">--</div>
                             ) : (
                               <div className="inline-flex items-center gap-2">
-                                <Tooltip content={`${topic} - ${bloomLevel.name}\n\nAverage EMA Score: ${Math.round(avgScore)}%\n\nCalculated from ${dimensionScores.length} tested dimension${dimensionScores.length === 1 ? '' : 's'} (out of 6 total)\n\nTotal Unique Questions: ${avgUniqueCount}`}>
+                                <Tooltip content={`${topic} - ${bloomLevel.name}\n\nAverage EMA Score: ${Math.round(avgScore)}%\n\nCalculated from ${dimensionScores.length} tested dimension${dimensionScores.length === 1 ? '' : 's'} (out of 7 total)\n\nTotal Unique Questions: ${avgUniqueCount}`}>
                                   <div className={`${getAvgColor(avgScore, avgUniqueCount)} font-bold text-lg`}>
                                     {Math.round(avgScore)}%
                                   </div>
                                 </Tooltip>
-                                {avgUniqueCount < 3 && (
-                                  <Tooltip content={`⚠️ Insufficient Data\n\nOnly ${avgUniqueCount} total unique question${avgUniqueCount === 1 ? '' : 's'} across all dimensions.\n\nNeed ${3 - avgUniqueCount} more for reliable assessment.`}>
-                                    <AlertTriangleIcon size={14} className="text-yellow-500" />
-                                  </Tooltip>
-                                )}
                               </div>
                             )}
                           </td>
