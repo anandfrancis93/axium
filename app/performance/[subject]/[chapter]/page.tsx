@@ -703,58 +703,48 @@ Mastery calculated using EMA (recent performance weighted higher)`
               <div>
                 {/* Predicted Score */}
                 <div className="neuro-raised rounded-2xl p-8 mb-6 text-center">
-                  <div className="text-sm text-gray-400 mb-2">Your Predicted Exam Score</div>
-                  <Tooltip content={`CompTIA Security+ Score Scale
-
-Score Range: 100-900
-Passing Score: 750
-
-This scaled score represents your predicted performance on the CompTIA Security+ certification exam.
-
-Score Interpretation:
-• 900: Near-perfect performance (99th percentile)
-• 850-900: Exceptional mastery
-• 750-850: Passing - Strong understanding
-• 650-750: Close - More practice needed
-• 550-650: Developing - Significant gaps remain
-• Below 550: Early stage - Focus on fundamentals
-
-Your score is calculated using Item Response Theory (IRT), which accounts for question difficulty, your ability level, and response quality. The 95% confidence interval shows the range where your true score likely falls.`}>
-                    <div className={`text-6xl font-bold mb-3 cursor-help ${examPrediction.predictedScore >= 750 ? 'text-green-400' : 'text-yellow-400'}`}>
-                      {examPrediction.predictedScore}
-                    </div>
-                  </Tooltip>
+                  <div className="text-sm text-gray-400 mb-2">Your Predicted Exam Score Range</div>
                   <Tooltip content={`Understanding Your Score Prediction
 
-SINGLE VALUE (${examPrediction.predictedScore}):
-This is your "point estimate" - our best single prediction of your exam score based on your current performance data.
+95% CONFIDENCE INTERVAL (${examPrediction.confidenceLower} - ${examPrediction.confidenceUpper}):
+We are 95% confident your TRUE exam score falls within this range.
 
-RANGE (${examPrediction.confidenceLower} - ${examPrediction.confidenceUpper}):
-This is the "95% Confidence Interval" - we are 95% confident your TRUE exam score falls within this range.
+Why a range instead of a single number?
+• Single numbers look precise but are misleading
+• Ranges are honest about prediction uncertainty
+• Your actual score has ~95% chance of being in this range
+• The width shows how much data we have
 
-Why is there a range?
-• Predictions have uncertainty, especially with limited data
-• The range shows how confident we are in the prediction
-• More questions answered = narrower, more precise range
-• Fewer questions answered = wider range (more uncertainty)
+Current data: ${examPrediction.responsesCount} questions answered
 
-Your current data: ${examPrediction.responsesCount} questions answered
+Range width meaning:
+• Wide range (like ${examPrediction.confidenceUpper - examPrediction.confidenceLower} points) = Need more data
+• Narrow range (~50-100 points) = Reliable prediction
+• Very narrow range (<50 points) = High confidence
 
 How to narrow the range:
 • Answer more questions (50+ recommended for accuracy)
 • Practice across all topics and Bloom levels
 • Maintain consistent performance quality
 
+CompTIA Security+ Scale:
+• Score Range: 100-900
+• Passing Score: 750
+• Your range: ${examPrediction.confidenceLower} - ${examPrediction.confidenceUpper}
+
 A narrower range means a more reliable prediction!`}>
-                    <div className="text-sm text-gray-500 mb-2 cursor-help">
-                      95% CI: {examPrediction.confidenceLower} - {examPrediction.confidenceUpper}
+                    <div className="text-6xl font-bold mb-3 cursor-help text-blue-400">
+                      {examPrediction.confidenceLower} - {examPrediction.confidenceUpper}
                     </div>
                   </Tooltip>
+                  <div className="text-sm text-gray-500 mb-2">
+                    95% Confidence Interval
+                  </div>
                   <div className="text-xs text-gray-600 mb-4">
                     Scale: 100-900 | Passing: 750
                   </div>
-                  <div className={`text-sm font-medium ${examPrediction.predictedScore >= 750 ? 'text-green-400' : 'text-yellow-400'}`}>
-                    {examPrediction.interpretation}
+                  <div className="text-sm font-medium text-gray-400">
+                    Based on {examPrediction.responsesCount} question{examPrediction.responsesCount === 1 ? '' : 's'}
                   </div>
                 </div>
 
