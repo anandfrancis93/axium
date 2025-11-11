@@ -63,6 +63,7 @@ export default function AuditPage() {
   // Spaced Repetition State
   const [spacedRepData, setSpacedRepData] = useState<SpacedRepData[]>([])
   const [spacingStats, setSpacingStats] = useState<any>(null)
+  const [sortBy, setSortBy] = useState<'earliest_review' | 'latest_practiced'>('earliest_review')
 
   useEffect(() => {
     loadData()
@@ -1160,9 +1161,40 @@ Thompson Sampling naturally balances exploration and exploitation based on uncer
 
             {/* Topics List */}
             <div className="neuro-card">
-              <h2 className="text-2xl font-semibold text-gray-200 mb-6">All Topics ({spacedRepData.length})</h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-semibold text-gray-200">All Topics ({spacedRepData.length})</h2>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setSortBy('earliest_review')}
+                    className={`neuro-btn px-4 py-2 text-sm ${sortBy === 'earliest_review' ? 'text-blue-400' : 'text-gray-400'}`}
+                  >
+                    Earliest Review
+                  </button>
+                  <button
+                    onClick={() => setSortBy('latest_practiced')}
+                    className={`neuro-btn px-4 py-2 text-sm ${sortBy === 'latest_practiced' ? 'text-blue-400' : 'text-gray-400'}`}
+                  >
+                    Latest Practiced
+                  </button>
+                </div>
+              </div>
               <div className="space-y-3 max-h-[600px] overflow-y-auto">
-                {spacedRepData.map((topic, idx) => (
+                {(() => {
+                  // Sort the topics based on selected sort method
+                  const sortedTopics = [...spacedRepData].sort((a, b) => {
+                    if (sortBy === 'earliest_review') {
+                      // Calculate time until due (negative = overdue)
+                      const aHoursUntilDue = (a.next_intervals.optimal_days * 24) - a.hours_since
+                      const bHoursUntilDue = (b.next_intervals.optimal_days * 24) - b.hours_since
+                      // Most overdue (most negative) should come first
+                      return aHoursUntilDue - bHoursUntilDue
+                    } else {
+                      // Sort by most recently practiced
+                      return new Date(b.last_practiced_at).getTime() - new Date(a.last_practiced_at).getTime()
+                    }
+                  })
+
+                  return sortedTopics.map((topic, idx) => (
                   <div key={idx} className="neuro-inset p-4 rounded-lg">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
@@ -1212,7 +1244,8 @@ Thompson Sampling naturally balances exploration and exploitation based on uncer
                       })}
                     </div>
                   </div>
-                ))}
+                  ))
+                })()}
               </div>
             </div>
           </>
