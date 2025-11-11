@@ -187,15 +187,16 @@ export default function AuditPage() {
         // Process selections with outcomes
         const processedSelections: SelectionData[] = decisionData.map(d => {
           const selected = d.selected_arm || {}
+          // Handle both old (camelCase) and new (snake_case) field names
           return {
             timestamp: d.created_at,
-            topic_name: selected.topic_name || 'Unknown',
-            bloom_level: selected.bloom_level || 0,
-            sampled_value: selected.sampled_value || 0,
+            topic_name: selected.topic_name || selected.topicName || 'Unknown',
+            bloom_level: selected.bloom_level || selected.bloomLevel || 0,
+            sampled_value: selected.sampled_value || selected.sample || 0,
             adjusted_value: selected.adjusted_value || 0,
             mastery_score: selected.mastery_score || 0,
           }
-        })
+        }).filter(sel => sel.bloom_level > 0 && sel.topic_name !== 'Unknown') // Filter out invalid records
 
         // Match with rewards
         const { data: rewards } = await supabase

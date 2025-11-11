@@ -759,10 +759,14 @@ export async function POST(request: NextRequest) {
       chapterId: session.chapter_id,
       allArms: decisionContext?.allSamples || [],
       selectedArm: decisionContext?.selectedSample || {
-        topicId: selectedArm.topicId,
-        topicName: selectedArm.topicName,
-        bloomLevel: selectedArm.bloomLevel,
-        sample: null
+        topic_id: selectedArm.topicId,
+        topic_name: selectedArm.topicName,
+        bloom_level: selectedArm.bloomLevel,
+        alpha: 0,
+        beta: 0,
+        sampled_value: 0,
+        adjusted_value: 0,
+        mastery_score: 0
       },
       reasoning: finalReasoning,
       questionId: selectedQuestion.id,
