@@ -126,56 +126,22 @@ export default function TopicMasteryPage() {
           .order('created_at', { ascending: true })
 
         if (responses) {
-          // Track unique questions with current and previous results
-          const uniqueQuestionsMap = new Map()
-          responses.forEach((r: any) => {
-            const qid = r.question_id
-            if (!uniqueQuestionsMap.has(qid)) {
-              uniqueQuestionsMap.set(qid, {
-                question_id: qid,
-                question_text: r.questions?.question_text || 'Question',
-                dimension: r.questions?.dimension || 'Unknown',
-                first_attempt: {
-                  is_correct: r.is_correct,
-                  reward: r.reward,
-                  created_at: r.created_at
-                },
-                previous_attempt: null,
-                current_attempt: {
-                  is_correct: r.is_correct,
-                  reward: r.reward,
-                  created_at: r.created_at
-                },
-                total_attempts: 1,
-                all_results: [r.is_correct]
-              })
-            } else {
-              const existing = uniqueQuestionsMap.get(qid)
-              existing.previous_attempt = existing.current_attempt
-              existing.current_attempt = {
-                is_correct: r.is_correct,
-                reward: r.reward,
-                created_at: r.created_at
-              }
-              existing.total_attempts++
-              existing.all_results.push(r.is_correct)
-            }
-          })
-
-          setUniqueQuestions(Array.from(uniqueQuestionsMap.values()))
-
           // Calculate mastery trend over time using EMA (Exponential Moving Average)
           // This matches the calculation used in user_topic_mastery for consistency
-          if (responses && responses.length > 0) {
-            const alpha = 0.3 // EMA smoothing factor (same as RL reward system)
-            let ema = responses[0].is_correct ? 100 : 0 // Initialize with first result
+          const alpha = 0.3 // EMA smoothing factor (same as RL reward system)
+          let ema = responses.length > 0 ? (responses[0].is_correct ? 100 : 0) : 0 // Initialize with first result
+          const masteryByResponseIndex = new Map<number, number>()
 
+          if (responses && responses.length > 0) {
             const trendData = responses.map((r: any, idx: number) => {
               // Update EMA: new_ema = alpha * current_result + (1-alpha) * old_ema
               const currentScore = r.is_correct ? 100 : 0
               if (idx > 0) {
                 ema = alpha * currentScore + (1 - alpha) * ema
               }
+
+              // Store mastery for this response index
+              masteryByResponseIndex.set(idx, ema)
 
               const date = new Date(r.created_at)
 
@@ -195,6 +161,46 @@ export default function TopicMasteryPage() {
 
             setMasteryTrendData(trendData)
           }
+
+          // Track unique questions with current and previous results
+          const uniqueQuestionsMap = new Map()
+          responses.forEach((r: any, idx: number) => {
+            const qid = r.question_id
+            if (!uniqueQuestionsMap.has(qid)) {
+              uniqueQuestionsMap.set(qid, {
+                question_id: qid,
+                question_text: r.questions?.question_text || 'Question',
+                dimension: r.questions?.dimension || 'Unknown',
+                first_attempt: {
+                  is_correct: r.is_correct,
+                  reward: r.reward,
+                  created_at: r.created_at
+                },
+                previous_attempt: null,
+                current_attempt: {
+                  is_correct: r.is_correct,
+                  reward: r.reward,
+                  created_at: r.created_at,
+                  mastery: masteryByResponseIndex.get(idx) || 0
+                },
+                total_attempts: 1,
+                all_results: [r.is_correct]
+              })
+            } else {
+              const existing = uniqueQuestionsMap.get(qid)
+              existing.previous_attempt = existing.current_attempt
+              existing.current_attempt = {
+                is_correct: r.is_correct,
+                reward: r.reward,
+                created_at: r.created_at,
+                mastery: masteryByResponseIndex.get(idx) || 0
+              }
+              existing.total_attempts++
+              existing.all_results.push(r.is_correct)
+            }
+          })
+
+          setUniqueQuestions(Array.from(uniqueQuestionsMap.values()))
 
           // Calculate EMA-based mastery for each dimension × Bloom level cell
           // Group responses by bloom_level and dimension
@@ -770,6 +776,7 @@ export default function TopicMasteryPage() {
                         <th className="text-left py-2 px-3 text-gray-400 font-medium">Previous Result</th>
                         <th className="text-left py-2 px-3 text-gray-400 font-medium">Current Result</th>
                         <th className="text-left py-2 px-3 text-gray-400 font-medium">Reward</th>
+                        <th className="text-left py-2 px-3 text-gray-400 font-medium">Mastery</th>
                         <th className="text-left py-2 px-3 text-gray-400 font-medium">Trend</th>
                         <th className="text-left py-2 px-3 text-gray-400 font-medium">Attempts</th>
                         <th className="text-left py-2 px-3 text-gray-400 font-medium">First Date</th>
@@ -837,6 +844,16 @@ export default function TopicMasteryPage() {
                             <td className="py-3 px-3">
                               <span className={q.current_attempt.reward >= 0 ? 'text-green-400' : 'text-red-400'}>
                                 {q.current_attempt.reward >= 0 ? '+' : ''}{q.current_attempt.reward.toFixed(1)}
+                              </span>
+                            </td>
+                            <td className="py-3 px-3">
+                              <span className={
+                                q.current_attempt.mastery >= 80 ? 'text-green-400' :
+                                q.current_attempt.mastery >= 60 ? 'text-blue-400' :
+                                q.current_attempt.mastery >= 40 ? 'text-yellow-400' :
+                                'text-red-400'
+                              }>
+                                {Math.round(q.current_attempt.mastery)}%
                               </span>
                             </td>
                             <td className="py-3 px-3">
