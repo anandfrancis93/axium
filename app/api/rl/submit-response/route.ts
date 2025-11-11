@@ -208,7 +208,8 @@ export async function POST(request: NextRequest) {
         preliminaryReward.recognition,
         question.bloom_level
       )
-      const newMastery = Math.max(0, Math.min(100, currentMastery + learningGain))
+      // Allow negative mastery for better RL signal, but cap at 100%
+      const newMastery = Math.min(100, currentMastery + learningGain)
 
       // Now recalculate with actual learning gain
       const rewardComponents = calculateReward({
