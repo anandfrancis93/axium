@@ -1024,10 +1024,6 @@ Thompson Sampling prioritizes arms with higher average rewards.`}>
                     <span className="text-gray-500">Deep Mastery (5+, 80%+)</span>
                   </div>
                 </div>
-                <div className="text-xs text-gray-500 flex items-start gap-2">
-                  <AlertTriangleIcon size={10} className="text-yellow-500 mt-0.5" />
-                  <span>Warning triangle indicates insufficient data (&lt;3 unique questions). Scores shown but may not reflect true mastery.</span>
-                </div>
               </div>
 
               {masteryHeatmap.length > 0 ? (
@@ -1098,36 +1094,22 @@ Thompson Sampling prioritizes arms with higher average rewards.`}>
                                     </div>
                                   </Tooltip>
                                 ) : (
-                                  <div className="inline-flex items-center gap-1.5">
-                                    <Tooltip content={getMasteryTooltip(mastery || 0, uniqueCount)}>
-                                      <div className={`${getMasteryColor(mastery, uniqueCount)} font-medium text-sm`}>
-                                        {Math.round(mastery || 0)}%
-                                      </div>
-                                    </Tooltip>
-                                    {uniqueCount < 3 && (
-                                      <Tooltip content={`⚠️ Insufficient Data\n\nOnly ${uniqueCount} unique question${uniqueCount === 1 ? '' : 's'} at this level.\n\nNeed ${3 - uniqueCount} more for reliable assessment.`}>
-                                        <AlertTriangleIcon size={10} className="text-yellow-500" />
-                                      </Tooltip>
-                                    )}
-                                  </div>
+                                  <Tooltip content={getMasteryTooltip(mastery || 0, uniqueCount)}>
+                                    <div className={`${getMasteryColor(mastery, uniqueCount)} font-medium text-sm`}>
+                                      {Math.round(mastery || 0)}%
+                                    </div>
+                                  </Tooltip>
                                 )}
                               </td>
                             )
                           })}
                           <td className="p-4 text-center">
                             {row.avg_mastery !== null && row.avg_mastery !== undefined ? (
-                              <div className="inline-flex items-center gap-1.5">
-                                <Tooltip content={`${row.topic} - Average Mastery\n\nAverage EMA Score: ${Math.round(row.avg_mastery)}%\n\nTotal Unique Questions: ${totalUniqueCount}`}>
-                                  <div className={`${getMasteryColor(row.avg_mastery, totalUniqueCount)} font-medium`}>
-                                    {Math.round(row.avg_mastery)}%
-                                  </div>
-                                </Tooltip>
-                                {totalUniqueCount < 3 && (
-                                  <Tooltip content={`⚠️ Insufficient Data\n\nOnly ${totalUniqueCount} total unique question${totalUniqueCount === 1 ? '' : 's'} across all Bloom levels.\n\nNeed ${3 - totalUniqueCount} more for reliable assessment.`}>
-                                    <AlertTriangleIcon size={10} className="text-yellow-500" />
-                                  </Tooltip>
-                                )}
-                              </div>
+                              <Tooltip content={`${row.topic} - Average Mastery\n\nAverage EMA Score: ${Math.round(row.avg_mastery)}%\n\nTotal Unique Questions: ${totalUniqueCount}`}>
+                                <div className={`${getMasteryColor(row.avg_mastery, totalUniqueCount)} font-medium`}>
+                                  {Math.round(row.avg_mastery)}%
+                                </div>
+                              </Tooltip>
                             ) : (
                               <div className="text-gray-600">--</div>
                             )}
