@@ -48,7 +48,9 @@ const KNOWLEDGE_DIMENSIONS: { [key: string]: string } = {
 
   'implementation': 'DIMENSION: Implementation and Procedures - Focus on "how do you implement/configure it?" and step-by-step processes. Test knowledge of setup, configuration, and operational procedures. Appropriate for Bloom levels 3-6 (Apply, Analyze, Evaluate, Create).',
 
-  'troubleshooting': 'DIMENSION: Troubleshooting and Analysis - Focus on "why isn\'t it working?" and diagnostic reasoning. Test ability to identify problems, analyze symptoms, and propose solutions. Appropriate for Bloom levels 4-6 (Analyze, Evaluate, Create).'
+  'troubleshooting': 'DIMENSION: Troubleshooting and Analysis - Focus on "why isn\'t it working?" and diagnostic reasoning. Test ability to identify problems, analyze symptoms, and propose solutions. Appropriate for Bloom levels 4-6 (Analyze, Evaluate, Create).',
+
+  'pitfalls': 'DIMENSION: Common Pitfalls and Mistakes - Focus on errors, misconceptions, and anti-patterns at different complexity levels. Bloom 1-3: What NOT to do (basic errors, common confusions, implementation mistakes). Bloom 4-6: Why approaches fail (flawed analysis, poor design decisions, inadequate evaluation criteria). Test ability to recognize and avoid common errors. Appropriate for all Bloom levels.'
 }
 
 /**
@@ -66,7 +68,11 @@ function getDimensionGuidance(dimension: string, bloomLevel: number): string {
 
     'implementation': 'Ask "What steps are required to...?", "How do you configure...?", "What is the correct procedure for...?". Focus on setup and operational steps.',
 
-    'troubleshooting': 'Present a problem and ask "What could be the cause?", "Why is this failing?", "How would you diagnose...?". Require analytical reasoning.'
+    'troubleshooting': 'Present a problem and ask "What could be the cause?", "Why is this failing?", "How would you diagnose...?". Require analytical reasoning.',
+
+    'pitfalls': bloomLevel <= 3
+      ? 'Ask "What is a common mistake when...", "Which is NOT correct about...", "What misconception do people have about...", "Which step should you avoid?". Focus on errors, wrong beliefs, and what NOT to do.'
+      : 'Ask "Why would this approach fail?", "What design flaw exists in...", "What makes this analysis inadequate?", "Why is this evaluation insufficient?". Focus on flawed reasoning, poor designs, and inadequate approaches at higher complexity.'
   }
 
   return guidance[dimension] || 'Generate a question focused on this aspect of the topic.'
