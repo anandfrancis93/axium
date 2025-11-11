@@ -4,13 +4,14 @@
 DO $$
 DECLARE
   rec RECORD;
+  response_rec RECORD;
   current_mastery DECIMAL;
   learning_gain DECIMAL;
   new_mastery DECIMAL;
   alpha CONSTANT DECIMAL := 0.3; -- EMA smoothing factor
 BEGIN
   -- For each unique user-topic-bloom combination
-  FOR rec IN
+  FOR rec IN (
     SELECT DISTINCT
       user_id,
       topic_id,
@@ -18,12 +19,13 @@ BEGIN
       chapter_id
     FROM user_responses
     ORDER BY user_id, topic_id, bloom_level
+  )
   LOOP
     -- Reset mastery to 0 for recalculation
     current_mastery := 0;
 
     -- Process all responses for this combination in chronological order
-    FOR response IN
+    FOR response_rec IN (
       SELECT
         id,
         is_correct,
@@ -34,10 +36,11 @@ BEGIN
         AND topic_id = rec.topic_id
         AND bloom_level = rec.bloom_level
       ORDER BY created_at ASC
+    )
     LOOP
       -- Calculate learning gain (simplified - matches calculateLearningGain logic)
       -- This is a simplified version; actual calculation includes calibration + recognition
-      IF response.is_correct THEN
+      IF response_rec.is_correct THEN
         learning_gain := alpha * (100 - current_mastery); -- Move toward 100%
       ELSE
         learning_gain := alpha * (0 - current_mastery); -- Move toward 0%
