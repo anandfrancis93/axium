@@ -4,116 +4,50 @@ import { useState } from 'react'
 import { SubjectManager } from './SubjectManager'
 import { ChapterManager } from './ChapterManager'
 import { QuestionGenerator } from './QuestionGenerator'
-import { ChevronDownIcon } from '@/components/icons'
+
+type Tab = 'subjects' | 'chapters' | 'questions' | 'hierarchy'
 
 export function AdminContent() {
-  const [expandedSections, setExpandedSections] = useState<{
-    subjects: boolean
-    chapters: boolean
-    questions: boolean
-    hierarchy: boolean
-  }>({
-    subjects: false,
-    chapters: false,
-    questions: false,
-    hierarchy: false,
-  })
-
-  // Accordion behavior: only one section expanded at a time
-  const toggleSection = (section: keyof typeof expandedSections) => {
-    const currentState = expandedSections[section]
-
-    // If clicking the currently expanded section, just collapse it
-    if (currentState) {
-      setExpandedSections(prev => ({
-        ...prev,
-        [section]: false
-      }))
-      return
-    }
-
-    // Otherwise, collapse all and expand the clicked one
-    setExpandedSections({
-      subjects: section === 'subjects',
-      chapters: section === 'chapters',
-      questions: section === 'questions',
-      hierarchy: section === 'hierarchy'
-    })
-  }
+  const [activeTab, setActiveTab] = useState<Tab>('subjects')
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-      {/* Subjects */}
-      <div className="mb-8">
+      {/* Tabs */}
+      <div className="flex gap-2 mb-8 overflow-x-auto">
         <button
-          type="button"
-          onClick={() => toggleSection('subjects')}
-          className="w-full flex items-center justify-between mb-6"
+          onClick={() => setActiveTab('subjects')}
+          className={`neuro-btn px-6 py-3 whitespace-nowrap ${activeTab === 'subjects' ? 'text-blue-400' : 'text-gray-400'}`}
         >
-          <h2 className="text-xl font-semibold text-gray-200">
-            Subjects
-          </h2>
-          <ChevronDownIcon
-            size={24}
-            className={`text-gray-400 transition-transform ${expandedSections.subjects ? 'rotate-180' : ''}`}
-          />
+          Subjects
         </button>
-        {expandedSections.subjects && <SubjectManager />}
+        <button
+          onClick={() => setActiveTab('chapters')}
+          className={`neuro-btn px-6 py-3 whitespace-nowrap ${activeTab === 'chapters' ? 'text-blue-400' : 'text-gray-400'}`}
+        >
+          Chapters
+        </button>
+        <button
+          onClick={() => setActiveTab('questions')}
+          className={`neuro-btn px-6 py-3 whitespace-nowrap ${activeTab === 'questions' ? 'text-blue-400' : 'text-gray-400'}`}
+        >
+          Generate Questions
+        </button>
+        <button
+          onClick={() => setActiveTab('hierarchy')}
+          className={`neuro-btn px-6 py-3 whitespace-nowrap ${activeTab === 'hierarchy' ? 'text-blue-400' : 'text-gray-400'}`}
+        >
+          Hierarchy
+        </button>
       </div>
 
-      {/* Chapters */}
-      <div className="mb-8">
-        <button
-          type="button"
-          onClick={() => toggleSection('chapters')}
-          className="w-full flex items-center justify-between mb-6"
-        >
-          <h2 className="text-xl font-semibold text-gray-200">
-            Chapters
-          </h2>
-          <ChevronDownIcon
-            size={24}
-            className={`text-gray-400 transition-transform ${expandedSections.chapters ? 'rotate-180' : ''}`}
-          />
-        </button>
-        {expandedSections.chapters && <ChapterManager />}
-      </div>
-
-      {/* Question Generator */}
-      <div className="mb-8">
-        <button
-          type="button"
-          onClick={() => toggleSection('questions')}
-          className="w-full flex items-center justify-between mb-6"
-        >
-          <h2 className="text-xl font-semibold text-gray-200">
-            Generate AI Questions
-          </h2>
-          <ChevronDownIcon
-            size={24}
-            className={`text-gray-400 transition-transform ${expandedSections.questions ? 'rotate-180' : ''}`}
-          />
-        </button>
-        {expandedSections.questions && <QuestionGenerator />}
-      </div>
-
-      {/* Content Hierarchy */}
-      <div className="mb-8">
-        <button
-          type="button"
-          onClick={() => toggleSection('hierarchy')}
-          className="w-full flex items-center justify-between mb-6"
-        >
-          <h2 className="text-xl font-semibold text-gray-200">
-            Content Hierarchy
-          </h2>
-          <ChevronDownIcon
-            size={24}
-            className={`text-gray-400 transition-transform ${expandedSections.hierarchy ? 'rotate-180' : ''}`}
-          />
-        </button>
-        {expandedSections.hierarchy && (
-          <div className="neuro-inset p-4 rounded-lg">
+      {/* Tab Content */}
+      {activeTab === 'subjects' && <SubjectManager />}
+      {activeTab === 'chapters' && <ChapterManager />}
+      {activeTab === 'questions' && <QuestionGenerator />}
+      {activeTab === 'hierarchy' && (
+        <div className="neuro-card">
+          <h2 className="text-2xl font-semibold text-gray-200 mb-6">Content Hierarchy</h2>
+          <div className="neuro-inset p-6 rounded-lg">
             <p className="text-sm text-gray-300 mb-2 font-medium">
               Subject → Chapter → Topic → Bloom Level (1-6)
             </p>
@@ -124,8 +58,8 @@ export function AdminContent() {
               4. Topics and Bloom levels will be managed through the learning interface
             </p>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </main>
   )
 }
