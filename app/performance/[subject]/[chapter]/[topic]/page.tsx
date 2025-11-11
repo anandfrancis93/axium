@@ -125,23 +125,51 @@ export default function TopicMasteryPage() {
           .eq('topic_id', topicData.id)
           .order('created_at', { ascending: true })
 
+        // Fetch reward components for accurate mastery calculation
+        const { data: rewardLogs } = await supabase
+          .from('rl_decision_log')
+          .select('response_id, reward_components')
+          .eq('decision_type', 'reward_calculation')
+          .in('response_id', responses?.map(r => r.id) || [])
+
+        // Create map of response_id -> reward_components
+        const rewardComponentsMap = new Map()
+        rewardLogs?.forEach((log: any) => {
+          rewardComponentsMap.set(log.response_id, log.reward_components)
+        })
+
         if (responses) {
-          // Calculate mastery trend over time using EMA (Exponential Moving Average)
-          // This matches the calculation used in user_topic_mastery for consistency
-          const alpha = 0.3 // EMA smoothing factor (same as RL reward system)
-          let ema = responses.length > 0 ? (responses[0].is_correct ? 100 : 0) : 0 // Initialize with first result
+          // Calculate mastery trend over time using actual reward components
+          // This matches the calculation used in user_dimension_coverage
+          let currentMastery = 0
           const masteryByResponseIndex = new Map<number, number>()
 
           if (responses && responses.length > 0) {
             const trendData = responses.map((r: any, idx: number) => {
-              // Update EMA: new_ema = alpha * current_result + (1-alpha) * old_ema
-              const currentScore = r.is_correct ? 100 : 0
-              if (idx > 0) {
-                ema = alpha * currentScore + (1 - alpha) * ema
+              // Get reward components for this response
+              const rewardComponents = rewardComponentsMap.get(r.id)
+
+              if (rewardComponents && rewardComponents.calibration !== undefined && rewardComponents.recognition !== undefined) {
+                // Calculate learning gain using actual reward formula
+                const bloomMultiplier = r.bloom_level >= 4 ? 9 : 10
+                const qualityScore = (rewardComponents.calibration + rewardComponents.recognition) / 2.0
+                const learningGain = qualityScore * bloomMultiplier
+
+                // Update mastery (allow negative, cap at 100)
+                currentMastery = Math.min(100, currentMastery + learningGain)
+              } else {
+                // Fallback to simplified calculation if no reward components
+                const currentScore = r.is_correct ? 100 : 0
+                if (idx > 0) {
+                  const alpha = 0.3
+                  currentMastery = alpha * currentScore + (1 - alpha) * currentMastery
+                } else {
+                  currentMastery = currentScore
+                }
               }
 
               // Store mastery for this response index
-              masteryByResponseIndex.set(idx, ema)
+              masteryByResponseIndex.set(idx, currentMastery)
 
               const date = new Date(r.created_at)
 
@@ -154,7 +182,7 @@ export default function TopicMasteryPage() {
                   hour: '2-digit',
                   minute: '2-digit'
                 }),
-                mastery: Math.round(ema),
+                mastery: Math.round(currentMastery),
                 isCorrect: r.is_correct
               }
             })
