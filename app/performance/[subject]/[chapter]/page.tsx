@@ -724,9 +724,32 @@ Your score is calculated using Item Response Theory (IRT), which accounts for qu
                       {examPrediction.predictedScore}
                     </div>
                   </Tooltip>
-                  <div className="text-sm text-gray-500 mb-2">
-                    95% CI: {examPrediction.confidenceLower} - {examPrediction.confidenceUpper}
-                  </div>
+                  <Tooltip content={`Understanding Your Score Prediction
+
+SINGLE VALUE (${examPrediction.predictedScore}):
+This is your "point estimate" - our best single prediction of your exam score based on your current performance data.
+
+RANGE (${examPrediction.confidenceLower} - ${examPrediction.confidenceUpper}):
+This is the "95% Confidence Interval" - we are 95% confident your TRUE exam score falls within this range.
+
+Why is there a range?
+• Predictions have uncertainty, especially with limited data
+• The range shows how confident we are in the prediction
+• More questions answered = narrower, more precise range
+• Fewer questions answered = wider range (more uncertainty)
+
+Your current data: ${examPrediction.responsesCount} questions answered
+
+How to narrow the range:
+• Answer more questions (50+ recommended for accuracy)
+• Practice across all topics and Bloom levels
+• Maintain consistent performance quality
+
+A narrower range means a more reliable prediction!`}>
+                    <div className="text-sm text-gray-500 mb-2 cursor-help">
+                      95% CI: {examPrediction.confidenceLower} - {examPrediction.confidenceUpper}
+                    </div>
+                  </Tooltip>
                   <div className="text-xs text-gray-600 mb-4">
                     Scale: 100-900 | Passing: 750
                   </div>
