@@ -389,7 +389,10 @@ export default function TopicMasteryPage() {
 
   // Get unique dimensions for header
   const dimensions = matrix.length > 0
-    ? [...new Set(matrix.map(m => ({ key: m.dimension, name: m.dimension_name })))]
+    ? [...new Set(matrix.map(m => ({
+        key: m.dimension,
+        name: m.dimension_name ? m.dimension_name.charAt(0).toUpperCase() + m.dimension_name.slice(1) : m.dimension
+      })))]
         .filter((v, i, a) => a.findIndex(t => t.key === v.key) === i)
     : []
 
