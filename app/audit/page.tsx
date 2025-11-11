@@ -7,7 +7,7 @@ import HamburgerMenu from '@/components/HamburgerMenu'
 import { RefreshIcon } from '@/components/icons'
 import { Tooltip } from '@/components/Tooltip'
 
-type Tab = 'audit' | 'analytics' | 'spaced-repetition'
+type Tab = 'audit' | 'analytics' | 'spaced-repetition' | 'api-costs'
 
 interface SelectionData {
   timestamp: string
@@ -65,6 +65,10 @@ export default function AuditPage() {
   const [spacingStats, setSpacingStats] = useState<any>(null)
   const [sortBy, setSortBy] = useState<'earliest_review' | 'latest_practiced'>('earliest_review')
 
+  // API Costs State
+  const [apiCalls, setApiCalls] = useState<any[]>([])
+  const [apiStats, setApiStats] = useState<any>(null)
+
   useEffect(() => {
     loadData()
   }, [activeTab, filter])
@@ -94,6 +98,8 @@ export default function AuditPage() {
       await loadAnalytics()
     } else if (activeTab === 'spaced-repetition') {
       await loadSpacedRepetition()
+    } else if (activeTab === 'api-costs') {
+      await loadApiCosts()
     }
   }
 
@@ -427,6 +433,77 @@ export default function AuditPage() {
     }
   }
 
+  const loadApiCosts = async () => {
+    try {
+      setLoading(true)
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (!user) {
+        router.push('/login')
+        return
+      }
+
+      // Load API call logs
+      const { data: callsData } = await supabase
+        .from('api_call_log')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(100)
+
+      if (callsData) {
+        setApiCalls(callsData)
+
+        // Calculate statistics
+        const totalCost = callsData.reduce((sum, call) => sum + parseFloat(call.total_cost || 0), 0)
+        const totalCalls = callsData.length
+        const successCalls = callsData.filter(c => c.status === 'success').length
+        const errorCalls = callsData.filter(c => c.status === 'error').length
+        const totalTokens = callsData.reduce((sum, call) => sum + (call.total_tokens || 0), 0)
+        const avgLatency = callsData.filter(c => c.latency_ms).reduce((sum, call, _, arr) =>
+          sum + (call.latency_ms || 0) / arr.length, 0
+        )
+
+        // Group by provider
+        const byProvider = callsData.reduce((acc, call) => {
+          if (!acc[call.provider]) {
+            acc[call.provider] = { calls: 0, cost: 0, tokens: 0 }
+          }
+          acc[call.provider].calls++
+          acc[call.provider].cost += parseFloat(call.total_cost || 0)
+          acc[call.provider].tokens += call.total_tokens || 0
+          return acc
+        }, {} as Record<string, { calls: number; cost: number; tokens: number }>)
+
+        // Group by endpoint
+        const byEndpoint = callsData.reduce((acc, call) => {
+          if (!acc[call.endpoint]) {
+            acc[call.endpoint] = { calls: 0, cost: 0 }
+          }
+          acc[call.endpoint].calls++
+          acc[call.endpoint].cost += parseFloat(call.total_cost || 0)
+          return acc
+        }, {} as Record<string, { calls: number; cost: number }>)
+
+        setApiStats({
+          totalCost,
+          totalCalls,
+          successCalls,
+          errorCalls,
+          totalTokens,
+          avgLatency: Math.round(avgLatency),
+          byProvider,
+          byEndpoint
+        })
+      }
+    } catch (error) {
+      console.error('Error loading API costs:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const getDecisionTypeColor = (type: string) => {
     switch (type) {
       case 'arm_selection':
@@ -481,6 +558,12 @@ export default function AuditPage() {
             className={`neuro-btn px-6 py-3 ${activeTab === 'spaced-repetition' ? 'text-blue-400' : 'text-gray-400'}`}
           >
             Spaced Repetition
+          </button>
+          <button
+            onClick={() => setActiveTab('api-costs')}
+            className={`neuro-btn px-6 py-3 ${activeTab === 'api-costs' ? 'text-blue-400' : 'text-gray-400'}`}
+          >
+            API Costs
           </button>
         </div>
       </div>
@@ -1248,6 +1331,150 @@ Thompson Sampling naturally balances exploration and exploitation based on uncer
                   ))
                 })()}
               </div>
+            </div>
+          </>
+        )}
+
+        {/* API Costs Tab */}
+        {activeTab === 'api-costs' && (
+          <>
+            {/* API Cost Statistics */}
+            {apiStats && (
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div className="neuro-stat">
+                  <div className="text-sm text-blue-400 font-medium mb-2">Total API Calls</div>
+                  <div className="text-4xl font-bold text-gray-200">{apiStats.totalCalls}</div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    {apiStats.successCalls} success, {apiStats.errorCalls} errors
+                  </div>
+                </div>
+                <div className="neuro-stat">
+                  <div className="text-sm text-green-400 font-medium mb-2">Total Cost</div>
+                  <div className="text-4xl font-bold text-gray-200">${apiStats.totalCost.toFixed(4)}</div>
+                  <div className="text-xs text-gray-500 mt-1">USD</div>
+                </div>
+                <div className="neuro-stat">
+                  <div className="text-sm text-purple-400 font-medium mb-2">Total Tokens</div>
+                  <div className="text-4xl font-bold text-gray-200">{apiStats.totalTokens.toLocaleString()}</div>
+                  <div className="text-xs text-gray-500 mt-1">input + output</div>
+                </div>
+                <div className="neuro-stat">
+                  <div className="text-sm text-yellow-400 font-medium mb-2">Avg Latency</div>
+                  <div className="text-4xl font-bold text-gray-200">{apiStats.avgLatency}</div>
+                  <div className="text-xs text-gray-500 mt-1">milliseconds</div>
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              {/* Cost by Provider */}
+              {apiStats && apiStats.byProvider && Object.keys(apiStats.byProvider).length > 0 && (
+                <div className="neuro-card">
+                  <h2 className="text-2xl font-semibold text-gray-200 mb-6">Cost by Provider</h2>
+                  <div className="space-y-3">
+                    {Object.entries(apiStats.byProvider).map(([provider, stats]: [string, any]) => (
+                      <div key={provider} className="neuro-inset p-4 rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="text-sm font-semibold text-gray-200 capitalize">{provider}</div>
+                          <div className="text-xl font-bold text-green-400">${stats.cost.toFixed(4)}</div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 text-xs">
+                          <div>
+                            <span className="text-gray-500">Calls:</span>
+                            <span className="text-gray-200 ml-2">{stats.calls}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Tokens:</span>
+                            <span className="text-gray-200 ml-2">{stats.tokens.toLocaleString()}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Cost by Endpoint */}
+              {apiStats && apiStats.byEndpoint && Object.keys(apiStats.byEndpoint).length > 0 && (
+                <div className="neuro-card">
+                  <h2 className="text-2xl font-semibold text-gray-200 mb-6">Cost by Endpoint</h2>
+                  <div className="space-y-3">
+                    {Object.entries(apiStats.byEndpoint)
+                      .sort(([, a]: [string, any], [, b]: [string, any]) => b.cost - a.cost)
+                      .map(([endpoint, stats]: [string, any]) => (
+                        <div key={endpoint} className="neuro-inset p-4 rounded-lg">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="text-sm font-semibold text-gray-200">{endpoint}</div>
+                            <div className="text-xl font-bold text-green-400">${stats.cost.toFixed(4)}</div>
+                          </div>
+                          <div className="text-xs text-gray-500">{stats.calls} calls</div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Recent API Calls */}
+            <div className="neuro-card">
+              <h2 className="text-2xl font-semibold text-gray-200 mb-6">Recent API Calls (Last 100)</h2>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-700">
+                      <th className="text-left py-2 px-3 text-gray-400 font-medium">Timestamp</th>
+                      <th className="text-left py-2 px-3 text-gray-400 font-medium">Provider</th>
+                      <th className="text-left py-2 px-3 text-gray-400 font-medium">Model</th>
+                      <th className="text-left py-2 px-3 text-gray-400 font-medium">Endpoint</th>
+                      <th className="text-right py-2 px-3 text-gray-400 font-medium">Input</th>
+                      <th className="text-right py-2 px-3 text-gray-400 font-medium">Output</th>
+                      <th className="text-right py-2 px-3 text-gray-400 font-medium">Cost</th>
+                      <th className="text-right py-2 px-3 text-gray-400 font-medium">Latency</th>
+                      <th className="text-center py-2 px-3 text-gray-400 font-medium">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {apiCalls.map((call) => (
+                      <tr key={call.id} className="border-b border-gray-800 hover:bg-gray-900/30">
+                        <td className="py-3 px-3 text-gray-400">
+                          {new Date(call.created_at).toLocaleString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit'
+                          })}
+                        </td>
+                        <td className="py-3 px-3 text-gray-200 capitalize">{call.provider}</td>
+                        <td className="py-3 px-3 text-gray-400">{call.model}</td>
+                        <td className="py-3 px-3 text-gray-400">{call.endpoint}</td>
+                        <td className="py-3 px-3 text-right text-gray-400">{call.input_tokens.toLocaleString()}</td>
+                        <td className="py-3 px-3 text-right text-gray-400">{call.output_tokens.toLocaleString()}</td>
+                        <td className="py-3 px-3 text-right text-green-400 font-semibold">
+                          ${parseFloat(call.total_cost).toFixed(4)}
+                        </td>
+                        <td className="py-3 px-3 text-right text-gray-400">
+                          {call.latency_ms ? `${call.latency_ms}ms` : '-'}
+                        </td>
+                        <td className="py-3 px-3 text-center">
+                          <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                            call.status === 'success' ? 'bg-green-500/20 text-green-400' :
+                            call.status === 'error' ? 'bg-red-500/20 text-red-400' :
+                            'bg-yellow-500/20 text-yellow-400'
+                          }`}>
+                            {call.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {apiCalls.length === 0 && (
+                <div className="text-center py-8 text-gray-500">
+                  No API calls logged yet. Start using the system to see API usage and costs.
+                </div>
+              )}
             </div>
           </>
         )}
