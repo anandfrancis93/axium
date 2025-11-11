@@ -1196,12 +1196,7 @@ Thompson Sampling naturally balances exploration and exploitation based on uncer
                       return (
                         <div
                           key={idx}
-                          className={`neuro-inset p-4 rounded-lg ${
-                            urgencyLevel === 'critical' ? 'ring-2 ring-red-400' :
-                            urgencyLevel === 'high' ? 'ring-2 ring-orange-400' :
-                            urgencyLevel === 'medium' ? 'ring-2 ring-yellow-400' :
-                            'ring-1 ring-green-400'
-                          }`}
+                          className="neuro-inset p-4 rounded-lg"
                         >
                           <div className="flex items-start justify-between mb-3">
                             <div className="flex-1">
@@ -1283,14 +1278,11 @@ Thompson Sampling naturally balances exploration and exploitation based on uncer
               <h2 className="text-2xl font-semibold text-gray-200 mb-6">All Topics ({spacedRepData.length})</h2>
               <div className="space-y-3 max-h-[600px] overflow-y-auto">
                 {spacedRepData.map((topic, idx) => (
-                  <div key={idx} className={`neuro-inset p-4 rounded-lg ${topic.next_intervals.due ? 'ring-2 ring-yellow-400' : ''}`}>
+                  <div key={idx} className="neuro-inset p-4 rounded-lg">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <div className="text-sm font-semibold text-gray-200">
                           {topic.topic_name}
-                          {topic.next_intervals.due && (
-                            <span className="ml-2 text-xs text-yellow-400">DUE FOR REVIEW</span>
-                          )}
                         </div>
                         <div className="text-xs text-gray-500">Bloom {topic.bloom_level}</div>
                       </div>
