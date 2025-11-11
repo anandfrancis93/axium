@@ -34,8 +34,7 @@ export default function TopicMasteryPage() {
   const [chapterData, setChapterData] = useState<any>(null)
   const [rlPhase, setRlPhase] = useState<string | null>(null)
   const [currentBloomLevel, setCurrentBloomLevel] = useState<number>(1)
-  const [activeTab, setActiveTab] = useState<'matrix' | 'stats' | 'bloom' | 'masteryTrend' | 'repeatAnalysis' | 'questionHistory'>('matrix')
-  const [repeatQuestions, setRepeatQuestions] = useState<any[]>([])
+  const [activeTab, setActiveTab] = useState<'matrix' | 'stats' | 'masteryTrend' | 'questionHistory'>('matrix')
   const [uniqueQuestions, setUniqueQuestions] = useState<any[]>([])
   const [masteryTrendData, setMasteryTrendData] = useState<any[]>([])
   const [showResetModal, setShowResetModal] = useState(false)
@@ -127,37 +126,6 @@ export default function TopicMasteryPage() {
           .order('created_at', { ascending: true })
 
         if (responses) {
-          // Analyze repeated questions
-          const questionGroups = new Map<string, any[]>()
-          responses.forEach((r: any) => {
-            const qid = r.question_id
-            if (!questionGroups.has(qid)) {
-              questionGroups.set(qid, [])
-            }
-            questionGroups.get(qid)!.push(r)
-          })
-
-          // Find questions answered multiple times
-          const repeated: any[] = []
-          questionGroups.forEach((attempts, qid) => {
-            if (attempts.length > 1) {
-              repeated.push({
-                question_id: qid,
-                question_text: attempts[0]?.questions?.question_text || 'Question',
-                dimension: attempts[0]?.questions?.dimension || 'Unknown',
-                attempts: attempts.map((a, idx) => ({
-                  attempt_num: idx + 1,
-                  is_correct: a.is_correct,
-                  confidence: a.confidence,
-                  reward: a.reward,
-                  created_at: a.created_at
-                }))
-              })
-            }
-          })
-
-          setRepeatQuestions(repeated)
-
           // Track unique questions with current and previous results
           const uniqueQuestionsMap = new Map()
           responses.forEach((r: any) => {
@@ -450,14 +418,6 @@ export default function TopicMasteryPage() {
               Overview Stats
             </button>
           )}
-          <button
-            onClick={() => setActiveTab('bloom')}
-            className={`neuro-btn px-6 py-3 whitespace-nowrap transition-colors ${
-              activeTab === 'bloom' ? 'text-blue-400' : 'text-gray-400'
-            }`}
-          >
-            Bloom Analysis
-          </button>
           {masteryTrendData.length > 0 && (
             <button
               onClick={() => setActiveTab('masteryTrend')}
@@ -469,16 +429,6 @@ export default function TopicMasteryPage() {
             </button>
           )}
           {uniqueQuestions.length > 0 && (
-            <button
-              onClick={() => setActiveTab('repeatAnalysis')}
-              className={`neuro-btn px-6 py-3 whitespace-nowrap transition-colors ${
-                activeTab === 'repeatAnalysis' ? 'text-blue-400' : 'text-gray-400'
-              }`}
-            >
-              Repeat Analysis
-            </button>
-          )}
-          {(repeatQuestions.length > 0 || uniqueQuestions.length > 0) && (
             <button
               onClick={() => setActiveTab('questionHistory')}
               className={`neuro-btn px-6 py-3 whitespace-nowrap transition-colors ${
@@ -716,66 +666,6 @@ export default function TopicMasteryPage() {
             </div>
           )}
 
-          {/* Bloom Level Breakdown Tab */}
-          {activeTab === 'bloom' && summary?.dimensions_per_bloom && (
-            <div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-6">
-                  {BLOOM_LEVELS.map(level => {
-                    const stats = summary.dimensions_per_bloom[level.num.toString()]
-                    const hasStat = stats && (stats.tested > 0 || stats.mastered > 0)
-                    return (
-                      <div key={level.num} className="neuro-stat group relative">
-                        <div className="text-blue-400 font-bold mb-2">Level {level.num}</div>
-                        <div className="text-sm text-gray-500 mb-4">{level.name}</div>
-                        <div className="space-y-2 text-sm mb-3">
-                          <div className="flex justify-between">
-                            <span className="text-gray-500">Tested:</span>
-                            <span className="text-cyan-400 group-hover:text-cyan-300 transition-colors">
-                              {stats?.tested || 0}/{stats?.total || 0}
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-500">Mastered:</span>
-                            <span className="text-green-400 group-hover:text-green-300 transition-colors">
-                              {stats?.mastered || 0}/{stats?.total || 0}
-                            </span>
-                          </div>
-                        </div>
-                        {hasStat && (
-                          <button
-                            onClick={() => {
-                              setResetBloomLevel(level.num)
-                              setShowResetModal(true)
-                            }}
-                            className="neuro-btn text-xs px-3 py-1.5 text-red-400 hover:text-red-300 w-full flex items-center justify-center gap-2"
-                            disabled={resetting}
-                          >
-                            <TrashIcon size={14} />
-                            <span>Reset</span>
-                          </button>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-
-                {/* Reset All Levels Button */}
-                <div className="flex justify-end">
-                  <button
-                    onClick={() => {
-                      setResetBloomLevel(null)
-                      setShowResetModal(true)
-                    }}
-                    className="neuro-btn text-sm px-4 py-2 text-red-400 hover:text-red-300 flex items-center gap-2"
-                    disabled={resetting}
-                  >
-                    <TrashIcon size={16} />
-                    <span>Reset All Bloom Levels</span>
-                  </button>
-                </div>
-            </div>
-          )}
-
           {/* Mastery Score Over Time Tab */}
           {activeTab === 'masteryTrend' && (
             <div>
@@ -873,86 +763,6 @@ export default function TopicMasteryPage() {
                   </div>
                   <div className="text-sm text-gray-600">
                     Start answering questions to see your mastery trend over time
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Spaced Repetition Analysis Tab */}
-          {activeTab === 'repeatAnalysis' && (
-            <div>
-              {repeatQuestions.length > 0 ? (
-                <div className="space-y-6">
-                  <p className="text-sm text-gray-400 mb-4">
-                    Questions you've answered multiple times (spaced repetition). Shows how your mastery evolves with each attempt.
-                  </p>
-
-                  {repeatQuestions.map((q, idx) => (
-                  <div key={q.question_id} className="neuro-inset p-6 rounded-lg">
-                    <div className="mb-4">
-                      <div className="text-sm text-blue-400 font-semibold mb-1">
-                        Question {idx + 1} - {q.dimension}
-                      </div>
-                      <div className="text-gray-300 text-sm">
-                        {q.question_text.substring(0, 100)}...
-                      </div>
-                    </div>
-
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b border-gray-700">
-                            <th className="text-left py-2 px-3 text-gray-400 font-medium">Attempt</th>
-                            <th className="text-left py-2 px-3 text-gray-400 font-medium">Result</th>
-                            <th className="text-left py-2 px-3 text-gray-400 font-medium">Confidence</th>
-                            <th className="text-left py-2 px-3 text-gray-400 font-medium">Reward</th>
-                            <th className="text-left py-2 px-3 text-gray-400 font-medium">Date</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {q.attempts.map((attempt: any) => (
-                            <tr key={attempt.attempt_num} className="border-b border-gray-800">
-                              <td className="py-3 px-3 text-gray-300">
-                                #{attempt.attempt_num}
-                              </td>
-                              <td className="py-3 px-3">
-                                {attempt.is_correct ? (
-                                  <span className="text-green-400">✓ Correct</span>
-                                ) : (
-                                  <span className="text-red-400">✗ Wrong</span>
-                                )}
-                              </td>
-                              <td className="py-3 px-3 text-gray-300">
-                                {attempt.confidence}/5
-                              </td>
-                              <td className="py-3 px-3">
-                                <span className={attempt.reward >= 0 ? 'text-green-400' : 'text-red-400'}>
-                                  {attempt.reward >= 0 ? '+' : ''}{attempt.reward.toFixed(1)}
-                                </span>
-                              </td>
-                              <td className="py-3 px-3 text-gray-500 text-xs">
-                                {new Date(attempt.created_at).toLocaleDateString()}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-
-                    <div className="mt-3 text-xs text-gray-500">
-                      Total: {q.attempts.length} attempts
-                    </div>
-                  </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="neuro-inset p-8 rounded-lg text-center">
-                  <div className="text-gray-400 text-lg font-semibold mb-2">
-                    No Repeated Questions Yet
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    Questions you answer multiple times will appear here for spaced repetition tracking
                   </div>
                 </div>
               )}
