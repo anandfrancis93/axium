@@ -806,16 +806,16 @@ export default function TopicMasteryPage() {
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-gray-700">
-                        <th className="text-left py-2 px-3 text-gray-400 font-medium">#</th>
+                        <th className="text-center py-2 px-3 text-gray-400 font-medium">#</th>
                         <th className="text-left py-2 px-3 text-gray-400 font-medium">Question</th>
                         <th className="text-left py-2 px-3 text-gray-400 font-medium">Dimension</th>
-                        <th className="text-left py-2 px-3 text-gray-400 font-medium">Previous Result</th>
-                        <th className="text-left py-2 px-3 text-gray-400 font-medium">Current Result</th>
-                        <th className="text-left py-2 px-3 text-gray-400 font-medium">Reward</th>
-                        <th className="text-left py-2 px-3 text-gray-400 font-medium">Mastery</th>
-                        <th className="text-left py-2 px-3 text-gray-400 font-medium">Trend</th>
-                        <th className="text-left py-2 px-3 text-gray-400 font-medium">Attempts</th>
-                        <th className="text-left py-2 px-3 text-gray-400 font-medium">First Date</th>
+                        <th className="text-center py-2 px-3 text-gray-400 font-medium">Previous</th>
+                        <th className="text-center py-2 px-3 text-gray-400 font-medium">Current</th>
+                        <th className="text-center py-2 px-3 text-gray-400 font-medium">Reward</th>
+                        <th className="text-center py-2 px-3 text-gray-400 font-medium">Mastery</th>
+                        <th className="text-center py-2 px-3 text-gray-400 font-medium">Trend</th>
+                        <th className="text-center py-2 px-3 text-gray-400 font-medium">Attempts</th>
+                        <th className="text-center py-2 px-3 text-gray-400 font-medium">Date</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -848,18 +848,18 @@ export default function TopicMasteryPage() {
 
                         return (
                           <tr key={q.question_id} className="border-b border-gray-800 hover:bg-gray-900/30">
-                            <td className="py-3 px-3 text-gray-500">
+                            <td className="py-3 px-3 text-center text-gray-400">
                               {idx + 1}
                             </td>
-                            <td className="py-3 px-3 text-gray-300 max-w-md">
+                            <td className="py-3 px-3 text-gray-200 max-w-md">
                               <div className="truncate">
                                 {q.question_text.substring(0, 80)}...
                               </div>
                             </td>
-                            <td className="py-3 px-3 text-gray-400 text-xs">
+                            <td className="py-3 px-3 text-gray-400">
                               {q.dimension}
                             </td>
-                            <td className="py-3 px-3">
+                            <td className="py-3 px-3 text-center">
                               {q.previous_attempt ? (
                                 q.previous_attempt.is_correct ? (
                                   <span className="text-green-400">✓ Correct</span>
@@ -867,22 +867,22 @@ export default function TopicMasteryPage() {
                                   <span className="text-red-400">✗ Wrong</span>
                                 )
                               ) : (
-                                <span className="text-gray-600">—</span>
+                                <span className="text-gray-400">—</span>
                               )}
                             </td>
-                            <td className="py-3 px-3">
+                            <td className="py-3 px-3 text-center">
                               {q.current_attempt.is_correct ? (
                                 <span className="text-green-400">✓ Correct</span>
                               ) : (
                                 <span className="text-red-400">✗ Wrong</span>
                               )}
                             </td>
-                            <td className="py-3 px-3">
+                            <td className="py-3 px-3 text-center">
                               <span className={q.current_attempt.reward >= 0 ? 'text-green-400' : 'text-red-400'}>
                                 {q.current_attempt.reward >= 0 ? '+' : ''}{q.current_attempt.reward.toFixed(1)}
                               </span>
                             </td>
-                            <td className="py-3 px-3">
+                            <td className="py-3 px-3 text-center">
                               <span className={
                                 q.current_attempt.mastery < 0 ? 'text-red-900' :
                                 q.current_attempt.mastery >= 80 ? 'text-green-400' :
@@ -893,17 +893,17 @@ export default function TopicMasteryPage() {
                                 {Math.round(q.current_attempt.mastery)}%
                               </span>
                             </td>
-                            <td className="py-3 px-3">
+                            <td className="py-3 px-3 text-center">
                               <span className={trendColor}>
                                 {trend}
                               </span>
                             </td>
                             <td className="py-3 px-3 text-center">
-                              <span className={q.total_attempts > 1 ? 'text-blue-400' : 'text-gray-500'}>
+                              <span className={q.total_attempts > 1 ? 'text-blue-400' : 'text-gray-400'}>
                                 {q.total_attempts}
                               </span>
                             </td>
-                            <td className="py-3 px-3 text-gray-500 text-xs">
+                            <td className="py-3 px-3 text-center text-gray-400">
                               {new Date(q.first_attempt.created_at).toLocaleDateString()}
                             </td>
                           </tr>
