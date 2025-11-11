@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logAPICall } from '@/lib/utils/api-logger'
 import OpenAI from 'openai'
 
 const openai = new OpenAI({
@@ -140,12 +141,31 @@ export async function POST(request: NextRequest) {
     for (let i = 0; i < chunks.length; i++) {
       try {
         // Generate embedding
+        const embeddingStartTime = Date.now()
         const embeddingResponse = await openai.embeddings.create({
           model: 'text-embedding-3-small',
           input: chunks[i],
         })
 
         const embedding = embeddingResponse.data[0].embedding
+
+        // Log embedding API call
+        await logAPICall({
+          userId: user.id,
+          provider: 'openai',
+          model: 'text-embedding-3-small',
+          endpoint: '/api/documents/upload',
+          inputTokens: embeddingResponse.usage?.prompt_tokens || 0,
+          outputTokens: 0,
+          latencyMs: Date.now() - embeddingStartTime,
+          purpose: 'document_embedding',
+          metadata: {
+            chapter_id: chapterId,
+            chunk_index: i,
+            total_chunks: chunks.length,
+            file_name: file?.name || 'text_input'
+          }
+        })
 
         // Store in database
         const { error: insertError } = await supabase
