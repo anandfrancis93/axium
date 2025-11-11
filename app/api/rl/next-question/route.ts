@@ -23,6 +23,19 @@ const BLOOM_LEVELS: { [key: number]: string } = {
   6: 'Create (produce new or original work)',
 }
 
+// Helper function to format time dynamically
+function formatTimeSince(days: number, hours: number, minutes: number): string {
+  if (days > 0) {
+    return `${days} day${days > 1 ? 's' : ''} ago`
+  } else if (hours > 0) {
+    return `${hours} hour${hours > 1 ? 's' : ''} ago`
+  } else if (minutes > 0) {
+    return `${minutes} minute${minutes > 1 ? 's' : ''} ago`
+  } else {
+    return 'just now'
+  }
+}
+
 // Knowledge Dimensions - Different perspectives on learning the same concept
 const KNOWLEDGE_DIMENSIONS: { [key: string]: string } = {
   'definition': 'DIMENSION: Definition/Conceptual Understanding - Focus on "what is it?" and core terminology. Test understanding of fundamental concepts, definitions, and classifications. Appropriate for Bloom levels 1-2 (Remember, Understand).',
@@ -498,6 +511,8 @@ export async function POST(request: NextRequest) {
       topicFullName: string
       bloomLevel: number
       daysSince: number
+      hoursSince: number
+      minutesSince: number
       optimalInterval: number
       mastery: number
     }> = []
@@ -505,7 +520,10 @@ export async function POST(request: NextRequest) {
     if (masteryData && masteryData.length > 0) {
       for (const m of masteryData) {
         const lastPracticed = new Date(m.last_practiced_at)
-        const daysSince = Math.floor((now.getTime() - lastPracticed.getTime()) / (1000 * 60 * 60 * 24))
+        const timeSinceMs = now.getTime() - lastPracticed.getTime()
+        const daysSince = Math.floor(timeSinceMs / (1000 * 60 * 60 * 24))
+        const hoursSince = Math.floor(timeSinceMs / (1000 * 60 * 60))
+        const minutesSince = Math.floor(timeSinceMs / (1000 * 60))
 
         // Calculate optimal interval based on CURRENT mastery
         let optimalInterval = 1
@@ -530,6 +548,8 @@ export async function POST(request: NextRequest) {
             topicFullName: topic?.full_name || topic?.name || 'Unknown',
             bloomLevel: m.bloom_level,
             daysSince,
+            hoursSince,
+            minutesSince,
             optimalInterval,
             mastery: m.mastery_score
           })
@@ -561,7 +581,8 @@ export async function POST(request: NextRequest) {
         bloomLevel: mostOverdue.bloomLevel
       }
 
-      spacingReason = `Overdue by ${mostOverdue.daysSince - mostOverdue.optimalInterval} days (${mostOverdue.daysSince} days since last practice, optimal interval: ${mostOverdue.optimalInterval} days based on ${mostOverdue.mastery}% mastery)`
+      const timeSince = formatTimeSince(mostOverdue.daysSince, mostOverdue.hoursSince % 24, mostOverdue.minutesSince % 60)
+      spacingReason = `Perfect timing for review! You last practiced this topic ${timeSince}, which is the ideal interval for your current mastery level (${mostOverdue.mastery}%). Regular practice at this stage builds strong foundations.`
 
       console.log('[FORCED SPACING]', {
         topicName: selectedArm.topicName,
@@ -726,7 +747,7 @@ export async function POST(request: NextRequest) {
     // Build reasoning string
     let finalReasoning = ''
     if (selectionMethod === 'forced_spacing') {
-      finalReasoning = `[FORCED SPACING] ${spacingReason}`
+      finalReasoning = spacingReason || 'Time for spaced repetition review'
     } else if (decisionContext) {
       finalReasoning = decisionContext.reasoning
     }
