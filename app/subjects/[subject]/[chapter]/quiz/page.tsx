@@ -496,11 +496,13 @@ Mastery grows with correct answers and confidence calibration`
         return feedback?.is_first_practice ? 'first practice' : 'practiced today'
 
       case 'responseTime':
-        if (value === 0) return 'not tracked'
+        // Don't check for 0 here - 0 is a valid reward (neutral)
+        // "not tracked" is handled in the display logic by checking feedback.response_time_seconds
         if (value >= 5) return 'instant recall'
         if (value >= 3) return 'thoughtful pace'
         if (value >= 1) return 'took some time'
         if (value > 0) return 'acceptable speed'
+        if (value === 0) return 'neutral timing'
         if (value >= -1) return 'overthinking'
         return 'rushed answer'
 
