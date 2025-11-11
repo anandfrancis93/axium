@@ -3,12 +3,14 @@ import { createClient } from '@/lib/supabase/server'
 // Cost per 1M tokens (as of January 2025)
 const PRICING = {
   // Anthropic Claude
+  'claude-sonnet-4-5-20250929': { input: 3.00, output: 15.00 },
   'claude-3-5-sonnet-20241022': { input: 3.00, output: 15.00 },
   'claude-3-5-haiku-20241022': { input: 0.80, output: 4.00 },
 
   // OpenAI
   'gpt-4o': { input: 2.50, output: 10.00 },
   'gpt-4o-mini': { input: 0.150, output: 0.600 },
+  'text-embedding-3-small': { input: 0.02, output: 0 },
 
   // Google Gemini
   'gemini-1.5-pro': { input: 1.25, output: 5.00 },

@@ -5,14 +5,14 @@ import { getFormatsByBloomLevel, type QuestionFormat } from '@/lib/utils/questio
 import { logArmSelection } from '@/lib/rl/decision-logger'
 import { logAPICall } from '@/lib/utils/api-logger'
 import OpenAI from 'openai'
+import Anthropic from '@anthropic-ai/sdk'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 
-const grok = new OpenAI({
-  apiKey: process.env.XAI_API_KEY,
-  baseURL: 'https://api.x.ai/v1',
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
 })
 
 const BLOOM_LEVELS: { [key: number]: string } = {
@@ -379,32 +379,32 @@ FORMAT YOUR RESPONSE AS VALID JSON:
 
 Return ONLY valid JSON, no other text.`
 
-  const grokStartTime = Date.now()
-  const completion = await grok.chat.completions.create({
-    model: 'grok-4-fast-reasoning',
+  const claudeStartTime = Date.now()
+  const completion = await anthropic.messages.create({
+    model: 'claude-sonnet-4-5-20250929',
+    max_tokens: 2000,
+    temperature: 0.7,
+    system: 'You are an expert educator. Always respond with valid JSON only.',
     messages: [
-      { role: 'system', content: 'You are an expert educator. Always respond with valid JSON only.' },
       { role: 'user', content: prompt },
     ],
-    temperature: 0.7,
-    max_tokens: 2000,
   })
 
-  // Log Grok API call
+  // Log Claude API call
   await logAPICall({
     userId,
-    provider: 'openai', // Grok uses OpenAI-compatible API
-    model: 'grok-4-fast-reasoning',
+    provider: 'anthropic',
+    model: 'claude-sonnet-4-5-20250929',
     endpoint: '/api/rl/next-question',
-    inputTokens: completion.usage?.prompt_tokens || 0,
-    outputTokens: completion.usage?.completion_tokens || 0,
-    latencyMs: Date.now() - grokStartTime,
+    inputTokens: completion.usage.input_tokens,
+    outputTokens: completion.usage.output_tokens,
+    latencyMs: Date.now() - claudeStartTime,
     purpose: 'question_generation',
     metadata: { topic_id: topicId, topic_name: topicName, bloom_level: bloomLevel, dimension, format: questionFormat }
   })
 
   // Step 5: Parse response
-  const responseText = completion.choices[0]?.message?.content || ''
+  const responseText = completion.content[0]?.type === 'text' ? completion.content[0].text : ''
   let questionsData
 
   try {

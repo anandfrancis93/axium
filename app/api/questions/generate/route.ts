@@ -2,15 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { logAPICall } from '@/lib/utils/api-logger'
 import OpenAI from 'openai'
+import Anthropic from '@anthropic-ai/sdk'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 
-// xAI Grok API (OpenAI-compatible)
-const grok = new OpenAI({
-  apiKey: process.env.XAI_API_KEY,
-  baseURL: 'https://api.x.ai/v1',
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
 })
 
 // Bloom's Taxonomy levels
@@ -347,38 +346,35 @@ FORMAT YOUR RESPONSE AS VALID JSON:
 
 Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other text.`
 
-    const grokStartTime = Date.now()
-    const completion = await grok.chat.completions.create({
-      model: 'grok-4-fast-reasoning',
+    const claudeStartTime = Date.now()
+    const completion = await anthropic.messages.create({
+      model: 'claude-sonnet-4-5-20250929',
+      max_tokens: 2000,
+      temperature: 0.7,
+      system: 'You are an expert educator. Always respond with valid JSON only, no markdown or other formatting.',
       messages: [
-        {
-          role: 'system',
-          content: 'You are an expert educator. Always respond with valid JSON only, no markdown or other formatting.',
-        },
         {
           role: 'user',
           content: prompt,
         },
       ],
-      temperature: 0.7,
-      max_tokens: 2000,
     })
 
-    // Log Grok API call
+    // Log Claude API call
     await logAPICall({
       userId: user.id,
-      provider: 'openai',
-      model: 'grok-4-fast-reasoning',
+      provider: 'anthropic',
+      model: 'claude-sonnet-4-5-20250929',
       endpoint: '/api/questions/generate',
-      inputTokens: completion.usage?.prompt_tokens || 0,
-      outputTokens: completion.usage?.completion_tokens || 0,
-      latencyMs: Date.now() - grokStartTime,
+      inputTokens: completion.usage.input_tokens,
+      outputTokens: completion.usage.output_tokens,
+      latencyMs: Date.now() - claudeStartTime,
       purpose: 'question_generation',
       metadata: { topic_id, topic, bloom_level: bloomLevelNum, dimension, question_format, num_questions }
     })
 
-    // Extract JSON from Grok's response
-    const responseText = completion.choices[0]?.message?.content || ''
+    // Extract JSON from Claude's response
+    const responseText = completion.content[0]?.type === 'text' ? completion.content[0].text : ''
     let questionsData
 
     try {
