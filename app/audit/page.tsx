@@ -1158,6 +1158,126 @@ Thompson Sampling naturally balances exploration and exploitation based on uncer
               </div>
             )}
 
+            {/* Topics Due for Review */}
+            {(() => {
+              // Sort topics by due date (earliest to latest)
+              const sortedByDue = [...spacedRepData].sort((a, b) => {
+                // Calculate time until due (negative = overdue, positive = not due yet)
+                const aHoursUntilDue = (a.next_intervals.optimal_days * 24) - a.hours_since
+                const bHoursUntilDue = (b.next_intervals.optimal_days * 24) - b.hours_since
+
+                // Most overdue (most negative) should come first
+                return aHoursUntilDue - bHoursUntilDue
+              })
+
+              // Get topics that are due or will be due within 24 hours
+              const dueTopics = sortedByDue.filter(topic => {
+                const hoursUntilDue = (topic.next_intervals.optimal_days * 24) - topic.hours_since
+                return hoursUntilDue <= 24 // Due now or within next 24 hours
+              })
+
+              if (dueTopics.length === 0) return null
+
+              return (
+                <div className="neuro-card mb-8">
+                  <h2 className="text-2xl font-semibold text-gray-200 mb-6">
+                    Topics Due for Review ({dueTopics.length})
+                  </h2>
+                  <div className="space-y-3 max-h-[600px] overflow-y-auto">
+                    {dueTopics.map((topic, idx) => {
+                      const hoursUntilDue = (topic.next_intervals.optimal_days * 24) - topic.hours_since
+                      const isOverdue = hoursUntilDue < 0
+                      const urgencyLevel =
+                        hoursUntilDue < -48 ? 'critical' :  // >2 days overdue
+                        hoursUntilDue < -24 ? 'high' :      // 1-2 days overdue
+                        hoursUntilDue < 0 ? 'medium' :      // <1 day overdue
+                        'low'                               // Due soon
+
+                      return (
+                        <div
+                          key={idx}
+                          className={`neuro-inset p-4 rounded-lg ${
+                            urgencyLevel === 'critical' ? 'ring-2 ring-red-400' :
+                            urgencyLevel === 'high' ? 'ring-2 ring-orange-400' :
+                            urgencyLevel === 'medium' ? 'ring-2 ring-yellow-400' :
+                            'ring-1 ring-green-400'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <div className="text-sm font-semibold text-gray-200">
+                                  {topic.topic_name}
+                                </div>
+                                {urgencyLevel === 'critical' && (
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-500/20 text-red-400 border border-red-500/30">
+                                    CRITICAL
+                                  </span>
+                                )}
+                                {urgencyLevel === 'high' && (
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30">
+                                    HIGH
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-xs text-gray-500">Bloom {topic.bloom_level}</div>
+                            </div>
+                            <div className="text-2xl font-bold text-blue-400">
+                              {topic.mastery_score.toFixed(0)}%
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-3 text-xs mb-2">
+                            <div>
+                              <div className="text-gray-500">Time Status</div>
+                              <div className={`font-semibold ${
+                                urgencyLevel === 'critical' ? 'text-red-400' :
+                                urgencyLevel === 'high' ? 'text-orange-400' :
+                                urgencyLevel === 'medium' ? 'text-yellow-400' :
+                                'text-green-400'
+                              }`}>{topic.next_intervals.time_remaining}</div>
+                            </div>
+                            <div>
+                              <div className="text-gray-500">Optimal Interval</div>
+                              <div className="text-gray-200 font-semibold">{topic.next_intervals.optimal}</div>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-3 gap-3 text-xs">
+                            <div>
+                              <div className="text-gray-500">Attempts</div>
+                              <div className="text-gray-200 font-semibold">{topic.questions_attempted}</div>
+                            </div>
+                            <div>
+                              <div className="text-gray-500">Correct</div>
+                              <div className="text-green-400 font-semibold">{topic.questions_correct}</div>
+                            </div>
+                            <div>
+                              <div className="text-gray-500">Accuracy</div>
+                              <div className="text-gray-200 font-semibold">
+                                {topic.questions_attempted > 0
+                                  ? ((topic.questions_correct / topic.questions_attempted) * 100).toFixed(0)
+                                  : 0}%
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="text-xs text-gray-600 mt-2 border-t border-gray-800 pt-2">
+                            Last practiced: {new Date(topic.last_practiced_at).toLocaleString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })()}
+
             {/* Topics List */}
             <div className="neuro-card">
               <h2 className="text-2xl font-semibold text-gray-200 mb-6">All Topics ({spacedRepData.length})</h2>
