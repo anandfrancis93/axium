@@ -124,7 +124,7 @@ export default function PerformancePage() {
         .eq('chapter_id', fetchedChapter.id)
 
       // Group by topic and bloom_level, taking average across all dimensions
-      const masteryMap = new Map<string, Map<number, number>>() // topic -> bloom_level -> avg score
+      const masteryMap = new Map<string, Map<number, { sum: number, count: number }>>() // topic -> bloom_level -> { sum, count }
       const latestResponseMap = new Map<string, Date>() // topic -> latest response timestamp
 
       dimensionCoverageData?.forEach((coverage: any) => {
@@ -148,13 +148,13 @@ export default function PerformancePage() {
 
         const topicMap = masteryMap.get(topicName)!
 
-        // Average scores across all dimensions for this topic-bloom combination
-        const existingScores = topicMap.get(bloomLevel)
-        if (existingScores === undefined) {
-          topicMap.set(bloomLevel, score)
+        // Accumulate scores across all dimensions for this topic-bloom combination
+        const existing = topicMap.get(bloomLevel)
+        if (existing === undefined) {
+          topicMap.set(bloomLevel, { sum: score, count: 1 })
         } else {
-          // Average with existing (for multiple dimensions)
-          topicMap.set(bloomLevel, (existingScores + score) / 2)
+          // Add to sum and increment count
+          topicMap.set(bloomLevel, { sum: existing.sum + score, count: existing.count + 1 })
         }
       })
 
@@ -171,6 +171,14 @@ export default function PerformancePage() {
           if (seenTopics.has(topic.name)) return
           seenTopics.add(topic.name)
 
+          // Calculate actual averages for each bloom level
+          const bloom1Avg = topicMastery.get(1) ? topicMastery.get(1)!.sum / topicMastery.get(1)!.count : null
+          const bloom2Avg = topicMastery.get(2) ? topicMastery.get(2)!.sum / topicMastery.get(2)!.count : null
+          const bloom3Avg = topicMastery.get(3) ? topicMastery.get(3)!.sum / topicMastery.get(3)!.count : null
+          const bloom4Avg = topicMastery.get(4) ? topicMastery.get(4)!.sum / topicMastery.get(4)!.count : null
+          const bloom5Avg = topicMastery.get(5) ? topicMastery.get(5)!.sum / topicMastery.get(5)!.count : null
+          const bloom6Avg = topicMastery.get(6) ? topicMastery.get(6)!.sum / topicMastery.get(6)!.count : null
+
           const row: any = {
             user_id: user.id,
             chapter_id: fetchedChapter.id,
@@ -180,16 +188,16 @@ export default function PerformancePage() {
             depth: topic.depth || 0,
             description: topic.description,
             latest_response: latestResponseMap.get(topic.name),
-            bloom_1: topicMastery.get(1) !== undefined ? topicMastery.get(1) : null,
-            bloom_2: topicMastery.get(2) !== undefined ? topicMastery.get(2) : null,
-            bloom_3: topicMastery.get(3) !== undefined ? topicMastery.get(3) : null,
-            bloom_4: topicMastery.get(4) !== undefined ? topicMastery.get(4) : null,
-            bloom_5: topicMastery.get(5) !== undefined ? topicMastery.get(5) : null,
-            bloom_6: topicMastery.get(6) !== undefined ? topicMastery.get(6) : null,
+            bloom_1: bloom1Avg,
+            bloom_2: bloom2Avg,
+            bloom_3: bloom3Avg,
+            bloom_4: bloom4Avg,
+            bloom_5: bloom5Avg,
+            bloom_6: bloom6Avg,
           }
 
           // Calculate average mastery (only from levels with data)
-          const masteryValues = Array.from(topicMastery.values())
+          const masteryValues = [bloom1Avg, bloom2Avg, bloom3Avg, bloom4Avg, bloom5Avg, bloom6Avg].filter(v => v !== null) as number[]
           row.avg_mastery = masteryValues.length > 0
             ? masteryValues.reduce((sum, val) => sum + val, 0) / masteryValues.length
             : 0
