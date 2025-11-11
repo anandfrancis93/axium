@@ -116,21 +116,21 @@ export default function PerformancePage() {
         setRecentActivity([])
       }
 
-      // Get mastery scores from user_dimension_coverage (pre-calculated with correct rewards)
-      const { data: dimensionCoverageData } = await supabase
-        .from('user_dimension_coverage')
-        .select('topic_id, bloom_level, average_score, last_tested_at, topics(name)')
+      // Get mastery scores from user_topic_mastery (authoritative mastery per topic × Bloom level)
+      const { data: masteryData } = await supabase
+        .from('user_topic_mastery')
+        .select('topic_id, bloom_level, mastery_score, last_practiced_at, topics(name)')
         .eq('user_id', user.id)
         .eq('chapter_id', fetchedChapter.id)
 
-      // Group by topic and bloom_level, taking average across all dimensions
-      const masteryMap = new Map<string, Map<number, { sum: number, count: number }>>() // topic -> bloom_level -> { sum, count }
+      // Build mastery map by topic and bloom level
+      const masteryMap = new Map<string, Map<number, number>>() // topic -> bloom_level -> mastery_score
       const latestResponseMap = new Map<string, Date>() // topic -> latest response timestamp
 
-      dimensionCoverageData?.forEach((coverage: any) => {
-        const topicName = coverage.topics?.name
-        const bloomLevel = coverage.bloom_level
-        const score = coverage.average_score
+      masteryData?.forEach((mastery: any) => {
+        const topicName = mastery.topics?.name
+        const bloomLevel = mastery.bloom_level
+        const score = mastery.mastery_score
         if (!topicName || !bloomLevel) return
 
         if (!masteryMap.has(topicName)) {
@@ -138,8 +138,8 @@ export default function PerformancePage() {
         }
 
         // Track latest response timestamp for this topic
-        if (coverage.last_tested_at) {
-          const responseDate = new Date(coverage.last_tested_at)
+        if (mastery.last_practiced_at) {
+          const responseDate = new Date(mastery.last_practiced_at)
           const currentLatest = latestResponseMap.get(topicName)
           if (!currentLatest || responseDate > currentLatest) {
             latestResponseMap.set(topicName, responseDate)
@@ -147,15 +147,7 @@ export default function PerformancePage() {
         }
 
         const topicMap = masteryMap.get(topicName)!
-
-        // Accumulate scores across all dimensions for this topic-bloom combination
-        const existing = topicMap.get(bloomLevel)
-        if (existing === undefined) {
-          topicMap.set(bloomLevel, { sum: score, count: 1 })
-        } else {
-          // Add to sum and increment count
-          topicMap.set(bloomLevel, { sum: existing.sum + score, count: existing.count + 1 })
-        }
+        topicMap.set(bloomLevel, score)
       })
 
       // Convert masteryMap to heatmap format
@@ -171,13 +163,13 @@ export default function PerformancePage() {
           if (seenTopics.has(topic.name)) return
           seenTopics.add(topic.name)
 
-          // Calculate actual averages for each bloom level
-          const bloom1Avg = topicMastery.get(1) ? topicMastery.get(1)!.sum / topicMastery.get(1)!.count : null
-          const bloom2Avg = topicMastery.get(2) ? topicMastery.get(2)!.sum / topicMastery.get(2)!.count : null
-          const bloom3Avg = topicMastery.get(3) ? topicMastery.get(3)!.sum / topicMastery.get(3)!.count : null
-          const bloom4Avg = topicMastery.get(4) ? topicMastery.get(4)!.sum / topicMastery.get(4)!.count : null
-          const bloom5Avg = topicMastery.get(5) ? topicMastery.get(5)!.sum / topicMastery.get(5)!.count : null
-          const bloom6Avg = topicMastery.get(6) ? topicMastery.get(6)!.sum / topicMastery.get(6)!.count : null
+          // Get mastery scores for each bloom level (no averaging needed - these are the authoritative scores)
+          const bloom1Avg = topicMastery.get(1) ?? null
+          const bloom2Avg = topicMastery.get(2) ?? null
+          const bloom3Avg = topicMastery.get(3) ?? null
+          const bloom4Avg = topicMastery.get(4) ?? null
+          const bloom5Avg = topicMastery.get(5) ?? null
+          const bloom6Avg = topicMastery.get(6) ?? null
 
           const row: any = {
             user_id: user.id,
