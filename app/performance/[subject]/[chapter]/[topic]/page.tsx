@@ -884,7 +884,6 @@ export default function TopicMasteryPage() {
                             </td>
                             <td className="py-3 px-3 text-center">
                               <span className={
-                                q.current_attempt.mastery < 0 ? 'text-red-900' :
                                 q.current_attempt.mastery >= 80 ? 'text-green-400' :
                                 q.current_attempt.mastery >= 60 ? 'text-blue-400' :
                                 q.current_attempt.mastery >= 40 ? 'text-yellow-400' :
