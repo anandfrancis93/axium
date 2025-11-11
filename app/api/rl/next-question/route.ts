@@ -283,10 +283,13 @@ ANTI-TELLTALE QUALITY CONTROLS (CRITICAL - MUST FOLLOW):
    - Technically accurate statements that are "close but not quite right" for THIS specific question
    - Things that could reasonably confuse someone who partially understands the topic
 
-3. **Keyword Distribution**:
+3. **Keyword Distribution & Telltale Prevention**:
    - If question mentions "alerting", ALL options should relate to alerting/detection/monitoring
    - Don't make only the correct answer use action words (automated, real-time, etc.)
    - Distribute technical terms evenly across all options
+   - **CRITICAL**: If the question contains a unique keyword (e.g., "Annualized" in ALE), do NOT repeat that exact keyword ONLY in the correct answer
+   - Either use the keyword in ALL options or in NONE of the options
+   - Example: If question asks about "Annualized Loss Expectancy", avoid having only option B say "annual cost" - this makes it an obvious telltale
 
 4. **Difficulty Balance**:
    - Correct answer should NOT be the only option that directly addresses the question
@@ -298,9 +301,23 @@ ANTI-TELLTALE QUALITY CONTROLS (CRITICAL - MUST FOLLOW):
    - All should start with similar parts of speech (all nouns, all verbs, etc.)
    - Avoid making correct answer the only complete/detailed one
 
-EXAMPLE OF GOOD VS BAD OPTIONS:
+EXAMPLES OF GOOD VS BAD OPTIONS:
 
-❌ BAD (too easy to identify correct answer):
+❌ BAD EXAMPLE 1 (keyword telltale):
+Q: What best defines Annualized Loss Expectancy (ALE)?
+A. The estimated cost of a single security incident based on asset value
+B. The projected annual cost of a risk calculated as single loss expectancy times rate of occurrence [TELLTALE: "annual" matches "Annualized"]
+C. The percentage of an asset's value lost due to exploitation
+D. The remaining level of risk after implementing security controls
+
+✅ GOOD (keyword removed from correct answer):
+Q: What best defines Annualized Loss Expectancy (ALE)?
+A. The estimated cost of a single security incident based on asset value and exposure factor
+B. The projected yearly financial impact calculated as single loss expectancy times occurrence rate [CORRECT - no telltale]
+C. The percentage of an asset's value lost due to exploitation of a specific vulnerability
+D. The remaining level of risk after implementing and accounting for security controls
+
+❌ BAD EXAMPLE 2 (different domain, action words only in correct):
 Q: What best describes alerting in security operations?
 A. The passive collection of logs from network devices and endpoints [different domain, obviously wrong]
 B. Automated detection of anomalies with real-time notifications to teams [ONLY ONE with action words, obviously correct]
@@ -319,6 +336,7 @@ All options now:
 - Use similar structure (adjective + noun + with + details)
 - Relate to detection/monitoring/alerting
 - Include technical terms evenly distributed
+- No keyword telltales (don't repeat unique words from question stem only in correct answer)
 - Require actual knowledge to distinguish
 
 FORMAT YOUR RESPONSE AS VALID JSON:
