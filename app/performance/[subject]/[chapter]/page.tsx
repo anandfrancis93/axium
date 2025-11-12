@@ -611,9 +611,13 @@ export default function PerformancePage() {
           }
         })
 
-        if (predictedScore < passingScore) {
-          const pointsNeeded = passingScore - predictedScore
-          recommendations.push(`Need to improve by approximately ${pointsNeeded} points to reach passing score`)
+        if (!isLikelyToPass) {
+          if (isPossibleToPass) {
+            recommendations.push(`Your score range spans the passing threshold - focus on consistency to ensure passing`)
+          } else {
+            const pointsNeeded = passingScore - upperBound
+            recommendations.push(`Need to improve by approximately ${pointsNeeded} points to reach passing score range`)
+          }
         }
 
         if (recommendations.length === 0 && isLikelyToPass) {
@@ -1617,12 +1621,9 @@ export default function PerformancePage() {
               <>
                 {/* Predicted Score Display */}
                 <div className="neuro-inset p-8 rounded-lg mb-6 text-center">
-                  <div className="text-sm text-gray-400 mb-2">Predicted Exam Score</div>
-                  <div className="text-7xl font-bold text-blue-400 mb-4">
-                    {examScoreData.predictedScore}
-                  </div>
-                  <div className="text-2xl text-gray-300 mb-6">
-                    Range: {examScoreData.lowerBound} - {examScoreData.upperBound}
+                  <div className="text-sm text-gray-400 mb-2">Predicted Exam Score Range</div>
+                  <div className="text-6xl font-bold text-blue-400 mb-6">
+                    {examScoreData.lowerBound} - {examScoreData.upperBound}
                   </div>
 
                   {/* Pass/Fail Indicator */}
@@ -1683,18 +1684,21 @@ export default function PerformancePage() {
                     </div>
                   </div>
 
-                  <div className="neuro-stat group cursor-help" title="Points away from passing">
+                  <div className="neuro-stat group cursor-help" title="Score range relative to passing score">
                     <div className="flex items-center justify-between mb-3">
-                      <div className="text-sm text-yellow-400 font-medium">Gap to Pass</div>
+                      <div className="text-sm text-yellow-400 font-medium">Range Status</div>
                       <AwardIcon size={20} className="text-yellow-400 opacity-50 group-hover:opacity-100 transition-opacity" />
                     </div>
                     <div className="text-4xl font-bold text-gray-200 group-hover:text-yellow-400 transition-colors">
-                      {examScoreData.predictedScore >= examScoreData.passingScore
-                        ? `+${examScoreData.predictedScore - examScoreData.passingScore}`
-                        : examScoreData.passingScore - examScoreData.predictedScore}
+                      {examScoreData.isLikelyToPass
+                        ? `+${examScoreData.lowerBound - examScoreData.passingScore}`
+                        : examScoreData.isPossibleToPass
+                          ? '±0'
+                          : `${examScoreData.upperBound - examScoreData.passingScore}`}
                     </div>
                     <div className="text-xs text-gray-600 mt-2">
-                      {examScoreData.predictedScore >= examScoreData.passingScore ? 'Above passing' : 'Below passing'}
+                      {examScoreData.isLikelyToPass ? 'Fully above pass' :
+                       examScoreData.isPossibleToPass ? 'Range spans pass' : 'Fully below pass'}
                     </div>
                   </div>
 
