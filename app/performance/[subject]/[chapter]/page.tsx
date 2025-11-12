@@ -371,7 +371,7 @@ export default function PerformancePage() {
 
         {/* Started Topics List */}
         {showStartedTopics && startedTopics.length > 0 && (
-          <div className="neuro-raised border-l-4 border-blue-500">
+          <div className="neuro-raised">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="neuro-inset w-10 h-10 rounded-lg flex items-center justify-center">
