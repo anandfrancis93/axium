@@ -123,24 +123,31 @@ export default function PerformancePage() {
         }
       })
 
-      // Calculate overall mastery and raw accuracy from user responses
+      // Calculate mastery per dimension, then average (per our agreement)
+      // Also calculate raw accuracy from all responses
       const topicDimensionStats = new Map<string, {
-        totalHighConfCorrect: number
-        totalHighConfTotal: number
+        dimensionMastery: Map<string, { correct: number, total: number }>
         totalCorrect: number
         totalAttempts: number
       }>()
 
-      userResponses?.forEach((response: any) => {
+      // Get all responses with dimension info
+      const { data: responsesWithDimension } = await supabase
+        .from('user_responses')
+        .select('topic_id, is_correct, confidence, questions(dimension)')
+        .eq('user_id', user.id)
+
+      // Filter to this chapter and process
+      responsesWithDimension?.filter(r => topicIdSet.has(r.topic_id)).forEach((response: any) => {
         const topicId = response.topic_id
+        const dimension = response.questions?.dimension || 'unknown'
         const isCorrect = response.is_correct
         const confidence = response.confidence || 0
         const isHighConfidence = confidence >= 4
 
         if (!topicDimensionStats.has(topicId)) {
           topicDimensionStats.set(topicId, {
-            totalHighConfCorrect: 0,
-            totalHighConfTotal: 0,
+            dimensionMastery: new Map(),
             totalCorrect: 0,
             totalAttempts: 0
           })
@@ -153,10 +160,15 @@ export default function PerformancePage() {
           stats.totalCorrect++
         }
 
+        // Track per-dimension high-confidence stats
         if (isHighConfidence) {
-          stats.totalHighConfTotal++
+          if (!stats.dimensionMastery.has(dimension)) {
+            stats.dimensionMastery.set(dimension, { correct: 0, total: 0 })
+          }
+          const dimStats = stats.dimensionMastery.get(dimension)!
+          dimStats.total++
           if (isCorrect) {
-            stats.totalHighConfCorrect++
+            dimStats.correct++
           }
         }
       })
@@ -165,9 +177,21 @@ export default function PerformancePage() {
       topicStatsMap.forEach((stats, topicId) => {
         const dimStats = topicDimensionStats.get(topicId)
         if (dimStats) {
-          stats.overallMastery = dimStats.totalHighConfTotal > 0
-            ? (dimStats.totalHighConfCorrect / dimStats.totalHighConfTotal) * 100
+          // Calculate mastery per dimension, then average (per our agreement)
+          const dimensionScores: number[] = []
+          dimStats.dimensionMastery.forEach((dimData) => {
+            if (dimData.total > 0) {
+              const score = (dimData.correct / dimData.total) * 100
+              dimensionScores.push(score)
+            }
+          })
+
+          // Average across dimensions (or null if no dimensions tested)
+          stats.overallMastery = dimensionScores.length > 0
+            ? dimensionScores.reduce((sum, score) => sum + score, 0) / dimensionScores.length
             : null
+
+          // Raw accuracy (all attempts)
           stats.overallRawAccuracy = dimStats.totalAttempts > 0
             ? (dimStats.totalCorrect / dimStats.totalAttempts) * 100
             : null
