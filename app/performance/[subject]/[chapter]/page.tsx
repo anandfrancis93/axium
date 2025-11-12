@@ -69,20 +69,16 @@ export default function PerformancePage() {
       const topicStatsMap = new Map<string, any>()
       const topicIds = topicsData?.map(t => t.id) || []
 
-      // Get dimension coverage for this user
-      // Note: Can't filter by chapter_id (not in table), so we get all and filter client-side
-      const { data: allDimensionData } = await supabase
-        .from('user_dimension_coverage')
-        .select('topic_id, bloom_level, dimension, high_confidence_correct, high_confidence_total, total_correct, total_attempts')
-        .eq('user_id', user.id)
-
-      // Filter to only topics in this chapter (client-side)
-      const topicIdSet = new Set(topicIds)
-      const dimensionData = allDimensionData?.filter(d => topicIdSet.has(d.topic_id)) || []
-
-      console.log('Chapter topics:', topicIds.length)
-      console.log('All dimension data:', allDimensionData?.length)
-      console.log('Filtered dimension data:', dimensionData.length)
+      // Get user responses for topics in this chapter (to calculate raw accuracy)
+      let userResponses = null
+      if (topicIds.length > 0) {
+        const result = await supabase
+          .from('user_responses')
+          .select('topic_id, is_correct, confidence')
+          .eq('user_id', user.id)
+          .in('topic_id', topicIds)
+        userResponses = result.data
+      }
 
       topicsData?.forEach((topic: any) => {
         topicStatsMap.set(topic.id, {
@@ -127,7 +123,7 @@ export default function PerformancePage() {
         }
       })
 
-      // Calculate overall mastery and raw accuracy from dimension data
+      // Calculate overall mastery and raw accuracy from user responses
       const topicDimensionStats = new Map<string, {
         totalHighConfCorrect: number
         totalHighConfTotal: number
@@ -135,8 +131,12 @@ export default function PerformancePage() {
         totalAttempts: number
       }>()
 
-      dimensionData?.forEach((dim: any) => {
-        const topicId = dim.topic_id
+      userResponses?.forEach((response: any) => {
+        const topicId = response.topic_id
+        const isCorrect = response.is_correct
+        const confidence = response.confidence || 0
+        const isHighConfidence = confidence >= 4
+
         if (!topicDimensionStats.has(topicId)) {
           topicDimensionStats.set(topicId, {
             totalHighConfCorrect: 0,
@@ -145,11 +145,20 @@ export default function PerformancePage() {
             totalAttempts: 0
           })
         }
+
         const stats = topicDimensionStats.get(topicId)!
-        stats.totalHighConfCorrect += dim.high_confidence_correct || 0
-        stats.totalHighConfTotal += dim.high_confidence_total || 0
-        stats.totalCorrect += dim.total_correct || 0
-        stats.totalAttempts += dim.total_attempts || 0
+        stats.totalAttempts++
+
+        if (isCorrect) {
+          stats.totalCorrect++
+        }
+
+        if (isHighConfidence) {
+          stats.totalHighConfTotal++
+          if (isCorrect) {
+            stats.totalHighConfCorrect++
+          }
+        }
       })
 
       // Calculate overall metrics and determine status
@@ -206,11 +215,6 @@ export default function PerformancePage() {
         ? Array.from(topicDimensionStats.values()).reduce((sum, s) => sum + s.totalAttempts, 0)
         : 0
       summary.overallAccuracy = totalAttempts > 0 ? (totalCorrect / totalAttempts) * 100 : 0
-
-      console.log('topicDimensionStats size:', topicDimensionStats.size)
-      console.log('totalCorrect:', totalCorrect)
-      console.log('totalAttempts:', totalAttempts)
-      console.log('overallAccuracy:', summary.overallAccuracy)
 
       setChapterSummary(summary)
       setLoading(false)
