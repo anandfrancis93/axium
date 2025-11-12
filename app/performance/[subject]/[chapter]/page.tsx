@@ -508,29 +508,39 @@ export default function PerformancePage() {
       // Calculate Exam Score Prediction
       // CompTIA Security+ scoring: 100-900 scale, passing score is 750
 
-      // Get all user progress for this chapter
-      const { data: allUserProgress } = await supabase
-        .from('user_topic_mastery')
-        .select('topic_id, bloom_level, questions_attempted, questions_correct')
+      // Get all user responses for this chapter (directly from user_responses, not aggregated)
+      // Filter to only responses for topics in this chapter
+      const { data: allUserResponses } = await supabase
+        .from('user_responses')
+        .select('is_correct, bloom_level, topic_id, topics(chapter_id)')
         .eq('user_id', user.id)
-        .eq('chapter_id', fetchedChapter.id)
 
-      if (allUserProgress && allUserProgress.length > 0) {
+      // Filter to only this chapter's responses
+      const chapterResponses = allUserResponses?.filter(
+        (r: any) => r.topics?.chapter_id === fetchedChapter.id
+      ) || []
+
+      if (chapterResponses.length > 0) {
         // Calculate metrics
-        let totalQuestions = 0
+        let totalQuestions = chapterResponses.length
         let totalCorrect = 0
         let bloomLevelPerformance: Record<number, { correct: number, total: number }> = {}
 
-        allUserProgress.forEach((progress: any) => {
-          totalQuestions += progress.questions_attempted || 0
-          totalCorrect += progress.questions_correct || 0
+        chapterResponses.forEach((response: any) => {
+          const isCorrect = response.is_correct
+          const bloom = response.bloom_level
 
-          const bloom = progress.bloom_level
+          if (isCorrect) {
+            totalCorrect++
+          }
+
           if (!bloomLevelPerformance[bloom]) {
             bloomLevelPerformance[bloom] = { correct: 0, total: 0 }
           }
-          bloomLevelPerformance[bloom].correct += progress.questions_correct || 0
-          bloomLevelPerformance[bloom].total += progress.questions_attempted || 0
+          bloomLevelPerformance[bloom].total++
+          if (isCorrect) {
+            bloomLevelPerformance[bloom].correct++
+          }
         })
 
         const overallAccuracy = totalQuestions > 0 ? (totalCorrect / totalQuestions) : 0
