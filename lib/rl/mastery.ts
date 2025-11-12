@@ -1,64 +1,10 @@
 /**
  * Mastery Calculation Utilities
  *
- * Handles mastery score updates using Exponential Moving Average (EMA)
- * with confidence weighting and multi-topic support.
+ * Handles mastery-related helper functions for the RL system.
+ * Note: We now use accuracy-based mastery (high-confidence correct/total per dimension)
+ * rather than progressive mastery updates.
  */
-
-export interface MasteryUpdate {
-  topic: string
-  bloomLevel: number
-  oldMastery: number
-  newMastery: number
-  learningGain: number
-}
-
-/**
- * Calculate learning gain from a user response
- * Uses quality-weighted approach based on calibration and recognition
- *
- * @param calibrationReward - Calibration reward (-3 to +3)
- * @param recognitionReward - Recognition reward (-4 to +3)
- * @param bloomLevel - Current Bloom level (1-6)
- * @returns Learning gain (delta in mastery score)
- */
-export function calculateLearningGain(
-  calibrationReward: number,
-  recognitionReward: number,
-  bloomLevel: number
-): number {
-  // Calculate quality score (average of calibration and recognition)
-  const qualityScore = (calibrationReward + recognitionReward) / 2
-
-  // Bloom level multiplier
-  // Bloom 1-3: 10x multiplier (need ~5 perfect answers for 80%)
-  // Bloom 4-6: 9x multiplier (need ~3 perfect answers for 80%)
-  const multiplier = bloomLevel >= 4 ? 9 : 10
-
-  // Calculate mastery change
-  const gain = qualityScore * multiplier
-
-  return gain
-}
-
-/**
- * Update mastery score using Exponential Moving Average
- *
- * @param oldMastery - Current mastery score (0-100)
- * @param learningGain - Learning gain from calculateLearningGain
- * @param weight - Weight for multi-topic questions (default 1.0)
- * @returns New mastery score (0-100)
- */
-export function updateMastery(
-  oldMastery: number,
-  learningGain: number,
-  weight: number = 1.0
-): number {
-  const newMastery = oldMastery + (learningGain * weight)
-
-  // Clamp to valid range
-  return Math.max(0, Math.min(100, newMastery))
-}
 
 /**
  * Check if a topic at a Bloom level has met mastery requirements
@@ -77,67 +23,6 @@ export function hasMetMasteryRequirements(
   minCorrect: number = 3
 ): boolean {
   return masteryScore >= threshold && questionsCorrect >= minCorrect
-}
-
-/**
- * Calculate mastery updates for a multi-topic question
- *
- * @param primaryTopic - Primary topic being tested
- * @param secondaryTopics - Secondary topics (if any)
- * @param topicWeights - Weights for topics: { primary: 1.0, secondary: [0.3, 0.2] }
- * @param currentMastery - Map of current mastery scores
- * @param bloomLevel - Bloom level of the question
- * @param calibrationReward - Calibration reward (-3 to +3)
- * @param recognitionReward - Recognition reward (-4 to +3)
- * @returns Array of mastery updates for all involved topics
- */
-export function calculateMultiTopicMasteryUpdates(
-  primaryTopic: string,
-  secondaryTopics: string[] | null,
-  topicWeights: { primary: number; secondary: number[] } | null,
-  currentMastery: Map<string, number>,
-  bloomLevel: number,
-  calibrationReward: number,
-  recognitionReward: number
-): MasteryUpdate[] {
-  const updates: MasteryUpdate[] = []
-
-  // Calculate base learning gain using quality-weighted approach
-  const oldMasteryPrimary = currentMastery.get(`${primaryTopic}_${bloomLevel}`) || 0
-  const baseLearningGain = calculateLearningGain(calibrationReward, recognitionReward, bloomLevel)
-
-  // Update primary topic (full weight)
-  const primaryWeight = topicWeights?.primary || 1.0
-  const newMasteryPrimary = updateMastery(oldMasteryPrimary, baseLearningGain, primaryWeight)
-
-  updates.push({
-    topic: primaryTopic,
-    bloomLevel,
-    oldMastery: oldMasteryPrimary,
-    newMastery: newMasteryPrimary,
-    learningGain: baseLearningGain * primaryWeight
-  })
-
-  // Update secondary topics (if any)
-  if (secondaryTopics && secondaryTopics.length > 0) {
-    const secondaryWeights = topicWeights?.secondary || []
-
-    secondaryTopics.forEach((topic, index) => {
-      const weight = secondaryWeights[index] || 0.1
-      const oldMastery = currentMastery.get(`${topic}_${bloomLevel}`) || 0
-      const newMastery = updateMastery(oldMastery, baseLearningGain, weight)
-
-      updates.push({
-        topic,
-        bloomLevel,
-        oldMastery,
-        newMastery,
-        learningGain: baseLearningGain * weight
-      })
-    })
-  }
-
-  return updates
 }
 
 /**
@@ -177,31 +62,6 @@ export function calculateConfidenceCalibration(
   })
 
   return (calibrationSum / responses.length) * 100
-}
-
-/**
- * Estimate difficulty level based on mastery and Bloom level
- *
- * @param masteryScore - Current mastery (0-100)
- * @param bloomLevel - Bloom taxonomy level (1-6)
- * @returns Difficulty: 'easy', 'medium', or 'hard'
- */
-export function estimateDifficulty(
-  masteryScore: number,
-  bloomLevel: number
-): 'easy' | 'medium' | 'hard' {
-  // High mastery questions are easier
-  if (masteryScore >= 70) {
-    return bloomLevel >= 5 ? 'medium' : 'easy'
-  }
-
-  // Medium mastery
-  if (masteryScore >= 40) {
-    return bloomLevel >= 4 ? 'hard' : 'medium'
-  }
-
-  // Low mastery - everything is hard
-  return bloomLevel >= 3 ? 'hard' : 'medium'
 }
 
 /**
