@@ -29,15 +29,15 @@ The reward system evaluates both **what** the student learned (correctness, mast
 
 | Level | Value | Description | When Used |
 |-------|-------|-------------|-----------|
-| **Low** | 2 | Student unsure, guessing or uncertain | Before answering when not confident |
-| **Medium** | 3 | Student somewhat confident, thinks they know | Before answering with moderate certainty |
-| **High** | 4 | Student very confident, sure of answer | Before answering with high certainty |
+| **Low** | 1 | Student unsure, guessing or uncertain | Before answering when not confident |
+| **Medium** | 2 | Student somewhat confident, thinks they know | Before answering with moderate certainty |
+| **High** | 3 | Student very confident, sure of answer | Before answering with high certainty |
 
 **Important Notes:**
 - Confidence is collected **before** the student answers
-- Maps to API values: `{ low: 2, medium: 3, high: 4 }`
+- Maps to API values: `{ low: 1, medium: 2, high: 3 }`
 - Used in calibration reward to encourage accurate self-assessment
-- Scale runs from 2-4 (not 1-5)
+- Scale runs from 1-3 (simplified scale)
 
 **Code Reference:** `app/api/rl/submit-response/route.ts:91-95`
 
@@ -161,17 +161,17 @@ Learning Gain = Quality Score × Bloom Multiplier
 
 | Confidence | Calibration | Reward |
 |------------|-------------|--------|
-| High (4) | Perfect - knew it and got it right | +3 |
-| Medium (3) | Good - somewhat sure and correct | +2 |
-| Low (2) | Underconfident - unsure but correct | +1 |
+| High (3) | Perfect - knew it and got it right | +3 |
+| Medium (2) | Good - somewhat sure and correct | +2 |
+| Low (1) | Underconfident - unsure but correct | +1 |
 
 #### Incorrect Answers
 
 | Confidence | Calibration | Penalty |
 |------------|-------------|---------|
-| High (4) | Severe overconfidence - sure but wrong | -3 |
-| Medium (3) | Moderate overconfidence - somewhat sure but wrong | -2 |
-| Low (2) | Good uncertainty - unsure and wrong | -1 |
+| High (3) | Severe overconfidence - sure but wrong | -3 |
+| Medium (2) | Moderate overconfidence - somewhat sure but wrong | -2 |
+| Low (1) | Good uncertainty - unsure and wrong | -1 |
 
 **Code Reference:** `lib/rl/rewards.ts:46-68`
 
@@ -323,7 +323,7 @@ Total Reward = Learning Gain + Calibration + Spacing + Recognition + Response Ti
 | **When Calculated** | Before answering | After answering | After answering (intermediate) |
 | **What It Measures** | Self-assessment accuracy | Retrieval strength | Overall learning quality |
 | **Purpose** | Encourage metacognition | Measure memory quality | Calculate mastery gain |
-| **Values** | Low (2), Medium (3), High (4) | Memory, Recognition, Educated Guess, Random | Average of calibration + recognition |
+| **Values** | Low (1), Medium (2), High (3) | Memory, Recognition, Educated Guess, Random | Average of calibration + recognition |
 | **Related Reward** | Calibration Reward | Recognition Reward | Learning Gain Reward |
 | **Range** | -3 to +3 | -4 to +3 | -3.5 to +3 |
 | **Visible to User** | Yes (input field) | Yes (input field) | No (internal calculation) |
@@ -335,7 +335,7 @@ Total Reward = Learning Gain + Calibration + Spacing + Recognition + Response Ti
 
 ### Scenario 1: Perfect Learning
 - **Correct answer:** Yes
-- **Confidence:** High (4) → Calibration: +3
+- **Confidence:** High (3) → Calibration: +3
 - **Recognition:** Memory → Recognition: +3
 - **Quality Score:** (3 + 3) / 2 = +3
 - **Days since last practice:** 8 → Spacing: +5
@@ -349,7 +349,7 @@ Total Reward = Learning Gain + Calibration + Spacing + Recognition + Response Ti
 
 ### Scenario 2: Overconfident Mistake
 - **Correct answer:** No
-- **Confidence:** High (4) → Calibration: -3 (overconfident)
+- **Confidence:** High (3) → Calibration: -3 (overconfident)
 - **Recognition:** Memory → Recognition: -4 (false memory)
 - **Quality Score:** (-3 + -4) / 2 = -3.5
 - **Days since last practice:** N/A → Spacing: 0
@@ -363,7 +363,7 @@ Total Reward = Learning Gain + Calibration + Spacing + Recognition + Response Ti
 
 ### Scenario 3: Honest Uncertainty
 - **Correct answer:** No
-- **Confidence:** Low (2) → Calibration: -1 (good uncertainty)
+- **Confidence:** Low (1) → Calibration: -1 (good uncertainty)
 - **Recognition:** Random → Recognition: -1 (honest about not knowing)
 - **Quality Score:** (-1 + -1) / 2 = -1
 - **Days since last practice:** N/A → Spacing: 0
@@ -377,7 +377,7 @@ Total Reward = Learning Gain + Calibration + Spacing + Recognition + Response Ti
 
 ### Scenario 4: Underconfident Success
 - **Correct answer:** Yes
-- **Confidence:** Low (2) → Calibration: +1 (underconfident)
+- **Confidence:** Low (1) → Calibration: +1 (underconfident)
 - **Recognition:** Educated Guess → Recognition: +1
 - **Quality Score:** (1 + 1) / 2 = +1
 - **Days since last practice:** 4 → Spacing: +3
@@ -404,7 +404,7 @@ CREATE TABLE user_responses (
 
   -- User inputs
   is_correct BOOLEAN NOT NULL,
-  confidence INTEGER NOT NULL CHECK (confidence IN (2, 3, 4)),
+  confidence INTEGER NOT NULL CHECK (confidence IN (1, 2, 3)),
   recognition_method recognition_method,  -- ENUM
   response_time_seconds INTEGER,
 
@@ -436,7 +436,7 @@ const response = await fetch('/api/rl/submit-response', {
     topicId: string,
     bloomLevel: number,
     isCorrect: boolean,
-    confidence: 'low' | 'medium' | 'high',  // Maps to 2/3/4
+    confidence: 'low' | 'medium' | 'high',  // Maps to 1/2/3
     recognitionMethod: 'memory' | 'recognition' | 'educated_guess' | 'random',
     responseTimeSeconds: number
   })
