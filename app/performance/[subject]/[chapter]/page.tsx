@@ -448,7 +448,7 @@ export default function PerformancePage() {
         )}
 
         {/* Mastered Topics List */}
-        {showMasteredTopics && masteredTopics.length > 0 && (
+        {showMasteredTopics && (
           <div className="neuro-raised">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -467,47 +467,58 @@ export default function PerformancePage() {
               </button>
             </div>
 
-            <div className="max-h-[600px] overflow-y-auto pr-2 space-y-3">
-              {masteredTopics.map(topic => (
-                <div
-                  key={topic.id}
-                  className="neuro-inset p-4 rounded-lg flex items-center justify-between hover:bg-gray-900/30 transition-colors"
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-gray-200 font-medium truncate">{topic.name}</h3>
-                      <span className="neuro-raised px-2 py-0.5 text-xs text-green-400 rounded flex-shrink-0">
-                        Mastered
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-6 text-sm">
-                      <div className="text-gray-500">
-                        Level: <span className="text-blue-400 font-medium">L{topic.currentBloomLevel}</span>
-                      </div>
-                      {topic.overallRawAccuracy !== null && (
-                        <Tooltip content="Includes all attempts regardless of confidence">
-                          <div className="text-gray-500">
-                            Raw Accuracy: <span className="text-gray-400">{Math.round(topic.overallRawAccuracy)}%</span>
-                          </div>
-                        </Tooltip>
-                      )}
-                      {topic.totalAttempts > 0 && (
-                        <div className="text-gray-500">
-                          Attempts: <span className="text-gray-400">{topic.totalAttempts}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <Link
-                    href={`/performance/${subject}/${chapter}/${encodeURIComponent(topic.name)}`}
-                    className="neuro-btn text-sm text-gray-300 hover:text-blue-400 px-4 py-2 ml-4 flex-shrink-0 flex items-center gap-2"
+            {masteredTopics.length > 0 ? (
+              <div className="max-h-[600px] overflow-y-auto pr-2 space-y-3">
+                {masteredTopics.map(topic => (
+                  <div
+                    key={topic.id}
+                    className="neuro-inset p-4 rounded-lg flex items-center justify-between hover:bg-gray-900/30 transition-colors"
                   >
-                    View Details
-                    <ArrowRightIcon size={14} />
-                  </Link>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="text-gray-200 font-medium truncate">{topic.name}</h3>
+                        <span className="neuro-raised px-2 py-0.5 text-xs text-green-400 rounded flex-shrink-0">
+                          Mastered
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-6 text-sm">
+                        <div className="text-gray-500">
+                          Level: <span className="text-blue-400 font-medium">L{topic.currentBloomLevel}</span>
+                        </div>
+                        {topic.overallRawAccuracy !== null && (
+                          <Tooltip content="Includes all attempts regardless of confidence">
+                            <div className="text-gray-500">
+                              Raw Accuracy: <span className="text-gray-400">{Math.round(topic.overallRawAccuracy)}%</span>
+                            </div>
+                          </Tooltip>
+                        )}
+                        {topic.totalAttempts > 0 && (
+                          <div className="text-gray-500">
+                            Attempts: <span className="text-gray-400">{topic.totalAttempts}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <Link
+                      href={`/performance/${subject}/${chapter}/${encodeURIComponent(topic.name)}`}
+                      className="neuro-btn text-sm text-gray-300 hover:text-blue-400 px-4 py-2 ml-4 flex-shrink-0 flex items-center gap-2"
+                    >
+                      View Details
+                      <ArrowRightIcon size={14} />
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="neuro-inset p-8 rounded-lg text-center">
+                <div className="text-gray-400 text-lg font-semibold mb-2">
+                  No mastered topics yet
                 </div>
-              ))}
-            </div>
+                <div className="text-sm text-gray-600">
+                  Topics require 80%+ mastery across at least 3 dimensions to be considered mastered.
+                </div>
+              </div>
+            )}
           </div>
         )}
           </>
