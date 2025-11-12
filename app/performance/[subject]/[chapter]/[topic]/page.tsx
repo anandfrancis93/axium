@@ -382,7 +382,7 @@ export default function TopicMasteryPage() {
         )}
 
         {/* All Bloom Levels Summary */}
-        <div className="neuro-raised border-l-4 border-blue-500">
+        <div className="neuro-raised">
           <button
             type="button"
             onClick={() => setShowAllLevels(!showAllLevels)}
@@ -411,7 +411,7 @@ export default function TopicMasteryPage() {
                 return (
                   <div
                     key={level.num}
-                    className={`neuro-card ${isCurrent ? 'border-2 border-blue-500' : ''} ${isLocked ? 'opacity-50' : ''}`}
+                    className={`neuro-card ${isLocked ? 'opacity-50' : ''}`}
                   >
                     <div className="flex items-center justify-between mb-3">
                       <div className="text-sm text-gray-400">L{level.num}</div>
