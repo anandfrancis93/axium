@@ -165,17 +165,16 @@ export async function POST(request: NextRequest) {
     let totalReward = 0
 
     for (const topicId of coreTopics) {
-      // Get current mastery for this topic
+      // Get current tracking data for this topic
       const { data: masteryData } = await supabase
         .from('user_topic_mastery')
-        .select('*')
+        .select('current_streak, last_practiced_at')
         .eq('user_id', user.id)
         .eq('chapter_id', session.chapter_id)
         .eq('topic_id', topicId)
         .eq('bloom_level', question.bloom_level)
         .single()
 
-      const currentMastery = masteryData?.mastery_score || 0
       const currentStreak = masteryData?.current_streak || 0
 
       // Get days since last practice for reward calculation
@@ -188,7 +187,7 @@ export async function POST(request: NextRequest) {
       const rewardComponents = calculateReward({
         isCorrect,
         confidence,
-        currentMastery,
+        currentMastery: 0, // Not used anymore, but kept for backward compatibility
         daysSinceLastPractice: daysSince,
         recognitionMethod: recognition_method as RecognitionMethod,
         responseTimeSeconds: responseTime,
@@ -199,8 +198,7 @@ export async function POST(request: NextRequest) {
         currentStreak: currentStreak
       })
 
-      // Update mastery tracking for this topic
-      // Note: mastery_score is legacy (not displayed), but we still track attempts/correct/streak
+      // Update mastery tracking for this topic (attempts, correct, streak)
       const { error: masteryError } = await supabase.rpc('update_topic_mastery_by_id', {
         p_user_id: user.id,
         p_topic_id: topicId,
@@ -208,7 +206,6 @@ export async function POST(request: NextRequest) {
         p_chapter_id: session.chapter_id,
         p_is_correct: isCorrect,
         p_confidence: confidence,
-        p_learning_gain: 0, // Legacy parameter - mastery_score no longer used
         p_weight: 1.0,
         p_new_streak: newStreak
       })

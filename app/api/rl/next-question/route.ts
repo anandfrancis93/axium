@@ -564,10 +564,10 @@ export async function POST(request: NextRequest) {
     let selectionMethod: 'thompson_sampling' | 'forced_spacing' = 'thompson_sampling'
     let spacingReason: string | null = null
 
-    // Step 1: Check for overdue topics based on CURRENT mastery
+    // Step 1: Check for overdue topics based on accuracy-based mastery
     const { data: masteryData } = await supabase
       .from('user_topic_mastery')
-      .select('topic_id, bloom_level, mastery_score, last_practiced_at, questions_attempted, questions_correct, topics(name, full_name)')
+      .select('topic_id, bloom_level, last_practiced_at, questions_attempted, questions_correct, topics(name, full_name)')
       .eq('user_id', user.id)
       .not('last_practiced_at', 'is', null)
 
@@ -581,7 +581,7 @@ export async function POST(request: NextRequest) {
       hoursSince: number
       minutesSince: number
       optimalInterval: number
-      mastery: number
+      accuracy: number
     }> = []
 
     if (masteryData && masteryData.length > 0) {
@@ -592,15 +592,20 @@ export async function POST(request: NextRequest) {
         const hoursSince = Math.floor(timeSinceMs / (1000 * 60 * 60))
         const minutesSince = Math.floor(timeSinceMs / (1000 * 60))
 
-        // Calculate optimal interval based on CURRENT mastery
+        // Calculate accuracy-based mastery (simple accuracy for spacing intervals)
+        const accuracy = m.questions_attempted > 0
+          ? (m.questions_correct / m.questions_attempted) * 100
+          : 0
+
+        // Calculate optimal interval based on CURRENT accuracy
         let optimalInterval = 1
-        if (m.mastery_score >= 80) optimalInterval = 14
-        else if (m.mastery_score >= 60) optimalInterval = 7
-        else if (m.mastery_score >= 40) optimalInterval = 3
+        if (accuracy >= 80) optimalInterval = 14
+        else if (accuracy >= 60) optimalInterval = 7
+        else if (accuracy >= 40) optimalInterval = 3
         else optimalInterval = 1
 
         // BONUS: First-time correct answers get minimum 3-day interval
-        // Reward getting it right on first try, regardless of mastery score
+        // Reward getting it right on first try
         if (m.questions_attempted === 1 && m.questions_correct === 1) {
           optimalInterval = Math.max(optimalInterval, 3)
         }
@@ -618,7 +623,7 @@ export async function POST(request: NextRequest) {
             hoursSince,
             minutesSince,
             optimalInterval,
-            mastery: m.mastery_score
+            accuracy
           })
         }
       }
