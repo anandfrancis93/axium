@@ -144,13 +144,33 @@ export function AdminContent() {
                     <span className="text-gray-200 font-medium ml-2">{recalcResult.totalUpdated}</span>
                   </div>
                 </div>
+
+                {recalcResult.errors && recalcResult.errors.length > 0 && (
+                  <div className="mt-4 bg-red-900/20 border border-red-500/30 rounded p-3">
+                    <p className="text-xs text-red-400 font-semibold mb-2">⚠️ Errors Encountered ({recalcResult.errors.length}):</p>
+                    <div className="max-h-32 overflow-y-auto text-xs font-mono text-red-300 space-y-2">
+                      {recalcResult.errors.map((err: any, idx: number) => (
+                        <div key={idx} className="pb-2 border-b border-red-500/20 last:border-0">
+                          <div className="font-semibold">{err.error}</div>
+                          <div className="text-gray-400">{err.details}</div>
+                          {err.data && (
+                            <div className="text-gray-500 text-xs mt-1">
+                              {JSON.stringify(err.data)}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {recalcResult.results && recalcResult.results.length > 0 && (
                   <div className="mt-4">
                     <p className="text-xs text-gray-500 mb-2">Sample Results (first 20):</p>
                     <div className="max-h-48 overflow-y-auto text-xs font-mono text-gray-400 space-y-1">
                       {recalcResult.results.map((r: any, idx: number) => (
                         <div key={idx}>
-                          L{r.bloomLevel}: {r.mastery >= 0 ? '+' : ''}{r.mastery.toFixed(1)}%
+                          {r.topic}: L{r.bloomLevel} = {r.mastery >= 0 ? '+' : ''}{r.mastery.toFixed(1)}%
                           ({r.correct}/{r.attempts})
                         </div>
                       ))}

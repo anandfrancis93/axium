@@ -56,10 +56,17 @@ export async function POST() {
 
       if (responsesError) {
         console.error('Error fetching responses:', responsesError)
+        results.push({ error: 'Failed to fetch responses', details: responsesError.message })
+        continue
+      }
+
+      if (!responses || responses.length === 0) {
+        console.log(`  No responses found for user ${userId}`)
         continue
       }
 
       console.log(`  Found ${responses.length} responses`)
+      console.log(`  Sample response:`, responses[0])
 
       // Get reward components for all responses
       const responseIds = responses.map((r: any) => r.id)
@@ -104,6 +111,21 @@ export async function POST() {
       })
 
       console.log(`  Processing ${groupedResponses.size} topic-bloom combinations`)
+
+      if (groupedResponses.size === 0) {
+        console.log(`  No valid topic-bloom groups found for user ${userId}`)
+        continue
+      }
+
+      // Log first group for debugging
+      const firstGroup = Array.from(groupedResponses.values())[0]
+      console.log(`  Sample group:`, {
+        topicName: firstGroup.topicName,
+        bloomLevel: firstGroup.bloomLevel,
+        chapterId: firstGroup.chapterId,
+        subjectId: firstGroup.subjectId,
+        responseCount: firstGroup.responses.length
+      })
 
       // Recalculate mastery for each group
       for (const [key, group] of groupedResponses) {
@@ -157,11 +179,28 @@ export async function POST() {
           })
 
         if (updateError) {
-          console.error(`Error updating mastery for ${key}:`, updateError)
+          console.error(`Error upserting mastery for ${key}:`, updateError)
+          console.error(`  Attempted to upsert:`, {
+            user_id: group.userId,
+            topic: group.topicName,
+            bloom_level: group.bloomLevel,
+            chapter_id: group.chapterId,
+            subject_id: group.subjectId,
+            mastery_score: currentMastery
+          })
+          results.push({
+            error: `Failed to upsert ${key}`,
+            details: updateError.message,
+            data: {
+              topic: group.topicName,
+              bloom: group.bloomLevel,
+              mastery: currentMastery
+            }
+          })
         } else {
           totalUpdated++
           const sign = currentMastery >= 0 ? '+' : ''
-          console.log(`  Updated ${key.split('-')[0].substring(0, 8)}... L${group.bloomLevel}: ${sign}${currentMastery.toFixed(1)}%`)
+          console.log(`  ✓ Upserted ${group.topicName} L${group.bloomLevel}: ${sign}${currentMastery.toFixed(1)}%`)
 
           results.push({
             topic: group.topicName,
@@ -176,12 +215,17 @@ export async function POST() {
 
     console.log(`✅ Recalculation complete! Total records updated: ${totalUpdated}`)
 
+    // Separate errors from successful results
+    const errors = results.filter(r => r.error)
+    const successes = results.filter(r => !r.error)
+
     return NextResponse.json({
       success: true,
       message: 'Mastery recalculation complete',
       totalUpdated,
       usersProcessed: uniqueUsers.length,
-      results: results.slice(0, 20) // Return first 20 for preview
+      results: successes.slice(0, 20), // Return first 20 successful results for preview
+      errors: errors.length > 0 ? errors.slice(0, 10) : undefined // Return first 10 errors if any
     })
 
   } catch (error: any) {
