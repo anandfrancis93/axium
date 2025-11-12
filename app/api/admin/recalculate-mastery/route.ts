@@ -41,15 +41,14 @@ export async function POST() {
         .select(`
           id,
           topic_id,
-          topics!inner(name),
-          bloom_level,
-          is_correct,
-          created_at,
-          session_id,
-          learning_sessions!inner(
+          topics!inner(
+            name,
             chapter_id,
             chapters!inner(subject_id)
-          )
+          ),
+          bloom_level,
+          is_correct,
+          created_at
         `)
         .eq('user_id', userId)
         .order('created_at', { ascending: true })
@@ -94,16 +93,22 @@ export async function POST() {
 
       responses.forEach((response: any) => {
         const topicName = response.topics?.name
-        if (!topicName) return // Skip if no topic name
+        const chapterId = response.topics?.chapter_id
+        const subjectId = response.topics?.chapters?.subject_id
 
-        const key = `${topicName}-${response.bloom_level}-${response.learning_sessions.chapter_id}`
+        if (!topicName || !chapterId || !subjectId) {
+          console.log(`  Skipping response - missing data:`, { topicName, chapterId, subjectId })
+          return
+        }
+
+        const key = `${topicName}-${response.bloom_level}-${chapterId}`
         if (!groupedResponses.has(key)) {
           groupedResponses.set(key, {
             userId,
             topicName,
             bloomLevel: response.bloom_level,
-            chapterId: response.learning_sessions.chapter_id,
-            subjectId: response.learning_sessions.chapters.subject_id,
+            chapterId,
+            subjectId,
             responses: []
           })
         }
