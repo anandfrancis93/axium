@@ -1664,7 +1664,7 @@ export default function PerformancePage() {
                 </div>
 
                 {/* Score Breakdown Stats */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                   <div className="neuro-stat group cursor-help" title="Overall accuracy across all questions">
                     <div className="flex items-center justify-between mb-3">
                       <div className="text-sm text-blue-400 font-medium">Overall Accuracy</div>
@@ -1689,24 +1689,6 @@ export default function PerformancePage() {
                     <div className="text-xs text-gray-600 mt-2">
                       {examScoreData.confidenceLevel === 'high' ? 'Very precise' :
                        examScoreData.confidenceLevel === 'medium' ? 'Moderately precise' : 'Imprecise'}
-                    </div>
-                  </div>
-
-                  <div className="neuro-stat group cursor-help" title="Score range relative to passing score">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="text-sm text-yellow-400 font-medium">Range Status</div>
-                      <AwardIcon size={20} className="text-yellow-400 opacity-50 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                    <div className="text-4xl font-bold text-gray-200 group-hover:text-yellow-400 transition-colors">
-                      {examScoreData.isLikelyToPass
-                        ? `+${examScoreData.lowerBound - examScoreData.passingScore}`
-                        : examScoreData.isPossibleToPass
-                          ? '±0'
-                          : `${examScoreData.upperBound - examScoreData.passingScore}`}
-                    </div>
-                    <div className="text-xs text-gray-600 mt-2">
-                      {examScoreData.isLikelyToPass ? 'Fully above pass' :
-                       examScoreData.isPossibleToPass ? 'Range spans pass' : 'Fully below pass'}
                     </div>
                   </div>
 
