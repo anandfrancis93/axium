@@ -1075,8 +1075,41 @@ export default function PerformancePage() {
                                 <span className="text-gray-500">Status</span>
                                 <span className={`font-medium ${item.isOverdue ? 'text-red-400' : 'text-green-400'}`}>
                                   {item.isOverdue
-                                    ? `Overdue (${item.daysSinceOptimal}d)`
-                                    : `Due in ${item.optimalInterval - item.daysSince}d`}
+                                    ? (() => {
+                                        if (item.daysSinceOptimal === 0) {
+                                          const hoursOverdue = item.hoursSince - (item.optimalInterval * 24)
+                                          return hoursOverdue === 1
+                                            ? 'Overdue (1h)'
+                                            : `Overdue (${hoursOverdue}h)`
+                                        }
+                                        const remainingHours = item.hoursSince % 24
+                                        if (item.daysSinceOptimal === 1) {
+                                          return remainingHours === 0
+                                            ? 'Overdue (1d)'
+                                            : `Overdue (1d ${remainingHours}h)`
+                                        }
+                                        return remainingHours === 0
+                                          ? `Overdue (${item.daysSinceOptimal}d)`
+                                          : `Overdue (${item.daysSinceOptimal}d ${remainingHours}h)`
+                                      })()
+                                    : (() => {
+                                        const daysRemaining = item.optimalInterval - item.daysSince
+                                        if (daysRemaining === 0) {
+                                          const hoursRemaining = (item.optimalInterval * 24) - item.hoursSince
+                                          return hoursRemaining === 1
+                                            ? 'Due in 1h'
+                                            : `Due in ${hoursRemaining}h`
+                                        }
+                                        const remainingHours = (24 - (item.hoursSince % 24)) % 24
+                                        if (daysRemaining === 1) {
+                                          return remainingHours === 0
+                                            ? 'Due in 1d'
+                                            : `Due in ${remainingHours}h`
+                                        }
+                                        return remainingHours === 0
+                                          ? `Due in ${daysRemaining}d`
+                                          : `Due in ${daysRemaining - 1}d ${remainingHours}h`
+                                      })()}
                                 </span>
                               </div>
                             </div>
