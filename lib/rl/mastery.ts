@@ -156,22 +156,22 @@ export function calculateConfidenceCalibration(
 
   responses.forEach(({ isCorrect, confidence }) => {
     // Perfect calibration examples:
-    // - Correct + High confidence (4-5) → good
-    // - Incorrect + Low confidence (1-2) → good (aware of uncertainty)
-    // - Correct + Low confidence (1-2) → poor (underconfident)
-    // - Incorrect + High confidence (4-5) → poor (overconfident)
+    // - Correct + High confidence (3) → good
+    // - Incorrect + Low confidence (1) → good (aware of uncertainty)
+    // - Correct + Low confidence (1) → poor (underconfident)
+    // - Incorrect + High confidence (3) → poor (overconfident)
 
-    if (isCorrect && confidence >= 4) {
+    if (isCorrect && confidence >= 3) {
       calibrationSum += 1.0  // Perfect: correct and confident
-    } else if (isCorrect && confidence === 3) {
+    } else if (isCorrect && confidence === 2) {
       calibrationSum += 0.7  // Good: correct but moderate confidence
-    } else if (isCorrect && confidence <= 2) {
+    } else if (isCorrect && confidence <= 1) {
       calibrationSum += 0.3  // Poor: correct but not confident (underconfident)
-    } else if (!isCorrect && confidence <= 2) {
+    } else if (!isCorrect && confidence <= 1) {
       calibrationSum += 0.6  // Good: incorrect and uncertain (aware of gap)
-    } else if (!isCorrect && confidence === 3) {
+    } else if (!isCorrect && confidence === 2) {
       calibrationSum += 0.3  // Poor: incorrect but moderately confident
-    } else if (!isCorrect && confidence >= 4) {
+    } else if (!isCorrect && confidence >= 3) {
       calibrationSum += 0.0  // Very poor: incorrect but very confident (overconfident)
     }
   })

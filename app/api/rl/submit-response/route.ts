@@ -85,15 +85,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Convert confidence to numeric (1-5)
+    // Convert confidence to numeric (1-3)
     let confidence: number
     if (typeof rawConfidence === 'string') {
       const confidenceMap: { [key: string]: number } = {
-        low: 2,
-        medium: 3,
-        high: 4
+        low: 1,
+        medium: 2,
+        high: 3
       }
-      confidence = confidenceMap[rawConfidence.toLowerCase()] || 3
+      confidence = confidenceMap[rawConfidence.toLowerCase()] || 2
     } else {
       confidence = rawConfidence
     }

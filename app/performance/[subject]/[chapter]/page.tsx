@@ -584,11 +584,11 @@ export default function PerformancePage() {
                           </span>
                           <span className="text-gray-500 text-xs">
                             Confidence: <span className="text-gray-400">
-                              {q.confidence === 4
+                              {q.confidence === 3
                                 ? 'High'
-                                : q.confidence === 3
+                                : q.confidence === 2
                                   ? 'Medium'
-                                  : q.confidence === 2
+                                  : q.confidence === 1
                                     ? 'Low'
                                     : 'N/A'}
                             </span>

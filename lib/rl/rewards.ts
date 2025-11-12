@@ -40,7 +40,7 @@ function calculateLearningGainReward(learningGain: number): number {
  * Rewards accurate self-assessment
  *
  * @param isCorrect - Whether answer was correct
- * @param confidence - User's confidence (1-5)
+ * @param confidence - User's confidence (1-3)
  * @returns Reward component (-3 to +3)
  */
 function calculateCalibrationReward(
@@ -49,18 +49,18 @@ function calculateCalibrationReward(
 ): number {
   if (isCorrect) {
     // Correct answers: reward based on confidence level
-    if (confidence >= 4) {
+    if (confidence >= 3) {
       return 3  // High confidence + correct (perfect calibration)
-    } else if (confidence === 3) {
+    } else if (confidence === 2) {
       return 2  // Medium confidence + correct (moderate calibration)
     } else {
       return 1  // Low confidence + correct (underconfident)
     }
   } else {
     // Incorrect answers: penalty based on confidence level
-    if (confidence <= 2) {
+    if (confidence <= 1) {
       return -1  // Low confidence + incorrect (good uncertainty)
-    } else if (confidence === 3) {
+    } else if (confidence === 2) {
       return -2  // Medium confidence + incorrect (moderate overconfidence)
     } else {
       return -3  // High confidence + incorrect (severe overconfidence)

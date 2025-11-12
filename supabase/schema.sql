@@ -200,8 +200,8 @@ CREATE TABLE user_responses (
   -- Correctness
   is_correct BOOLEAN NOT NULL,
 
-  -- User's self-reported confidence (1-5 scale)
-  confidence INTEGER CHECK (confidence BETWEEN 1 AND 5),
+  -- User's self-reported confidence (1-3 scale: Low=1, Medium=2, High=3)
+  confidence INTEGER CHECK (confidence IN (1, 2, 3)),
 
   -- Time taken to answer (in seconds)
   time_taken_seconds DECIMAL(8,2),
