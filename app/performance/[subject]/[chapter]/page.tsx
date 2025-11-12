@@ -1622,9 +1622,17 @@ export default function PerformancePage() {
                 {/* Predicted Score Display */}
                 <div className="neuro-inset p-8 rounded-lg mb-6 text-center">
                   <div className="text-sm text-gray-400 mb-2">Predicted Exam Score Range</div>
-                  <div className="text-6xl font-bold text-blue-400 mb-6">
-                    {examScoreData.lowerBound} - {examScoreData.upperBound}
-                  </div>
+                  <Tooltip content={
+                    `Score calculation: Your overall accuracy (${(examScoreData.overallAccuracy * 100).toFixed(1)}%) is weighted across Bloom levels. ` +
+                    `Higher levels (Apply, Analyze) count for 20% each, others 15% each. This gives a base score, mapped to 100-900 scale. ` +
+                    `${examScoreData.totalQuestions < 20 ? `Sample size penalty applied (only ${examScoreData.totalQuestions} questions). ` : ''}` +
+                    `Confidence interval of ±${Math.round(examScoreData.confidenceWidth)} points based on ${examScoreData.totalQuestions} questions answered. ` +
+                    `More questions = narrower range. Need 100+ questions for high confidence (±50 points).`
+                  }>
+                    <div className="text-6xl font-bold text-blue-400 mb-6 cursor-help">
+                      {examScoreData.lowerBound} - {examScoreData.upperBound}
+                    </div>
+                  </Tooltip>
 
                   {/* Pass/Fail Indicator */}
                   <div className="flex items-center justify-center gap-4 mb-4">
