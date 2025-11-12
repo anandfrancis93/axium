@@ -199,21 +199,21 @@ export default function PerformancePage() {
             : null
 
           // Determine status
-          // Require at least 3 dimensions tested to be considered "mastered"
-          const minDimensionsForMastery = 3
+          // Require ALL 7 dimensions tested with 80%+ average to be "mastered"
+          const totalDimensions = 7
 
           if (stats.overallMastery === null) {
             stats.status = 'not_started'
           } else if (stats.overallMastery < 0) {
             stats.status = 'struggling'
-          } else if (stats.overallMastery >= 80 && dimensionScores.length >= minDimensionsForMastery) {
+          } else if (stats.overallMastery >= 80 && dimensionScores.length === totalDimensions) {
             stats.status = 'mastered'
             debugMasteredCount++
             console.log('Mastered topic:', stats.name, 'Mastery:', stats.overallMastery, 'Dimensions tested:', dimensionScores.length, 'Scores:', dimensionScores)
           } else {
             stats.status = 'progressing'
             if (stats.overallMastery >= 80) {
-              console.log('High mastery but insufficient dimensions:', stats.name, 'Mastery:', stats.overallMastery, 'Dimensions:', dimensionScores.length)
+              console.log('High mastery but incomplete dimensions:', stats.name, 'Mastery:', stats.overallMastery, 'Dimensions:', dimensionScores.length, '/ 7')
             }
           }
         }
@@ -336,7 +336,7 @@ export default function PerformancePage() {
             </button>
           </Tooltip>
 
-          <Tooltip content="Topics with 80%+ mastery (high-confidence correct answers)">
+          <Tooltip content="Topics with 80%+ average mastery across all 7 dimensions">
             <button
               onClick={() => setShowMasteredTopics(!showMasteredTopics)}
               className="neuro-stat group w-full text-left cursor-pointer"
@@ -515,7 +515,7 @@ export default function PerformancePage() {
                   No mastered topics yet
                 </div>
                 <div className="text-sm text-gray-600">
-                  Topics require 80%+ mastery across at least 3 dimensions to be considered mastered.
+                  Topics require 80%+ average mastery across all 7 dimensions to be considered mastered.
                 </div>
               </div>
             )}
