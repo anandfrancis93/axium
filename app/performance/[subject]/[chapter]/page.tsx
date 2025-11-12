@@ -69,16 +69,16 @@ export default function PerformancePage() {
       const topicStatsMap = new Map<string, any>()
       const topicIds = topicsData?.map(t => t.id) || []
 
-      // Get user responses for topics in this chapter (to calculate raw accuracy)
-      let userResponses = null
-      if (topicIds.length > 0) {
-        const result = await supabase
-          .from('user_responses')
-          .select('topic_id, is_correct, confidence')
-          .eq('user_id', user.id)
-          .in('topic_id', topicIds)
-        userResponses = result.data
-      }
+      // Get ALL user responses for this user, then filter client-side
+      // (Can't use .in() with 837 topic IDs - hits URL length limit)
+      const { data: allUserResponses } = await supabase
+        .from('user_responses')
+        .select('topic_id, is_correct, confidence')
+        .eq('user_id', user.id)
+
+      // Filter to only responses for topics in this chapter
+      const topicIdSet = new Set(topicIds)
+      const userResponses = allUserResponses?.filter(r => topicIdSet.has(r.topic_id)) || []
 
       topicsData?.forEach((topic: any) => {
         topicStatsMap.set(topic.id, {
