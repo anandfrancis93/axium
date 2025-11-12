@@ -36,9 +36,7 @@ export default function TopicMasteryPage() {
   const [bloomLevelStats, setBloomLevelStats] = useState<Record<number, any>>({})
   const [masteryTrendData, setMasteryTrendData] = useState<any[]>([])
   const [uniqueQuestions, setUniqueQuestions] = useState<any[]>([])
-  const [showMasteryTrend, setShowMasteryTrend] = useState(false)
-  const [showQuestionHistory, setShowQuestionHistory] = useState(false)
-  const [showAllLevels, setShowAllLevels] = useState(true)
+  const [activeTab, setActiveTab] = useState<'current' | 'all-levels' | 'trend' | 'history'>('current')
 
   useEffect(() => {
     loadData()
@@ -358,102 +356,128 @@ export default function TopicMasteryPage() {
         )}
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
 
-        {/* Current Bloom Level Mastery */}
-        {dimensionStats.length > 0 && (
-          <div>
-            <div className="mb-4">
-              <h2 className="text-lg font-semibold text-gray-200 mb-1">
-                Current Level: Bloom Level {currentBloomLevel}
-              </h2>
-              <p className="text-sm text-gray-400">
-                Mastery based on high-confidence (4-5) correct answers. Raw accuracy includes all attempts.
-              </p>
-            </div>
-
-            <ChapterMasteryOverview
-              topicName={topic}
-              bloomLevel={currentBloomLevel}
-              dimensions={dimensionStats}
-              unlockThreshold={80}
-            />
-          </div>
-        )}
-
-        {/* All Bloom Levels Summary */}
-        <div className="neuro-raised">
+        {/* Tab Navigation */}
+        <div className="flex flex-wrap gap-3 mb-6">
+          {dimensionStats.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setActiveTab('current')}
+              className={`neuro-btn ${activeTab === 'current' ? 'text-blue-400' : 'text-gray-300'}`}
+            >
+              Current Level
+            </button>
+          )}
           <button
             type="button"
-            onClick={() => setShowAllLevels(!showAllLevels)}
-            className="w-full flex items-center justify-between mb-4"
+            onClick={() => setActiveTab('all-levels')}
+            className={`neuro-btn ${activeTab === 'all-levels' ? 'text-blue-400' : 'text-gray-300'}`}
           >
-            <div className="flex items-center gap-3">
-              <div className="neuro-inset w-10 h-10 rounded-lg flex items-center justify-center">
-                <TrendingUpIcon size={20} className="text-blue-400" />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-200">
-                All Bloom Levels
-              </h2>
-            </div>
-            <span className="text-gray-400 text-xl">
-              {showAllLevels ? '▼' : '▶'}
-            </span>
+            All Bloom Levels
           </button>
-
-          {showAllLevels && (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {BLOOM_LEVELS.map(level => {
-                const stats = bloomLevelStats[level.num]
-                const isLocked = stats?.status === 'locked' || level.num > currentBloomLevel
-                const isCurrent = level.num === currentBloomLevel
-
-                return (
-                  <div
-                    key={level.num}
-                    className={`neuro-card ${isLocked ? 'opacity-50' : ''}`}
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="text-sm text-gray-400">L{level.num}</div>
-                      {isLocked && <LockIcon size={14} className="text-gray-600" />}
-                      {stats?.status === 'mastered' && <span className="text-green-400 text-xs">✓</span>}
-                    </div>
-                    <div className="text-xs text-gray-500 mb-2">{level.name}</div>
-                    {isLocked ? (
-                      <div className="text-xs text-gray-600">Locked</div>
-                    ) : stats?.totalAttempts > 0 ? (
-                      <>
-                        <div className={`text-2xl font-bold mb-1 ${
-                          stats.mastery >= 80 ? 'text-green-400' :
-                          stats.mastery >= 60 ? 'text-blue-400' :
-                          stats.mastery >= 40 ? 'text-yellow-400' :
-                          'text-red-400'
-                        }`}>
-                          {Math.round(stats.mastery)}%
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {stats.totalAttempts} attempt{stats.totalAttempts === 1 ? '' : 's'}
-                        </div>
-                      </>
-                    ) : (
-                      <div className="text-xs text-gray-600">Not tested</div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
+          {masteryTrendData.length >= 3 && (
+            <button
+              type="button"
+              onClick={() => setActiveTab('trend')}
+              className={`neuro-btn ${activeTab === 'trend' ? 'text-blue-400' : 'text-gray-300'}`}
+            >
+              Mastery Trend
+            </button>
+          )}
+          {uniqueQuestions.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setActiveTab('history')}
+              className={`neuro-btn ${activeTab === 'history' ? 'text-blue-400' : 'text-gray-300'}`}
+            >
+              Question History ({uniqueQuestions.length})
+            </button>
           )}
         </div>
 
-        {/* Mastery Trend (Collapsible) */}
-        {masteryTrendData.length >= 3 && (
-          <div className="neuro-raised">
-            <button
-              type="button"
-              onClick={() => setShowMasteryTrend(!showMasteryTrend)}
-              className="w-full flex items-center justify-between mb-4"
-            >
-              <div className="flex items-center gap-3">
+        {/* Tab Content */}
+        <div>
+          {/* Current Bloom Level Mastery */}
+          {activeTab === 'current' && dimensionStats.length > 0 && (
+            <div>
+              <div className="mb-4">
+                <h2 className="text-lg font-semibold text-gray-200 mb-1">
+                  Current Level: Bloom Level {currentBloomLevel}
+                </h2>
+                <p className="text-sm text-gray-400">
+                  Mastery based on high-confidence (4-5) correct answers. Raw accuracy includes all attempts.
+                </p>
+              </div>
+
+              <ChapterMasteryOverview
+                topicName={topic}
+                bloomLevel={currentBloomLevel}
+                dimensions={dimensionStats}
+                unlockThreshold={80}
+              />
+            </div>
+          )}
+
+          {/* All Bloom Levels Summary */}
+          {activeTab === 'all-levels' && (
+            <div className="neuro-raised">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="neuro-inset w-10 h-10 rounded-lg flex items-center justify-center">
+                  <TrendingUpIcon size={20} className="text-blue-400" />
+                </div>
+                <h2 className="text-xl font-semibold text-gray-200">
+                  All Bloom Levels
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {BLOOM_LEVELS.map(level => {
+                  const stats = bloomLevelStats[level.num]
+                  const isLocked = stats?.status === 'locked' || level.num > currentBloomLevel
+                  const isCurrent = level.num === currentBloomLevel
+
+                  return (
+                    <div
+                      key={level.num}
+                      className={`neuro-card ${isLocked ? 'opacity-50' : ''}`}
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="text-sm text-gray-400">L{level.num}</div>
+                        {isLocked && <LockIcon size={14} className="text-gray-600" />}
+                        {stats?.status === 'mastered' && <span className="text-green-400 text-xs">✓</span>}
+                      </div>
+                      <div className="text-xs text-gray-500 mb-2">{level.name}</div>
+                      {isLocked ? (
+                        <div className="text-xs text-gray-600">Locked</div>
+                      ) : stats?.totalAttempts > 0 ? (
+                        <>
+                          <div className={`text-2xl font-bold mb-1 ${
+                            stats.mastery >= 80 ? 'text-green-400' :
+                            stats.mastery >= 60 ? 'text-blue-400' :
+                            stats.mastery >= 40 ? 'text-yellow-400' :
+                            'text-red-400'
+                          }`}>
+                            {Math.round(stats.mastery)}%
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {stats.totalAttempts} attempt{stats.totalAttempts === 1 ? '' : 's'}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-xs text-gray-600">Not tested</div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Mastery Trend */}
+          {activeTab === 'trend' && masteryTrendData.length >= 3 && (
+            <div className="neuro-raised">
+              <div className="flex items-center gap-3 mb-6">
                 <div className="neuro-inset w-10 h-10 rounded-lg flex items-center justify-center">
                   <TrendingUpIcon size={20} className="text-blue-400" />
                 </div>
@@ -461,111 +485,98 @@ export default function TopicMasteryPage() {
                   Mastery Trend
                 </h2>
               </div>
-              <span className="text-gray-400 text-xl">
-                {showMasteryTrend ? '▼' : '▶'}
-              </span>
-            </button>
 
-            {showMasteryTrend && (
-              <div>
-                <div className="text-sm text-gray-400 mb-4">
-                  Your learning progression over time using Exponential Moving Average (EMA).
+              <div className="text-sm text-gray-400 mb-4">
+                Your learning progression over time using Exponential Moving Average (EMA).
+              </div>
+
+              <ResponsiveContainer width="100%" height={400}>
+                <AreaChart data={masteryTrendData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="masteryGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                  <XAxis
+                    dataKey="date"
+                    stroke="#9ca3af"
+                    style={{ fontSize: '12px' }}
+                  />
+                  <YAxis
+                    stroke="#9ca3af"
+                    style={{ fontSize: '12px' }}
+                    domain={[-100, 100]}
+                    ticks={[-100, -50, 0, 50, 100]}
+                    label={{ value: 'Mastery Score (%)', angle: -90, position: 'insideLeft', style: { fill: '#9ca3af' } }}
+                  />
+                  <RechartsTooltip
+                    contentStyle={{
+                      backgroundColor: '#1f2937',
+                      border: '1px solid #374151',
+                      borderRadius: '8px',
+                      color: '#e5e7eb'
+                    }}
+                    labelStyle={{ color: '#9ca3af' }}
+                    formatter={(value: any, name: string, props: any) => {
+                      if (name === 'mastery') {
+                        return [
+                          <div key="tooltip" className="space-y-1">
+                            <div className="font-semibold text-blue-400">{value}% Mastery</div>
+                            <div className="text-xs text-gray-400">
+                              Result: {props.payload.isCorrect ? 'Correct' : 'Wrong'}
+                            </div>
+                            <div className="text-xs text-gray-500">{props.payload.fullDate}</div>
+                          </div>,
+                          ''
+                        ]
+                      }
+                      return [value, name]
+                    }}
+                    labelFormatter={() => ''}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="mastery"
+                    stroke="#3b82f6"
+                    strokeWidth={3}
+                    fill="url(#masteryGradient)"
+                    dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6, fill: '#60a5fa' }}
+                  />
+                  <ReferenceLine
+                    y={80}
+                    stroke="#10b981"
+                    strokeWidth={2}
+                    strokeDasharray="5 5"
+                  />
+                  <ReferenceLine
+                    y={0}
+                    stroke="#ef4444"
+                    strokeWidth={1}
+                    strokeDasharray="3 3"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+
+              <div className="flex flex-wrap gap-4 justify-center text-xs text-gray-500 mt-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-1 bg-green-500 opacity-50"></div>
+                  <span>80% = Mastery Threshold</span>
                 </div>
-
-                <ResponsiveContainer width="100%" height={400}>
-                  <AreaChart data={masteryTrendData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="masteryGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis
-                      dataKey="date"
-                      stroke="#9ca3af"
-                      style={{ fontSize: '12px' }}
-                    />
-                    <YAxis
-                      stroke="#9ca3af"
-                      style={{ fontSize: '12px' }}
-                      domain={[-100, 100]}
-                      ticks={[-100, -50, 0, 50, 100]}
-                      label={{ value: 'Mastery Score (%)', angle: -90, position: 'insideLeft', style: { fill: '#9ca3af' } }}
-                    />
-                    <RechartsTooltip
-                      contentStyle={{
-                        backgroundColor: '#1f2937',
-                        border: '1px solid #374151',
-                        borderRadius: '8px',
-                        color: '#e5e7eb'
-                      }}
-                      labelStyle={{ color: '#9ca3af' }}
-                      formatter={(value: any, name: string, props: any) => {
-                        if (name === 'mastery') {
-                          return [
-                            <div key="tooltip" className="space-y-1">
-                              <div className="font-semibold text-blue-400">{value}% Mastery</div>
-                              <div className="text-xs text-gray-400">
-                                Result: {props.payload.isCorrect ? 'Correct' : 'Wrong'}
-                              </div>
-                              <div className="text-xs text-gray-500">{props.payload.fullDate}</div>
-                            </div>,
-                            ''
-                          ]
-                        }
-                        return [value, name]
-                      }}
-                      labelFormatter={() => ''}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="mastery"
-                      stroke="#3b82f6"
-                      strokeWidth={3}
-                      fill="url(#masteryGradient)"
-                      dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
-                      activeDot={{ r: 6, fill: '#60a5fa' }}
-                    />
-                    <ReferenceLine
-                      y={80}
-                      stroke="#10b981"
-                      strokeWidth={2}
-                      strokeDasharray="5 5"
-                    />
-                    <ReferenceLine
-                      y={0}
-                      stroke="#ef4444"
-                      strokeWidth={1}
-                      strokeDasharray="3 3"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-
-                <div className="flex flex-wrap gap-4 justify-center text-xs text-gray-500 mt-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-1 bg-green-500 opacity-50"></div>
-                    <span>80% = Mastery Threshold</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-1 bg-red-500 opacity-50"></div>
-                    <span>0% = Baseline</span>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-1 bg-red-500 opacity-50"></div>
+                  <span>0% = Baseline</span>
                 </div>
               </div>
-            )}
-          </div>
-        )}
+            </div>
+          )}
 
-        {/* Question History (Collapsible) */}
-        {uniqueQuestions.length > 0 && (
-          <div className="neuro-raised">
-            <button
-              type="button"
-              onClick={() => setShowQuestionHistory(!showQuestionHistory)}
-              className="w-full flex items-center justify-between mb-4"
-            >
-              <div className="flex items-center gap-3">
+          {/* Question History */}
+          {activeTab === 'history' && uniqueQuestions.length > 0 && (
+            <div className="neuro-raised">
+              <div className="flex items-center gap-3 mb-6">
                 <div className="neuro-inset w-10 h-10 rounded-lg flex items-center justify-center">
                   <InfoIcon size={20} className="text-blue-400" />
                 </div>
@@ -576,12 +587,7 @@ export default function TopicMasteryPage() {
                   ({uniqueQuestions.length} unique)
                 </span>
               </div>
-              <span className="text-gray-400 text-xl">
-                {showQuestionHistory ? '▼' : '▶'}
-              </span>
-            </button>
 
-            {showQuestionHistory && (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -636,9 +642,9 @@ export default function TopicMasteryPage() {
                   </tbody>
                 </table>
               </div>
-            )}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
 
       </main>
     </div>
