@@ -86,7 +86,14 @@ export default function TopicMasteryPage() {
       setRlPhase(progressData?.rl_phase || null)
       setCurrentBloomLevel(progressData?.current_bloom_level || 1)
 
-      // Get all questions for this specific topic to determine available dimensions
+      // Get all questions in the chapter to determine ALL possible dimensions
+      const { data: allQuestionsInChapter } = await supabase
+        .from('questions')
+        .select('dimension, bloom_level, topic_id')
+        .eq('topics.chapter_id', fetchedChapter.id)
+        .not('dimension', 'is', null)
+
+      // Get all questions for this specific topic
       const { data: allQuestions } = await supabase
         .from('questions')
         .select('dimension, bloom_level')
@@ -275,11 +282,19 @@ export default function TopicMasteryPage() {
         BLOOM_LEVELS.forEach(level => {
           const levelResponses = responses.filter((r: any) => r.bloom_level === level.num)
 
-          // Get all possible dimensions for this Bloom level for THIS TOPIC
+          // Get ALL dimensions for this Bloom level from entire chapter
           const allDimensionsForLevel = new Set<string>()
-          allQuestions?.forEach((q: any) => {
+          allQuestionsInChapter?.forEach((q: any) => {
             if (q.bloom_level === level.num && q.dimension) {
               allDimensionsForLevel.add(q.dimension)
+            }
+          })
+
+          // Get dimensions that have questions for THIS TOPIC
+          const topicDimensionsForLevel = new Set<string>()
+          allQuestions?.forEach((q: any) => {
+            if (q.bloom_level === level.num && q.dimension) {
+              topicDimensionsForLevel.add(q.dimension)
             }
           })
 
@@ -287,7 +302,7 @@ export default function TopicMasteryPage() {
           let highConfTotal = 0
           let totalCorrect = 0
 
-          // Initialize dimension stats map with all dimensions (even if no attempts)
+          // Initialize dimension stats map with ALL chapter dimensions
           const levelDimensionStatsMap = new Map<string, any>()
           allDimensionsForLevel.forEach(dimension => {
             levelDimensionStatsMap.set(dimension, {
@@ -297,7 +312,8 @@ export default function TopicMasteryPage() {
               lowConfidenceCorrect: 0,
               wrongAnswers: 0,
               totalCorrect: 0,
-              totalAttempts: 0
+              totalAttempts: 0,
+              hasQuestions: topicDimensionsForLevel.has(dimension) // Mark if this topic has questions for this dimension
             })
           })
 
@@ -370,7 +386,9 @@ export default function TopicMasteryPage() {
             highConfidenceCorrect: stats.highConfidenceCorrect,
             highConfidenceTotal: stats.highConfidenceTotal,
             lowConfidenceCorrect: stats.lowConfidenceCorrect,
-            wrongAnswers: stats.wrongAnswers
+            wrongAnswers: stats.wrongAnswers,
+            totalAttempts: stats.totalAttempts,
+            hasQuestions: stats.hasQuestions
           }))
         })
 
@@ -603,6 +621,7 @@ export default function TopicMasteryPage() {
                             {topic}
                           </td>
                           {bloomLevelDimensions[selectedBloomLevel].map((dim: any) => {
+                            const hasQuestions = dim.hasQuestions
                             const hasAttempts = dim.totalAttempts > 0
                             const mastery = dim.mastery
                             const colorClass = hasAttempts
@@ -614,7 +633,16 @@ export default function TopicMasteryPage() {
 
                             return (
                               <td key={dim.dimension} className="text-center py-3 px-4">
-                                {hasAttempts ? (
+                                {!hasQuestions ? (
+                                  <>
+                                    <div className="text-lg font-bold text-gray-700">
+                                      —
+                                    </div>
+                                    <div className="text-xs text-gray-600">
+                                      No questions
+                                    </div>
+                                  </>
+                                ) : hasAttempts ? (
                                   <>
                                     <div className={`text-lg font-bold ${colorClass}`}>
                                       {Math.round(mastery)}%
