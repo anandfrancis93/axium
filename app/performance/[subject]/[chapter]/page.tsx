@@ -18,10 +18,11 @@ export default function PerformancePage() {
   const [chapterData, setChapterData] = useState<any>(null)
   const [topicStats, setTopicStats] = useState<any[]>([])
   const [chapterSummary, setChapterSummary] = useState<any>(null)
-  const [activeTab, setActiveTab] = useState<'overview' | 'topics' | 'spacing'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'topics' | 'spacing' | 'api-costs'>('overview')
   const [expandedSection, setExpandedSection] = useState<'started' | 'mastered' | 'questions' | null>(null)
   const [allQuestions, setAllQuestions] = useState<any[]>([])
   const [spacedRepetitionData, setSpacedRepetitionData] = useState<any[]>([])
+  const [apiCostData, setApiCostData] = useState<any>(null)
 
   useEffect(() => {
     loadPerformanceData()
@@ -347,6 +348,162 @@ export default function PerformancePage() {
       })
 
       setSpacedRepetitionData(spacingData)
+
+      // Load API cost data
+      const { data: apiCallLogs } = await supabase
+        .from('api_call_log')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+
+      if (apiCallLogs && apiCallLogs.length > 0) {
+        // Calculate totals
+        const totalCost = apiCallLogs.reduce((sum, log) => sum + parseFloat(log.total_cost || 0), 0)
+        const totalInputTokens = apiCallLogs.reduce((sum, log) => sum + (log.input_tokens || 0), 0)
+        const totalOutputTokens = apiCallLogs.reduce((sum, log) => sum + (log.output_tokens || 0), 0)
+        const totalTokens = apiCallLogs.reduce((sum, log) => sum + (log.total_tokens || 0), 0)
+
+        // Group by provider
+        const byProvider = apiCallLogs.reduce((acc, log) => {
+          const provider = log.provider || 'unknown'
+          if (!acc[provider]) {
+            acc[provider] = {
+              calls: 0,
+              cost: 0,
+              inputTokens: 0,
+              outputTokens: 0,
+              totalTokens: 0,
+              avgLatency: 0,
+              latencies: []
+            }
+          }
+          acc[provider].calls++
+          acc[provider].cost += parseFloat(log.total_cost || 0)
+          acc[provider].inputTokens += log.input_tokens || 0
+          acc[provider].outputTokens += log.output_tokens || 0
+          acc[provider].totalTokens += log.total_tokens || 0
+          if (log.latency_ms) {
+            acc[provider].latencies.push(log.latency_ms)
+          }
+          return acc
+        }, {} as Record<string, any>)
+
+        // Calculate average latencies
+        Object.keys(byProvider).forEach(provider => {
+          const latencies = byProvider[provider].latencies
+          if (latencies.length > 0) {
+            byProvider[provider].avgLatency = latencies.reduce((sum: number, l: number) => sum + l, 0) / latencies.length
+          }
+          delete byProvider[provider].latencies
+        })
+
+        // Group by model
+        const byModel = apiCallLogs.reduce((acc, log) => {
+          const model = log.model || 'unknown'
+          if (!acc[model]) {
+            acc[model] = {
+              calls: 0,
+              cost: 0,
+              inputTokens: 0,
+              outputTokens: 0,
+              totalTokens: 0
+            }
+          }
+          acc[model].calls++
+          acc[model].cost += parseFloat(log.total_cost || 0)
+          acc[model].inputTokens += log.input_tokens || 0
+          acc[model].outputTokens += log.output_tokens || 0
+          acc[model].totalTokens += log.total_tokens || 0
+          return acc
+        }, {} as Record<string, any>)
+
+        // Group by endpoint
+        const byEndpoint = apiCallLogs.reduce((acc, log) => {
+          const endpoint = log.endpoint || 'unknown'
+          if (!acc[endpoint]) {
+            acc[endpoint] = {
+              calls: 0,
+              cost: 0,
+              inputTokens: 0,
+              outputTokens: 0,
+              totalTokens: 0
+            }
+          }
+          acc[endpoint].calls++
+          acc[endpoint].cost += parseFloat(log.total_cost || 0)
+          acc[endpoint].inputTokens += log.input_tokens || 0
+          acc[endpoint].outputTokens += log.output_tokens || 0
+          acc[endpoint].totalTokens += log.total_tokens || 0
+          return acc
+        }, {} as Record<string, any>)
+
+        // Group by purpose
+        const byPurpose = apiCallLogs.reduce((acc, log) => {
+          const purpose = log.purpose || 'unknown'
+          if (!acc[purpose]) {
+            acc[purpose] = {
+              calls: 0,
+              cost: 0,
+              inputTokens: 0,
+              outputTokens: 0,
+              totalTokens: 0
+            }
+          }
+          acc[purpose].calls++
+          acc[purpose].cost += parseFloat(log.total_cost || 0)
+          acc[purpose].inputTokens += log.input_tokens || 0
+          acc[purpose].outputTokens += log.output_tokens || 0
+          acc[purpose].totalTokens += log.total_tokens || 0
+          return acc
+        }, {} as Record<string, any>)
+
+        // Calculate daily costs (last 30 days)
+        const now = new Date()
+        const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+        const dailyCosts = apiCallLogs
+          .filter(log => new Date(log.created_at) >= thirtyDaysAgo)
+          .reduce((acc, log) => {
+            const date = new Date(log.created_at).toISOString().split('T')[0]
+            if (!acc[date]) {
+              acc[date] = { cost: 0, calls: 0 }
+            }
+            acc[date].cost += parseFloat(log.total_cost || 0)
+            acc[date].calls++
+            return acc
+          }, {} as Record<string, any>)
+
+        // Recent calls (last 20)
+        const recentCalls = apiCallLogs.slice(0, 20)
+
+        setApiCostData({
+          totalCost,
+          totalInputTokens,
+          totalOutputTokens,
+          totalTokens,
+          totalCalls: apiCallLogs.length,
+          byProvider,
+          byModel,
+          byEndpoint,
+          byPurpose,
+          dailyCosts,
+          recentCalls
+        })
+      } else {
+        setApiCostData({
+          totalCost: 0,
+          totalInputTokens: 0,
+          totalOutputTokens: 0,
+          totalTokens: 0,
+          totalCalls: 0,
+          byProvider: {},
+          byModel: {},
+          byEndpoint: {},
+          byPurpose: {},
+          dailyCosts: {},
+          recentCalls: []
+        })
+      }
+
       setLoading(false)
 
     } catch (error) {
@@ -419,6 +576,14 @@ export default function PerformancePage() {
                 {spacedRepetitionData.filter(s => s.isOverdue).length}
               </span>
             )}
+          </button>
+          <button
+            onClick={() => setActiveTab('api-costs')}
+            className={`neuro-btn px-6 py-3 whitespace-nowrap transition-colors ${
+              activeTab === 'api-costs' ? 'text-blue-400' : 'text-gray-400'
+            }`}
+          >
+            API Costs
           </button>
         </div>
 
@@ -966,6 +1131,293 @@ export default function PerformancePage() {
                 >
                   <CheckIcon size={18} />
                   <span>Start Practice</span>
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* API Costs Tab */}
+        {activeTab === 'api-costs' && (
+          <div className="neuro-raised">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="neuro-inset w-10 h-10 rounded-lg flex items-center justify-center">
+                <BarChartIcon size={20} className="text-blue-400" />
+              </div>
+              <h2 className="text-xl font-semibold text-gray-200">
+                API Costs & Usage
+              </h2>
+            </div>
+
+            {apiCostData && apiCostData.totalCalls > 0 ? (
+              <>
+                {/* Summary Stats */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                  <div className="neuro-stat group cursor-help" title="Total cost of all API calls">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="text-sm text-blue-400 font-medium">Total Cost</div>
+                      <BarChartIcon size={20} className="text-blue-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                    <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
+                      ${apiCostData.totalCost.toFixed(4)}
+                    </div>
+                    <div className="text-xs text-gray-600 mt-2">
+                      Across {apiCostData.totalCalls.toLocaleString()} calls
+                    </div>
+                  </div>
+
+                  <div className="neuro-stat group cursor-help" title="Total tokens consumed">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="text-sm text-green-400 font-medium">Total Tokens</div>
+                      <TrendingUpIcon size={20} className="text-green-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                    <div className="text-4xl font-bold text-gray-200 group-hover:text-green-400 transition-colors">
+                      {apiCostData.totalTokens.toLocaleString()}
+                    </div>
+                    <div className="text-xs text-gray-600 mt-2">
+                      {apiCostData.totalInputTokens.toLocaleString()} in / {apiCostData.totalOutputTokens.toLocaleString()} out
+                    </div>
+                  </div>
+
+                  <div className="neuro-stat group cursor-help" title="Average cost per API call">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="text-sm text-yellow-400 font-medium">Avg Cost/Call</div>
+                      <TargetIcon size={20} className="text-yellow-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                    <div className="text-4xl font-bold text-gray-200 group-hover:text-yellow-400 transition-colors">
+                      ${(apiCostData.totalCost / apiCostData.totalCalls).toFixed(4)}
+                    </div>
+                    <div className="text-xs text-gray-600 mt-2">
+                      {Math.round(apiCostData.totalTokens / apiCostData.totalCalls).toLocaleString()} tokens/call
+                    </div>
+                  </div>
+
+                  <div className="neuro-stat group cursor-help" title="Number of unique providers used">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="text-sm text-purple-400 font-medium">Providers</div>
+                      <AwardIcon size={20} className="text-purple-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                    <div className="text-4xl font-bold text-gray-200 group-hover:text-purple-400 transition-colors">
+                      {Object.keys(apiCostData.byProvider).length}
+                    </div>
+                    <div className="text-xs text-gray-600 mt-2">
+                      {Object.keys(apiCostData.byModel).length} models
+                    </div>
+                  </div>
+                </div>
+
+                {/* By Provider */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-300 mb-4">By Provider</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {Object.entries(apiCostData.byProvider)
+                      .sort(([, a]: any, [, b]: any) => b.cost - a.cost)
+                      .map(([provider, stats]: [string, any]) => (
+                        <div key={provider} className="neuro-inset p-4 rounded-lg">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="text-base font-medium text-gray-200 capitalize">
+                              {provider}
+                            </div>
+                            <div className="text-sm text-blue-400 font-semibold">
+                              ${stats.cost.toFixed(4)}
+                            </div>
+                          </div>
+                          <div className="space-y-1 text-xs text-gray-500">
+                            <div className="flex justify-between">
+                              <span>Calls:</span>
+                              <span className="text-gray-400">{stats.calls.toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Tokens:</span>
+                              <span className="text-gray-400">{stats.totalTokens.toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Avg Latency:</span>
+                              <span className="text-gray-400">{Math.round(stats.avgLatency)}ms</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+
+                {/* By Model */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-300 mb-4">By Model</h3>
+                  <div className="neuro-inset rounded-lg overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-gray-800">
+                            <th className="text-left p-3 text-gray-400 font-medium">Model</th>
+                            <th className="text-right p-3 text-gray-400 font-medium">Calls</th>
+                            <th className="text-right p-3 text-gray-400 font-medium">Cost</th>
+                            <th className="text-right p-3 text-gray-400 font-medium">Tokens</th>
+                            <th className="text-right p-3 text-gray-400 font-medium">Cost/Call</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {Object.entries(apiCostData.byModel)
+                            .sort(([, a]: any, [, b]: any) => b.cost - a.cost)
+                            .map(([model, stats]: [string, any]) => (
+                              <tr key={model} className="border-b border-gray-800/50 hover:bg-gray-900/30 transition-colors">
+                                <td className="p-3 text-gray-300 font-mono text-xs">{model}</td>
+                                <td className="p-3 text-right text-gray-400">{stats.calls.toLocaleString()}</td>
+                                <td className="p-3 text-right text-blue-400 font-medium">${stats.cost.toFixed(4)}</td>
+                                <td className="p-3 text-right text-gray-400">{stats.totalTokens.toLocaleString()}</td>
+                                <td className="p-3 text-right text-gray-500">${(stats.cost / stats.calls).toFixed(5)}</td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+
+                {/* By Endpoint */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-300 mb-4">By Endpoint</h3>
+                  <div className="neuro-inset rounded-lg overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-gray-800">
+                            <th className="text-left p-3 text-gray-400 font-medium">Endpoint</th>
+                            <th className="text-right p-3 text-gray-400 font-medium">Calls</th>
+                            <th className="text-right p-3 text-gray-400 font-medium">Cost</th>
+                            <th className="text-right p-3 text-gray-400 font-medium">Avg Cost</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {Object.entries(apiCostData.byEndpoint)
+                            .sort(([, a]: any, [, b]: any) => b.calls - a.calls)
+                            .map(([endpoint, stats]: [string, any]) => (
+                              <tr key={endpoint} className="border-b border-gray-800/50 hover:bg-gray-900/30 transition-colors">
+                                <td className="p-3 text-gray-300 font-mono text-xs">{endpoint}</td>
+                                <td className="p-3 text-right text-gray-400">{stats.calls.toLocaleString()}</td>
+                                <td className="p-3 text-right text-blue-400 font-medium">${stats.cost.toFixed(4)}</td>
+                                <td className="p-3 text-right text-gray-500">${(stats.cost / stats.calls).toFixed(5)}</td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+
+                {/* By Purpose */}
+                {Object.keys(apiCostData.byPurpose).length > 0 && (
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold text-gray-300 mb-4">By Purpose</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {Object.entries(apiCostData.byPurpose)
+                        .sort(([, a]: any, [, b]: any) => b.cost - a.cost)
+                        .map(([purpose, stats]: [string, any]) => (
+                          <div key={purpose} className="neuro-inset p-4 rounded-lg">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="text-base font-medium text-gray-200">
+                                {purpose.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                              </div>
+                              <div className="text-sm text-green-400 font-semibold">
+                                ${stats.cost.toFixed(4)}
+                              </div>
+                            </div>
+                            <div className="space-y-1 text-xs text-gray-500">
+                              <div className="flex justify-between">
+                                <span>Calls:</span>
+                                <span className="text-gray-400">{stats.calls.toLocaleString()}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Tokens:</span>
+                                <span className="text-gray-400">{stats.totalTokens.toLocaleString()}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Recent Calls */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-300 mb-4">Recent API Calls</h3>
+                  <div className="max-h-[500px] overflow-y-auto pr-2 space-y-2">
+                    {apiCostData.recentCalls.map((call: any) => (
+                      <div
+                        key={call.id}
+                        className={`neuro-inset p-3 rounded-lg text-xs ${
+                          call.status !== 'success' ? 'border-l-4 border-red-500' : ''
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-gray-300 font-medium capitalize">{call.provider}</span>
+                              <span className="text-gray-600">•</span>
+                              <span className="text-gray-500 font-mono">{call.model}</span>
+                              {call.status !== 'success' && (
+                                <span className="px-2 py-0.5 bg-red-500/20 text-red-400 rounded text-xs">
+                                  {call.status}
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-gray-500 truncate mb-1">{call.endpoint}</div>
+                            {call.purpose && (
+                              <div className="text-gray-600 text-xs">
+                                {call.purpose.replace(/_/g, ' ')}
+                              </div>
+                            )}
+                          </div>
+                          <div className="text-right flex-shrink-0">
+                            <div className="text-blue-400 font-semibold mb-1">
+                              ${parseFloat(call.total_cost).toFixed(5)}
+                            </div>
+                            <div className="text-gray-500">
+                              {call.total_tokens.toLocaleString()} tokens
+                            </div>
+                            {call.latency_ms && (
+                              <div className="text-gray-600 text-xs mt-1">
+                                {call.latency_ms}ms
+                              </div>
+                            )}
+                            <div className="text-gray-600 text-xs mt-1">
+                              {new Date(call.created_at).toLocaleDateString()} {new Date(call.created_at).toLocaleTimeString()}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Info Box */}
+                <div className="neuro-inset p-4 rounded-lg text-sm text-gray-400">
+                  <div className="font-medium text-gray-300 mb-2">About API Costs</div>
+                  <ul className="space-y-1 text-xs list-disc list-inside">
+                    <li>Costs are calculated based on actual token usage and provider pricing</li>
+                    <li>All API calls are logged for transparency and cost tracking</li>
+                    <li>Input tokens include prompts and context; output tokens are AI responses</li>
+                    <li>Latency measures the time taken for each API call to complete</li>
+                  </ul>
+                </div>
+              </>
+            ) : (
+              <div className="neuro-inset p-8 rounded-lg text-center">
+                <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <BarChartIcon size={40} className="text-gray-600" />
+                </div>
+                <div className="text-gray-400 text-lg font-semibold mb-2">
+                  No API usage yet
+                </div>
+                <div className="text-sm text-gray-600 mb-6">
+                  Start using the platform to see API costs and usage statistics
+                </div>
+                <Link
+                  href={`/subjects/${subject}/${chapter}/quiz`}
+                  className="neuro-btn text-blue-400 inline-flex items-center gap-2 px-6 py-3"
+                >
+                  <CheckIcon size={18} />
+                  <span>Start Learning</span>
                 </Link>
               </div>
             )}
