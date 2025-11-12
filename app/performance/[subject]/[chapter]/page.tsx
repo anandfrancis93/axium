@@ -383,7 +383,7 @@ export default function PerformancePage() {
           </div>
 
           {startedTopics.length > 0 ? (
-            <div className="space-y-3">
+            <div className="max-h-[600px] overflow-y-auto pr-2 space-y-3">
               {topicStats.map(topic => (
                 <div
                   key={topic.id}
