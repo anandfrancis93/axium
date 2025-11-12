@@ -1634,22 +1634,9 @@ export default function PerformancePage() {
                     </div>
                   </Tooltip>
 
-                  {/* Pass/Fail Indicator */}
-                  <div className="flex items-center justify-center gap-4 mb-4">
-                    <div className="text-sm text-gray-500">Passing Score: {examScoreData.passingScore}</div>
-                    {examScoreData.isLikelyToPass ? (
-                      <div className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg font-semibold">
-                        Likely to Pass ✓
-                      </div>
-                    ) : examScoreData.isPossibleToPass ? (
-                      <div className="px-4 py-2 bg-yellow-500/20 text-yellow-400 rounded-lg font-semibold">
-                        Borderline
-                      </div>
-                    ) : (
-                      <div className="px-4 py-2 bg-red-500/20 text-red-400 rounded-lg font-semibold">
-                        More Practice Needed
-                      </div>
-                    )}
+                  {/* Passing Score Reference */}
+                  <div className="text-sm text-gray-500 mb-4">
+                    Passing Score: {examScoreData.passingScore}
                   </div>
 
                   {/* Confidence Level */}
