@@ -86,6 +86,12 @@ export default function TopicMasteryPage() {
       setRlPhase(progressData?.rl_phase || null)
       setCurrentBloomLevel(progressData?.current_bloom_level || 1)
 
+      // Get all possible dimensions for this topic from questions
+      const { data: allQuestions } = await supabase
+        .from('questions')
+        .select('dimension, bloom_level')
+        .eq('topic_id', topicData.id)
+
       // Get all responses for this topic
       const { data: responses } = await supabase
         .from('user_responses')
@@ -269,23 +275,31 @@ export default function TopicMasteryPage() {
         BLOOM_LEVELS.forEach(level => {
           const levelResponses = responses.filter((r: any) => r.bloom_level === level.num)
 
-          if (levelResponses.length === 0) {
-            bloomStats[level.num] = {
-              totalAttempts: 0,
-              mastery: null,
-              rawAccuracy: null,
-              status: 'locked'
+          // Get all possible dimensions for this Bloom level
+          const allDimensionsForLevel = new Set<string>()
+          allQuestions?.forEach((q: any) => {
+            if (q.bloom_level === level.num && q.dimension) {
+              allDimensionsForLevel.add(q.dimension)
             }
-            bloomDimensions[level.num] = []
-            return
-          }
+          })
 
           let highConfCorrect = 0
           let highConfTotal = 0
           let totalCorrect = 0
 
-          // Calculate dimension stats for this Bloom level
+          // Initialize dimension stats map with all dimensions (even if no attempts)
           const levelDimensionStatsMap = new Map<string, any>()
+          allDimensionsForLevel.forEach(dimension => {
+            levelDimensionStatsMap.set(dimension, {
+              dimension,
+              highConfidenceCorrect: 0,
+              highConfidenceTotal: 0,
+              lowConfidenceCorrect: 0,
+              wrongAnswers: 0,
+              totalCorrect: 0,
+              totalAttempts: 0
+            })
+          })
 
           levelResponses.forEach((r: any) => {
             const confidence = r.confidence || 0
@@ -589,40 +603,64 @@ export default function TopicMasteryPage() {
                             {topic}
                           </td>
                           {bloomLevelDimensions[selectedBloomLevel].map((dim: any) => {
+                            const hasAttempts = dim.totalAttempts > 0
                             const mastery = dim.mastery
-                            const colorClass =
-                              mastery >= 80 ? 'text-green-400' :
-                              mastery >= 60 ? 'text-blue-400' :
-                              mastery >= 40 ? 'text-yellow-400' :
-                              'text-red-400'
+                            const colorClass = hasAttempts
+                              ? mastery >= 80 ? 'text-green-400' :
+                                mastery >= 60 ? 'text-blue-400' :
+                                mastery >= 40 ? 'text-yellow-400' :
+                                'text-red-400'
+                              : 'text-gray-600'
 
                             return (
                               <td key={dim.dimension} className="text-center py-3 px-4">
-                                <div className={`text-lg font-bold ${colorClass}`}>
-                                  {Math.round(mastery)}%
-                                </div>
-                                <div className="text-xs text-gray-500">
-                                  {dim.highConfidenceCorrect}/{dim.highConfidenceTotal}
-                                </div>
+                                {hasAttempts ? (
+                                  <>
+                                    <div className={`text-lg font-bold ${colorClass}`}>
+                                      {Math.round(mastery)}%
+                                    </div>
+                                    <div className="text-xs text-gray-500">
+                                      {dim.highConfidenceCorrect}/{dim.highConfidenceTotal}
+                                    </div>
+                                  </>
+                                ) : (
+                                  <>
+                                    <div className="text-lg font-bold text-gray-600">
+                                      —
+                                    </div>
+                                    <div className="text-xs text-gray-600">
+                                      Not attempted
+                                    </div>
+                                  </>
+                                )}
                               </td>
                             )
                           })}
                           <td className="text-center py-3 px-4">
-                            <div className={`text-lg font-bold ${
-                              (() => {
-                                const overall = bloomLevelDimensions[selectedBloomLevel].reduce((sum, d) => sum + d.mastery, 0) / bloomLevelDimensions[selectedBloomLevel].length
-                                return overall >= 80 ? 'text-green-400' :
-                                       overall >= 60 ? 'text-blue-400' :
-                                       overall >= 40 ? 'text-yellow-400' :
-                                       'text-red-400'
-                              })()
-                            }`}>
-                              {Math.round(
-                                bloomLevelDimensions[selectedBloomLevel].reduce((sum, d) => sum + d.mastery, 0) /
-                                bloomLevelDimensions[selectedBloomLevel].length
-                              )}%
-                            </div>
-                            <div className="text-xs text-gray-500">Average</div>
+                            {(() => {
+                              const attemptedDimensions = bloomLevelDimensions[selectedBloomLevel].filter(d => d.totalAttempts > 0)
+                              if (attemptedDimensions.length === 0) {
+                                return (
+                                  <>
+                                    <div className="text-lg font-bold text-gray-600">—</div>
+                                    <div className="text-xs text-gray-600">No attempts</div>
+                                  </>
+                                )
+                              }
+                              const overall = attemptedDimensions.reduce((sum, d) => sum + d.mastery, 0) / attemptedDimensions.length
+                              const colorClass = overall >= 80 ? 'text-green-400' :
+                                                 overall >= 60 ? 'text-blue-400' :
+                                                 overall >= 40 ? 'text-yellow-400' :
+                                                 'text-red-400'
+                              return (
+                                <>
+                                  <div className={`text-lg font-bold ${colorClass}`}>
+                                    {Math.round(overall)}%
+                                  </div>
+                                  <div className="text-xs text-gray-500">Average</div>
+                                </>
+                              )
+                            })()}
                           </td>
                         </tr>
                       </tbody>
