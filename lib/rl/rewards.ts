@@ -2,37 +2,23 @@
  * Reward Calculation for RL System
  *
  * Multi-component reward function that optimizes for:
- * 1. Learning gain (primary)
- * 2. Confidence calibration
+ * 1. Confidence calibration
+ * 2. Recognition method (retrieval strength)
  * 3. Spaced repetition (retention)
- * 4. Recognition method (retrieval strength)
- * 5. Response time (retrieval fluency)
+ * 4. Response time (retrieval fluency)
+ * 5. Streak bonus (consistency)
  */
 
 export type RecognitionMethod = 'memory' | 'recognition' | 'educated_guess' | 'random'
 export type QuestionFormat = 'mcq_single' | 'mcq_multi' | 'true_false' | 'fill_blank' | 'matching' | 'open_ended'
 
 export interface RewardComponents {
-  learningGain: number
   calibration: number
-  spacing: number
   recognition: number
+  spacing: number
   responseTime: number
   streak: number
   total: number
-}
-
-/**
- * Calculate learning gain reward
- * Rewards improvement in mastery
- *
- * @param learningGain - Change in mastery score
- * @returns Reward component (-10 to +10)
- */
-function calculateLearningGainReward(learningGain: number): number {
-  // Learning gain ranges from -100 to +100
-  // Normalize to -10 to +10
-  return Math.max(-10, Math.min(10, learningGain / 10))
 }
 
 /**
@@ -302,7 +288,6 @@ function calculateResponseTimeReward(
  * @returns Reward components and total reward
  */
 export function calculateReward(params: {
-  learningGain: number
   isCorrect: boolean
   confidence: number
   currentMastery: number
@@ -316,7 +301,6 @@ export function calculateReward(params: {
   currentStreak?: number
 }): RewardComponents {
   const {
-    learningGain,
     isCorrect,
     confidence,
     currentMastery,
@@ -331,7 +315,6 @@ export function calculateReward(params: {
   } = params
 
   // Calculate each component
-  const learningGainReward = calculateLearningGainReward(learningGain)
   const calibrationReward = calculateCalibrationReward(isCorrect, confidence)
   const spacingReward = calculateSpacingReward(daysSinceLastPractice, isCorrect)
   const recognitionReward = calculateRecognitionReward(recognitionMethod, isCorrect)
@@ -344,14 +327,13 @@ export function calculateReward(params: {
   // Calculate streak reward
   const streakReward = calculateStreakReward(currentStreak, isCorrect)
 
-  // Total reward (range: approximately -21 to +35)
-  const total = learningGainReward + calibrationReward + spacingReward + recognitionReward + responseTimeReward + streakReward
+  // Total reward (range: -11 to +25)
+  const total = calibrationReward + spacingReward + recognitionReward + responseTimeReward + streakReward
 
   return {
-    learningGain: learningGainReward,
     calibration: calibrationReward,
-    spacing: spacingReward,
     recognition: recognitionReward,
+    spacing: spacingReward,
     responseTime: responseTimeReward,
     streak: streakReward,
     total

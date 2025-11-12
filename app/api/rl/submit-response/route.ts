@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { calculateLearningGain, calculateMultiTopicMasteryUpdates, getDaysSinceLastPractice } from '@/lib/rl/mastery'
+import { getDaysSinceLastPractice } from '@/lib/rl/mastery'
 import { calculateReward, RecognitionMethod, calculateReadingTimeBreakdown } from '@/lib/rl/rewards'
 import { findRelatedTopics } from '@/lib/rl/related-topics'
 import { logRewardCalculation, logMasteryUpdate } from '@/lib/rl/decision-logger'
@@ -14,7 +14,7 @@ import { logRewardCalculation, logMasteryUpdate } from '@/lib/rl/decision-logger
  * - session_id: UUID of the learning session
  * - question_id: UUID of the question
  * - user_answer: User's selected answer (A, B, C, or D)
- * - confidence: Confidence level (1-5 or 'low'/'medium'/'high')
+ * - confidence: Confidence level (1-3 or 'low'/'medium'/'high')
  * - recognition_method: How user arrived at answer ('memory', 'recognition', 'educated_guess', 'random')
  * - arm_selected: { topic_id, topic_name, bloom_level } from next-question response
  *
@@ -23,7 +23,6 @@ import { logRewardCalculation, logMasteryUpdate } from '@/lib/rl/decision-logger
  * - correct_answer: The correct answer
  * - explanation: Explanation text
  * - reward_components: Breakdown of reward
- * - mastery_updates: Changes in mastery
  * - session_progress: Updated progress
  */
 export async function POST(request: NextRequest) {
@@ -162,7 +161,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Process each core topic independently
-    const masteryUpdates = []
     const rewardsByTopic = []
     let totalReward = 0
 
@@ -186,34 +184,8 @@ export async function POST(request: NextRequest) {
       // Calculate new streak value
       const newStreak = isCorrect ? currentStreak + 1 : 0
 
-      // First calculate reward components that don't depend on mastery change
-      const preliminaryReward = calculateReward({
-        learningGain: 0, // Temporarily 0 - will recalculate after mastery change
-        isCorrect,
-        confidence,
-        currentMastery,
-        daysSinceLastPractice: daysSince,
-        recognitionMethod: recognition_method as RecognitionMethod,
-        responseTimeSeconds: responseTime,
-        bloomLevel: question.bloom_level,
-        questionText: question.question_text,
-        options: question.options,
-        questionFormat: question.question_format,
-        currentStreak: currentStreak
-      })
-
-      // Calculate mastery change using quality-weighted approach
-      const learningGain = calculateLearningGain(
-        preliminaryReward.calibration,
-        preliminaryReward.recognition,
-        question.bloom_level
-      )
-      // Allow negative mastery for better RL signal, but cap at 100%
-      const newMastery = Math.min(100, currentMastery + learningGain)
-
-      // Now recalculate with actual learning gain
+      // Calculate reward components
       const rewardComponents = calculateReward({
-        learningGain: learningGain, // Actual mastery change!
         isCorrect,
         confidence,
         currentMastery,
@@ -227,7 +199,8 @@ export async function POST(request: NextRequest) {
         currentStreak: currentStreak
       })
 
-      // Update mastery for this topic
+      // Update mastery tracking for this topic
+      // Note: mastery_score is legacy (not displayed), but we still track attempts/correct/streak
       const { error: masteryError } = await supabase.rpc('update_topic_mastery_by_id', {
         p_user_id: user.id,
         p_topic_id: topicId,
@@ -235,7 +208,7 @@ export async function POST(request: NextRequest) {
         p_chapter_id: session.chapter_id,
         p_is_correct: isCorrect,
         p_confidence: confidence,
-        p_learning_gain: learningGain,
+        p_learning_gain: 0, // Legacy parameter - mastery_score no longer used
         p_weight: 1.0,
         p_new_streak: newStreak
       })
@@ -247,63 +220,48 @@ export async function POST(request: NextRequest) {
       }
 
       // Check if user just unlocked next Bloom level for this topic
+      // Requirements: All 7 knowledge dimensions have been answered correctly at least once
       let unlockedLevel: number | null = null
       if (question.bloom_level < 6) {
-        // Get updated mastery data for current level
-        const { data: updatedMastery } = await supabase
-          .from('user_topic_mastery')
-          .select('mastery_score')
+        // Get dimension coverage for current level
+        const { data: dimensionCoverage } = await supabase
+          .from('user_dimension_coverage')
+          .select('dimension, average_score, times_tested')
           .eq('user_id', user.id)
+          .eq('chapter_id', session.chapter_id)
           .eq('topic_id', topicId)
           .eq('bloom_level', question.bloom_level)
-          .single()
 
-        // Check if this level now meets unlock requirements:
-        // 1. 80% mastery score
-        // 2. At least one correct answer for each of the 7 knowledge dimensions
-        if (updatedMastery && updatedMastery.mastery_score >= 80.0) {
+        // Check if all 7 dimensions have been answered correctly at least once
+        const requiredDimensions = ['definition', 'example', 'comparison', 'implementation', 'scenario', 'troubleshooting', 'pitfalls']
+        const dimensionsWithCorrectAnswer = dimensionCoverage?.filter(d => d.average_score > 0) || []
+        const coveredDimensions = new Set(dimensionsWithCorrectAnswer.map(d => d.dimension))
+        const allDimensionsCovered = requiredDimensions.every(dim => coveredDimensions.has(dim))
 
-          // Get dimension coverage for current level
-          const { data: dimensionCoverage } = await supabase
-            .from('user_dimension_coverage')
-            .select('dimension, average_score, times_tested')
+        console.log(`Dimension coverage check for topic ${topicId}, Bloom ${question.bloom_level}:`, {
+          requiredDimensions,
+          coveredDimensions: Array.from(coveredDimensions),
+          allDimensionsCovered
+        })
+
+        if (allDimensionsCovered) {
+          // Check if next level was previously locked
+          const { data: nextLevelMastery } = await supabase
+            .from('user_topic_mastery')
+            .select('questions_attempted')
             .eq('user_id', user.id)
-            .eq('chapter_id', session.chapter_id)
             .eq('topic_id', topicId)
-            .eq('bloom_level', question.bloom_level)
+            .eq('bloom_level', question.bloom_level + 1)
+            .single()
 
-          // Check if all 7 dimensions have been answered correctly at least once
-          const requiredDimensions = ['definition', 'example', 'comparison', 'implementation', 'scenario', 'troubleshooting', 'pitfalls']
-          const dimensionsWithCorrectAnswer = dimensionCoverage?.filter(d => d.average_score > 0) || []
-          const coveredDimensions = new Set(dimensionsWithCorrectAnswer.map(d => d.dimension))
-          const allDimensionsCovered = requiredDimensions.every(dim => coveredDimensions.has(dim))
-
-          console.log(`Dimension coverage check for topic ${topicId}, Bloom ${question.bloom_level}:`, {
-            requiredDimensions,
-            coveredDimensions: Array.from(coveredDimensions),
-            allDimensionsCovered,
-            masteryScore: updatedMastery.mastery_score
-          })
-
-          if (allDimensionsCovered) {
-            // Check if next level was previously locked
-            const { data: nextLevelMastery } = await supabase
-              .from('user_topic_mastery')
-              .select('questions_attempted')
-              .eq('user_id', user.id)
-              .eq('topic_id', topicId)
-              .eq('bloom_level', question.bloom_level + 1)
-              .single()
-
-            // If next level doesn't exist yet or has 0 attempts, it's newly unlocked
-            if (!nextLevelMastery || nextLevelMastery.questions_attempted === 0) {
-              unlockedLevel = question.bloom_level + 1
-              console.log(`🎉 Unlocked Bloom Level ${unlockedLevel} for topic ${topicId} - All dimensions mastered!`)
-            }
-          } else {
-            const missingDimensions = requiredDimensions.filter(dim => !coveredDimensions.has(dim))
-            console.log(`⏳ Cannot unlock next level yet - missing correct answers for: ${missingDimensions.join(', ')}`)
+          // If next level doesn't exist yet or has 0 attempts, it's newly unlocked
+          if (!nextLevelMastery || nextLevelMastery.questions_attempted === 0) {
+            unlockedLevel = question.bloom_level + 1
+            console.log(`🎉 Unlocked Bloom Level ${unlockedLevel} for topic ${topicId} - All dimensions mastered!`)
           }
+        } else {
+          const missingDimensions = requiredDimensions.filter(dim => !coveredDimensions.has(dim))
+          console.log(`⏳ Cannot unlock next level yet - missing correct answers for: ${missingDimensions.join(', ')}`)
         }
       }
 
@@ -333,28 +291,19 @@ export async function POST(request: NextRequest) {
       const topicFullName = topicData?.full_name || topicName
       const topicDepth = topicData?.depth || 0
 
-      // Store mastery update
-      masteryUpdates.push({
+      // Store reward breakdown for this topic (including unlock info)
+      rewardsByTopic.push({
         topic_id: topicId,
         topic_name: topicName,
         topic_full_name: topicFullName,
         topic_depth: topicDepth,
         bloom_level: question.bloom_level,
-        old_mastery: Math.round(currentMastery * 10) / 10,
-        new_mastery: Math.round(newMastery * 10) / 10,
-        change: Math.round(learningGain * 10) / 10,
-        unlocked_level: unlockedLevel  // Will be null or the newly unlocked Bloom level
-      })
-
-      // Store reward breakdown for this topic
-      rewardsByTopic.push({
-        topic_id: topicId,
-        topic_name: topicName,
         reward_components: rewardComponents,
         current_streak: currentStreak,
         new_streak: newStreak,
         days_since_last_practice: daysSince,
-        is_first_practice: !masteryData?.last_practiced_at
+        is_first_practice: !masteryData?.last_practiced_at,
+        unlocked_level: unlockedLevel  // Will be null or the newly unlocked Bloom level
       })
 
       totalReward += rewardComponents.total
@@ -586,8 +535,7 @@ export async function POST(request: NextRequest) {
       reading_time_breakdown: readingTimeBreakdown, // { readingTime, thinkingTime }
 
       // Multi-topic support
-      mastery_updates: masteryUpdates, // Array of all core topics
-      rewards_by_topic: rewardsByTopic, // Individual rewards per topic
+      rewards_by_topic: rewardsByTopic, // Individual rewards per topic (includes unlocked_level)
       related_topics: relatedTopicsWithHierarchy, // Display only with hierarchy info
       total_reward: totalReward, // Combined total
 
@@ -597,7 +545,7 @@ export async function POST(request: NextRequest) {
       new_streak: rewardsByTopic[0]?.new_streak,
       days_since_last_practice: rewardsByTopic[0]?.days_since_last_practice,
       is_first_practice: rewardsByTopic[0]?.is_first_practice,
-      mastery_update: masteryUpdates[0],
+      unlocked_level: rewardsByTopic[0]?.unlocked_level, // Newly unlocked Bloom level (if any)
 
       session_progress: {
         questions_answered: newQuestionsAnswered,
