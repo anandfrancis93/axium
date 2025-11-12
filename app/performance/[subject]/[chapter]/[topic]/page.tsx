@@ -155,8 +155,8 @@ export default function TopicMasteryPage() {
                 const qualityScore = (rewardComponents.calibration + rewardComponents.recognition) / 2.0
                 const learningGain = qualityScore * bloomMultiplier
 
-                // Update mastery (allow negative, cap at 100)
-                currentMastery = Math.min(100, currentMastery + learningGain)
+                // Update mastery (allow negative, cap at -100 and 100)
+                currentMastery = Math.max(-100, Math.min(100, currentMastery + learningGain))
               } else {
                 // Fallback to simplified calculation if no reward components
                 const currentScore = r.is_correct ? 100 : 0
@@ -230,33 +230,41 @@ export default function TopicMasteryPage() {
 
           setUniqueQuestions(Array.from(uniqueQuestionsMap.values()))
 
-          // Calculate EMA-based mastery for each dimension × Bloom level cell
+          // Calculate mastery for each dimension × Bloom level cell using reward components
           // Group responses by bloom_level and dimension
-          const cellEMAMap = new Map<string, number>()
-          const cellAlpha = 0.3 // EMA smoothing factor for cell calculations
+          const cellMasteryMap = new Map<string, number>()
 
           responses.forEach((r: any) => {
             const dimension = r.questions?.dimension || 'unknown'
             const bloomLevel = r.bloom_level
             const cellKey = `${bloomLevel}-${dimension}`
 
-            const currentScore = r.is_correct ? 100 : 0
-            const existingEMA = cellEMAMap.get(cellKey)
+            // Get reward components for accurate mastery calculation
+            const rewardComponents = rewardComponentsMap.get(r.id)
+            let learningGain = 0
 
-            if (existingEMA === undefined) {
-              // First response for this cell
-              cellEMAMap.set(cellKey, currentScore)
+            if (rewardComponents && rewardComponents.calibration !== undefined && rewardComponents.recognition !== undefined) {
+              // Calculate learning gain using actual reward formula
+              const bloomMultiplier = bloomLevel >= 4 ? 9 : 10
+              const qualityScore = (rewardComponents.calibration + rewardComponents.recognition) / 2.0
+              learningGain = qualityScore * bloomMultiplier
             } else {
-              // Update EMA: new_ema = cellAlpha * current + (1-cellAlpha) * old
-              const newEMA = cellAlpha * currentScore + (1 - cellAlpha) * existingEMA
-              cellEMAMap.set(cellKey, newEMA)
+              // Fallback to simplified calculation if no reward components
+              const currentScore = r.is_correct ? 100 : 0
+              const alpha = 0.3
+              const existingMastery = cellMasteryMap.get(cellKey) || 0
+              learningGain = alpha * currentScore + (1 - alpha) * existingMastery - existingMastery
             }
+
+            const currentMastery = cellMasteryMap.get(cellKey) || 0
+            const newMastery = Math.max(-100, Math.min(100, currentMastery + learningGain))
+            cellMasteryMap.set(cellKey, newMastery)
           })
 
-          // Update matrix data with EMA scores
+          // Update matrix data with mastery scores
           enhancedMatrix = enhancedMatrix.map((cell: any) => ({
             ...cell,
-            average_score: cellEMAMap.get(`${cell.bloom_level}-${cell.dimension}`) || cell.average_score
+            average_score: cellMasteryMap.get(`${cell.bloom_level}-${cell.dimension}`) || cell.average_score
           }))
         }
       }
@@ -332,7 +340,7 @@ export default function TopicMasteryPage() {
                    status === 'struggling' ? 30 : 0)
 
     // Color based on score, not data sufficiency
-    if (score < 0) return 'text-red-900' // Needs Review (negative)
+    if (score < 0) return 'text-red-400' // Needs Review (negative)
     if (masteryLevel === 'deep' || (uniqueCount >= 5 && score >= 80)) {
       return 'text-green-700'
     }
