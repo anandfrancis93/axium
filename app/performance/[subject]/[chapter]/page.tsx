@@ -1033,7 +1033,7 @@ export default function PerformancePage() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-2">
                               <div className="text-base font-medium text-gray-200 truncate">
-                                {item.topicFullName}
+                                {item.topicName}
                               </div>
                               <div className="neuro-inset px-2 py-0.5 rounded text-xs text-blue-400 whitespace-nowrap">
                                 Bloom L{item.bloomLevel}
