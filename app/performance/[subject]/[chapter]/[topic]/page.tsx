@@ -34,9 +34,11 @@ export default function TopicMasteryPage() {
   const [currentBloomLevel, setCurrentBloomLevel] = useState<number>(1)
   const [dimensionStats, setDimensionStats] = useState<any[]>([])
   const [bloomLevelStats, setBloomLevelStats] = useState<Record<number, any>>({})
+  const [bloomLevelDimensions, setBloomLevelDimensions] = useState<Record<number, any[]>>({})
   const [masteryTrendData, setMasteryTrendData] = useState<any[]>([])
   const [uniqueQuestions, setUniqueQuestions] = useState<any[]>([])
   const [activeTab, setActiveTab] = useState<'current' | 'all-levels' | 'trend' | 'history'>('current')
+  const [selectedBloomLevel, setSelectedBloomLevel] = useState<number | null>(null)
 
   useEffect(() => {
     loadData()
@@ -261,6 +263,7 @@ export default function TopicMasteryPage() {
 
         // Calculate stats for ALL Bloom levels
         const bloomStats: Record<number, any> = {}
+        const bloomDimensions: Record<number, any[]> = {}
 
         BLOOM_LEVELS.forEach(level => {
           const levelResponses = responses.filter((r: any) => r.bloom_level === level.num)
@@ -272,12 +275,16 @@ export default function TopicMasteryPage() {
               rawAccuracy: null,
               status: 'locked'
             }
+            bloomDimensions[level.num] = []
             return
           }
 
           let highConfCorrect = 0
           let highConfTotal = 0
           let totalCorrect = 0
+
+          // Calculate dimension stats for this Bloom level
+          const levelDimensionStatsMap = new Map<string, any>()
 
           levelResponses.forEach((r: any) => {
             const confidence = r.confidence || 0
@@ -292,6 +299,40 @@ export default function TopicMasteryPage() {
             } else if (r.is_correct) {
               totalCorrect++
             }
+
+            // Track dimension stats for this level
+            const dimension = r.questions?.dimension || 'unknown'
+            if (!levelDimensionStatsMap.has(dimension)) {
+              levelDimensionStatsMap.set(dimension, {
+                dimension,
+                highConfidenceCorrect: 0,
+                highConfidenceTotal: 0,
+                lowConfidenceCorrect: 0,
+                wrongAnswers: 0,
+                totalCorrect: 0,
+                totalAttempts: 0
+              })
+            }
+
+            const dimStats = levelDimensionStatsMap.get(dimension)
+            dimStats.totalAttempts++
+
+            if (isHighConfidence) {
+              dimStats.highConfidenceTotal++
+              if (r.is_correct) {
+                dimStats.highConfidenceCorrect++
+                dimStats.totalCorrect++
+              } else {
+                dimStats.wrongAnswers++
+              }
+            } else {
+              if (r.is_correct) {
+                dimStats.lowConfidenceCorrect++
+                dimStats.totalCorrect++
+              } else {
+                dimStats.wrongAnswers++
+              }
+            }
           })
 
           bloomStats[level.num] = {
@@ -302,9 +343,24 @@ export default function TopicMasteryPage() {
                     highConfTotal > 0 && (highConfCorrect / highConfTotal) * 100 >= 80 ? 'mastered' :
                     'progressing'
           }
+
+          bloomDimensions[level.num] = Array.from(levelDimensionStatsMap.values()).map(stats => ({
+            dimension: stats.dimension,
+            mastery: stats.highConfidenceTotal > 0
+              ? (stats.highConfidenceCorrect / stats.highConfidenceTotal) * 100
+              : 0,
+            rawAccuracy: stats.totalAttempts > 0
+              ? (stats.totalCorrect / stats.totalAttempts) * 100
+              : 0,
+            highConfidenceCorrect: stats.highConfidenceCorrect,
+            highConfidenceTotal: stats.highConfidenceTotal,
+            lowConfidenceCorrect: stats.lowConfidenceCorrect,
+            wrongAnswers: stats.wrongAnswers
+          }))
         })
 
         setBloomLevelStats(bloomStats)
+        setBloomLevelDimensions(bloomDimensions)
       }
 
       setLoading(false)
@@ -421,56 +477,105 @@ export default function TopicMasteryPage() {
 
           {/* All Bloom Levels Summary */}
           {activeTab === 'all-levels' && (
-            <div className="neuro-raised">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="neuro-inset w-10 h-10 rounded-lg flex items-center justify-center">
-                  <TrendingUpIcon size={20} className="text-blue-400" />
+            <div>
+              <div className="neuro-raised mb-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="neuro-inset w-10 h-10 rounded-lg flex items-center justify-center">
+                    <TrendingUpIcon size={20} className="text-blue-400" />
+                  </div>
+                  <h2 className="text-xl font-semibold text-gray-200">
+                    All Bloom Levels
+                  </h2>
                 </div>
-                <h2 className="text-xl font-semibold text-gray-200">
-                  All Bloom Levels
-                </h2>
+
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                  {BLOOM_LEVELS.map(level => {
+                    const stats = bloomLevelStats[level.num]
+                    const isLocked = stats?.status === 'locked' || level.num > currentBloomLevel
+                    const isCurrent = level.num === currentBloomLevel
+                    const isSelected = selectedBloomLevel === level.num
+
+                    return (
+                      <button
+                        key={level.num}
+                        type="button"
+                        onClick={() => {
+                          if (!isLocked && stats?.totalAttempts > 0) {
+                            setSelectedBloomLevel(isSelected ? null : level.num)
+                          }
+                        }}
+                        disabled={isLocked || !stats?.totalAttempts}
+                        className={`neuro-card text-left transition-all ${
+                          isLocked ? 'opacity-50 cursor-not-allowed' :
+                          stats?.totalAttempts > 0 ? 'cursor-pointer hover:scale-105' :
+                          'cursor-not-allowed'
+                        } ${isSelected ? 'ring-2 ring-blue-400' : ''}`}
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="text-sm text-gray-400">L{level.num}</div>
+                          {isLocked && <LockIcon size={14} className="text-gray-600" />}
+                          {stats?.status === 'mastered' && <span className="text-green-400 text-xs">✓</span>}
+                        </div>
+                        <div className="text-xs text-gray-500 mb-2">{level.name}</div>
+                        {isLocked ? (
+                          <div className="text-xs text-gray-600">Locked</div>
+                        ) : stats?.totalAttempts > 0 ? (
+                          <>
+                            <div className={`text-2xl font-bold mb-1 ${
+                              stats.mastery >= 80 ? 'text-green-400' :
+                              stats.mastery >= 60 ? 'text-blue-400' :
+                              stats.mastery >= 40 ? 'text-yellow-400' :
+                              'text-red-400'
+                            }`}>
+                              {Math.round(stats.mastery)}%
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {stats.totalAttempts} attempt{stats.totalAttempts === 1 ? '' : 's'}
+                            </div>
+                          </>
+                        ) : (
+                          <div className="text-xs text-gray-600">Not tested</div>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                {BLOOM_LEVELS.map(level => {
-                  const stats = bloomLevelStats[level.num]
-                  const isLocked = stats?.status === 'locked' || level.num > currentBloomLevel
-                  const isCurrent = level.num === currentBloomLevel
-
-                  return (
-                    <div
-                      key={level.num}
-                      className={`neuro-card ${isLocked ? 'opacity-50' : ''}`}
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="text-sm text-gray-400">L{level.num}</div>
-                        {isLocked && <LockIcon size={14} className="text-gray-600" />}
-                        {stats?.status === 'mastered' && <span className="text-green-400 text-xs">✓</span>}
+              {/* Selected Bloom Level Dimensions */}
+              {selectedBloomLevel && bloomLevelDimensions[selectedBloomLevel]?.length > 0 && (
+                <div className="neuro-raised">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="neuro-inset w-10 h-10 rounded-lg flex items-center justify-center">
+                        <InfoIcon size={20} className="text-blue-400" />
                       </div>
-                      <div className="text-xs text-gray-500 mb-2">{level.name}</div>
-                      {isLocked ? (
-                        <div className="text-xs text-gray-600">Locked</div>
-                      ) : stats?.totalAttempts > 0 ? (
-                        <>
-                          <div className={`text-2xl font-bold mb-1 ${
-                            stats.mastery >= 80 ? 'text-green-400' :
-                            stats.mastery >= 60 ? 'text-blue-400' :
-                            stats.mastery >= 40 ? 'text-yellow-400' :
-                            'text-red-400'
-                          }`}>
-                            {Math.round(stats.mastery)}%
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {stats.totalAttempts} attempt{stats.totalAttempts === 1 ? '' : 's'}
-                          </div>
-                        </>
-                      ) : (
-                        <div className="text-xs text-gray-600">Not tested</div>
-                      )}
+                      <div>
+                        <h2 className="text-xl font-semibold text-gray-200">
+                          Bloom Level {selectedBloomLevel} Dimensions
+                        </h2>
+                        <p className="text-sm text-gray-400">
+                          {BLOOM_LEVELS.find(l => l.num === selectedBloomLevel)?.name}
+                        </p>
+                      </div>
                     </div>
-                  )
-                })}
-              </div>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedBloomLevel(null)}
+                      className="neuro-btn text-gray-400 text-sm"
+                    >
+                      Close
+                    </button>
+                  </div>
+
+                  <ChapterMasteryOverview
+                    topicName={topic}
+                    bloomLevel={selectedBloomLevel}
+                    dimensions={bloomLevelDimensions[selectedBloomLevel]}
+                    unlockThreshold={80}
+                  />
+                </div>
+              )}
             </div>
           )}
 
