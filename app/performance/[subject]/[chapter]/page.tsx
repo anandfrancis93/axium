@@ -1033,12 +1033,16 @@ export default function PerformancePage() {
                             </div>
 
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
-                              <Tooltip content={`Last practiced ${new Date(item.lastPracticed).toLocaleDateString()}`}>
+                              <Tooltip content={`Last practiced ${new Date(item.lastPracticed).toLocaleDateString()} ${new Date(item.lastPracticed).toLocaleTimeString()}`}>
                                 <div className="flex flex-col cursor-help">
                                   <span className="text-gray-500">Last Practice</span>
                                   <span className={`font-medium ${urgencyColor}`}>
                                     {item.daysSince === 0
-                                      ? 'Today'
+                                      ? item.hoursSince === 0
+                                        ? 'Just now'
+                                        : item.hoursSince === 1
+                                          ? '1 hour ago'
+                                          : `${item.hoursSince} hours ago`
                                       : item.daysSince === 1
                                         ? '1 day ago'
                                         : item.daysSince < 7
