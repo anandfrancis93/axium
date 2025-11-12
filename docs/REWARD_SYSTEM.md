@@ -60,6 +60,27 @@ The reward system evaluates both **what** the student learned (correctness, mast
 - Different from confidence (self-assessment vs. retrieval method)
 - Used in recognition reward component
 
+### Recognition Reward Breakdown
+
+**All possible combinations and their rewards:**
+
+| Answer Correctness | Recognition Method | Points | Interpretation |
+|-------------------|-------------------|--------|----------------|
+| ✅ **Correct** | Memory | **+3** | Best - Knew from memory, strong retrieval |
+| ✅ **Correct** | Recognition | **+2** | Good - Recognized correct answer |
+| ✅ **Correct** | Educated Guess | **+1** | Fair - Narrowed down and guessed correctly |
+| ✅ **Correct** | Random | **0** | Lucky - No credit for random guess |
+| ❌ **Incorrect** | Memory | **-4** | Worst - False memory (thought they knew but wrong) |
+| ❌ **Incorrect** | Recognition | **-3** | Bad - Misrecognized (thought they recognized but wrong) |
+| ❌ **Incorrect** | Educated Guess | **-2** | Poor - Educated guess was wrong |
+| ❌ **Incorrect** | Random | **-1** | Expected - Honest about not knowing |
+
+**Key Insights:**
+- **Correct answers:** Rewarded based on retrieval strength (memory best, random no credit)
+- **Incorrect answers:** Penalized based on overconfidence (false memory worst, honest random least penalty)
+- **Honesty pays:** Random guess when incorrect = minimal penalty (-1)
+- **False confidence hurts:** Memory when incorrect = maximum penalty (-4)
+
 **Code Reference:** `lib/rl/rewards.ts:107-143`
 
 ---
