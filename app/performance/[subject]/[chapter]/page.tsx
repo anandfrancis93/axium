@@ -413,21 +413,6 @@ export default function PerformancePage() {
                       <div className="text-gray-500">
                         Level: <span className="text-blue-400 font-medium">L{topic.currentBloomLevel}</span>
                       </div>
-                      {topic.overallMastery !== null && (
-                        <Tooltip content="Based on high-confidence (4-5) correct answers only">
-                          <div className="text-gray-500">
-                            Mastery: <span className={`font-semibold ${
-                              topic.overallMastery >= 80 ? 'text-green-400' :
-                              topic.overallMastery >= 60 ? 'text-blue-400' :
-                              topic.overallMastery >= 40 ? 'text-yellow-400' :
-                              topic.overallMastery >= 0 ? 'text-red-500' :
-                              'text-red-400'
-                            }`}>
-                              {Math.round(topic.overallMastery)}%
-                            </span>
-                          </div>
-                        </Tooltip>
-                      )}
                       {topic.overallRawAccuracy !== null && (
                         <Tooltip content="Includes all attempts regardless of confidence">
                           <div className="text-gray-500">
@@ -496,21 +481,6 @@ export default function PerformancePage() {
                       <div className="text-gray-500">
                         Level: <span className="text-blue-400 font-medium">L{topic.currentBloomLevel}</span>
                       </div>
-                      {topic.overallMastery !== null && (
-                        <Tooltip content="Based on high-confidence (4-5) correct answers only">
-                          <div className="text-gray-500">
-                            Mastery: <span className={`font-semibold ${
-                              topic.overallMastery >= 80 ? 'text-green-400' :
-                              topic.overallMastery >= 60 ? 'text-blue-400' :
-                              topic.overallMastery >= 40 ? 'text-yellow-400' :
-                              topic.overallMastery >= 0 ? 'text-red-500' :
-                              'text-red-400'
-                            }`}>
-                              {Math.round(topic.overallMastery)}%
-                            </span>
-                          </div>
-                        </Tooltip>
-                      )}
                       {topic.overallRawAccuracy !== null && (
                         <Tooltip content="Includes all attempts regardless of confidence">
                           <div className="text-gray-500">
