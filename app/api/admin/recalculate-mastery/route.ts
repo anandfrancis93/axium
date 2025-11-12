@@ -166,6 +166,7 @@ export async function POST() {
         const questionsAttempted = group.responses.length
 
         // Upsert user_topic_mastery with recalculated score
+        // Note: onConflict is omitted - Supabase will auto-detect from UNIQUE constraint
         const { error: updateError } = await supabase
           .from('user_topic_mastery')
           .upsert({
@@ -179,8 +180,6 @@ export async function POST() {
             questions_correct: questionsCorrect,
             last_practiced_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
-          }, {
-            onConflict: 'user_id,topic,bloom_level,chapter_id'
           })
 
         if (updateError) {
