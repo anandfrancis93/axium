@@ -2,11 +2,24 @@
 
 ## Overview
 
-Axium uses a multi-component reward function to optimize learning through Reinforcement Learning. The system balances six key dimensions to guide students toward effective learning strategies.
+Axium uses a multi-component reward function to optimize learning through Reinforcement Learning. The system balances six key dimensions to guide students toward effective learning strategies, plus an intermediate **Quality Score** calculation that determines learning gain.
 
 **Total Reward Range:** -21 to +35 points
 
 The reward system evaluates both **what** the student learned (correctness, mastery gain) and **how** they learned it (confidence calibration, retrieval method, spacing, response time).
+
+### The 7 Components
+
+**6 Visible Reward Components:**
+1. Learning Gain (-10 to +10) - Improvement in mastery
+2. Calibration (-3 to +3) - Accuracy of self-assessment
+3. Spacing (0 to +5) - Retention over time
+4. Recognition (-4 to +3) - Retrieval method strength
+5. Response Time (-3 to +5) - Retrieval fluency
+6. Streak (0 to +5) - Consecutive correct answers
+
+**1 Intermediate Calculation:**
+7. Quality Score (-3.5 to +3) - Determines learning gain magnitude
 
 ---
 
@@ -48,6 +61,71 @@ The reward system evaluates both **what** the student learned (correctness, mast
 - Used in recognition reward component
 
 **Code Reference:** `lib/rl/rewards.ts:107-143`
+
+---
+
+## Quality Score (Intermediate Calculation)
+
+**Range:** -3.5 to +3
+
+**Purpose:** Measures the quality of learning by combining calibration and recognition
+
+**Formula:**
+```
+Quality Score = (Calibration Reward + Recognition Reward) / 2
+```
+
+**How It Works:**
+
+Quality Score is not shown directly to users, but is used internally to calculate the **Learning Gain** reward component. It represents how well the student learned based on:
+
+1. **Calibration** - How accurately they assessed their own knowledge
+2. **Recognition** - How strong their retrieval method was
+
+### Quality Score → Learning Gain
+
+```
+Learning Gain = Quality Score × Bloom Multiplier
+```
+
+**Bloom Level Multipliers:**
+
+| Bloom Level | Multiplier | Rationale |
+|-------------|-----------|-----------|
+| 1-3 (Remember, Understand, Apply) | 10× | Lower levels require ~5 perfect answers for 80% mastery |
+| 4-6 (Analyze, Evaluate, Create) | 9× | Higher levels require ~3 perfect answers for 80% mastery |
+
+### Examples
+
+**Example 1: Perfect Answer**
+- Calibration: +3 (High confidence + Correct)
+- Recognition: +3 (Memory retrieval)
+- **Quality Score:** (3 + 3) / 2 = **+3**
+- **Learning Gain (Bloom L1):** 3 × 10 = **+30 mastery points**
+- **Learning Gain (Bloom L4):** 3 × 9 = **+27 mastery points**
+
+**Example 2: Overconfident Mistake**
+- Calibration: -3 (High confidence + Incorrect)
+- Recognition: -4 (False memory)
+- **Quality Score:** (-3 + -4) / 2 = **-3.5**
+- **Learning Gain (Bloom L1):** -3.5 × 10 = **-35 mastery points**
+- **Learning Gain (Bloom L4):** -3.5 × 9 = **-31.5 mastery points**
+
+**Example 3: Honest Uncertainty**
+- Calibration: -1 (Low confidence + Incorrect)
+- Recognition: -1 (Random guess, honest)
+- **Quality Score:** (-1 + -1) / 2 = **-1**
+- **Learning Gain (Bloom L1):** -1 × 10 = **-10 mastery points**
+- **Learning Gain (Bloom L4):** -1 × 9 = **-9 mastery points**
+
+**Example 4: Underconfident Success**
+- Calibration: +1 (Low confidence + Correct)
+- Recognition: +1 (Educated guess)
+- **Quality Score:** (1 + 1) / 2 = **+1**
+- **Learning Gain (Bloom L1):** 1 × 10 = **+10 mastery points**
+- **Learning Gain (Bloom L4):** 1 × 9 = **+9 mastery points**
+
+**Code Reference:** `lib/rl/mastery.ts:25-42`
 
 ---
 
@@ -238,16 +316,18 @@ Total Reward = Learning Gain + Calibration + Spacing + Recognition + Response Ti
 
 ---
 
-## Key Differences: Confidence vs. Recognition
+## Key Differences: Confidence vs. Recognition vs. Quality Score
 
-| Aspect | Confidence | Recognition |
-|--------|-----------|-------------|
-| **When Collected** | Before answering | After answering |
-| **What It Measures** | Self-assessment accuracy | Retrieval strength |
-| **Purpose** | Encourage metacognition | Measure memory quality |
-| **Values** | Low (2), Medium (3), High (4) | Memory, Recognition, Educated Guess, Random |
-| **Related Reward** | Calibration Reward | Recognition Reward |
-| **Reward Range** | -3 to +3 | -4 to +3 |
+| Aspect | Confidence | Recognition | Quality Score |
+|--------|-----------|-------------|---------------|
+| **When Calculated** | Before answering | After answering | After answering (intermediate) |
+| **What It Measures** | Self-assessment accuracy | Retrieval strength | Overall learning quality |
+| **Purpose** | Encourage metacognition | Measure memory quality | Calculate mastery gain |
+| **Values** | Low (2), Medium (3), High (4) | Memory, Recognition, Educated Guess, Random | Average of calibration + recognition |
+| **Related Reward** | Calibration Reward | Recognition Reward | Learning Gain Reward |
+| **Range** | -3 to +3 | -4 to +3 | -3.5 to +3 |
+| **Visible to User** | Yes (input field) | Yes (input field) | No (internal calculation) |
+| **Used In** | Reward breakdown, calibration reward | Reward breakdown, recognition reward | Mastery score updates |
 
 ---
 
@@ -257,12 +337,13 @@ Total Reward = Learning Gain + Calibration + Spacing + Recognition + Response Ti
 - **Correct answer:** Yes
 - **Confidence:** High (4) → Calibration: +3
 - **Recognition:** Memory → Recognition: +3
+- **Quality Score:** (3 + 3) / 2 = +3
 - **Days since last practice:** 8 → Spacing: +5
 - **Thinking time:** 3s (Bloom L1, very fast) → Response Time: +5
 - **Streak:** 6 in a row → Streak: +3
-- **Learning gain:** +20 → Learning Gain: +2
+- **Learning gain:** Quality Score (3) × Bloom Multiplier (10) = +30 mastery points → Learning Gain: +3 (normalized for reward)
 
-**Total Reward:** +21 (highly rewarded!)
+**Total Reward:** +22 (highly rewarded!)
 
 ---
 
@@ -270,12 +351,13 @@ Total Reward = Learning Gain + Calibration + Spacing + Recognition + Response Ti
 - **Correct answer:** No
 - **Confidence:** High (4) → Calibration: -3 (overconfident)
 - **Recognition:** Memory → Recognition: -4 (false memory)
+- **Quality Score:** (-3 + -4) / 2 = -3.5
 - **Days since last practice:** N/A → Spacing: 0
 - **Thinking time:** 2s (too fast, careless) → Response Time: -3
 - **Streak:** Reset to 0 → Streak: 0
-- **Learning gain:** -15 → Learning Gain: -1.5
+- **Learning gain:** Quality Score (-3.5) × Bloom Multiplier (10) = -35 mastery points → Learning Gain: -3.5 (normalized for reward)
 
-**Total Reward:** -11.5 (strongly discouraged)
+**Total Reward:** -10 (strongly discouraged)
 
 ---
 
@@ -283,12 +365,13 @@ Total Reward = Learning Gain + Calibration + Spacing + Recognition + Response Ti
 - **Correct answer:** No
 - **Confidence:** Low (2) → Calibration: -1 (good uncertainty)
 - **Recognition:** Random → Recognition: -1 (honest about not knowing)
+- **Quality Score:** (-1 + -1) / 2 = -1
 - **Days since last practice:** N/A → Spacing: 0
 - **Thinking time:** 25s (took time to think) → Response Time: 0
 - **Streak:** Reset to 0 → Streak: 0
-- **Learning gain:** -5 → Learning Gain: -0.5
+- **Learning gain:** Quality Score (-1) × Bloom Multiplier (10) = -10 mastery points → Learning Gain: -1 (normalized for reward)
 
-**Total Reward:** -2.5 (minimal penalty for honest attempt)
+**Total Reward:** -2 (minimal penalty for honest attempt)
 
 ---
 
@@ -296,12 +379,13 @@ Total Reward = Learning Gain + Calibration + Spacing + Recognition + Response Ti
 - **Correct answer:** Yes
 - **Confidence:** Low (2) → Calibration: +1 (underconfident)
 - **Recognition:** Educated Guess → Recognition: +1
+- **Quality Score:** (1 + 1) / 2 = +1
 - **Days since last practice:** 4 → Spacing: +3
 - **Thinking time:** 18s (Bloom L2, good pace) → Response Time: +3
 - **Streak:** 3 in a row → Streak: +2
-- **Learning gain:** +12 → Learning Gain: +1.2
+- **Learning gain:** Quality Score (1) × Bloom Multiplier (10) = +10 mastery points → Learning Gain: +1 (normalized for reward)
 
-**Total Reward:** +11.2 (rewarded despite low confidence)
+**Total Reward:** +11 (rewarded despite low confidence)
 
 ---
 
