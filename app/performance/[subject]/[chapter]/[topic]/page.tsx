@@ -11,6 +11,7 @@ import { getAllRLPhasesData } from '@/lib/utils/rl-phase'
 import { Tooltip } from '@/components/Tooltip'
 import { LockIcon, TrashIcon } from '@/components/icons'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Area, AreaChart, ReferenceLine } from 'recharts'
+import { ChapterMasteryOverview } from '@/components/ChapterMasteryOverview'
 
 const BLOOM_LEVELS = [
   { num: 1, name: 'Remember' },
@@ -34,9 +35,10 @@ export default function TopicMasteryPage() {
   const [chapterData, setChapterData] = useState<any>(null)
   const [rlPhase, setRlPhase] = useState<string | null>(null)
   const [currentBloomLevel, setCurrentBloomLevel] = useState<number>(1)
-  const [activeTab, setActiveTab] = useState<'matrix' | 'stats' | 'masteryTrend' | 'questionHistory'>('matrix')
+  const [activeTab, setActiveTab] = useState<'matrix' | 'stats' | 'masteryTrend' | 'questionHistory' | 'dimensions'>('matrix')
   const [uniqueQuestions, setUniqueQuestions] = useState<any[]>([])
   const [masteryTrendData, setMasteryTrendData] = useState<any[]>([])
+  const [dimensionStats, setDimensionStats] = useState<any[]>([])
   const [showResetModal, setShowResetModal] = useState(false)
   const [resetBloomLevel, setResetBloomLevel] = useState<number | null>(null)
   const [resetting, setResetting] = useState(false)
@@ -229,6 +231,68 @@ export default function TopicMasteryPage() {
           })
 
           setUniqueQuestions(Array.from(uniqueQuestionsMap.values()))
+
+          // Calculate dimension stats for current Bloom level
+          const dimensionStatsMap = new Map<string, any>()
+
+          responses.forEach((r: any) => {
+            // Only count responses for current Bloom level
+            if (r.bloom_level !== currentBloomLevel) return
+
+            const dimension = r.questions?.dimension || 'unknown'
+            const isCorrect = r.is_correct
+            const confidence = r.confidence || 0
+            const isHighConfidence = confidence >= 4
+
+            if (!dimensionStatsMap.has(dimension)) {
+              dimensionStatsMap.set(dimension, {
+                dimension,
+                highConfidenceCorrect: 0,
+                highConfidenceTotal: 0,
+                lowConfidenceCorrect: 0,
+                wrongAnswers: 0,
+                totalCorrect: 0,
+                totalAttempts: 0
+              })
+            }
+
+            const stats = dimensionStatsMap.get(dimension)
+            stats.totalAttempts++
+
+            if (isHighConfidence) {
+              stats.highConfidenceTotal++
+              if (isCorrect) {
+                stats.highConfidenceCorrect++
+                stats.totalCorrect++
+              } else {
+                stats.wrongAnswers++
+              }
+            } else {
+              if (isCorrect) {
+                stats.lowConfidenceCorrect++
+                stats.totalCorrect++
+              } else {
+                stats.wrongAnswers++
+              }
+            }
+          })
+
+          // Calculate mastery and raw accuracy for each dimension
+          const dimensionStatsArray = Array.from(dimensionStatsMap.values()).map(stats => ({
+            dimension: stats.dimension,
+            mastery: stats.highConfidenceTotal > 0
+              ? (stats.highConfidenceCorrect / stats.highConfidenceTotal) * 100
+              : 0,
+            rawAccuracy: stats.totalAttempts > 0
+              ? (stats.totalCorrect / stats.totalAttempts) * 100
+              : 0,
+            highConfidenceCorrect: stats.highConfidenceCorrect,
+            highConfidenceTotal: stats.highConfidenceTotal,
+            lowConfidenceCorrect: stats.lowConfidenceCorrect,
+            wrongAnswers: stats.wrongAnswers
+          }))
+
+          setDimensionStats(dimensionStatsArray)
 
           // Calculate mastery for each dimension × Bloom level cell using reward components
           // Group responses by bloom_level and dimension
@@ -479,6 +543,16 @@ export default function TopicMasteryPage() {
               }`}
             >
               Question History
+            </button>
+          )}
+          {dimensionStats.length > 0 && (
+            <button
+              onClick={() => setActiveTab('dimensions')}
+              className={`neuro-btn px-6 py-3 whitespace-nowrap transition-colors ${
+                activeTab === 'dimensions' ? 'text-blue-400' : 'text-gray-400'
+              }`}
+            >
+              Dimension Breakdown
             </button>
           )}
         </div>
@@ -931,6 +1005,36 @@ export default function TopicMasteryPage() {
                   </div>
                   <div className="text-sm text-gray-600">
                     Start learning this topic to see your question history here
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Dimension Breakdown Tab */}
+          {activeTab === 'dimensions' && (
+            <div>
+              {dimensionStats.length > 0 ? (
+                <div className="space-y-4">
+                  <div className="text-sm text-gray-400 mb-6">
+                    Your mastery performance across all knowledge dimensions for <strong className="text-gray-200">{topic}</strong> at <strong className="text-blue-400">Bloom Level {currentBloomLevel}</strong>.
+                    Mastery is calculated based on high-confidence (4-5) correct answers, while raw accuracy includes all attempts.
+                  </div>
+
+                  <ChapterMasteryOverview
+                    topicName={topic}
+                    bloomLevel={currentBloomLevel}
+                    dimensions={dimensionStats}
+                    unlockThreshold={80}
+                  />
+                </div>
+              ) : (
+                <div className="neuro-inset p-8 rounded-lg text-center">
+                  <div className="text-gray-400 text-lg font-semibold mb-2">
+                    No Dimension Data Yet
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Answer questions at Bloom Level {currentBloomLevel} to see dimension breakdown
                   </div>
                 </div>
               )}
