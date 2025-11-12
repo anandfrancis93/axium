@@ -92,12 +92,13 @@ export async function POST() {
       const groupedResponses = new Map()
 
       responses.forEach((response: any) => {
+        const topicId = response.topic_id
         const topicName = response.topics?.name
         const chapterId = response.topics?.chapter_id
         const subjectId = response.topics?.chapters?.subject_id
 
-        if (!topicName || !chapterId || !subjectId) {
-          console.log(`  Skipping response - missing data:`, { topicName, chapterId, subjectId })
+        if (!topicId || !topicName || !chapterId || !subjectId) {
+          console.log(`  Skipping response - missing data:`, { topicId, topicName, chapterId, subjectId })
           return
         }
 
@@ -105,6 +106,7 @@ export async function POST() {
         if (!groupedResponses.has(key)) {
           groupedResponses.set(key, {
             userId,
+            topicId,
             topicName,
             bloomLevel: response.bloom_level,
             chapterId,
@@ -171,6 +173,7 @@ export async function POST() {
           .from('user_topic_mastery')
           .upsert({
             user_id: group.userId,
+            topic_id: group.topicId,
             topic: group.topicName,
             bloom_level: group.bloomLevel,
             chapter_id: group.chapterId,
@@ -186,6 +189,7 @@ export async function POST() {
           console.error(`Error upserting mastery for ${key}:`, updateError)
           console.error(`  Attempted to upsert:`, {
             user_id: group.userId,
+            topic_id: group.topicId,
             topic: group.topicName,
             bloom_level: group.bloomLevel,
             chapter_id: group.chapterId,
