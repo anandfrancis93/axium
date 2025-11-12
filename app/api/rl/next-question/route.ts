@@ -633,23 +633,42 @@ export async function POST(request: NextRequest) {
       // Force spaced repetition: Select most overdue topic
       selectionMethod = 'forced_spacing'
 
-      // Sort by days overdue (daysSince - optimalInterval)
+      // Sort by priority: negative mastery first (struggling topics), then by days overdue
       overdueTopics.sort((a, b) => {
+        // PRIORITY 1: Negative mastery topics first (most struggling)
+        const aNegative = a.mastery < 0
+        const bNegative = b.mastery < 0
+
+        if (aNegative && !bNegative) return -1  // a (negative) comes first
+        if (!aNegative && bNegative) return 1   // b (negative) comes first
+
+        // PRIORITY 2: Among negative mastery, sort by lowest score
+        if (aNegative && bNegative) {
+          return a.mastery - b.mastery  // -45% comes before -20%
+        }
+
+        // PRIORITY 3: For non-negative, use days overdue (original logic)
         const aOverdue = a.daysSince - a.optimalInterval
         const bOverdue = b.daysSince - b.optimalInterval
         return bOverdue - aOverdue // Most overdue first
       })
 
-      const mostOverdue = overdueTopics[0]
+      const highestPriority = overdueTopics[0]
       selectedArm = {
-        topicId: mostOverdue.topicId,
-        topicName: mostOverdue.topicName,
-        topicFullName: mostOverdue.topicFullName,
-        bloomLevel: mostOverdue.bloomLevel
+        topicId: highestPriority.topicId,
+        topicName: highestPriority.topicName,
+        topicFullName: highestPriority.topicFullName,
+        bloomLevel: highestPriority.bloomLevel
       }
 
-      const timeSince = formatTimeSince(mostOverdue.daysSince, mostOverdue.hoursSince % 24, mostOverdue.minutesSince % 60)
-      spacingReason = `Perfect timing for review! You last practiced this topic ${timeSince}, which is the ideal interval for your current mastery level (${mostOverdue.mastery}%). Regular practice at this stage builds strong foundations.`
+      const timeSince = formatTimeSince(highestPriority.daysSince, highestPriority.hoursSince % 24, highestPriority.minutesSince % 60)
+
+      // Customize message based on mastery level
+      if (highestPriority.mastery < 0) {
+        spacingReason = `This topic needs attention! Your mastery (${highestPriority.mastery.toFixed(0)}%) shows you're struggling here. Let's work on building a stronger foundation with focused practice.`
+      } else {
+        spacingReason = `Perfect timing for review! You last practiced this topic ${timeSince}, which is the ideal interval for your current mastery level (${highestPriority.mastery.toFixed(0)}%). Regular practice at this stage builds strong foundations.`
+      }
 
       console.log('[FORCED SPACING]', {
         topicName: selectedArm.topicName,
