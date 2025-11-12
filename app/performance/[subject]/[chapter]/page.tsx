@@ -19,9 +19,7 @@ export default function PerformancePage() {
   const [topicStats, setTopicStats] = useState<any[]>([])
   const [chapterSummary, setChapterSummary] = useState<any>(null)
   const [activeTab, setActiveTab] = useState<'overview' | 'topics'>('overview')
-  const [showStartedTopics, setShowStartedTopics] = useState(false)
-  const [showMasteredTopics, setShowMasteredTopics] = useState(false)
-  const [showQuestions, setShowQuestions] = useState(false)
+  const [expandedSection, setExpandedSection] = useState<'started' | 'mastered' | 'questions' | null>(null)
   const [allQuestions, setAllQuestions] = useState<any[]>([])
 
   useEffect(() => {
@@ -343,7 +341,7 @@ export default function PerformancePage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Tooltip content="Topics you've practiced at least once">
             <button
-              onClick={() => setShowStartedTopics(!showStartedTopics)}
+              onClick={() => setExpandedSection(expandedSection === 'started' ? null : 'started')}
               className="neuro-stat group w-full text-left cursor-pointer"
             >
               <div className="flex items-center justify-between mb-3">
@@ -359,7 +357,7 @@ export default function PerformancePage() {
 
           <Tooltip content="Topics with 80%+ average mastery across all 7 dimensions">
             <button
-              onClick={() => setShowMasteredTopics(!showMasteredTopics)}
+              onClick={() => setExpandedSection(expandedSection === 'mastered' ? null : 'mastered')}
               className="neuro-stat group w-full text-left cursor-pointer"
             >
               <div className="flex items-center justify-between mb-3">
@@ -374,7 +372,7 @@ export default function PerformancePage() {
 
           <Tooltip content="Total question attempts across all topics">
             <button
-              onClick={() => setShowQuestions(!showQuestions)}
+              onClick={() => setExpandedSection(expandedSection === 'questions' ? null : 'questions')}
               className="neuro-stat group w-full text-left cursor-pointer"
             >
               <div className="flex items-center justify-between mb-3">
@@ -401,7 +399,7 @@ export default function PerformancePage() {
         </div>
 
         {/* Started Topics List */}
-        {showStartedTopics && startedTopics.length > 0 && (
+        {expandedSection === 'started' && startedTopics.length > 0 && (
           <div className="neuro-raised">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -413,7 +411,7 @@ export default function PerformancePage() {
                 </h2>
               </div>
               <button
-                onClick={() => setShowStartedTopics(false)}
+                onClick={() => setExpandedSection(null)}
                 className="neuro-btn text-sm text-gray-400 hover:text-gray-300 px-4 py-2"
               >
                 Close
@@ -472,7 +470,7 @@ export default function PerformancePage() {
         )}
 
         {/* Mastered Topics List */}
-        {showMasteredTopics && (
+        {expandedSection === 'mastered' && (
           <div className="neuro-raised">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -484,7 +482,7 @@ export default function PerformancePage() {
                 </h2>
               </div>
               <button
-                onClick={() => setShowMasteredTopics(false)}
+                onClick={() => setExpandedSection(null)}
                 className="neuro-btn text-sm text-gray-400 hover:text-gray-300 px-4 py-2"
               >
                 Close
@@ -547,7 +545,7 @@ export default function PerformancePage() {
         )}
 
         {/* Questions List */}
-        {showQuestions && (
+        {expandedSection === 'questions' && (
           <div className="neuro-raised">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -559,7 +557,7 @@ export default function PerformancePage() {
                 </h2>
               </div>
               <button
-                onClick={() => setShowQuestions(false)}
+                onClick={() => setExpandedSection(null)}
                 className="neuro-btn text-sm text-gray-400 hover:text-gray-300 px-4 py-2"
               >
                 Close
