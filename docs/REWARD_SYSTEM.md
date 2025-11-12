@@ -2,24 +2,21 @@
 
 ## Overview
 
-Axium uses a multi-component reward function to optimize learning through Reinforcement Learning. The system balances six key dimensions to guide students toward effective learning strategies, plus an intermediate **Quality Score** calculation that determines learning gain.
+Axium uses a multi-component reward function to optimize learning through Reinforcement Learning. The system balances five key dimensions to guide students toward effective learning strategies.
 
-**Total Reward Range:** -21 to +35 points
+**Total Reward Range:** -11 to +25 points
 
-The reward system evaluates both **what** the student learned (correctness, mastery gain) and **how** they learned it (confidence calibration, retrieval method, spacing, response time).
+The reward system evaluates **how** students learn by measuring metacognition (confidence calibration), retrieval strength (recognition method), retention (spacing), speed (response time), and consistency (streaks).
 
-### The 7 Components
+### The 5 Reward Components
 
-**6 Visible Reward Components:**
-1. Learning Gain (-10 to +10) - Improvement in mastery
-2. Calibration (-3 to +3) - Accuracy of self-assessment
-3. Spacing (0 to +5) - Retention over time
-4. Recognition (-4 to +3) - Retrieval method strength
-5. Response Time (-3 to +5) - Retrieval fluency
-6. Streak (0 to +5) - Consecutive correct answers
+1. **Calibration** (-3 to +3) - Accuracy of self-assessment
+2. **Recognition** (-4 to +3) - Retrieval method strength
+3. **Spacing** (0 to +5) - Retention over time
+4. **Response Time** (-3 to +5) - Retrieval fluency
+5. **Streak** (0 to +5) - Consecutive correct answers
 
-**1 Intermediate Calculation:**
-7. Quality Score (-3.5 to +3) - Determines learning gain magnitude
+**Note on Mastery:** Mastery is calculated separately as simple accuracy per dimension: (high-confidence correct / high-confidence total) × 100%. The reward system focuses on learning quality, not mastery updates.
 
 ---
 
@@ -85,94 +82,9 @@ The reward system evaluates both **what** the student learned (correctness, mast
 
 ---
 
-## Quality Score (Intermediate Calculation)
-
-**Range:** -3.5 to +3
-
-**Purpose:** Measures the quality of learning by combining calibration and recognition
-
-**Formula:**
-```
-Quality Score = (Calibration Reward + Recognition Reward) / 2
-```
-
-**How It Works:**
-
-Quality Score is not shown directly to users, but is used internally to calculate the **Learning Gain** reward component. It represents how well the student learned based on:
-
-1. **Calibration** - How accurately they assessed their own knowledge
-2. **Recognition** - How strong their retrieval method was
-
-### Quality Score → Learning Gain
-
-```
-Learning Gain = Quality Score × Bloom Multiplier
-```
-
-**Bloom Level Multipliers:**
-
-| Bloom Level | Multiplier | Rationale |
-|-------------|-----------|-----------|
-| 1-3 (Remember, Understand, Apply) | 10× | Lower levels require ~5 perfect answers for 80% mastery |
-| 4-6 (Analyze, Evaluate, Create) | 9× | Higher levels require ~3 perfect answers for 80% mastery |
-
-### Examples
-
-**Example 1: Perfect Answer**
-- Calibration: +3 (High confidence + Correct)
-- Recognition: +3 (Memory retrieval)
-- **Quality Score:** (3 + 3) / 2 = **+3**
-- **Learning Gain (Bloom L1):** 3 × 10 = **+30 mastery points**
-- **Learning Gain (Bloom L4):** 3 × 9 = **+27 mastery points**
-
-**Example 2: Overconfident Mistake**
-- Calibration: -3 (High confidence + Incorrect)
-- Recognition: -4 (False memory)
-- **Quality Score:** (-3 + -4) / 2 = **-3.5**
-- **Learning Gain (Bloom L1):** -3.5 × 10 = **-35 mastery points**
-- **Learning Gain (Bloom L4):** -3.5 × 9 = **-31.5 mastery points**
-
-**Example 3: Honest Uncertainty**
-- Calibration: -1 (Low confidence + Incorrect)
-- Recognition: -1 (Random guess, honest)
-- **Quality Score:** (-1 + -1) / 2 = **-1**
-- **Learning Gain (Bloom L1):** -1 × 10 = **-10 mastery points**
-- **Learning Gain (Bloom L4):** -1 × 9 = **-9 mastery points**
-
-**Example 4: Underconfident Success**
-- Calibration: +1 (Low confidence + Correct)
-- Recognition: +1 (Educated guess)
-- **Quality Score:** (1 + 1) / 2 = **+1**
-- **Learning Gain (Bloom L1):** 1 × 10 = **+10 mastery points**
-- **Learning Gain (Bloom L4):** 1 × 9 = **+9 mastery points**
-
-**Code Reference:** `lib/rl/mastery.ts:25-42`
-
----
-
 ## Reward Components
 
-### 1. Learning Gain Reward
-
-**Range:** -10 to +10
-
-**Purpose:** Rewards improvement in mastery
-
-| Learning Gain | Reward |
-|---------------|--------|
-| +100 (max improvement) | +10 |
-| +50 | +5 |
-| 0 (no change) | 0 |
-| -50 | -5 |
-| -100 (max decline) | -10 |
-
-**Formula:** `reward = learningGain / 10`
-
-**Code Reference:** `lib/rl/rewards.ts:32-35`
-
----
-
-### 2. Calibration Reward
+### 1. Calibration Reward
 
 **Range:** -3 to +3
 
@@ -198,6 +110,18 @@ Learning Gain = Quality Score × Bloom Multiplier
 
 ---
 
+### 2. Recognition Reward
+
+**Range:** -4 to +3
+
+**Purpose:** Rewards stronger retrieval methods
+
+See [Recognition Methods](#recognition-methods) section above for detailed breakdown of all combinations.
+
+**Code Reference:** `lib/rl/rewards.ts:107-143`
+
+---
+
 ### 3. Spacing Reward
 
 **Range:** 0 to +5
@@ -220,19 +144,7 @@ Learning Gain = Quality Score × Bloom Multiplier
 
 ---
 
-### 4. Recognition Reward
-
-**Range:** -4 to +3
-
-**Purpose:** Rewards stronger retrieval methods
-
-See [Recognition Methods](#recognition-methods) table above for detailed breakdown.
-
-**Code Reference:** `lib/rl/rewards.ts:107-143`
-
----
-
-### 5. Response Time Reward
+### 4. Response Time Reward
 
 **Range:** -3 to +5
 
@@ -290,7 +202,7 @@ The system **separates reading time from thinking time** to fairly evaluate cogn
 
 ---
 
-### 6. Streak Reward
+### 5. Streak Reward
 
 **Range:** 0 to +5
 
@@ -317,38 +229,39 @@ The system **separates reading time from thinking time** to fairly evaluate cogn
 
 **Formula:**
 ```
-Total Reward = Learning Gain + Calibration + Spacing + Recognition + Response Time + Streak
+Total Reward = Calibration + Recognition + Spacing + Response Time + Streak
 ```
 
-**Range:** Approximately -21 to +35
+**Range:** -11 to +25
 
-**Component Weights:**
+**Component Impact:**
 
-| Component | Range | Weight in Total |
-|-----------|-------|-----------------|
-| Learning Gain | -10 to +10 | Highest impact |
-| Response Time | -3 to +5 | Moderate-high impact |
-| Spacing | 0 to +5 | Moderate impact |
-| Streak | 0 to +5 | Moderate impact |
-| Calibration | -3 to +3 | Lower impact |
-| Recognition | -4 to +3 | Lower impact |
+| Component | Range | Impact Level |
+|-----------|-------|--------------|
+| Response Time | -3 to +5 | Highest (8 point range) |
+| Recognition | -4 to +3 | High (7 point range) |
+| Calibration | -3 to +3 | Moderate (6 point range) |
+| Spacing | 0 to +5 | Moderate (5 point range) |
+| Streak | 0 to +5 | Moderate (5 point range) |
+
+**Note:** Mastery is calculated separately based on accuracy per dimension, not from reward components.
 
 **Code Reference:** `lib/rl/rewards.ts:347-348`
 
 ---
 
-## Key Differences: Confidence vs. Recognition vs. Quality Score
+## Key Differences: Confidence vs. Recognition
 
-| Aspect | Confidence | Recognition | Quality Score |
-|--------|-----------|-------------|---------------|
-| **When Calculated** | Before answering | After answering | After answering (intermediate) |
-| **What It Measures** | Self-assessment accuracy | Retrieval strength | Overall learning quality |
-| **Purpose** | Encourage metacognition | Measure memory quality | Calculate mastery gain |
-| **Values** | Low (1), Medium (2), High (3) | Memory, Recognition, Educated Guess, Random | Average of calibration + recognition |
-| **Related Reward** | Calibration Reward | Recognition Reward | Learning Gain Reward |
-| **Range** | -3 to +3 | -4 to +3 | -3.5 to +3 |
-| **Visible to User** | Yes (input field) | Yes (input field) | No (internal calculation) |
-| **Used In** | Reward breakdown, calibration reward | Reward breakdown, recognition reward | Mastery score updates |
+| Aspect | Confidence | Recognition |
+|--------|-----------|-------------|
+| **When Collected** | Before answering | After answering |
+| **What It Measures** | Self-assessment accuracy | Retrieval strength |
+| **Purpose** | Encourage metacognition | Measure memory quality |
+| **Values** | Low (1), Medium (2), High (3) | Memory, Recognition, Educated Guess, Random |
+| **Related Reward** | Calibration Reward | Recognition Reward |
+| **Reward Range** | -3 to +3 | -4 to +3 |
+| **Visible to User** | Yes (input field) | Yes (input field) |
+| **Impact** | Measures how well you know yourself | Measures how strong your retrieval is |
 
 ---
 
@@ -358,13 +271,11 @@ Total Reward = Learning Gain + Calibration + Spacing + Recognition + Response Ti
 - **Correct answer:** Yes
 - **Confidence:** High (3) → Calibration: +3
 - **Recognition:** Memory → Recognition: +3
-- **Quality Score:** (3 + 3) / 2 = +3
 - **Days since last practice:** 8 → Spacing: +5
 - **Thinking time:** 3s (Bloom L1, very fast) → Response Time: +5
 - **Streak:** 6 in a row → Streak: +3
-- **Learning gain:** Quality Score (3) × Bloom Multiplier (10) = +30 mastery points → Learning Gain: +3 (normalized for reward)
 
-**Total Reward:** +22 (highly rewarded!)
+**Total Reward:** +19 (highly rewarded!)
 
 ---
 
@@ -372,11 +283,9 @@ Total Reward = Learning Gain + Calibration + Spacing + Recognition + Response Ti
 - **Correct answer:** No
 - **Confidence:** High (3) → Calibration: -3 (overconfident)
 - **Recognition:** Memory → Recognition: -4 (false memory)
-- **Quality Score:** (-3 + -4) / 2 = -3.5
 - **Days since last practice:** N/A → Spacing: 0
 - **Thinking time:** 2s (too fast, careless) → Response Time: -3
 - **Streak:** Reset to 0 → Streak: 0
-- **Learning gain:** Quality Score (-3.5) × Bloom Multiplier (10) = -35 mastery points → Learning Gain: -3.5 (normalized for reward)
 
 **Total Reward:** -10 (strongly discouraged)
 
@@ -386,11 +295,9 @@ Total Reward = Learning Gain + Calibration + Spacing + Recognition + Response Ti
 - **Correct answer:** No
 - **Confidence:** Low (1) → Calibration: -1 (good uncertainty)
 - **Recognition:** Random → Recognition: -1 (honest about not knowing)
-- **Quality Score:** (-1 + -1) / 2 = -1
 - **Days since last practice:** N/A → Spacing: 0
 - **Thinking time:** 25s (took time to think) → Response Time: 0
 - **Streak:** Reset to 0 → Streak: 0
-- **Learning gain:** Quality Score (-1) × Bloom Multiplier (10) = -10 mastery points → Learning Gain: -1 (normalized for reward)
 
 **Total Reward:** -2 (minimal penalty for honest attempt)
 
@@ -400,13 +307,11 @@ Total Reward = Learning Gain + Calibration + Spacing + Recognition + Response Ti
 - **Correct answer:** Yes
 - **Confidence:** Low (1) → Calibration: +1 (underconfident)
 - **Recognition:** Educated Guess → Recognition: +1
-- **Quality Score:** (1 + 1) / 2 = +1
 - **Days since last practice:** 4 → Spacing: +3
 - **Thinking time:** 18s (Bloom L2, good pace) → Response Time: +3
 - **Streak:** 3 in a row → Streak: +2
-- **Learning gain:** Quality Score (1) × Bloom Multiplier (10) = +10 mastery points → Learning Gain: +1 (normalized for reward)
 
-**Total Reward:** +11 (rewarded despite low confidence)
+**Total Reward:** +10 (rewarded despite low confidence)
 
 ---
 
@@ -432,10 +337,6 @@ CREATE TABLE user_responses (
   -- Reward components (stored for analysis)
   reward_total DECIMAL(10, 2),
   reward_components JSONB,  -- Stores breakdown
-
-  -- Learning metrics
-  learning_gain DECIMAL(10, 2),
-  current_mastery DECIMAL(10, 2),
 
   -- Streak tracking
   topic_streak INTEGER DEFAULT 0,
@@ -470,21 +371,17 @@ const response = await fetch('/api/rl/submit-response', {
 {
   "success": true,
   "reward": {
-    "learningGain": 2.5,
     "calibration": 3,
-    "spacing": 5,
     "recognition": 3,
+    "spacing": 5,
     "responseTime": 5,
     "streak": 3,
-    "total": 21.5
-  },
-  "masteryUpdate": {
-    "previous": 65.5,
-    "current": 68.0,
-    "change": 2.5
+    "total": 19
   }
 }
 ```
+
+**Note:** Mastery is calculated separately as accuracy per dimension, not from reward components.
 
 ---
 
