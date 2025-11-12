@@ -346,13 +346,24 @@ export default function PerformancePage() {
         })
       })
 
-      // Sort by earliest due for review: most overdue first
+      // Sort by earliest due for review
       spacingData.sort((a, b) => {
-        // Calculate when each topic is/was due
-        // Negative daysSinceOptimal means not yet due
-        // Positive daysSinceOptimal means overdue
-        // Higher positive value = more overdue = should review first
-        return b.daysSinceOptimal - a.daysSinceOptimal
+        // Both overdue: most overdue first (highest hours overdue)
+        if (a.isOverdue && b.isOverdue) {
+          const aHoursOverdue = a.hoursSince - (a.optimalInterval * 24)
+          const bHoursOverdue = b.hoursSince - (b.optimalInterval * 24)
+          return bHoursOverdue - aHoursOverdue
+        }
+
+        // One overdue, one not: overdue comes first
+        if (a.isOverdue) return -1
+        if (b.isOverdue) return 1
+
+        // Both not yet due: soonest due first (smallest hours remaining)
+        // Calculate hours remaining until due
+        const aHoursRemaining = (a.optimalInterval * 24) - a.hoursSince
+        const bHoursRemaining = (b.optimalInterval * 24) - b.hoursSince
+        return aHoursRemaining - bHoursRemaining
       })
 
       setSpacedRepetitionData(spacingData)
