@@ -19,6 +19,7 @@ export default function PerformancePage() {
   const [topicStats, setTopicStats] = useState<any[]>([])
   const [chapterSummary, setChapterSummary] = useState<any>(null)
   const [activeTab, setActiveTab] = useState<'overview' | 'topics'>('overview')
+  const [showStartedTopics, setShowStartedTopics] = useState(false)
 
   useEffect(() => {
     loadPerformanceData()
@@ -316,7 +317,10 @@ export default function PerformancePage() {
             {/* Quick Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Tooltip content="Topics you've practiced at least once">
-            <div className="neuro-stat group">
+            <button
+              onClick={() => setShowStartedTopics(!showStartedTopics)}
+              className="neuro-stat group w-full text-left cursor-pointer"
+            >
               <div className="flex items-center justify-between mb-3">
                 <div className="text-sm text-blue-400 font-medium">Topics Started</div>
                 <TargetIcon size={20} className="text-blue-400 opacity-50 group-hover:opacity-100 transition-opacity" />
@@ -325,7 +329,7 @@ export default function PerformancePage() {
                 {chapterSummary?.topicsStarted || 0}
                 <span className="text-lg text-gray-500">/{chapterSummary?.topicsTotal || 0}</span>
               </div>
-            </div>
+            </button>
           </Tooltip>
 
           <Tooltip content="Topics with 80%+ mastery (high-confidence correct answers)">
@@ -364,6 +368,92 @@ export default function PerformancePage() {
             </div>
           </Tooltip>
         </div>
+
+        {/* Started Topics List */}
+        {showStartedTopics && startedTopics.length > 0 && (
+          <div className="neuro-raised border-l-4 border-blue-500">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="neuro-inset w-10 h-10 rounded-lg flex items-center justify-center">
+                  <TargetIcon size={20} className="text-blue-400" />
+                </div>
+                <h2 className="text-xl font-semibold text-gray-200">
+                  Topics Started ({startedTopics.length})
+                </h2>
+              </div>
+              <button
+                onClick={() => setShowStartedTopics(false)}
+                className="neuro-btn text-sm text-gray-400 hover:text-gray-300 px-4 py-2"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="max-h-[600px] overflow-y-auto pr-2 space-y-3">
+              {startedTopics.map(topic => (
+                <div
+                  key={topic.id}
+                  className="neuro-inset p-4 rounded-lg flex items-center justify-between hover:bg-gray-900/30 transition-colors"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="text-gray-200 font-medium truncate">{topic.name}</h3>
+                      {topic.status === 'mastered' && (
+                        <span className="neuro-raised px-2 py-0.5 text-xs text-green-400 rounded flex-shrink-0">
+                          Mastered
+                        </span>
+                      )}
+                      {topic.status === 'struggling' && (
+                        <span className="neuro-raised px-2 py-0.5 text-xs text-red-400 rounded flex-shrink-0">
+                          Needs Review
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-6 text-sm">
+                      <div className="text-gray-500">
+                        Level: <span className="text-blue-400 font-medium">L{topic.currentBloomLevel}</span>
+                      </div>
+                      {topic.overallMastery !== null && (
+                        <Tooltip content="Based on high-confidence (4-5) correct answers only">
+                          <div className="text-gray-500">
+                            Mastery: <span className={`font-semibold ${
+                              topic.overallMastery >= 80 ? 'text-green-400' :
+                              topic.overallMastery >= 60 ? 'text-blue-400' :
+                              topic.overallMastery >= 40 ? 'text-yellow-400' :
+                              topic.overallMastery >= 0 ? 'text-red-500' :
+                              'text-red-400'
+                            }`}>
+                              {Math.round(topic.overallMastery)}%
+                            </span>
+                          </div>
+                        </Tooltip>
+                      )}
+                      {topic.overallRawAccuracy !== null && (
+                        <Tooltip content="Includes all attempts regardless of confidence">
+                          <div className="text-gray-500">
+                            Raw Accuracy: <span className="text-gray-400">{Math.round(topic.overallRawAccuracy)}%</span>
+                          </div>
+                        </Tooltip>
+                      )}
+                      {topic.totalAttempts > 0 && (
+                        <div className="text-gray-500">
+                          {topic.totalAttempts} attempt{topic.totalAttempts === 1 ? '' : 's'}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <Link
+                    href={`/performance/${subject}/${chapter}/${encodeURIComponent(topic.name)}`}
+                    className="neuro-btn text-sm text-gray-300 hover:text-blue-400 px-4 py-2 ml-4 flex-shrink-0 flex items-center gap-2"
+                  >
+                    View Details
+                    <ArrowRightIcon size={14} />
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
           </>
         )}
 
