@@ -254,8 +254,8 @@ export default function PerformancePage() {
         : 0
       summary.overallAccuracy = totalAttempts > 0 ? (totalCorrect / totalAttempts) * 100 : 0
 
-      // Fetch all questions with details
-      const { data: questionsData } = await supabase
+      // Fetch all questions with details (fetch ALL, filter client-side to avoid URL length limit)
+      const { data: allQuestionsData } = await supabase
         .from('user_responses')
         .select(`
           id,
@@ -268,10 +268,11 @@ export default function PerformancePage() {
           questions(id, question_text, dimension)
         `)
         .eq('user_id', user.id)
-        .in('topic_id', topicIds)
         .order('created_at', { ascending: false })
 
-      setAllQuestions(questionsData || [])
+      // Filter to only questions for topics in this chapter
+      const filteredQuestions = allQuestionsData?.filter(q => topicIdSet.has(q.topic_id)) || []
+      setAllQuestions(filteredQuestions)
       setChapterSummary(summary)
       setLoading(false)
 
