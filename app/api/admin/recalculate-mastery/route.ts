@@ -67,6 +67,21 @@ export async function POST() {
       console.log(`  Found ${responses.length} responses`)
       console.log(`  Sample response:`, responses[0])
 
+      // Delete existing mastery records for this user to start fresh
+      // This prevents unique constraint violations when upserting
+      const { error: deleteError } = await supabase
+        .from('user_topic_mastery')
+        .delete()
+        .eq('user_id', userId)
+
+      if (deleteError) {
+        console.error('Error deleting existing mastery records:', deleteError)
+        results.push({ error: 'Failed to delete existing records', details: deleteError.message })
+        continue
+      }
+
+      console.log(`  Deleted existing mastery records for user`)
+
       // Get reward components for all responses
       const responseIds = responses.map((r: any) => r.id)
       const { data: rewardLogs, error: rewardError } = await supabase
