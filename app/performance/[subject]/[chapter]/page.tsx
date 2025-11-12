@@ -679,7 +679,15 @@ export default function PerformancePage() {
     )
   }
 
-  const startedTopics = topicStats.filter(t => t.totalAttempts > 0)
+  const startedTopics = topicStats
+    .filter(t => t.totalAttempts > 0)
+    .sort((a, b) => {
+      // Sort by most recent practice first
+      if (!a.lastPracticed && !b.lastPracticed) return 0
+      if (!a.lastPracticed) return 1
+      if (!b.lastPracticed) return -1
+      return b.lastPracticed.getTime() - a.lastPracticed.getTime()
+    })
   const masteredTopics = topicStats
     .filter(t => t.status === 'mastered')
     .sort((a, b) => (b.overallMastery || 0) - (a.overallMastery || 0))
