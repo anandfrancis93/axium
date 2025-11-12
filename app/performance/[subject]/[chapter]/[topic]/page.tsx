@@ -840,16 +840,16 @@ export default function TopicMasteryPage() {
                           const currCorrect = q.current_attempt.is_correct
 
                           if (!prevCorrect && currCorrect) {
-                            trend = '↑ Improved'
+                            trend = 'Improved'
                             trendColor = 'text-green-400'
                           } else if (prevCorrect && !currCorrect) {
-                            trend = '↓ Declined'
+                            trend = 'Declined'
                             trendColor = 'text-red-400'
                           } else if (prevCorrect && currCorrect) {
-                            trend = '→ Consistent'
+                            trend = 'Consistent'
                             trendColor = 'text-blue-400'
                           } else {
-                            trend = '→ Still Learning'
+                            trend = 'Still Learning'
                             trendColor = 'text-yellow-400'
                           }
                         }
@@ -870,9 +870,9 @@ export default function TopicMasteryPage() {
                             <td className="py-3 px-3 text-center">
                               {q.previous_attempt ? (
                                 q.previous_attempt.is_correct ? (
-                                  <span className="text-green-400">✓ Correct</span>
+                                  <span className="text-green-400">Correct</span>
                                 ) : (
-                                  <span className="text-red-400">✗ Wrong</span>
+                                  <span className="text-red-400">Wrong</span>
                                 )
                               ) : (
                                 <span className="text-gray-400">—</span>
@@ -880,9 +880,9 @@ export default function TopicMasteryPage() {
                             </td>
                             <td className="py-3 px-3 text-center">
                               {q.current_attempt.is_correct ? (
-                                <span className="text-green-400">✓ Correct</span>
+                                <span className="text-green-400">Correct</span>
                               ) : (
-                                <span className="text-red-400">✗ Wrong</span>
+                                <span className="text-red-400">Wrong</span>
                               )}
                             </td>
                             <td className="py-3 px-3 text-center">
