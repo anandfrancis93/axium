@@ -463,14 +463,6 @@ Mastery grows with correct answers and confidence calibration`
 
   const getRewardLabel = (component: string, value: number): string => {
     switch (component) {
-      case 'learningGain':
-        if (value >= 8) return 'major breakthrough'
-        if (value >= 5) return 'strong improvement'
-        if (value >= 2) return 'steady growth'
-        if (value >= 0) return 'slight progress'
-        if (value >= -3) return 'minor slip'
-        return 'significant drop'
-
       case 'calibration':
         if (value >= 3) return 'perfectly calibrated'
         if (value >= 2) return 'well calibrated'
@@ -524,24 +516,6 @@ Mastery grows with correct answers and confidence calibration`
     let scale = ''
 
     switch (component) {
-      case 'learningGain':
-        description = 'Learning Gain: How much your mastery improved'
-        scale = 'Range: -10 to +10 points'
-        if (value >= 8) {
-          interpretation = 'Excellent! Significant mastery improvement'
-        } else if (value >= 5) {
-          interpretation = 'Very good progress on this topic'
-        } else if (value >= 2) {
-          interpretation = 'Steady progress'
-        } else if (value >= 0) {
-          interpretation = 'Small progress'
-        } else if (value >= -3) {
-          interpretation = 'Slight setback, review recommended'
-        } else {
-          interpretation = 'Major gap identified, needs focused review'
-        }
-        break
-
       case 'calibration':
         description = 'Calibration: How well your confidence matched your performance'
         scale = 'Range: -3 to +3 points'
@@ -1075,31 +1049,10 @@ ${interpretation}`
 
                     return (
                       <div key={topicIdx} className="neuro-inset p-4 rounded-lg mb-6">
-                        {/* Mastery Change - above reward components */}
-                        {masteryUpdate && (
-                          <Tooltip content={getMasteryTooltip(masteryUpdate.old_mastery, masteryUpdate.new_mastery, masteryUpdate.change)}>
-                            <div className="text-sm md:text-base mb-4 pb-3 border-b border-gray-700 cursor-help">
-                              <span className="text-gray-400">Mastery Change ({topicReward.topic_name}): </span>
-                              <span className="text-gray-500">{masteryUpdate.old_mastery}%</span>
-                              <span className="text-gray-600 mx-1">→</span>
-                              <span className="text-blue-400 font-medium">{masteryUpdate.new_mastery}%</span>
-                              <span className={`ml-1 ${masteryUpdate.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                                ({masteryUpdate.change >= 0 ? '+' : ''}{masteryUpdate.change}%)
-                              </span>
-                            </div>
-                          </Tooltip>
-                        )}
-
                         <div className="text-sm md:text-base font-medium text-gray-400 mb-3">
                           Reward Components ({topicReward.topic_name}):
                         </div>
                       <div className="grid grid-cols-2 gap-2 text-sm md:text-base">
-                        <Tooltip content={getRewardTooltip('learningGain', topicReward.reward_components?.learningGain || 0)}>
-                          <div>
-                            Learning Gain: <span className="text-blue-400">{topicReward.reward_components?.learningGain?.toFixed(1)}</span>
-                            <span className="text-gray-200 text-xs md:text-sm ml-1">({getRewardLabel('learningGain', topicReward.reward_components?.learningGain || 0)})</span>
-                          </div>
-                        </Tooltip>
                         <Tooltip content={getRewardTooltip('calibration', topicReward.reward_components?.calibration || 0)}>
                           <div>
                             Calibration: <span className="text-purple-400">{topicReward.reward_components?.calibration?.toFixed(1)}</span>
@@ -1152,29 +1105,8 @@ ${interpretation}`
               ) : (
                 // Single topic: Show as before
                 <div className="neuro-inset p-4 rounded-lg mb-6">
-                  {/* Mastery Change - above reward components */}
-                  {feedback.mastery_updates && feedback.mastery_updates.length > 0 && (
-                    <Tooltip content={getMasteryTooltip(feedback.mastery_updates[0].old_mastery, feedback.mastery_updates[0].new_mastery, feedback.mastery_updates[0].change)}>
-                      <div className="text-sm md:text-base mb-4 pb-3 border-b border-gray-700 cursor-help">
-                        <span className="text-gray-400">Mastery Change: </span>
-                        <span className="text-gray-500">{feedback.mastery_updates[0].old_mastery}%</span>
-                        <span className="text-gray-600 mx-1">→</span>
-                        <span className="text-blue-400 font-medium">{feedback.mastery_updates[0].new_mastery}%</span>
-                        <span className={`ml-1 ${feedback.mastery_updates[0].change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                          ({feedback.mastery_updates[0].change >= 0 ? '+' : ''}{feedback.mastery_updates[0].change}%)
-                        </span>
-                      </div>
-                    </Tooltip>
-                  )}
-
                   <div className="text-sm md:text-base font-medium text-gray-400 mb-3">Reward Components:</div>
                   <div className="grid grid-cols-2 gap-2 text-sm md:text-base">
-                    <Tooltip content={getRewardTooltip('learningGain', feedback.reward_components?.learningGain || 0)}>
-                      <div>
-                        Learning Gain: <span className="text-blue-400">{feedback.reward_components?.learningGain?.toFixed(1)}</span>
-                        <span className="text-gray-200 text-xs md:text-sm ml-1">({getRewardLabel('learningGain', feedback.reward_components?.learningGain || 0)})</span>
-                      </div>
-                    </Tooltip>
                     <Tooltip content={getRewardTooltip('calibration', feedback.reward_components?.calibration || 0)}>
                       <div>
                         Calibration: <span className="text-purple-400">{feedback.reward_components?.calibration?.toFixed(1)}</span>
@@ -1215,62 +1147,6 @@ ${interpretation}`
                       <div className="font-medium">Total Reward: <span className="text-blue-400">{feedback.reward_components?.total?.toFixed(1)}</span></div>
                     </Tooltip>
                   </div>
-
-                  {/* Quality Score - at the end of reward breakdown */}
-                  {feedback.reward_components && (
-                    <div className="mt-3 pt-3 border-t border-gray-700">
-                      <Tooltip content={`Quality Score: ${((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2).toFixed(1)}
-
-CALCULATION:
-Calibration: ${feedback.reward_components.calibration > 0 ? '+' : ''}${feedback.reward_components.calibration}
-Recognition: ${feedback.reward_components.recognition > 0 ? '+' : ''}${feedback.reward_components.recognition}
-Quality = (${feedback.reward_components.calibration > 0 ? '+' : ''}${feedback.reward_components.calibration} + ${feedback.reward_components.recognition > 0 ? '+' : ''}${feedback.reward_components.recognition}) ÷ 2 = ${((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2).toFixed(1)}
-
-CALIBRATION (${feedback.reward_components.calibration > 0 ? '+' : ''}${feedback.reward_components.calibration}/+3):
-${feedback.reward_components.calibration === 3 ? 'Perfect! High confidence + Correct' :
-  feedback.reward_components.calibration === 2 ? 'Good! Medium confidence + Correct' :
-  feedback.reward_components.calibration === 1 ? 'Underconfident (correct but uncertain)' :
-  feedback.reward_components.calibration === -1 ? 'Good self-awareness (uncertain + incorrect)' :
-  feedback.reward_components.calibration === -2 ? 'Overconfident (medium conf + incorrect)' :
-  'Very overconfident (high conf + incorrect)'}
-Scale: -3 (worst) to +3 (best)
-
-RECOGNITION (${feedback.reward_components.recognition > 0 ? '+' : ''}${feedback.reward_components.recognition}/+3):
-${feedback.reward_components.recognition === 3 ? 'Perfect! Knew from memory + Correct' :
-  feedback.reward_components.recognition === 2 ? 'Good! Recognized + Correct' :
-  feedback.reward_components.recognition === 1 ? 'Educated guess + Correct' :
-  feedback.reward_components.recognition === 0 ? 'Random guess + Correct (lucky)' :
-  feedback.reward_components.recognition === -1 ? 'Honest random guess + Incorrect' :
-  feedback.reward_components.recognition === -2 ? 'Wrong educated guess' :
-  feedback.reward_components.recognition === -3 ? 'False recognition' :
-  'False memory (worst)'}
-Scale: -4 (worst) to +3 (best)
-
-INTERPRETATION:
-${((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2) >= 2.5 ?
-  'Excellent! This answer greatly improves your mastery.' :
- ((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2) >= 1 ?
-  'Good progress! This helps your mastery grow.' :
- ((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2) >= 0 ?
-  'Small gain. Try to be more confident when you know it.' :
- ((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2) >= -1 ?
-  'Honest uncertainty is better than false confidence.' :
-  'Your mastery decreased. Review this topic carefully.'}
-
-Perfect score = 3.0 (High confidence + Memory + Correct)`}>
-                        <div className="text-sm md:text-base cursor-help">
-                          <span className="font-medium text-gray-400">Quality Score: </span>
-                          <span className={`font-bold ${
-                            ((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2) >= 2 ? 'text-green-400' :
-                            ((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2) >= 0 ? 'text-yellow-400' :
-                            'text-red-400'
-                          }`}>
-                            {((feedback.reward_components.calibration + feedback.reward_components.recognition) / 2).toFixed(1)}
-                          </span>
-                        </div>
-                      </Tooltip>
-                    </div>
-                  )}
                 </div>
               )}
 
