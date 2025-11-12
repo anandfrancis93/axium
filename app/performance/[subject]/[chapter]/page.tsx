@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { BarChartIcon, TrendingUpIcon, AwardIcon, TargetIcon, CheckIcon, ArrowRightIcon } from '@/components/icons'
+import { BarChartIcon, TrendingUpIcon, AwardIcon, TargetIcon, CheckIcon, ArrowRightIcon, TrophyIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import { Tooltip } from '@/components/Tooltip'
 
@@ -18,11 +18,12 @@ export default function PerformancePage() {
   const [chapterData, setChapterData] = useState<any>(null)
   const [topicStats, setTopicStats] = useState<any[]>([])
   const [chapterSummary, setChapterSummary] = useState<any>(null)
-  const [activeTab, setActiveTab] = useState<'overview' | 'topics' | 'spacing' | 'api-costs'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'topics' | 'spacing' | 'api-costs' | 'exam-score'>('overview')
   const [expandedSection, setExpandedSection] = useState<'started' | 'mastered' | 'questions' | null>(null)
   const [allQuestions, setAllQuestions] = useState<any[]>([])
   const [spacedRepetitionData, setSpacedRepetitionData] = useState<any[]>([])
   const [apiCostData, setApiCostData] = useState<any>(null)
+  const [examScoreData, setExamScoreData] = useState<any>(null)
 
   useEffect(() => {
     loadPerformanceData()
@@ -504,6 +505,148 @@ export default function PerformancePage() {
         })
       }
 
+      // Calculate Exam Score Prediction
+      // CompTIA Security+ scoring: 100-900 scale, passing score is 750
+
+      // Get all user progress for this chapter
+      const { data: allUserProgress } = await supabase
+        .from('user_topic_mastery')
+        .select('topic_id, bloom_level, questions_attempted, questions_correct')
+        .eq('user_id', user.id)
+        .eq('chapter_id', fetchedChapter.id)
+
+      if (allUserProgress && allUserProgress.length > 0) {
+        // Calculate metrics
+        let totalQuestions = 0
+        let totalCorrect = 0
+        let bloomLevelPerformance: Record<number, { correct: number, total: number }> = {}
+
+        allUserProgress.forEach((progress: any) => {
+          totalQuestions += progress.questions_attempted || 0
+          totalCorrect += progress.questions_correct || 0
+
+          const bloom = progress.bloom_level
+          if (!bloomLevelPerformance[bloom]) {
+            bloomLevelPerformance[bloom] = { correct: 0, total: 0 }
+          }
+          bloomLevelPerformance[bloom].correct += progress.questions_correct || 0
+          bloomLevelPerformance[bloom].total += progress.questions_attempted || 0
+        })
+
+        const overallAccuracy = totalQuestions > 0 ? (totalCorrect / totalQuestions) : 0
+
+        // Calculate Bloom level mastery distribution
+        const bloomAccuracies: Record<number, number> = {}
+        Object.keys(bloomLevelPerformance).forEach(bloom => {
+          const level = parseInt(bloom)
+          const perf = bloomLevelPerformance[level]
+          bloomAccuracies[level] = perf.total > 0 ? (perf.correct / perf.total) : 0
+        })
+
+        // Weighted scoring (higher Bloom levels weighted more)
+        // Bloom 1-2: 15% each, Bloom 3-4: 20% each, Bloom 5-6: 15% each
+        const bloomWeights: Record<number, number> = {
+          1: 0.15,
+          2: 0.15,
+          3: 0.20,
+          4: 0.20,
+          5: 0.15,
+          6: 0.15
+        }
+
+        let weightedScore = 0
+        let totalWeight = 0
+        Object.keys(bloomAccuracies).forEach(bloom => {
+          const level = parseInt(bloom)
+          const weight = bloomWeights[level] || 0.10
+          weightedScore += bloomAccuracies[level] * weight
+          totalWeight += weight
+        })
+
+        // Normalize if not all Bloom levels practiced
+        if (totalWeight > 0) {
+          weightedScore = weightedScore / totalWeight
+        } else {
+          weightedScore = overallAccuracy
+        }
+
+        // Map to 100-900 scale
+        // Base score starts at 100 (no knowledge) and goes to 900 (perfect)
+        const baseScore = 100 + (weightedScore * 800)
+
+        // Calculate confidence interval based on sample size
+        // More questions answered = narrower confidence interval
+        const minQuestionsForConfidence = 100
+        const confidenceWidth = Math.max(50, 200 * (1 - Math.min(totalQuestions / minQuestionsForConfidence, 1)))
+
+        // Apply penalty for low sample size
+        let sampleSizePenalty = 0
+        if (totalQuestions < 20) {
+          sampleSizePenalty = 100 * (1 - totalQuestions / 20)
+        }
+
+        const predictedScore = Math.max(100, Math.min(900, Math.round(baseScore - sampleSizePenalty)))
+        const lowerBound = Math.max(100, Math.round(predictedScore - confidenceWidth))
+        const upperBound = Math.min(900, Math.round(predictedScore + confidenceWidth))
+
+        // Calculate readiness metrics
+        const passingScore = 750
+        const isLikelyToPass = lowerBound >= passingScore
+        const isPossibleToPass = upperBound >= passingScore
+        const confidenceLevel = totalQuestions >= minQuestionsForConfidence ? 'high' :
+                               totalQuestions >= 50 ? 'medium' : 'low'
+
+        // Recommendations
+        const recommendations: string[] = []
+
+        if (totalQuestions < 20) {
+          recommendations.push('Complete more practice questions to get an accurate prediction')
+        }
+
+        Object.keys(bloomWeights).forEach(bloom => {
+          const level = parseInt(bloom)
+          const accuracy = bloomAccuracies[level] || 0
+          if (accuracy < 0.6) {
+            recommendations.push(`Focus on Bloom Level ${level} topics (currently ${(accuracy * 100).toFixed(0)}% accuracy)`)
+          }
+        })
+
+        if (predictedScore < passingScore) {
+          const pointsNeeded = passingScore - predictedScore
+          recommendations.push(`Need to improve by approximately ${pointsNeeded} points to reach passing score`)
+        }
+
+        if (recommendations.length === 0 && isLikelyToPass) {
+          recommendations.push('You are well-prepared! Continue reviewing weaker topics to maintain readiness')
+        }
+
+        setExamScoreData({
+          predictedScore,
+          lowerBound,
+          upperBound,
+          confidenceLevel,
+          confidenceWidth,
+          totalQuestions,
+          totalCorrect,
+          overallAccuracy,
+          bloomAccuracies,
+          bloomLevelPerformance,
+          isLikelyToPass,
+          isPossibleToPass,
+          passingScore,
+          recommendations
+        })
+      } else {
+        setExamScoreData({
+          predictedScore: null,
+          lowerBound: null,
+          upperBound: null,
+          confidenceLevel: 'none',
+          totalQuestions: 0,
+          recommendations: ['Start practicing to get your exam score prediction']
+        })
+      }
+
       setLoading(false)
 
     } catch (error) {
@@ -584,6 +727,14 @@ export default function PerformancePage() {
             }`}
           >
             API Costs
+          </button>
+          <button
+            onClick={() => setActiveTab('exam-score')}
+            className={`neuro-btn px-6 py-3 whitespace-nowrap transition-colors ${
+              activeTab === 'exam-score' ? 'text-blue-400' : 'text-gray-400'
+            }`}
+          >
+            Exam Score
           </button>
         </div>
 
@@ -1444,6 +1595,221 @@ export default function PerformancePage() {
                 >
                   <CheckIcon size={18} />
                   <span>Start Learning</span>
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Exam Score Tab */}
+        {activeTab === 'exam-score' && (
+          <div className="neuro-raised">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="neuro-inset w-10 h-10 rounded-lg flex items-center justify-center">
+                <TrophyIcon size={20} className="text-blue-400" />
+              </div>
+              <h2 className="text-xl font-semibold text-gray-200">
+                CompTIA Security+ Exam Score Prediction
+              </h2>
+            </div>
+
+            {examScoreData && examScoreData.predictedScore !== null ? (
+              <>
+                {/* Predicted Score Display */}
+                <div className="neuro-inset p-8 rounded-lg mb-6 text-center">
+                  <div className="text-sm text-gray-400 mb-2">Predicted Exam Score</div>
+                  <div className="text-7xl font-bold text-blue-400 mb-4">
+                    {examScoreData.predictedScore}
+                  </div>
+                  <div className="text-2xl text-gray-300 mb-6">
+                    Range: {examScoreData.lowerBound} - {examScoreData.upperBound}
+                  </div>
+
+                  {/* Pass/Fail Indicator */}
+                  <div className="flex items-center justify-center gap-4 mb-4">
+                    <div className="text-sm text-gray-500">Passing Score: {examScoreData.passingScore}</div>
+                    {examScoreData.isLikelyToPass ? (
+                      <div className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg font-semibold">
+                        Likely to Pass ✓
+                      </div>
+                    ) : examScoreData.isPossibleToPass ? (
+                      <div className="px-4 py-2 bg-yellow-500/20 text-yellow-400 rounded-lg font-semibold">
+                        Borderline
+                      </div>
+                    ) : (
+                      <div className="px-4 py-2 bg-red-500/20 text-red-400 rounded-lg font-semibold">
+                        More Practice Needed
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Confidence Level */}
+                  <div className="text-xs text-gray-500">
+                    Confidence: <span className={`font-medium ${
+                      examScoreData.confidenceLevel === 'high' ? 'text-green-400' :
+                      examScoreData.confidenceLevel === 'medium' ? 'text-yellow-400' : 'text-red-400'
+                    }`}>
+                      {examScoreData.confidenceLevel.toUpperCase()}
+                    </span> ({examScoreData.totalQuestions} questions answered)
+                  </div>
+                </div>
+
+                {/* Score Breakdown Stats */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                  <div className="neuro-stat group cursor-help" title="Overall accuracy across all questions">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="text-sm text-blue-400 font-medium">Overall Accuracy</div>
+                      <TargetIcon size={20} className="text-blue-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                    <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
+                      {(examScoreData.overallAccuracy * 100).toFixed(1)}%
+                    </div>
+                    <div className="text-xs text-gray-600 mt-2">
+                      {examScoreData.totalCorrect} / {examScoreData.totalQuestions} correct
+                    </div>
+                  </div>
+
+                  <div className="neuro-stat group cursor-help" title="Confidence interval width">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="text-sm text-green-400 font-medium">Confidence Width</div>
+                      <TrendingUpIcon size={20} className="text-green-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                    <div className="text-4xl font-bold text-gray-200 group-hover:text-green-400 transition-colors">
+                      ±{Math.round(examScoreData.confidenceWidth)}
+                    </div>
+                    <div className="text-xs text-gray-600 mt-2">
+                      {examScoreData.confidenceLevel === 'high' ? 'Very precise' :
+                       examScoreData.confidenceLevel === 'medium' ? 'Moderately precise' : 'Imprecise'}
+                    </div>
+                  </div>
+
+                  <div className="neuro-stat group cursor-help" title="Points away from passing">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="text-sm text-yellow-400 font-medium">Gap to Pass</div>
+                      <AwardIcon size={20} className="text-yellow-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                    <div className="text-4xl font-bold text-gray-200 group-hover:text-yellow-400 transition-colors">
+                      {examScoreData.predictedScore >= examScoreData.passingScore
+                        ? `+${examScoreData.predictedScore - examScoreData.passingScore}`
+                        : examScoreData.passingScore - examScoreData.predictedScore}
+                    </div>
+                    <div className="text-xs text-gray-600 mt-2">
+                      {examScoreData.predictedScore >= examScoreData.passingScore ? 'Above passing' : 'Below passing'}
+                    </div>
+                  </div>
+
+                  <div className="neuro-stat group cursor-help" title="Bloom levels practiced">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="text-sm text-purple-400 font-medium">Bloom Levels</div>
+                      <TrophyIcon size={20} className="text-purple-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                    <div className="text-4xl font-bold text-gray-200 group-hover:text-purple-400 transition-colors">
+                      {Object.keys(examScoreData.bloomAccuracies).length}/6
+                    </div>
+                    <div className="text-xs text-gray-600 mt-2">
+                      Levels practiced
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bloom Level Breakdown */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-300 mb-4">Performance by Bloom Level</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {[1, 2, 3, 4, 5, 6].map(level => {
+                      const accuracy = examScoreData.bloomAccuracies[level] || 0
+                      const perf = examScoreData.bloomLevelPerformance[level]
+                      const hasData = perf && perf.total > 0
+                      const color = accuracy >= 0.8 ? 'text-green-400' :
+                                   accuracy >= 0.6 ? 'text-blue-400' :
+                                   accuracy >= 0.4 ? 'text-yellow-400' : 'text-red-400'
+
+                      return (
+                        <div key={level} className={`neuro-inset p-4 rounded-lg ${!hasData ? 'opacity-50' : ''}`}>
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="text-base font-medium text-gray-200">
+                              Bloom Level {level}
+                            </div>
+                            {hasData ? (
+                              <div className={`text-sm font-semibold ${color}`}>
+                                {(accuracy * 100).toFixed(0)}%
+                              </div>
+                            ) : (
+                              <div className="text-sm text-gray-600">No data</div>
+                            )}
+                          </div>
+                          {hasData && (
+                            <div className="space-y-1 text-xs text-gray-500">
+                              <div className="flex justify-between">
+                                <span>Questions:</span>
+                                <span className="text-gray-400">{perf.total}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Correct:</span>
+                                <span className="text-gray-400">{perf.correct}</span>
+                              </div>
+                              <div className="w-full bg-gray-800 rounded-full h-2 mt-2">
+                                <div
+                                  className={`h-2 rounded-full ${
+                                    accuracy >= 0.8 ? 'bg-green-400' :
+                                    accuracy >= 0.6 ? 'bg-blue-400' :
+                                    accuracy >= 0.4 ? 'bg-yellow-400' : 'bg-red-400'
+                                  }`}
+                                  style={{ width: `${accuracy * 100}%` }}
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Recommendations */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-300 mb-4">Recommendations</h3>
+                  <div className="neuro-inset rounded-lg p-4">
+                    <ul className="space-y-2">
+                      {examScoreData.recommendations.map((rec: string, idx: number) => (
+                        <li key={idx} className="flex items-start gap-2 text-sm text-gray-300">
+                          <span className="text-blue-400 mt-0.5">•</span>
+                          <span>{rec}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Info Box */}
+                <div className="neuro-inset p-4 rounded-lg text-sm text-gray-400">
+                  <div className="font-medium text-gray-300 mb-2">About This Prediction</div>
+                  <ul className="space-y-1 text-xs list-disc list-inside">
+                    <li>Score range: 100-900 (passing score is 750)</li>
+                    <li>Prediction based on weighted performance across all Bloom levels</li>
+                    <li>Higher Bloom levels (Apply, Analyze) are weighted more heavily</li>
+                    <li>Confidence interval narrows as you answer more questions (100+ for high confidence)</li>
+                    <li>This is an estimate based on your practice performance, not an official score</li>
+                  </ul>
+                </div>
+              </>
+            ) : (
+              <div className="neuro-inset p-8 rounded-lg text-center">
+                <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <TrophyIcon size={40} className="text-gray-600" />
+                </div>
+                <div className="text-gray-400 text-lg font-semibold mb-2">
+                  No exam prediction available yet
+                </div>
+                <div className="text-sm text-gray-600 mb-6">
+                  Start practicing topics to get your predicted exam score
+                </div>
+                <Link
+                  href={`/subjects/${subject}/${chapter}/quiz`}
+                  className="neuro-btn text-blue-400 inline-flex items-center gap-2 px-6 py-3"
+                >
+                  <CheckIcon size={18} />
+                  <span>Start Practice</span>
                 </Link>
               </div>
             )}
