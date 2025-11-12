@@ -69,16 +69,20 @@ export default function PerformancePage() {
       const topicStatsMap = new Map<string, any>()
       const topicIds = topicsData?.map(t => t.id) || []
 
-      // Get dimension coverage for high-confidence data (filter by topic IDs)
-      let dimensionData = null
-      if (topicIds.length > 0) {
-        const result = await supabase
-          .from('user_dimension_coverage')
-          .select('topic_id, bloom_level, dimension, high_confidence_correct, high_confidence_total, total_correct, total_attempts, topics(name)')
-          .eq('user_id', user.id)
-          .in('topic_id', topicIds)
-        dimensionData = result.data
-      }
+      // Get dimension coverage for this user
+      // Note: Can't filter by chapter_id (not in table), so we get all and filter client-side
+      const { data: allDimensionData } = await supabase
+        .from('user_dimension_coverage')
+        .select('topic_id, bloom_level, dimension, high_confidence_correct, high_confidence_total, total_correct, total_attempts')
+        .eq('user_id', user.id)
+
+      // Filter to only topics in this chapter (client-side)
+      const topicIdSet = new Set(topicIds)
+      const dimensionData = allDimensionData?.filter(d => topicIdSet.has(d.topic_id)) || []
+
+      console.log('Chapter topics:', topicIds.length)
+      console.log('All dimension data:', allDimensionData?.length)
+      console.log('Filtered dimension data:', dimensionData.length)
 
       topicsData?.forEach((topic: any) => {
         topicStatsMap.set(topic.id, {
@@ -202,6 +206,11 @@ export default function PerformancePage() {
         ? Array.from(topicDimensionStats.values()).reduce((sum, s) => sum + s.totalAttempts, 0)
         : 0
       summary.overallAccuracy = totalAttempts > 0 ? (totalCorrect / totalAttempts) * 100 : 0
+
+      console.log('topicDimensionStats size:', topicDimensionStats.size)
+      console.log('totalCorrect:', totalCorrect)
+      console.log('totalAttempts:', totalAttempts)
+      console.log('overallAccuracy:', summary.overallAccuracy)
 
       setChapterSummary(summary)
       setLoading(false)
