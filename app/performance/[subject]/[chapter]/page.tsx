@@ -21,6 +21,8 @@ export default function PerformancePage() {
   const [activeTab, setActiveTab] = useState<'overview' | 'topics'>('overview')
   const [showStartedTopics, setShowStartedTopics] = useState(false)
   const [showMasteredTopics, setShowMasteredTopics] = useState(false)
+  const [showQuestions, setShowQuestions] = useState(false)
+  const [allQuestions, setAllQuestions] = useState<any[]>([])
 
   useEffect(() => {
     loadPerformanceData()
@@ -252,6 +254,24 @@ export default function PerformancePage() {
         : 0
       summary.overallAccuracy = totalAttempts > 0 ? (totalCorrect / totalAttempts) * 100 : 0
 
+      // Fetch all questions with details
+      const { data: questionsData } = await supabase
+        .from('user_responses')
+        .select(`
+          id,
+          is_correct,
+          confidence,
+          created_at,
+          bloom_level,
+          topic_id,
+          topics(name),
+          questions(id, question_text, dimension)
+        `)
+        .eq('user_id', user.id)
+        .in('topic_id', topicIds)
+        .order('created_at', { ascending: false })
+
+      setAllQuestions(questionsData || [])
       setChapterSummary(summary)
       setLoading(false)
 
@@ -352,7 +372,10 @@ export default function PerformancePage() {
           </Tooltip>
 
           <Tooltip content="Total question attempts across all topics">
-            <div className="neuro-stat group">
+            <button
+              onClick={() => setShowQuestions(!showQuestions)}
+              className="neuro-stat group w-full text-left cursor-pointer"
+            >
               <div className="flex items-center justify-between mb-3">
                 <div className="text-sm text-cyan-400 font-medium">Questions</div>
                 <CheckIcon size={20} className="text-cyan-400 opacity-50 group-hover:opacity-100 transition-opacity" />
@@ -360,7 +383,7 @@ export default function PerformancePage() {
               <div className="text-4xl font-bold text-gray-200 group-hover:text-cyan-400 transition-colors">
                 {chapterSummary?.totalQuestions || 0}
               </div>
-            </div>
+            </button>
           </Tooltip>
 
           <Tooltip content="Percentage of all attempts answered correctly (includes low confidence)">
@@ -516,6 +539,86 @@ export default function PerformancePage() {
                 </div>
                 <div className="text-sm text-gray-600">
                   Topics require 80%+ average mastery across all 7 dimensions to be considered mastered.
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Questions List */}
+        {showQuestions && (
+          <div className="neuro-raised">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="neuro-inset w-10 h-10 rounded-lg flex items-center justify-center">
+                  <CheckIcon size={20} className="text-cyan-400" />
+                </div>
+                <h2 className="text-xl font-semibold text-gray-200">
+                  Questions Attempted ({allQuestions.length})
+                </h2>
+              </div>
+              <button
+                onClick={() => setShowQuestions(false)}
+                className="neuro-btn text-sm text-gray-400 hover:text-gray-300 px-4 py-2"
+              >
+                Close
+              </button>
+            </div>
+
+            {allQuestions.length > 0 ? (
+              <div className="max-h-[600px] overflow-y-auto pr-2 space-y-3">
+                {allQuestions.map((q: any) => (
+                  <div
+                    key={q.id}
+                    className="neuro-inset p-4 rounded-lg hover:bg-gray-900/30 transition-colors"
+                  >
+                    <div className="flex items-start justify-between gap-4 mb-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="text-gray-200 text-sm mb-2 leading-relaxed">
+                          {q.questions?.question_text || 'Question text unavailable'}
+                        </div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`neuro-raised px-2 py-0.5 text-xs rounded ${
+                            q.is_correct ? 'text-green-400' : 'text-red-400'
+                          }`}>
+                            {q.is_correct ? 'Correct' : 'Incorrect'}
+                          </span>
+                          <span className="text-gray-500 text-xs">
+                            Confidence: <span className="text-gray-400">{q.confidence || 'N/A'}</span>
+                          </span>
+                          <span className="text-gray-500 text-xs">
+                            Dimension: <span className="text-gray-400">{q.questions?.dimension || 'N/A'}</span>
+                          </span>
+                          <span className="text-gray-500 text-xs">
+                            Bloom L{q.bloom_level}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-gray-600">
+                      <div>
+                        Topic: <span className="text-gray-500">{q.topics?.name || 'Unknown'}</span>
+                      </div>
+                      <div>
+                        {new Date(q.created_at).toLocaleString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="neuro-inset p-8 rounded-lg text-center">
+                <div className="text-gray-400 text-lg font-semibold mb-2">
+                  No questions attempted yet
+                </div>
+                <div className="text-sm text-gray-600">
+                  Start practicing to see your question history here.
                 </div>
               </div>
             )}
