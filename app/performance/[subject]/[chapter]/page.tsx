@@ -510,13 +510,13 @@ export default function PerformancePage() {
 
       // Get all user responses for this chapter (directly from user_responses, not aggregated)
       // Filter to only responses for topics in this chapter
-      const { data: allUserResponses } = await supabase
+      const { data: allUserResponsesForExam } = await supabase
         .from('user_responses')
         .select('is_correct, bloom_level, topic_id, topics(chapter_id)')
         .eq('user_id', user.id)
 
       // Filter to only this chapter's responses
-      const chapterResponses = allUserResponses?.filter(
+      const chapterResponses = allUserResponsesForExam?.filter(
         (r: any) => r.topics?.chapter_id === fetchedChapter.id
       ) || []
 
