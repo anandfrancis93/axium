@@ -274,6 +274,19 @@ export default function PerformancePage() {
       // Filter to only questions for topics in this chapter
       const filteredQuestions = allQuestionsData?.filter(q => topicIdSet.has(q.topic_id)) || []
       setAllQuestions(filteredQuestions)
+
+      // Update lastPracticed for each topic based on most recent response
+      filteredQuestions.forEach((response: any) => {
+        const topicId = response.topic_id
+        if (topicStatsMap.has(topicId)) {
+          const stats = topicStatsMap.get(topicId)
+          const responseDate = new Date(response.created_at)
+          if (!stats.lastPracticed || responseDate > stats.lastPracticed) {
+            stats.lastPracticed = responseDate
+          }
+        }
+      })
+
       setChapterSummary(summary)
 
       // Load spaced repetition data
