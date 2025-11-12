@@ -126,7 +126,7 @@ export function ChapterMasteryOverview({
   )
 
   return (
-    <div className="neuro-raised border-l-4 border-blue-500">
+    <div className="neuro-raised">
       <div className="flex items-start justify-between mb-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
