@@ -638,21 +638,21 @@ export async function POST(request: NextRequest) {
       // Force spaced repetition: Select most overdue topic
       selectionMethod = 'forced_spacing'
 
-      // Sort by priority: negative mastery first (struggling topics), then by days overdue
+      // Sort by priority: low accuracy first (struggling topics), then by days overdue
       overdueTopics.sort((a, b) => {
-        // PRIORITY 1: Negative mastery topics first (most struggling)
-        const aNegative = a.mastery < 0
-        const bNegative = b.mastery < 0
+        // PRIORITY 1: Very low accuracy topics first (most struggling)
+        const aStruggling = a.accuracy < 40
+        const bStruggling = b.accuracy < 40
 
-        if (aNegative && !bNegative) return -1  // a (negative) comes first
-        if (!aNegative && bNegative) return 1   // b (negative) comes first
+        if (aStruggling && !bStruggling) return -1  // a (struggling) comes first
+        if (!aStruggling && bStruggling) return 1   // b (struggling) comes first
 
-        // PRIORITY 2: Among negative mastery, sort by lowest score
-        if (aNegative && bNegative) {
-          return a.mastery - b.mastery  // -45% comes before -20%
+        // PRIORITY 2: Among struggling, sort by lowest accuracy
+        if (aStruggling && bStruggling) {
+          return a.accuracy - b.accuracy  // 20% comes before 35%
         }
 
-        // PRIORITY 3: For non-negative, use days overdue (original logic)
+        // PRIORITY 3: For non-struggling, use days overdue (original logic)
         const aOverdue = a.daysSince - a.optimalInterval
         const bOverdue = b.daysSince - b.optimalInterval
         return bOverdue - aOverdue // Most overdue first
