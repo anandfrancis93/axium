@@ -86,14 +86,7 @@ export default function TopicMasteryPage() {
       setRlPhase(progressData?.rl_phase || null)
       setCurrentBloomLevel(progressData?.current_bloom_level || 1)
 
-      // Get all possible dimensions from chapter (not just this topic)
-      // This ensures we show all dimensions even if no questions exist for this topic
-      const { data: allQuestionsInChapter } = await supabase
-        .from('questions')
-        .select('dimension, bloom_level, topics!inner(chapter_id)')
-        .eq('topics.chapter_id', fetchedChapter.id)
-
-      // Also get questions for this specific topic
+      // Get all questions for this specific topic to determine available dimensions
       const { data: allQuestions } = await supabase
         .from('questions')
         .select('dimension, bloom_level')
@@ -282,9 +275,9 @@ export default function TopicMasteryPage() {
         BLOOM_LEVELS.forEach(level => {
           const levelResponses = responses.filter((r: any) => r.bloom_level === level.num)
 
-          // Get all possible dimensions for this Bloom level from entire chapter
+          // Get all possible dimensions for this Bloom level for THIS TOPIC
           const allDimensionsForLevel = new Set<string>()
-          allQuestionsInChapter?.forEach((q: any) => {
+          allQuestions?.forEach((q: any) => {
             if (q.bloom_level === level.num && q.dimension) {
               allDimensionsForLevel.add(q.dimension)
             }
