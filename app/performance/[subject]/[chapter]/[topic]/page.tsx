@@ -35,6 +35,7 @@ export default function TopicMasteryPage() {
   const [dimensionStats, setDimensionStats] = useState<any[]>([])
   const [bloomLevelStats, setBloomLevelStats] = useState<Record<number, any>>({})
   const [bloomLevelDimensions, setBloomLevelDimensions] = useState<Record<number, any[]>>({})
+  const [bloomLevelTopicDimensions, setBloomLevelTopicDimensions] = useState<Record<number, any[]>>({})
   const [masteryTrendData, setMasteryTrendData] = useState<any[]>([])
   const [uniqueQuestions, setUniqueQuestions] = useState<any[]>([])
   const [activeTab, setActiveTab] = useState<'current' | 'all-levels' | 'trend' | 'history'>('current')
@@ -552,10 +553,10 @@ export default function TopicMasteryPage() {
                       </div>
                       <div>
                         <h2 className="text-xl font-semibold text-gray-200">
-                          Bloom Level {selectedBloomLevel} Dimensions
+                          Bloom Level {selectedBloomLevel} - {BLOOM_LEVELS.find(l => l.num === selectedBloomLevel)?.name}
                         </h2>
                         <p className="text-sm text-gray-400">
-                          {BLOOM_LEVELS.find(l => l.num === selectedBloomLevel)?.name}
+                          Performance across knowledge dimensions
                         </p>
                       </div>
                     </div>
@@ -568,12 +569,85 @@ export default function TopicMasteryPage() {
                     </button>
                   </div>
 
-                  <ChapterMasteryOverview
-                    topicName={topic}
-                    bloomLevel={selectedBloomLevel}
-                    dimensions={bloomLevelDimensions[selectedBloomLevel]}
-                    unlockThreshold={80}
-                  />
+                  {/* Dimension Table */}
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-gray-700">
+                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Topic</th>
+                          {bloomLevelDimensions[selectedBloomLevel].map((dim: any) => (
+                            <th key={dim.dimension} className="text-center py-3 px-4 text-gray-400 font-medium">
+                              {dim.dimension}
+                            </th>
+                          ))}
+                          <th className="text-center py-3 px-4 text-gray-400 font-medium">Overall</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="border-b border-gray-800 hover:bg-gray-900/30">
+                          <td className="py-3 px-4 text-gray-200 font-medium">
+                            {topic}
+                          </td>
+                          {bloomLevelDimensions[selectedBloomLevel].map((dim: any) => {
+                            const mastery = dim.mastery
+                            const colorClass =
+                              mastery >= 80 ? 'text-green-400' :
+                              mastery >= 60 ? 'text-blue-400' :
+                              mastery >= 40 ? 'text-yellow-400' :
+                              'text-red-400'
+
+                            return (
+                              <td key={dim.dimension} className="text-center py-3 px-4">
+                                <div className={`text-lg font-bold ${colorClass}`}>
+                                  {Math.round(mastery)}%
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  {dim.highConfidenceCorrect}/{dim.highConfidenceTotal}
+                                </div>
+                              </td>
+                            )
+                          })}
+                          <td className="text-center py-3 px-4">
+                            <div className={`text-lg font-bold ${
+                              (() => {
+                                const overall = bloomLevelDimensions[selectedBloomLevel].reduce((sum, d) => sum + d.mastery, 0) / bloomLevelDimensions[selectedBloomLevel].length
+                                return overall >= 80 ? 'text-green-400' :
+                                       overall >= 60 ? 'text-blue-400' :
+                                       overall >= 40 ? 'text-yellow-400' :
+                                       'text-red-400'
+                              })()
+                            }`}>
+                              {Math.round(
+                                bloomLevelDimensions[selectedBloomLevel].reduce((sum, d) => sum + d.mastery, 0) /
+                                bloomLevelDimensions[selectedBloomLevel].length
+                              )}%
+                            </div>
+                            <div className="text-xs text-gray-500">Average</div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Legend */}
+                  <div className="flex flex-wrap gap-4 justify-center text-xs text-gray-500 mt-4 pt-4 border-t border-gray-800">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded bg-green-400"></div>
+                      <span>Mastered (≥80%)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded bg-blue-400"></div>
+                      <span>Proficient (60-79%)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded bg-yellow-400"></div>
+                      <span>Developing (40-59%)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded bg-red-400"></div>
+                      <span>Needs Work (&lt;40%)</span>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
