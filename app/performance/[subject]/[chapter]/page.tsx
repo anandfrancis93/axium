@@ -198,16 +198,22 @@ export default function PerformancePage() {
             : null
 
           // Determine status
+          // Require at least 3 dimensions tested to be considered "mastered"
+          const minDimensionsForMastery = 3
+
           if (stats.overallMastery === null) {
             stats.status = 'not_started'
           } else if (stats.overallMastery < 0) {
             stats.status = 'struggling'
-          } else if (stats.overallMastery >= 80) {
+          } else if (stats.overallMastery >= 80 && dimensionScores.length >= minDimensionsForMastery) {
             stats.status = 'mastered'
             debugMasteredCount++
-            console.log('Mastered topic:', stats.name, 'Mastery:', stats.overallMastery, 'Dimensions:', dimensionScores)
+            console.log('Mastered topic:', stats.name, 'Mastery:', stats.overallMastery, 'Dimensions tested:', dimensionScores.length, 'Scores:', dimensionScores)
           } else {
             stats.status = 'progressing'
+            if (stats.overallMastery >= 80) {
+              console.log('High mastery but insufficient dimensions:', stats.name, 'Mastery:', stats.overallMastery, 'Dimensions:', dimensionScores.length)
+            }
           }
         }
       })
