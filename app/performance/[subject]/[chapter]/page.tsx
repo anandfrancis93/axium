@@ -1043,13 +1043,21 @@ export default function PerformancePage() {
                                         : item.hoursSince === 1
                                           ? '1 hour ago'
                                           : `${item.hoursSince} hours ago`
-                                      : item.daysSince === 1
-                                        ? '1 day ago'
-                                        : item.daysSince < 7
-                                          ? `${item.daysSince} days ago`
-                                          : item.daysSince < 30
-                                            ? `${Math.floor(item.daysSince / 7)} weeks ago`
-                                            : `${Math.floor(item.daysSince / 30)} months ago`}
+                                      : item.daysSince < 7
+                                        ? (() => {
+                                            const remainingHours = item.hoursSince % 24
+                                            if (item.daysSince === 1) {
+                                              return remainingHours === 0
+                                                ? '1 day ago'
+                                                : `1 day ${remainingHours}h ago`
+                                            }
+                                            return remainingHours === 0
+                                              ? `${item.daysSince} days ago`
+                                              : `${item.daysSince} days ${remainingHours}h ago`
+                                          })()
+                                        : item.daysSince < 30
+                                          ? `${Math.floor(item.daysSince / 7)} weeks ago`
+                                          : `${Math.floor(item.daysSince / 30)} months ago`}
                                   </span>
                                 </div>
                               </Tooltip>
