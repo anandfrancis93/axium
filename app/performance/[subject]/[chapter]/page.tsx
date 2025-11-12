@@ -583,7 +583,15 @@ export default function PerformancePage() {
                             {q.is_correct ? 'Correct' : 'Incorrect'}
                           </span>
                           <span className="text-gray-500 text-xs">
-                            Confidence: <span className="text-gray-400">{q.confidence || 'N/A'}</span>
+                            Confidence: <span className="text-gray-400">
+                              {q.confidence
+                                ? q.confidence >= 4
+                                  ? 'High'
+                                  : q.confidence === 3
+                                    ? 'Medium'
+                                    : 'Low'
+                                : 'N/A'}
+                            </span>
                           </span>
                           <span className="text-gray-500 text-xs">
                             Dimension: <span className="text-gray-400">{q.questions?.dimension || 'N/A'}</span>
