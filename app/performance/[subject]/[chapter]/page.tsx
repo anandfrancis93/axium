@@ -174,6 +174,7 @@ export default function PerformancePage() {
       })
 
       // Calculate overall metrics and determine status
+      let debugMasteredCount = 0
       topicStatsMap.forEach((stats, topicId) => {
         const dimStats = topicDimensionStats.get(topicId)
         if (dimStats) {
@@ -203,11 +204,15 @@ export default function PerformancePage() {
             stats.status = 'struggling'
           } else if (stats.overallMastery >= 80) {
             stats.status = 'mastered'
+            debugMasteredCount++
+            console.log('Mastered topic:', stats.name, 'Mastery:', stats.overallMastery, 'Dimensions:', dimensionScores)
           } else {
             stats.status = 'progressing'
           }
         }
       })
+
+      console.log('Total topics marked as mastered:', debugMasteredCount)
 
       const statsArray = Array.from(topicStatsMap.values())
 
