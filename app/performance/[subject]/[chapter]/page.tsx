@@ -18,9 +18,10 @@ export default function PerformancePage() {
   const [chapterData, setChapterData] = useState<any>(null)
   const [topicStats, setTopicStats] = useState<any[]>([])
   const [chapterSummary, setChapterSummary] = useState<any>(null)
-  const [activeTab, setActiveTab] = useState<'overview' | 'topics'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'topics' | 'spacing'>('overview')
   const [expandedSection, setExpandedSection] = useState<'started' | 'mastered' | 'questions' | null>(null)
   const [allQuestions, setAllQuestions] = useState<any[]>([])
+  const [spacedRepetitionData, setSpacedRepetitionData] = useState<any[]>([])
 
   useEffect(() => {
     loadPerformanceData()
@@ -272,6 +273,80 @@ export default function PerformancePage() {
       const filteredQuestions = allQuestionsData?.filter(q => topicIdSet.has(q.topic_id)) || []
       setAllQuestions(filteredQuestions)
       setChapterSummary(summary)
+
+      // Load spaced repetition data
+      const { data: masteryDataForSpacing } = await supabase
+        .from('user_topic_mastery')
+        .select('topic_id, bloom_level, last_practiced_at, questions_attempted, questions_correct, topics(name, full_name)')
+        .eq('user_id', user.id)
+        .eq('chapter_id', fetchedChapter.id)
+        .not('last_practiced_at', 'is', null)
+
+      const now = new Date()
+      const spacingData: any[] = []
+
+      masteryDataForSpacing?.forEach((m: any) => {
+        const lastPracticed = new Date(m.last_practiced_at)
+        const timeSinceMs = now.getTime() - lastPracticed.getTime()
+        const daysSince = Math.floor(timeSinceMs / (1000 * 60 * 60 * 24))
+        const hoursSince = Math.floor(timeSinceMs / (1000 * 60 * 60))
+        const minutesSince = Math.floor(timeSinceMs / (1000 * 60))
+
+        // Calculate accuracy-based mastery
+        const accuracy = m.questions_attempted > 0
+          ? (m.questions_correct / m.questions_attempted) * 100
+          : 0
+
+        // Calculate optimal interval based on accuracy
+        let optimalInterval = 1
+        if (accuracy >= 80) optimalInterval = 14
+        else if (accuracy >= 60) optimalInterval = 7
+        else if (accuracy >= 40) optimalInterval = 3
+        else optimalInterval = 1
+
+        // First-time correct bonus
+        if (m.questions_attempted === 1 && m.questions_correct === 1) {
+          optimalInterval = Math.max(optimalInterval, 3)
+        }
+
+        const daysSinceOptimal = daysSince - optimalInterval
+        const isOverdue = daysSince >= optimalInterval
+        const topic = Array.isArray(m.topics) ? m.topics[0] : m.topics
+
+        spacingData.push({
+          topicId: m.topic_id,
+          topicName: topic?.name || 'Unknown',
+          topicFullName: topic?.full_name || topic?.name || 'Unknown',
+          bloomLevel: m.bloom_level,
+          lastPracticed: m.last_practiced_at,
+          daysSince,
+          hoursSince,
+          minutesSince,
+          optimalInterval,
+          daysSinceOptimal,
+          isOverdue,
+          accuracy,
+          questionsAttempted: m.questions_attempted,
+          questionsCorrect: m.questions_correct
+        })
+      })
+
+      // Sort by priority: overdue + struggling first, then by days overdue
+      spacingData.sort((a, b) => {
+        const aStruggling = a.accuracy < 40
+        const bStruggling = b.accuracy < 40
+
+        if (aStruggling && !bStruggling) return -1
+        if (!aStruggling && bStruggling) return 1
+
+        if (aStruggling && bStruggling) {
+          return a.accuracy - b.accuracy
+        }
+
+        return b.daysSinceOptimal - a.daysSinceOptimal
+      })
+
+      setSpacedRepetitionData(spacingData)
       setLoading(false)
 
     } catch (error) {
@@ -331,6 +406,19 @@ export default function PerformancePage() {
             }`}
           >
             All Topics
+          </button>
+          <button
+            onClick={() => setActiveTab('spacing')}
+            className={`neuro-btn px-6 py-3 whitespace-nowrap transition-colors ${
+              activeTab === 'spacing' ? 'text-blue-400' : 'text-gray-400'
+            }`}
+          >
+            Spaced Repetition
+            {spacedRepetitionData.filter(s => s.isOverdue).length > 0 && (
+              <span className="ml-2 px-2 py-0.5 bg-red-500/20 text-red-400 text-xs rounded">
+                {spacedRepetitionData.filter(s => s.isOverdue).length}
+              </span>
+            )}
           </button>
         </div>
 
@@ -711,6 +799,177 @@ export default function PerformancePage() {
             </div>
           )}
         </div>
+        )}
+
+        {/* Spaced Repetition Tab */}
+        {activeTab === 'spacing' && (
+          <div className="neuro-raised">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="neuro-inset w-10 h-10 rounded-lg flex items-center justify-center">
+                <TrendingUpIcon size={20} className="text-blue-400" />
+              </div>
+              <h2 className="text-xl font-semibold text-gray-200">
+                Spaced Repetition Schedule
+              </h2>
+            </div>
+
+            {spacedRepetitionData.length > 0 ? (
+              <>
+                <div className="mb-6 neuro-inset p-4 rounded-lg">
+                  <div className="text-sm text-gray-400 mb-2">
+                    Review intervals adapt based on your accuracy:
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded bg-red-500"></div>
+                      <span className="text-gray-500">&lt;40% → 1 day</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded bg-yellow-500"></div>
+                      <span className="text-gray-500">40-59% → 3 days</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded bg-blue-500"></div>
+                      <span className="text-gray-500">60-79% → 7 days</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded bg-green-500"></div>
+                      <span className="text-gray-500">≥80% → 14 days</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="max-h-[600px] overflow-y-auto pr-2 space-y-3">
+                  {spacedRepetitionData.map((item, index) => {
+                    const urgencyColor = item.isOverdue
+                      ? item.daysSinceOptimal > 7
+                        ? 'text-red-400'
+                        : item.daysSinceOptimal > 3
+                          ? 'text-orange-400'
+                          : 'text-yellow-400'
+                      : 'text-gray-400'
+
+                    const intervalColor = item.accuracy >= 80
+                      ? 'bg-green-500/20 text-green-400'
+                      : item.accuracy >= 60
+                        ? 'bg-blue-500/20 text-blue-400'
+                        : item.accuracy >= 40
+                          ? 'bg-yellow-500/20 text-yellow-400'
+                          : 'bg-red-500/20 text-red-400'
+
+                    return (
+                      <div
+                        key={`${item.topicId}-${item.bloomLevel}`}
+                        className={`neuro-inset p-4 rounded-lg hover:bg-gray-900/30 transition-colors ${
+                          item.isOverdue ? 'border-l-4 border-red-500' : ''
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="text-base font-medium text-gray-200 truncate">
+                                {item.topicFullName}
+                              </div>
+                              <div className="neuro-inset px-2 py-0.5 rounded text-xs text-blue-400 whitespace-nowrap">
+                                Bloom L{item.bloomLevel}
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                              <Tooltip content={`Last practiced ${new Date(item.lastPracticed).toLocaleDateString()}`}>
+                                <div className="flex flex-col cursor-help">
+                                  <span className="text-gray-500">Last Practice</span>
+                                  <span className={`font-medium ${urgencyColor}`}>
+                                    {item.daysSince === 0
+                                      ? 'Today'
+                                      : item.daysSince === 1
+                                        ? '1 day ago'
+                                        : item.daysSince < 7
+                                          ? `${item.daysSince} days ago`
+                                          : item.daysSince < 30
+                                            ? `${Math.floor(item.daysSince / 7)} weeks ago`
+                                            : `${Math.floor(item.daysSince / 30)} months ago`}
+                                  </span>
+                                </div>
+                              </Tooltip>
+
+                              <Tooltip content={`Based on ${item.accuracy.toFixed(0)}% accuracy`}>
+                                <div className="flex flex-col cursor-help">
+                                  <span className="text-gray-500">Optimal Interval</span>
+                                  <span className={`font-medium px-2 py-0.5 rounded ${intervalColor}`}>
+                                    {item.optimalInterval === 1
+                                      ? '1 day'
+                                      : `${item.optimalInterval} days`}
+                                  </span>
+                                </div>
+                              </Tooltip>
+
+                              <Tooltip content={`${item.questionsCorrect} correct out of ${item.questionsAttempted} attempts`}>
+                                <div className="flex flex-col cursor-help">
+                                  <span className="text-gray-500">Accuracy</span>
+                                  <span className="font-medium text-gray-300">
+                                    {item.accuracy.toFixed(0)}%
+                                  </span>
+                                </div>
+                              </Tooltip>
+
+                              <div className="flex flex-col">
+                                <span className="text-gray-500">Status</span>
+                                <span className={`font-medium ${item.isOverdue ? 'text-red-400' : 'text-green-400'}`}>
+                                  {item.isOverdue
+                                    ? `Overdue (${item.daysSinceOptimal}d)`
+                                    : `Due in ${item.optimalInterval - item.daysSince}d`}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {item.isOverdue && (
+                            <Link
+                              href={`/subjects/${subject}/${chapter}/quiz`}
+                              className="neuro-btn text-blue-400 px-4 py-2 text-sm whitespace-nowrap flex items-center gap-2"
+                            >
+                              Review Now
+                              <ArrowRightIcon size={16} />
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                <div className="mt-6 neuro-inset p-4 rounded-lg text-sm text-gray-400">
+                  <div className="font-medium text-gray-300 mb-2">How it works:</div>
+                  <ul className="space-y-1 text-xs list-disc list-inside">
+                    <li>Topics are sorted by priority: struggling + overdue topics first</li>
+                    <li>Review intervals adapt based on your accuracy (higher accuracy = longer intervals)</li>
+                    <li>Overdue topics should be reviewed soon to maintain retention</li>
+                    <li>First-time correct answers get at least 3 days before next review</li>
+                  </ul>
+                </div>
+              </>
+            ) : (
+              <div className="neuro-inset p-8 rounded-lg text-center">
+                <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <TrendingUpIcon size={40} className="text-gray-600" />
+                </div>
+                <div className="text-gray-400 text-lg font-semibold mb-2">
+                  No practice history yet
+                </div>
+                <div className="text-sm text-gray-600 mb-6">
+                  Start practicing topics to see your spaced repetition schedule
+                </div>
+                <Link
+                  href={`/subjects/${subject}/${chapter}/quiz`}
+                  className="neuro-btn text-blue-400 inline-flex items-center gap-2 px-6 py-3"
+                >
+                  <CheckIcon size={18} />
+                  <span>Start Practice</span>
+                </Link>
+              </div>
+            )}
+          </div>
         )}
 
       </main>
