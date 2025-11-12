@@ -19,7 +19,7 @@ export default function PerformancePage() {
   const [topicStats, setTopicStats] = useState<any[]>([])
   const [chapterSummary, setChapterSummary] = useState<any>(null)
   const [showPriorityTopics, setShowPriorityTopics] = useState(true)
-  const [showAdvanced, setShowAdvanced] = useState(false)
+  const [activeTab, setActiveTab] = useState<'overview' | 'topics'>('overview')
 
   useEffect(() => {
     loadPerformanceData()
@@ -240,8 +240,31 @@ export default function PerformancePage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-8">
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {/* Tab Navigation */}
+        <div className="flex gap-3 overflow-x-auto">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`neuro-btn px-6 py-3 whitespace-nowrap transition-colors ${
+              activeTab === 'overview' ? 'text-blue-400' : 'text-gray-400'
+            }`}
+          >
+            Overview
+          </button>
+          <button
+            onClick={() => setActiveTab('topics')}
+            className={`neuro-btn px-6 py-3 whitespace-nowrap transition-colors ${
+              activeTab === 'topics' ? 'text-blue-400' : 'text-gray-400'
+            }`}
+          >
+            All Topics
+          </button>
+        </div>
+
+        {/* Overview Tab */}
+        {activeTab === 'overview' && (
+          <>
+            {/* Quick Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Tooltip content="Topics you've practiced at least once">
             <div className="neuro-stat group">
               <div className="flex items-center justify-between mb-3">
@@ -370,9 +393,12 @@ export default function PerformancePage() {
             )}
           </div>
         )}
+          </>
+        )}
 
-        {/* All Topics */}
-        <div className="neuro-raised">
+        {/* All Topics Tab */}
+        {activeTab === 'topics' && (
+          <div className="neuro-raised">
           <div className="flex items-center gap-3 mb-6">
             <div className="neuro-inset w-10 h-10 rounded-lg flex items-center justify-center">
               <TargetIcon size={20} className="text-blue-400" />
@@ -462,6 +488,7 @@ export default function PerformancePage() {
             </div>
           )}
         </div>
+        )}
 
       </main>
     </div>
