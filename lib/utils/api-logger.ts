@@ -83,15 +83,3 @@ export async function logAPICall(params: LogAPICallParams) {
     console.error('Error in logAPICall:', error)
   }
 }
-
-// Helper to calculate cost for a given token count and model
-export function calculateCost(model: string, inputTokens: number, outputTokens: number) {
-  const pricing = PRICING[model as keyof typeof PRICING] || { input: 0, output: 0 }
-  const inputCost = (inputTokens / 1_000_000) * pricing.input
-  const outputCost = (outputTokens / 1_000_000) * pricing.output
-  return {
-    inputCost,
-    outputCost,
-    totalCost: inputCost + outputCost
-  }
-}
