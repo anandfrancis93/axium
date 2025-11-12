@@ -65,15 +65,20 @@ export default function PerformancePage() {
         .select('topic_id, current_bloom_level, total_attempts, topics(name)')
         .eq('user_id', user.id)
 
-      // Get dimension coverage for high-confidence data
-      const { data: dimensionData } = await supabase
-        .from('user_dimension_coverage')
-        .select('topic_id, bloom_level, dimension, high_confidence_correct, high_confidence_total, total_correct, total_attempts, topics(name)')
-        .eq('user_id', user.id)
-        .eq('chapter_id', fetchedChapter.id)
-
       // Build topic stats
       const topicStatsMap = new Map<string, any>()
+      const topicIds = topicsData?.map(t => t.id) || []
+
+      // Get dimension coverage for high-confidence data (filter by topic IDs)
+      let dimensionData = null
+      if (topicIds.length > 0) {
+        const result = await supabase
+          .from('user_dimension_coverage')
+          .select('topic_id, bloom_level, dimension, high_confidence_correct, high_confidence_total, total_correct, total_attempts, topics(name)')
+          .eq('user_id', user.id)
+          .in('topic_id', topicIds)
+        dimensionData = result.data
+      }
 
       topicsData?.forEach((topic: any) => {
         topicStatsMap.set(topic.id, {
