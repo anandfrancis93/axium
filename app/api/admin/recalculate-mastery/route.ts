@@ -41,11 +41,15 @@ export async function POST() {
         .select(`
           id,
           topic_id,
+          topics!inner(name),
           bloom_level,
           is_correct,
           created_at,
           session_id,
-          learning_sessions!inner(chapter_id)
+          learning_sessions!inner(
+            chapter_id,
+            chapters!inner(subject_id)
+          )
         `)
         .eq('user_id', userId)
         .order('created_at', { ascending: true })
@@ -78,17 +82,21 @@ export async function POST() {
 
       console.log(`  Found ${rewardLogs?.length || 0} reward logs`)
 
-      // Group responses by (topic_id, bloom_level, chapter_id)
+      // Group responses by (topic_name, bloom_level, chapter_id)
       const groupedResponses = new Map()
 
       responses.forEach((response: any) => {
-        const key = `${response.topic_id}-${response.bloom_level}-${response.learning_sessions.chapter_id}`
+        const topicName = response.topics?.name
+        if (!topicName) return // Skip if no topic name
+
+        const key = `${topicName}-${response.bloom_level}-${response.learning_sessions.chapter_id}`
         if (!groupedResponses.has(key)) {
           groupedResponses.set(key, {
             userId,
-            topicId: response.topic_id,
+            topicName,
             bloomLevel: response.bloom_level,
             chapterId: response.learning_sessions.chapter_id,
+            subjectId: response.learning_sessions.chapters.subject_id,
             responses: []
           })
         }
@@ -130,19 +138,23 @@ export async function POST() {
 
         const questionsAttempted = group.responses.length
 
-        // Update user_topic_mastery with recalculated score
+        // Upsert user_topic_mastery with recalculated score
         const { error: updateError } = await supabase
           .from('user_topic_mastery')
-          .update({
+          .upsert({
+            user_id: group.userId,
+            topic: group.topicName,
+            bloom_level: group.bloomLevel,
+            chapter_id: group.chapterId,
+            subject_id: group.subjectId,
             mastery_score: currentMastery,
             questions_attempted: questionsAttempted,
             questions_correct: questionsCorrect,
+            last_practiced_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
+          }, {
+            onConflict: 'user_id,topic,bloom_level,chapter_id'
           })
-          .eq('user_id', group.userId)
-          .eq('topic_id', group.topicId)
-          .eq('bloom_level', group.bloomLevel)
-          .eq('chapter_id', group.chapterId)
 
         if (updateError) {
           console.error(`Error updating mastery for ${key}:`, updateError)
@@ -152,7 +164,7 @@ export async function POST() {
           console.log(`  Updated ${key.split('-')[0].substring(0, 8)}... L${group.bloomLevel}: ${sign}${currentMastery.toFixed(1)}%`)
 
           results.push({
-            topicId: group.topicId,
+            topic: group.topicName,
             bloomLevel: group.bloomLevel,
             mastery: currentMastery,
             attempts: questionsAttempted,
