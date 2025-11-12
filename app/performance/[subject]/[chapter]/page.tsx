@@ -20,6 +20,7 @@ export default function PerformancePage() {
   const [chapterSummary, setChapterSummary] = useState<any>(null)
   const [activeTab, setActiveTab] = useState<'overview' | 'topics'>('overview')
   const [showStartedTopics, setShowStartedTopics] = useState(false)
+  const [showMasteredTopics, setShowMasteredTopics] = useState(false)
 
   useEffect(() => {
     loadPerformanceData()
@@ -271,6 +272,9 @@ export default function PerformancePage() {
   }
 
   const startedTopics = topicStats.filter(t => t.totalAttempts > 0)
+  const masteredTopics = topicStats
+    .filter(t => t.status === 'mastered')
+    .sort((a, b) => (b.overallMastery || 0) - (a.overallMastery || 0))
 
   return (
     <div className="min-h-screen" style={{ background: '#0a0a0a' }}>
@@ -333,7 +337,10 @@ export default function PerformancePage() {
           </Tooltip>
 
           <Tooltip content="Topics with 80%+ mastery (high-confidence correct answers)">
-            <div className="neuro-stat group">
+            <button
+              onClick={() => setShowMasteredTopics(!showMasteredTopics)}
+              className="neuro-stat group w-full text-left cursor-pointer"
+            >
               <div className="flex items-center justify-between mb-3">
                 <div className="text-sm text-green-400 font-medium">Topics Mastered</div>
                 <AwardIcon size={20} className="text-green-400 opacity-50 group-hover:opacity-100 transition-opacity" />
@@ -341,7 +348,7 @@ export default function PerformancePage() {
               <div className="text-4xl font-bold text-gray-200 group-hover:text-green-400 transition-colors">
                 {chapterSummary?.topicsMastered || 0}
               </div>
-            </div>
+            </button>
           </Tooltip>
 
           <Tooltip content="Total question attempts across all topics">
@@ -408,6 +415,70 @@ export default function PerformancePage() {
                           Needs Review
                         </span>
                       )}
+                    </div>
+                    <div className="flex items-center gap-6 text-sm">
+                      <div className="text-gray-500">
+                        Level: <span className="text-blue-400 font-medium">L{topic.currentBloomLevel}</span>
+                      </div>
+                      {topic.overallRawAccuracy !== null && (
+                        <Tooltip content="Includes all attempts regardless of confidence">
+                          <div className="text-gray-500">
+                            Raw Accuracy: <span className="text-gray-400">{Math.round(topic.overallRawAccuracy)}%</span>
+                          </div>
+                        </Tooltip>
+                      )}
+                      {topic.totalAttempts > 0 && (
+                        <div className="text-gray-500">
+                          Attempts: <span className="text-gray-400">{topic.totalAttempts}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <Link
+                    href={`/performance/${subject}/${chapter}/${encodeURIComponent(topic.name)}`}
+                    className="neuro-btn text-sm text-gray-300 hover:text-blue-400 px-4 py-2 ml-4 flex-shrink-0 flex items-center gap-2"
+                  >
+                    View Details
+                    <ArrowRightIcon size={14} />
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Mastered Topics List */}
+        {showMasteredTopics && masteredTopics.length > 0 && (
+          <div className="neuro-raised">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="neuro-inset w-10 h-10 rounded-lg flex items-center justify-center">
+                  <AwardIcon size={20} className="text-green-400" />
+                </div>
+                <h2 className="text-xl font-semibold text-gray-200">
+                  Topics Mastered ({masteredTopics.length})
+                </h2>
+              </div>
+              <button
+                onClick={() => setShowMasteredTopics(false)}
+                className="neuro-btn text-sm text-gray-400 hover:text-gray-300 px-4 py-2"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="max-h-[600px] overflow-y-auto pr-2 space-y-3">
+              {masteredTopics.map(topic => (
+                <div
+                  key={topic.id}
+                  className="neuro-inset p-4 rounded-lg flex items-center justify-between hover:bg-gray-900/30 transition-colors"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="text-gray-200 font-medium truncate">{topic.name}</h3>
+                      <span className="neuro-raised px-2 py-0.5 text-xs text-green-400 rounded flex-shrink-0">
+                        Mastered
+                      </span>
                     </div>
                     <div className="flex items-center gap-6 text-sm">
                       <div className="text-gray-500">
