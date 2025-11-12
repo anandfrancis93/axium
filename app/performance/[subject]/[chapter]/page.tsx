@@ -1014,14 +1014,6 @@ export default function PerformancePage() {
                           : 'text-yellow-400'
                       : 'text-gray-400'
 
-                    const intervalColor = item.accuracy >= 80
-                      ? 'text-green-400'
-                      : item.accuracy >= 60
-                        ? 'text-blue-400'
-                        : item.accuracy >= 40
-                          ? 'text-yellow-400'
-                          : 'text-red-400'
-
                     return (
                       <div
                         key={`${item.topicId}-${item.bloomLevel}`}
@@ -1040,7 +1032,7 @@ export default function PerformancePage() {
                               </div>
                             </div>
 
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
                               <Tooltip content={`Last practiced ${new Date(item.lastPracticed).toLocaleDateString()}`}>
                                 <div className="flex flex-col cursor-help">
                                   <span className="text-gray-500">Last Practice</span>
@@ -1054,17 +1046,6 @@ export default function PerformancePage() {
                                           : item.daysSince < 30
                                             ? `${Math.floor(item.daysSince / 7)} weeks ago`
                                             : `${Math.floor(item.daysSince / 30)} months ago`}
-                                  </span>
-                                </div>
-                              </Tooltip>
-
-                              <Tooltip content={`Based on ${item.accuracy.toFixed(0)}% accuracy`}>
-                                <div className="flex flex-col cursor-help">
-                                  <span className="text-gray-500">Optimal Interval</span>
-                                  <span className={`font-medium ${intervalColor}`}>
-                                    {item.optimalInterval === 1
-                                      ? '1 day'
-                                      : `${item.optimalInterval} days`}
                                   </span>
                                 </div>
                               </Tooltip>
