@@ -422,7 +422,7 @@ export default function PerformancePage() {
                       )}
                       {topic.totalAttempts > 0 && (
                         <div className="text-gray-500">
-                          {topic.totalAttempts} attempt{topic.totalAttempts === 1 ? '' : 's'}
+                          Attempts: <span className="text-gray-400">{topic.totalAttempts}</span>
                         </div>
                       )}
                     </div>
@@ -490,7 +490,7 @@ export default function PerformancePage() {
                       )}
                       {topic.totalAttempts > 0 && (
                         <div className="text-gray-500">
-                          {topic.totalAttempts} attempt{topic.totalAttempts === 1 ? '' : 's'}
+                          Attempts: <span className="text-gray-400">{topic.totalAttempts}</span>
                         </div>
                       )}
                     </div>
