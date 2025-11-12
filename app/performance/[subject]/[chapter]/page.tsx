@@ -144,7 +144,7 @@ export default function PerformancePage() {
         const dimension = response.questions?.dimension || 'unknown'
         const isCorrect = response.is_correct
         const confidence = response.confidence || 0
-        const isHighConfidence = confidence >= 4
+        const isHighConfidence = confidence >= 3  // High confidence is now 3 (was 4)
 
         if (!topicDimensionStats.has(topicId)) {
           topicDimensionStats.set(topicId, {
