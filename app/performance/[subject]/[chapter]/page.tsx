@@ -346,18 +346,12 @@ export default function PerformancePage() {
         })
       })
 
-      // Sort by priority: overdue + struggling first, then by days overdue
+      // Sort by earliest due for review: most overdue first
       spacingData.sort((a, b) => {
-        const aStruggling = a.accuracy < 40
-        const bStruggling = b.accuracy < 40
-
-        if (aStruggling && !bStruggling) return -1
-        if (!aStruggling && bStruggling) return 1
-
-        if (aStruggling && bStruggling) {
-          return a.accuracy - b.accuracy
-        }
-
+        // Calculate when each topic is/was due
+        // Negative daysSinceOptimal means not yet due
+        // Positive daysSinceOptimal means overdue
+        // Higher positive value = more overdue = should review first
         return b.daysSinceOptimal - a.daysSinceOptimal
       })
 
