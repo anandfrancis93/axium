@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getDaysSinceLastPractice } from '@/lib/rl/mastery'
 import { calculateReward, RecognitionMethod, calculateReadingTimeBreakdown } from '@/lib/rl/rewards'
 import { findRelatedTopics } from '@/lib/rl/related-topics'
-import { logRewardCalculation, logMasteryUpdate } from '@/lib/rl/decision-logger'
+import { logRewardCalculation } from '@/lib/rl/decision-logger'
 
 /**
  * POST /api/rl/submit-response
@@ -343,14 +343,13 @@ export async function POST(request: NextRequest) {
       throw new Error(`Failed to store response: ${responseError.message}`)
     }
 
-    // Log reward calculation and mastery updates for transparency
-    console.log('Starting transparency logging for', masteryUpdates.length, 'topics')
+    // Log reward calculations for transparency
+    console.log('Starting transparency logging for', rewardsByTopic.length, 'topics')
 
-    for (let i = 0; i < masteryUpdates.length; i++) {
-      const masteryUpdate = masteryUpdates[i]
+    for (let i = 0; i < rewardsByTopic.length; i++) {
       const rewardInfo = rewardsByTopic[i]
 
-      console.log(`Logging topic ${i + 1}/${masteryUpdates.length}:`, masteryUpdate.topic_name)
+      console.log(`Logging topic ${i + 1}/${rewardsByTopic.length}:`, rewardInfo.topic_name)
 
       try {
         console.log('Attempting to log reward calculation...')
@@ -359,7 +358,7 @@ export async function POST(request: NextRequest) {
           sessionId: session_id,
           responseId: response.id,
           questionId: question_id,
-          topicId: masteryUpdate.topic_id,
+          topicId: rewardInfo.topic_id,
           bloomLevel: question.bloom_level,
           isCorrect,
           confidence,
@@ -373,28 +372,8 @@ export async function POST(request: NextRequest) {
         console.error('  sessionId:', session_id)
         console.error('  responseId:', response.id)
         console.error('  questionId:', question_id)
-        console.error('  topicId:', masteryUpdate.topic_id)
+        console.error('  topicId:', rewardInfo.topic_id)
         console.error('  Reward components:', JSON.stringify(rewardInfo.reward_components, null, 2))
-      }
-
-      try {
-        console.log('Attempting to log mastery update...')
-        await logMasteryUpdate({
-          userId: user.id,
-          sessionId: session_id,
-          responseId: response.id,
-          topicId: masteryUpdate.topic_id,
-          bloomLevel: question.bloom_level,
-          oldMastery: masteryUpdate.old_mastery,
-          newMastery: masteryUpdate.new_mastery,
-          formula: `EMA: ${masteryUpdate.change.toFixed(3)} (learning gain) → ${masteryUpdate.old_mastery.toFixed(1)} to ${masteryUpdate.new_mastery.toFixed(1)}`
-        })
-        console.log('✓ Mastery update logged successfully')
-      } catch (error) {
-        console.error('✗ Failed to log mastery update:', error)
-        console.error('  oldMastery:', masteryUpdate.old_mastery)
-        console.error('  newMastery:', masteryUpdate.new_mastery)
-        console.error('  Mastery update:', JSON.stringify(masteryUpdate, null, 2))
       }
     }
 
