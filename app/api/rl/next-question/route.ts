@@ -668,11 +668,11 @@ export async function POST(request: NextRequest) {
 
       const timeSince = formatTimeSince(highestPriority.daysSince, highestPriority.hoursSince % 24, highestPriority.minutesSince % 60)
 
-      // Customize message based on mastery level
-      if (highestPriority.mastery < 0) {
-        spacingReason = `This topic needs attention! Your mastery (${highestPriority.mastery.toFixed(0)}%) shows you're struggling here. Let's work on building a stronger foundation with focused practice.`
+      // Customize message based on accuracy level
+      if (highestPriority.accuracy < 40) {
+        spacingReason = `This topic needs attention! Your accuracy (${highestPriority.accuracy.toFixed(0)}%) shows you're struggling here. Let's work on building a stronger foundation with focused practice.`
       } else {
-        spacingReason = `Perfect timing for review! You last practiced this topic ${timeSince}, which is the ideal interval for your current mastery level (${highestPriority.mastery.toFixed(0)}%). Regular practice at this stage builds strong foundations.`
+        spacingReason = `Perfect timing for review! You last practiced this topic ${timeSince}, which is the ideal interval for your current accuracy level (${highestPriority.accuracy.toFixed(0)}%). Regular practice at this stage builds strong foundations.`
       }
 
       console.log('[FORCED SPACING]', {
