@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { BarChartIcon, TrendingUpIcon, AwardIcon, TargetIcon, AlertTriangleIcon, CheckIcon, ArrowRightIcon, LockIcon, LockOpenIcon } from '@/components/icons'
+import { BarChartIcon, TrendingUpIcon, AwardIcon, TargetIcon, CheckIcon, ArrowRightIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import { Tooltip } from '@/components/Tooltip'
 
@@ -18,7 +18,6 @@ export default function PerformancePage() {
   const [chapterData, setChapterData] = useState<any>(null)
   const [topicStats, setTopicStats] = useState<any[]>([])
   const [chapterSummary, setChapterSummary] = useState<any>(null)
-  const [showPriorityTopics, setShowPriorityTopics] = useState(true)
   const [activeTab, setActiveTab] = useState<'overview' | 'topics'>('overview')
 
   useEffect(() => {
@@ -270,8 +269,6 @@ export default function PerformancePage() {
     )
   }
 
-  const strugglingTopics = topicStats.filter(t => t.status === 'struggling')
-  const progressingTopics = topicStats.filter(t => t.status === 'progressing' && t.overallMastery >= 70)
   const startedTopics = topicStats.filter(t => t.totalAttempts > 0)
 
   return (
@@ -367,85 +364,6 @@ export default function PerformancePage() {
             </div>
           </Tooltip>
         </div>
-
-        {/* Priority Topics */}
-        {(strugglingTopics.length > 0 || progressingTopics.length > 0) && (
-          <div className="neuro-raised border-l-4 border-yellow-500">
-            <button
-              type="button"
-              onClick={() => setShowPriorityTopics(!showPriorityTopics)}
-              className="w-full flex items-center justify-between mb-4"
-            >
-              <div className="flex items-center gap-3">
-                <div className="neuro-inset w-10 h-10 rounded-lg flex items-center justify-center">
-                  <AlertTriangleIcon size={20} className="text-yellow-400" />
-                </div>
-                <h2 className="text-xl font-semibold text-gray-200">
-                  Topics Needing Attention
-                </h2>
-              </div>
-              <span className="text-gray-400 text-xl">
-                {showPriorityTopics ? '▼' : '▶'}
-              </span>
-            </button>
-
-            {showPriorityTopics && (
-              <div className="space-y-4">
-                {strugglingTopics.length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-medium text-red-400 mb-3">Struggling Topics (Negative Mastery)</h3>
-                    <div className="space-y-2">
-                      {strugglingTopics.map(topic => (
-                        <div key={topic.id} className="neuro-inset p-4 rounded-lg flex items-center justify-between">
-                          <div className="flex-1 min-w-0">
-                            <div className="text-gray-200 font-medium truncate">{topic.name}</div>
-                            <div className="text-sm text-gray-500">
-                              Mastery: <span className="text-red-400 font-semibold">{topic.overallMastery !== null ? Math.round(topic.overallMastery) : '--'}%</span>
-                              {topic.overallRawAccuracy !== null && (
-                                <span className="ml-3">Raw Accuracy: {Math.round(topic.overallRawAccuracy)}%</span>
-                              )}
-                            </div>
-                          </div>
-                          <Link
-                            href={`/performance/${subject}/${chapter}/${encodeURIComponent(topic.name)}`}
-                            className="neuro-btn text-sm text-red-400 hover:text-red-300 px-4 py-2 ml-4 flex-shrink-0"
-                          >
-                            Review
-                          </Link>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {progressingTopics.length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-medium text-yellow-400 mb-3">Close to Unlock (70-79% Mastery)</h3>
-                    <div className="space-y-2">
-                      {progressingTopics.map(topic => (
-                        <div key={topic.id} className="neuro-inset p-4 rounded-lg flex items-center justify-between">
-                          <div className="flex-1 min-w-0">
-                            <div className="text-gray-200 font-medium truncate">{topic.name}</div>
-                            <div className="text-sm text-gray-500">
-                              Mastery: <span className="text-yellow-400 font-semibold">{topic.overallMastery !== null ? Math.round(topic.overallMastery) : '--'}%</span>
-                              <span className="ml-3 text-gray-400">Need {80 - Math.round(topic.overallMastery || 0)}% more</span>
-                            </div>
-                          </div>
-                          <Link
-                            href={`/performance/${subject}/${chapter}/${encodeURIComponent(topic.name)}`}
-                            className="neuro-btn text-sm text-yellow-400 hover:text-yellow-300 px-4 py-2 ml-4 flex-shrink-0"
-                          >
-                            Practice
-                          </Link>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
           </>
         )}
 
