@@ -1015,12 +1015,12 @@ export default function PerformancePage() {
                       : 'text-gray-400'
 
                     const intervalColor = item.accuracy >= 80
-                      ? 'bg-green-500/20 text-green-400'
+                      ? 'text-green-400'
                       : item.accuracy >= 60
-                        ? 'bg-blue-500/20 text-blue-400'
+                        ? 'text-blue-400'
                         : item.accuracy >= 40
-                          ? 'bg-yellow-500/20 text-yellow-400'
-                          : 'bg-red-500/20 text-red-400'
+                          ? 'text-yellow-400'
+                          : 'text-red-400'
 
                     return (
                       <div
@@ -1061,7 +1061,7 @@ export default function PerformancePage() {
                               <Tooltip content={`Based on ${item.accuracy.toFixed(0)}% accuracy`}>
                                 <div className="flex flex-col cursor-help">
                                   <span className="text-gray-500">Optimal Interval</span>
-                                  <span className={`font-medium px-2 py-0.5 rounded ${intervalColor}`}>
+                                  <span className={`font-medium ${intervalColor}`}>
                                     {item.optimalInterval === 1
                                       ? '1 day'
                                       : `${item.optimalInterval} days`}
