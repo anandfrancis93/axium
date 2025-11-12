@@ -30,7 +30,7 @@ export interface MasteryData {
   topicId: string
   topicName: string
   bloomLevel: number
-  masteryScore: number
+  accuracy: number  // Accuracy-based mastery: (correct / total) × 100%
   questionsCorrect: number
   questionsAttempted: number
   lastPracticedAt: string | null
@@ -40,7 +40,7 @@ export interface ArmSample {
   arm: Arm
   sample: number
   adjustedSample: number
-  masteryScore: number
+  accuracy: number  // Accuracy-based mastery
   isUnlocked: boolean
   masteryBonus?: number
   spacingBonus?: number
@@ -90,7 +90,7 @@ export async function getAvailableArms(
       },
       sample: 0,
       adjustedSample: 0,
-      masteryScore: arm.mastery_score || 0,
+      accuracy: arm.mastery_score || 0,  // Will be 0 after migration, use stats for accuracy
       isUnlocked: true
     }))
 
@@ -171,7 +171,9 @@ export async function getUserMastery(
       topicId: m.topic_id,
       topicName: m.topic || '', // May be null if migrating
       bloomLevel: m.bloom_level,
-      masteryScore: parseFloat(m.mastery_score) || 0,
+      accuracy: m.questions_attempted > 0
+        ? (m.questions_correct / m.questions_attempted) * 100
+        : 0,
       questionsCorrect: m.questions_correct || 0,
       questionsAttempted: m.questions_attempted || 0,
       lastPracticedAt: m.last_practiced_at
@@ -240,14 +242,14 @@ export async function selectArmThompsonSampling(
 
     // Get mastery data
     const masteryData = mastery.get(key)
-    const topicMastery = masteryData?.masteryScore || 0
+    const topicAccuracy = masteryData?.accuracy || 0
     const daysSince = getDaysSinceLastPractice(masteryData?.lastPracticedAt || null)
 
     // Apply context-based multipliers
 
-    // 1. Mastery bonus: Prioritize topics with lower mastery
-    // Range: 0 to 1 (low mastery = 1, high mastery = 0)
-    const masteryBonus = (100 - topicMastery) / 100
+    // 1. Accuracy bonus: Prioritize topics with lower accuracy
+    // Range: 0 to 1 (low accuracy = 1, high accuracy = 0)
+    const masteryBonus = (100 - topicAccuracy) / 100
 
     // 2. Spacing bonus: Prioritize topics not practiced recently
     // Range: 0 to 1.5 (never practiced = 1.5, practiced today = 0)
@@ -263,7 +265,7 @@ export async function selectArmThompsonSampling(
     const prereqMastery = mastery.get(prereqKey)
     const isRecentlyUnlocked = armData.arm.bloomLevel > 1 &&
       prereqMastery &&
-      hasMetMasteryRequirements(prereqMastery.masteryScore, prereqMastery.questionsCorrect) &&
+      hasMetMasteryRequirements(prereqMastery.accuracy, prereqMastery.questionsCorrect) &&
       (masteryData?.questionsAttempted || 0) < 3
 
     const unlockBonus = isRecentlyUnlocked ? 0.3 : 0
@@ -292,7 +294,7 @@ export async function selectArmThompsonSampling(
     topicId: selected.arm.topicId,
     sample: selected.sample.toFixed(3),
     adjustedSample: selected.adjustedSample.toFixed(3),
-    mastery: selected.masteryScore.toFixed(1),
+    accuracy: selected.accuracy.toFixed(1),
     totalArms: samples.length
   })
 
@@ -304,13 +306,13 @@ export async function selectArmThompsonSampling(
   const masteryData = mastery.get(key)
   const daysSince = getDaysSinceLastPractice(masteryData?.lastPracticedAt || null)
 
-  // Main reason based on mastery
-  if (selected.masteryScore < 40) {
-    reasons.push(`You're still learning this topic (${selected.masteryScore.toFixed(0)}% mastery)`)
-  } else if (selected.masteryScore < 70) {
-    reasons.push(`You need more practice with this topic (${selected.masteryScore.toFixed(0)}% mastery)`)
+  // Main reason based on accuracy
+  if (selected.accuracy < 40) {
+    reasons.push(`You're still learning this topic (${selected.accuracy.toFixed(0)}% accuracy)`)
+  } else if (selected.accuracy < 70) {
+    reasons.push(`You need more practice with this topic (${selected.accuracy.toFixed(0)}% accuracy)`)
   } else {
-    reasons.push(`Maintaining your knowledge of this topic (${selected.masteryScore.toFixed(0)}% mastery)`)
+    reasons.push(`Maintaining your knowledge of this topic (${selected.accuracy.toFixed(0)}% accuracy)`)
   }
 
   // Spacing reason
@@ -344,7 +346,7 @@ export async function selectArmThompsonSampling(
       bloom_level: s.arm.bloomLevel,
       sampled_value: s.sample,
       adjusted_value: s.adjustedSample,
-      mastery_score: s.masteryScore
+      accuracy: s.accuracy
     })),
     selectedSample: {
       topic_id: selected.arm.topicId,
@@ -352,7 +354,7 @@ export async function selectArmThompsonSampling(
       bloom_level: selected.arm.bloomLevel,
       sampled_value: selected.sample,
       adjusted_value: selected.adjustedSample,
-      mastery_score: selected.masteryScore
+      accuracy: selected.accuracy
     },
     reasoning: userFriendlyReasoning
   }
