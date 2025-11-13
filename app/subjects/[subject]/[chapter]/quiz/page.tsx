@@ -29,7 +29,7 @@ export default function LearnPage() {
   const [questionMetadata, setQuestionMetadata] = useState<any>(null)
   const [armSelected, setArmSelected] = useState<any>(null)
   const [decisionContext, setDecisionContext] = useState<any>(null)
-  const [selectionMethod, setSelectionMethod] = useState<'thompson_sampling' | 'forced_spacing' | null>(null)
+  const [selectionMethod, setSelectionMethod] = useState<'thompson_sampling' | 'forced_spacing' | 'dimension_coverage' | null>(null)
   const [spacingReason, setSpacingReason] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -980,9 +980,19 @@ ${interpretation}`
                     <h3 className="text-sm md:text-base font-semibold text-gray-300">
                       Why This Question?
                     </h3>
+                    {selectionMethod === 'thompson_sampling' && (
+                      <span className="px-3 py-1 rounded-full text-xs md:text-sm font-semibold bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                        RL (Thompson Sampling)
+                      </span>
+                    )}
                     {selectionMethod === 'forced_spacing' && (
                       <span className="px-3 py-1 rounded-full text-xs md:text-sm font-semibold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
                         Spaced Repetition
+                      </span>
+                    )}
+                    {selectionMethod === 'dimension_coverage' && (
+                      <span className="px-3 py-1 rounded-full text-xs md:text-sm font-semibold bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                        Dimension Coverage
                       </span>
                     )}
                   </div>
@@ -996,7 +1006,12 @@ ${interpretation}`
                   )}
                   {selectionMethod === 'forced_spacing' && spacingReason && (
                     <p className="text-sm md:text-base text-yellow-500/70">
-                      This topic was forced for review due to spacing interval.
+                      {spacingReason}
+                    </p>
+                  )}
+                  {selectionMethod === 'dimension_coverage' && spacingReason && (
+                    <p className="text-sm md:text-base text-purple-500/70">
+                      {spacingReason}
                     </p>
                   )}
                 </div>
