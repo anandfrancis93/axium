@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import { RefreshIcon } from '@/components/icons'
 import { Tooltip } from '@/components/Tooltip'
+import Modal from '@/components/Modal'
 
 type Tab = 'audit' | 'analytics' | 'spaced-repetition' | 'api-costs'
 
@@ -54,6 +55,8 @@ export default function AuditPage() {
   const [filter, setFilter] = useState<'all' | 'arm_selection' | 'reward_calculation' | 'mastery_update' | 'data_deletion'>('all')
   const [selectedDecision, setSelectedDecision] = useState<any>(null)
   const [currentMastery, setCurrentMastery] = useState<Map<string, number>>(new Map())
+  const [isResetting, setIsResetting] = useState(false)
+  const [showResetModal, setShowResetModal] = useState(false)
 
   // Analytics State
   const [selections, setSelections] = useState<SelectionData[]>([])
@@ -519,6 +522,44 @@ export default function AuditPage() {
     }
   }
 
+  const handleResetClick = () => {
+    setShowResetModal(true)
+  }
+
+  const handleResetConfirm = async () => {
+    setShowResetModal(false)
+    setIsResetting(true)
+
+    try {
+      // Call reset API
+      const response = await fetch('/api/audit/reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Reset failed')
+      }
+
+      alert(`Successfully deleted ${result.deleted} audit log entries`)
+
+      // Reload the page data
+      await loadData()
+
+    } catch (error) {
+      console.error('Error resetting audit log:', error)
+      alert(error instanceof Error ? error.message : 'Failed to reset audit log')
+    } finally {
+      setIsResetting(false)
+    }
+  }
+
+  const handleResetCancel = () => {
+    setShowResetModal(false)
+  }
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-gray-200">
       {/* Header */}
@@ -526,6 +567,13 @@ export default function AuditPage() {
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-blue-400">System Transparency & Analytics</h1>
           <div className="flex items-center gap-4">
+            <button
+              onClick={handleResetClick}
+              disabled={isResetting}
+              className="neuro-btn text-red-400 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isResetting ? 'Resetting...' : 'Reset'}
+            </button>
             <button
               onClick={() => loadData()}
               className="neuro-btn text-blue-400 px-4 py-2 text-sm"
@@ -1479,6 +1527,44 @@ Thompson Sampling naturally balances exploration and exploitation based on uncer
           </>
         )}
       </main>
+
+      {/* Reset Confirmation Modal */}
+      <Modal
+        isOpen={showResetModal}
+        onClose={handleResetCancel}
+        title="Reset Audit Log"
+        type="warning"
+        actions={[
+          {
+            label: 'Cancel',
+            onClick: handleResetCancel,
+            variant: 'secondary'
+          },
+          {
+            label: 'Delete All Logs',
+            onClick: handleResetConfirm,
+            variant: 'danger'
+          }
+        ]}
+      >
+        <div className="space-y-4">
+          <p className="text-gray-300">
+            Are you sure you want to delete <span className="font-semibold text-red-400">all audit log entries</span>?
+          </p>
+          <div className="neuro-inset p-4 rounded-lg">
+            <p className="text-sm text-gray-400 mb-2">This will permanently delete:</p>
+            <ul className="text-sm text-gray-300 space-y-1">
+              <li>• All RL decision logs (arm selections, rewards, mastery updates)</li>
+              <li>• Data deletion audit trails</li>
+              <li>• System transparency records</li>
+              <li>• Analytics and spaced repetition tracking data</li>
+            </ul>
+          </div>
+          <p className="text-red-400 font-semibold text-sm">
+            ⚠ This action cannot be undone. This will NOT delete your actual learning progress, only the audit trail.
+          </p>
+        </div>
+      </Modal>
     </div>
   )
 }
