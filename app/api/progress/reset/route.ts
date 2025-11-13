@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     // Get topic info for logging
     const { data: topicData } = await supabase
       .from('topics')
-      .select('name, chapters(id, name)')
+      .select('name, chapter_id')
       .eq('id', topicId)
       .single()
 
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
     await logDataDeletion({
       userId: user.id,
       topicId: topicId,
-      chapterId: topicData?.chapters?.id,
+      chapterId: topicData?.chapter_id,
       reason: 'User requested topic reset',
       scope: 'topic',
       deletedData: deletedCounts,
