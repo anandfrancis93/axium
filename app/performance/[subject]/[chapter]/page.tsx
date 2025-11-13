@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { BarChartIcon, TrendingUpIcon, AwardIcon, TargetIcon, CheckIcon, ArrowRightIcon, TrophyIcon, SearchIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import { Tooltip } from '@/components/Tooltip'
+import Modal from '@/components/Modal'
 
 export default function PerformancePage() {
   const router = useRouter()
@@ -25,6 +26,8 @@ export default function PerformancePage() {
   const [apiCostData, setApiCostData] = useState<any>(null)
   const [examScoreData, setExamScoreData] = useState<any>(null)
   const [topicSearchQuery, setTopicSearchQuery] = useState('')
+  const [isResetting, setIsResetting] = useState(false)
+  const [showResetModal, setShowResetModal] = useState(false)
 
   useEffect(() => {
     loadPerformanceData()
@@ -711,6 +714,50 @@ export default function PerformancePage() {
     .filter(t => t.status === 'mastered')
     .sort((a, b) => (b.overallMastery || 0) - (a.overallMastery || 0))
 
+  const handleResetClick = () => {
+    setShowResetModal(true)
+  }
+
+  const handleResetConfirm = async () => {
+    setShowResetModal(false)
+    setIsResetting(true)
+
+    try {
+      if (!chapterData?.id) {
+        alert('Chapter not found')
+        return
+      }
+
+      // Call reset API
+      const response = await fetch('/api/rl/reset-progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chapter_id: chapterData.id })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Reset failed')
+      }
+
+      alert(`Successfully reset chapter:\n- ${result.deleted.responses} responses\n- ${result.deleted.mastery} mastery records\n- ${result.deleted.sessions} sessions\n- ${result.deleted.questions} AI questions`)
+
+      // Reload the page data
+      await loadPerformanceData()
+
+    } catch (error) {
+      console.error('Error resetting chapter:', error)
+      alert(error instanceof Error ? error.message : 'Failed to reset chapter')
+    } finally {
+      setIsResetting(false)
+    }
+  }
+
+  const handleResetCancel = () => {
+    setShowResetModal(false)
+  }
+
   return (
     <div className="min-h-screen" style={{ background: '#0a0a0a' }}>
       {/* Header */}
@@ -724,7 +771,17 @@ export default function PerformancePage() {
               {chapterData?.name}
             </h1>
           </div>
-          <HamburgerMenu />
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={handleResetClick}
+              disabled={isResetting}
+              className="neuro-btn text-red-400 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isResetting ? 'Resetting...' : 'Reset'}
+            </button>
+            <HamburgerMenu />
+          </div>
         </div>
       </header>
 
@@ -1883,6 +1940,46 @@ export default function PerformancePage() {
         )}
 
       </main>
+
+      {/* Reset Confirmation Modal */}
+      <Modal
+        isOpen={showResetModal}
+        onClose={handleResetCancel}
+        title="Reset Chapter Progress"
+        type="warning"
+        actions={[
+          {
+            label: 'Cancel',
+            onClick: handleResetCancel,
+            variant: 'secondary'
+          },
+          {
+            label: 'Reset All Data',
+            onClick: handleResetConfirm,
+            variant: 'danger'
+          }
+        ]}
+      >
+        <div className="space-y-4">
+          <p className="text-gray-300">
+            Are you sure you want to reset all progress for <span className="font-semibold text-blue-400">"{chapterData?.name}"</span>?
+          </p>
+          <div className="neuro-inset p-4 rounded-lg">
+            <p className="text-sm text-gray-400 mb-2">This will delete:</p>
+            <ul className="text-sm text-gray-300 space-y-1">
+              <li>• All question responses for all topics</li>
+              <li>• All learning sessions</li>
+              <li>• Mastery data across all topics and Bloom levels</li>
+              <li>• Thompson sampling statistics</li>
+              <li>• Dimension coverage tracking</li>
+              <li>• AI-generated questions</li>
+            </ul>
+          </div>
+          <p className="text-red-400 font-semibold text-sm">
+            ⚠ This action cannot be undone. All topics in this chapter will be reset.
+          </p>
+        </div>
+      </Modal>
     </div>
   )
 }
