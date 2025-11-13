@@ -974,23 +974,23 @@ export default function TopicMasteryPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-gray-700">
-                      <th className="text-center py-2 px-3 text-gray-400 font-medium">#</th>
-                      <th className="text-left py-2 px-3 text-gray-400 font-medium">Question</th>
-                      <th className="text-left py-2 px-3 text-gray-400 font-medium">Dimension</th>
-                      <th className="text-center py-2 px-3 text-gray-400 font-medium">Date & Time</th>
-                      <th className="text-center py-2 px-3 text-gray-400 font-medium">Selected By</th>
-                      <th className="text-center py-2 px-3 text-gray-400 font-medium">Previous</th>
-                      <th className="text-center py-2 px-3 text-gray-400 font-medium">Current</th>
-                      <th className="text-center py-2 px-3 text-gray-400 font-medium">Attempts</th>
+                      <th className="text-center py-2 px-3 text-gray-400 font-medium w-12">#</th>
+                      <th className="text-left py-2 px-3 text-gray-400 font-medium w-96">Question</th>
+                      <th className="text-left py-2 px-3 text-gray-400 font-medium w-32">Dimension</th>
+                      <th className="text-center py-2 px-3 text-gray-400 font-medium w-40">Date & Time</th>
+                      <th className="text-center py-2 px-3 text-gray-400 font-medium w-24">Selected By</th>
+                      <th className="text-center py-2 px-3 text-gray-400 font-medium w-24">Previous</th>
+                      <th className="text-center py-2 px-3 text-gray-400 font-medium w-24">Current</th>
+                      <th className="text-center py-2 px-3 text-gray-400 font-medium w-24">Attempts</th>
                     </tr>
                   </thead>
                   <tbody>
                     {uniqueQuestions.map((q, idx) => (
                       <tr key={q.question_id} className="border-b border-gray-800 hover:bg-gray-900/30">
-                        <td className="py-3 px-3 text-center text-gray-400">
+                        <td className="py-3 px-3 text-center text-gray-400 w-12">
                           {idx + 1}
                         </td>
-                        <td className="py-3 px-3 text-gray-200 max-w-md">
+                        <td className="py-3 px-3 text-gray-200 w-96">
                           <Tooltip content={
                             <div className="max-w-lg">
                               {q.question_text}
@@ -1001,10 +1001,10 @@ export default function TopicMasteryPage() {
                             </div>
                           </Tooltip>
                         </td>
-                        <td className="py-3 px-3 text-gray-400">
+                        <td className="py-3 px-3 text-gray-400 w-32">
                           {capitalizeDimension(q.dimension)}
                         </td>
-                        <td className="py-3 px-3 text-center text-gray-400 text-xs">
+                        <td className="py-3 px-3 text-center text-gray-400 text-xs w-40">
                           {new Date(q.first_attempt.created_at).toLocaleString('en-US', {
                             month: 'short',
                             day: 'numeric',
@@ -1013,7 +1013,7 @@ export default function TopicMasteryPage() {
                             minute: '2-digit'
                           })}
                         </td>
-                        <td className="py-3 px-3 text-center">
+                        <td className="py-3 px-3 text-center w-24">
                           {q.selection_method === 'thompson_sampling' && (
                             <span className="px-2 py-1 rounded text-xs font-medium bg-blue-500/20 text-blue-400 border border-blue-500/30">
                               RL
@@ -1030,7 +1030,7 @@ export default function TopicMasteryPage() {
                             </span>
                           )}
                         </td>
-                        <td className="py-3 px-3 text-center">
+                        <td className="py-3 px-3 text-center w-24">
                           {q.previous_attempt ? (
                             q.previous_attempt.is_correct ? (
                               <span className="text-green-400">Correct</span>
@@ -1041,14 +1041,14 @@ export default function TopicMasteryPage() {
                             <span className="text-gray-400">—</span>
                           )}
                         </td>
-                        <td className="py-3 px-3 text-center">
+                        <td className="py-3 px-3 text-center w-24">
                           {q.current_attempt.is_correct ? (
                             <span className="text-green-400">Correct</span>
                           ) : (
                             <span className="text-red-400">Wrong</span>
                           )}
                         </td>
-                        <td className="py-3 px-3 text-center">
+                        <td className="py-3 px-3 text-center w-24">
                           <span className={q.total_attempts > 1 ? 'text-blue-400' : 'text-gray-400'}>
                             {q.total_attempts}
                           </span>
