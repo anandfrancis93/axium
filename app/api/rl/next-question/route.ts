@@ -746,7 +746,7 @@ export async function POST(request: NextRequest) {
             .eq('user_id', user.id)
             .eq('bloom_level', pt.bloom_level)
             .eq('questions.topic_id', pt.topic_id)
-            .order('answered_at', { ascending: false })
+            .order('created_at', { ascending: false })
             .limit(1)
             .single()
 
