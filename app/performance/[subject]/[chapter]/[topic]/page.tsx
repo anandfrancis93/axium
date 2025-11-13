@@ -940,7 +940,7 @@ export default function TopicMasteryPage() {
                           </Tooltip>
                         </td>
                         <td className="py-3 px-3 text-gray-400">
-                          {q.dimension}
+                          {capitalizeDimension(q.dimension)}
                         </td>
                         <td className="py-3 px-3 text-center">
                           {q.previous_attempt ? (
