@@ -13,8 +13,8 @@ WITH user_stats AS (
 
     -- Learning Sessions
     (SELECT COUNT(*) FROM learning_sessions WHERE user_id = auth.uid()) as total_sessions,
-    (SELECT COUNT(*) FROM learning_sessions WHERE user_id = auth.uid() AND status = 'completed') as completed_sessions,
-    (SELECT COUNT(*) FROM learning_sessions WHERE user_id = auth.uid() AND status = 'active') as active_sessions,
+    (SELECT COUNT(*) FROM learning_sessions WHERE user_id = auth.uid() AND ended_at IS NOT NULL) as completed_sessions,
+    (SELECT COUNT(*) FROM learning_sessions WHERE user_id = auth.uid() AND ended_at IS NULL) as active_sessions,
 
     -- User Progress
     (SELECT COUNT(*) FROM user_progress WHERE user_id = auth.uid()) as topics_in_progress,
