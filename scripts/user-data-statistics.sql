@@ -20,9 +20,22 @@ WITH user_stats AS (
     (SELECT COUNT(*) FROM user_progress WHERE user_id = auth.uid()) as topics_in_progress,
     (SELECT COUNT(*) FROM user_progress WHERE user_id = auth.uid() AND current_bloom_level >= 6) as topics_at_max_bloom,
 
-    -- Topic Mastery
-    (SELECT COUNT(*) FROM user_topic_mastery WHERE user_id = auth.uid()) as topics_with_mastery_data,
-    (SELECT COUNT(*) FROM user_topic_mastery WHERE user_id = auth.uid() AND overall_mastery >= 80) as mastered_topics,
+    -- Topic Mastery (calculated from user_progress.mastery_scores)
+    (SELECT COUNT(*)
+     FROM user_progress
+     WHERE user_id = auth.uid()
+       AND mastery_scores IS NOT NULL) as topics_with_mastery_data,
+    (SELECT COUNT(*)
+     FROM user_progress
+     WHERE user_id = auth.uid()
+       AND (
+         (CAST(mastery_scores->>'1' AS DECIMAL) +
+          CAST(mastery_scores->>'2' AS DECIMAL) +
+          CAST(mastery_scores->>'3' AS DECIMAL) +
+          CAST(mastery_scores->>'4' AS DECIMAL) +
+          CAST(mastery_scores->>'5' AS DECIMAL) +
+          CAST(mastery_scores->>'6' AS DECIMAL)) / 6.0
+       ) >= 80) as mastered_topics,
 
     -- Dimension Coverage
     (SELECT COUNT(*) FROM user_dimension_coverage WHERE user_id = auth.uid()) as dimension_coverage_records,
