@@ -1004,7 +1004,7 @@ export default function TopicMasteryPage() {
                         <td className="py-3 px-3 text-gray-400 w-32">
                           {capitalizeDimension(q.dimension)}
                         </td>
-                        <td className="py-3 px-3 text-center text-gray-400 text-xs w-48">
+                        <td className="py-3 px-3 text-center text-gray-400 text-xs whitespace-nowrap">
                           {new Date(q.first_attempt.created_at).toLocaleString('en-US', {
                             month: 'short',
                             day: 'numeric',
