@@ -11,6 +11,7 @@ import { Tooltip } from '@/components/Tooltip'
 import { LockIcon, InfoIcon, TrendingUpIcon } from '@/components/icons'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Area, AreaChart, ReferenceLine } from 'recharts'
 import { ChapterMasteryOverview } from '@/components/ChapterMasteryOverview'
+import Modal from '@/components/Modal'
 
 const BLOOM_LEVELS = [
   { num: 1, name: 'Remember' },
@@ -57,6 +58,7 @@ export default function TopicMasteryPage() {
   const [activeTab, setActiveTab] = useState<'all-levels' | 'trend' | 'history'>('all-levels')
   const [selectedBloomLevel, setSelectedBloomLevel] = useState<number | null>(null)
   const [isResetting, setIsResetting] = useState(false)
+  const [showResetModal, setShowResetModal] = useState(false)
 
   useEffect(() => {
     loadData()
@@ -465,12 +467,14 @@ export default function TopicMasteryPage() {
     }
   }
 
-  const handleReset = async () => {
-    if (!confirm(`Are you sure you want to reset all progress for "${topic}"? This will delete all responses, sessions, mastery data, and AI-generated questions. This action cannot be undone.`)) {
-      return
-    }
+  const handleResetClick = () => {
+    setShowResetModal(true)
+  }
 
+  const handleResetConfirm = async () => {
+    setShowResetModal(false)
     setIsResetting(true)
+
     try {
       const supabase = createClient()
 
@@ -515,6 +519,10 @@ export default function TopicMasteryPage() {
     }
   }
 
+  const handleResetCancel = () => {
+    setShowResetModal(false)
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#0a0a0a' }}>
@@ -536,7 +544,7 @@ export default function TopicMasteryPage() {
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={handleReset}
+              onClick={handleResetClick}
               disabled={isResetting}
               className="neuro-btn text-red-400 disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -1124,6 +1132,44 @@ export default function TopicMasteryPage() {
         </div>
 
       </main>
+
+      {/* Reset Confirmation Modal */}
+      <Modal
+        isOpen={showResetModal}
+        onClose={handleResetCancel}
+        title="Reset Topic Progress"
+        type="warning"
+        actions={[
+          {
+            label: 'Cancel',
+            onClick: handleResetCancel,
+            variant: 'secondary'
+          },
+          {
+            label: 'Reset All Data',
+            onClick: handleResetConfirm,
+            variant: 'danger'
+          }
+        ]}
+      >
+        <div className="space-y-4">
+          <p className="text-gray-300">
+            Are you sure you want to reset all progress for <span className="font-semibold text-blue-400">"{topic}"</span>?
+          </p>
+          <div className="neuro-inset p-4 rounded-lg">
+            <p className="text-sm text-gray-400 mb-2">This will delete:</p>
+            <ul className="text-sm text-gray-300 space-y-1">
+              <li>• All question responses</li>
+              <li>• Learning sessions</li>
+              <li>• Mastery data across all Bloom levels</li>
+              <li>• AI-generated questions</li>
+            </ul>
+          </div>
+          <p className="text-red-400 font-semibold text-sm">
+            ⚠ This action cannot be undone.
+          </p>
+        </div>
+      </Modal>
     </div>
   )
 }
