@@ -32,6 +32,11 @@ const ALL_DIMENSIONS = [
   'pitfalls'
 ]
 
+// Helper function to capitalize dimension names
+function capitalizeDimension(dimension: string): string {
+  return dimension.charAt(0).toUpperCase() + dimension.slice(1)
+}
+
 export default function TopicMasteryPage() {
   const router = useRouter()
   const params = useParams()
@@ -609,7 +614,7 @@ export default function TopicMasteryPage() {
                             <th className="text-left py-3 px-4 text-gray-400 font-medium">Topic</th>
                             {bloomLevelDimensions[selectedBloomLevel].map((dim: any) => (
                               <th key={dim.dimension} className="text-center py-3 px-4 text-gray-400 font-medium">
-                                {dim.dimension}
+                                {capitalizeDimension(dim.dimension)}
                               </th>
                             ))}
                             <th className="text-center py-3 px-4 text-gray-400 font-medium">Overall</th>
@@ -709,7 +714,7 @@ export default function TopicMasteryPage() {
                             <th className="text-left py-3 px-4 text-gray-400 font-medium">Topic</th>
                             {bloomLevelDimensions[selectedBloomLevel].map((dim: any) => (
                               <th key={dim.dimension} className="text-center py-3 px-4 text-gray-400 font-medium">
-                                {dim.dimension}
+                                {capitalizeDimension(dim.dimension)}
                               </th>
                             ))}
                             <th className="text-center py-3 px-4 text-gray-400 font-medium">Overall</th>
