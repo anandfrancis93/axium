@@ -107,7 +107,7 @@ Do NOT add any headers, labels, or titles like "Explanation:" or "Simple Explana
     const claudeStartTime = Date.now()
     const completion = await anthropic.messages.create({
       model: 'claude-sonnet-4-5-20250929',
-      max_tokens: 300,
+      max_tokens: 1000,
       temperature: 0.7,
       system: systemPrompt,
       messages,
