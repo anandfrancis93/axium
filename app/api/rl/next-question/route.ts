@@ -562,11 +562,15 @@ export async function POST(request: NextRequest) {
     console.log(`[SESSION] Already asked ${alreadyAskedQuestionIds.size} questions in this session`)
 
     // ==============================================================
-    // 70-20-10 SPLIT: RL + SPACED REPETITION + DIMENSION COVERAGE
+    // ADAPTIVE SPLIT: RL + SPACED REPETITION + DIMENSION COVERAGE
     // ==============================================================
-    // 70% Thompson Sampling (RL): Optimal topic selection, fresh questions
-    // 20% Spaced Repetition: Review overdue topics, reuse exact questions
-    // 10% Dimension Coverage: Round-robin dimensions, fresh questions
+    // Standard (≥2 SR available): 70-20-10 (7 RL, 2 SR, 1 Dimension)
+    // Limited SR (1 SR available): 80-10-10 (8 RL, 1 SR, 1 Dimension)
+    // No SR (0 SR available): 80-20 (8 RL, 0 SR, 2 Dimension)
+    //
+    // RL (Thompson Sampling): Optimal topic selection, fresh questions
+    // SR (Spaced Repetition): Review overdue topics, reuse exact questions
+    // Dimension Coverage: Round-robin dimensions, fresh questions
     // ==============================================================
 
     let selectedArm: any = null
@@ -640,10 +644,31 @@ export async function POST(request: NextRequest) {
 
     console.log(`[SPACED REPETITION] Found ${overdueTopics.length} overdue topics`)
 
-    // Step 2: 70-20-10 decision
+    // Step 2: Adaptive split based on SR availability
+    // Ideal: 70-20-10 (7 RL, 2 SR, 1 Dimension)
+    // If only 1 SR: 80-10-10 (8 RL, 1 SR, 1 Dimension)
+    // If no SR: 80-20 (8 RL, 0 SR, 2 Dimension)
     const rand = Math.random()
-    const forceSpacedRepetition = rand < 0.20
-    const forceDimensionCoverage = rand >= 0.20 && rand < 0.30
+    let srProbability = 0.20  // Default 20%
+    let dimensionProbability = 0.10  // Default 10%
+
+    if (overdueTopics.length === 0) {
+      // No SR available - give its 20% to dimension coverage
+      srProbability = 0
+      dimensionProbability = 0.20  // Dimension gets 20%
+      console.log('[ADAPTIVE SPLIT] No SR available → Using 80-20 split (RL-Dimension)')
+    } else if (overdueTopics.length === 1) {
+      // Only 1 SR available - reduce SR to 10%, keep dimension at 10%
+      srProbability = 0.10
+      dimensionProbability = 0.10
+      console.log('[ADAPTIVE SPLIT] Only 1 SR available → Using 80-10-10 split (RL-SR-Dimension)')
+    } else {
+      // 2+ SR available - use standard 70-20-10
+      console.log('[ADAPTIVE SPLIT] Using standard 70-20-10 split (RL-SR-Dimension)')
+    }
+
+    const forceSpacedRepetition = rand < srProbability
+    const forceDimensionCoverage = rand >= srProbability && rand < (srProbability + dimensionProbability)
 
     if (forceSpacedRepetition && overdueTopics.length > 0) {
       // Spaced Repetition (20%): Select most overdue topic
