@@ -21,6 +21,17 @@ const BLOOM_LEVELS = [
   { num: 6, name: 'Create' }
 ]
 
+// All possible knowledge dimensions
+const ALL_DIMENSIONS = [
+  'definition',
+  'example',
+  'comparison',
+  'implementation',
+  'scenario',
+  'troubleshooting',
+  'pitfalls'
+]
+
 export default function TopicMasteryPage() {
   const router = useRouter()
   const params = useParams()
@@ -86,23 +97,11 @@ export default function TopicMasteryPage() {
       setRlPhase(progressData?.rl_phase || null)
       setCurrentBloomLevel(progressData?.current_bloom_level || 1)
 
-      // Get all unique dimensions from questions in this chapter
-      // Use a more efficient query by joining through topics
-      const { data: allQuestionsInChapter } = await supabase
-        .from('questions')
-        .select('dimension, bloom_level, topics!inner(chapter_id)')
-        .eq('topics.chapter_id', fetchedChapter.id)
-        .not('dimension', 'is', null)
-
       // Get all questions for this specific topic
       const { data: allQuestions } = await supabase
         .from('questions')
         .select('dimension, bloom_level')
         .eq('topic_id', topicData.id)
-
-      console.log('Debug - Topic:', topic)
-      console.log('Debug - All questions in chapter:', allQuestionsInChapter)
-      console.log('Debug - Questions for this topic:', allQuestions)
 
       // Get all responses for this topic
       const { data: responses } = await supabase
@@ -287,15 +286,7 @@ export default function TopicMasteryPage() {
         BLOOM_LEVELS.forEach(level => {
           const levelResponses = responses.filter((r: any) => r.bloom_level === level.num)
 
-          // Get ALL dimensions for this Bloom level from entire chapter
-          const allDimensionsForLevel = new Set<string>()
-          allQuestionsInChapter?.forEach((q: any) => {
-            if (q.bloom_level === level.num && q.dimension) {
-              allDimensionsForLevel.add(q.dimension)
-            }
-          })
-
-          // Get dimensions that have questions for THIS TOPIC
+          // Get dimensions that have questions for THIS TOPIC at this Bloom level
           const topicDimensionsForLevel = new Set<string>()
           allQuestions?.forEach((q: any) => {
             if (q.bloom_level === level.num && q.dimension) {
@@ -303,17 +294,13 @@ export default function TopicMasteryPage() {
             }
           })
 
-          console.log(`Debug - Bloom Level ${level.num}:`)
-          console.log('  All dimensions in chapter:', Array.from(allDimensionsForLevel))
-          console.log('  Dimensions for this topic:', Array.from(topicDimensionsForLevel))
-
           let highConfCorrect = 0
           let highConfTotal = 0
           let totalCorrect = 0
 
-          // Initialize dimension stats map with ALL chapter dimensions
+          // Initialize dimension stats map with ALL 7 dimensions
           const levelDimensionStatsMap = new Map<string, any>()
-          allDimensionsForLevel.forEach(dimension => {
+          ALL_DIMENSIONS.forEach(dimension => {
             levelDimensionStatsMap.set(dimension, {
               dimension,
               highConfidenceCorrect: 0,
