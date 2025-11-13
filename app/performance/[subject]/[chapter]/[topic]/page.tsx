@@ -86,19 +86,12 @@ export default function TopicMasteryPage() {
       setRlPhase(progressData?.rl_phase || null)
       setCurrentBloomLevel(progressData?.current_bloom_level || 1)
 
-      // Get all topics in this chapter first
-      const { data: chapterTopics } = await supabase
-        .from('topics')
-        .select('id')
-        .eq('chapter_id', fetchedChapter.id)
-
-      const chapterTopicIds = chapterTopics?.map(t => t.id) || []
-
-      // Get all questions in the chapter to determine ALL possible dimensions
+      // Get all unique dimensions from questions in this chapter
+      // Use a more efficient query by joining through topics
       const { data: allQuestionsInChapter } = await supabase
         .from('questions')
-        .select('dimension, bloom_level, topic_id')
-        .in('topic_id', chapterTopicIds)
+        .select('dimension, bloom_level, topics!inner(chapter_id)')
+        .eq('topics.chapter_id', fetchedChapter.id)
         .not('dimension', 'is', null)
 
       // Get all questions for this specific topic
