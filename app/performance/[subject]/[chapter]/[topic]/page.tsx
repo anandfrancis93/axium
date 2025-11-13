@@ -86,11 +86,19 @@ export default function TopicMasteryPage() {
       setRlPhase(progressData?.rl_phase || null)
       setCurrentBloomLevel(progressData?.current_bloom_level || 1)
 
+      // Get all topics in this chapter first
+      const { data: chapterTopics } = await supabase
+        .from('topics')
+        .select('id')
+        .eq('chapter_id', fetchedChapter.id)
+
+      const chapterTopicIds = chapterTopics?.map(t => t.id) || []
+
       // Get all questions in the chapter to determine ALL possible dimensions
       const { data: allQuestionsInChapter } = await supabase
         .from('questions')
         .select('dimension, bloom_level, topic_id')
-        .eq('topics.chapter_id', fetchedChapter.id)
+        .in('topic_id', chapterTopicIds)
         .not('dimension', 'is', null)
 
       // Get all questions for this specific topic
@@ -666,7 +674,8 @@ export default function TopicMasteryPage() {
                           })}
                           <td className="text-center py-3 px-4">
                             {(() => {
-                              const attemptedDimensions = bloomLevelDimensions[selectedBloomLevel].filter(d => d.totalAttempts > 0)
+                              // Only include dimensions that have questions for this topic AND have attempts
+                              const attemptedDimensions = bloomLevelDimensions[selectedBloomLevel].filter(d => d.hasQuestions && d.totalAttempts > 0)
                               if (attemptedDimensions.length === 0) {
                                 return (
                                   <>
