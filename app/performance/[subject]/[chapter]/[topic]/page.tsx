@@ -618,9 +618,9 @@ export default function TopicMasteryPage() {
                           </td>
                           {bloomLevelDimensions[selectedBloomLevel].map((dim: any) => {
                             const hasQuestions = dim.hasQuestions
-                            const hasAttempts = dim.totalAttempts > 0
+                            const hasHighConfAttempts = dim.highConfidenceTotal > 0
                             const mastery = dim.mastery
-                            const colorClass = hasAttempts
+                            const colorClass = hasHighConfAttempts
                               ? mastery >= 80 ? 'text-green-400' :
                                 mastery >= 60 ? 'text-blue-400' :
                                 mastery >= 40 ? 'text-yellow-400' :
@@ -638,7 +638,7 @@ export default function TopicMasteryPage() {
                                       No questions
                                     </div>
                                   </>
-                                ) : hasAttempts ? (
+                                ) : hasHighConfAttempts ? (
                                   <>
                                     <div className={`text-lg font-bold ${colorClass}`}>
                                       {Math.round(mastery)}%
