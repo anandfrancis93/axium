@@ -552,16 +552,25 @@ export async function POST(request: NextRequest) {
       })
     }
 
+    // Get questions already asked in this session (to prevent duplicates)
+    const { data: sessionResponses } = await supabase
+      .from('user_responses')
+      .select('question_id')
+      .eq('session_id', session_id)
+
+    const alreadyAskedQuestionIds = new Set(sessionResponses?.map(r => r.question_id) || [])
+    console.log(`[SESSION] Already asked ${alreadyAskedQuestionIds.size} questions in this session`)
+
     // ==============================================================
-    // ADAPTIVE SPACED REPETITION: 80-20 SPLIT
+    // 70-20-10 SPLIT: RL + SPACED REPETITION + DIMENSION COVERAGE
     // ==============================================================
-    // 80% of questions: Thompson Sampling decides (optimal learning)
-    // 20% of questions: Force review of overdue topics (safety net)
-    // Intervals adapt based on CURRENT mastery (not snapshot)
+    // 70% Thompson Sampling (RL): Optimal topic selection, fresh questions
+    // 20% Spaced Repetition: Review overdue topics, reuse exact questions
+    // 10% Dimension Coverage: Round-robin dimensions, fresh questions
     // ==============================================================
 
     let selectedArm: any = null
-    let selectionMethod: 'thompson_sampling' | 'forced_spacing' = 'thompson_sampling'
+    let selectionMethod: 'thompson_sampling' | 'forced_spacing' | 'dimension_coverage' = 'thompson_sampling'
     let spacingReason: string | null = null
 
     // Step 1: Check for overdue topics based on accuracy-based mastery
@@ -631,11 +640,13 @@ export async function POST(request: NextRequest) {
 
     console.log(`[SPACED REPETITION] Found ${overdueTopics.length} overdue topics`)
 
-    // Step 2: 80-20 decision
-    const forceSpacedRepetition = Math.random() < 0.20
+    // Step 2: 70-20-10 decision
+    const rand = Math.random()
+    const forceSpacedRepetition = rand < 0.20
+    const forceDimensionCoverage = rand >= 0.20 && rand < 0.30
 
     if (forceSpacedRepetition && overdueTopics.length > 0) {
-      // Force spaced repetition: Select most overdue topic
+      // Spaced Repetition (20%): Select most overdue topic
       selectionMethod = 'forced_spacing'
 
       // Sort by priority: low accuracy first (struggling topics), then by days overdue
@@ -680,8 +691,91 @@ export async function POST(request: NextRequest) {
         bloomLevel: selectedArm.bloomLevel,
         reason: spacingReason
       })
+    } else if (forceDimensionCoverage) {
+      // Dimension Coverage (10%): Round-robin through dimensions for practiced topics
+      selectionMethod = 'dimension_coverage'
+
+      // Get practiced topics (topics with at least 1 attempt at current Bloom level)
+      const { data: practicedTopicsData } = await supabase
+        .from('user_topic_mastery')
+        .select('topic_id, bloom_level, topics(name, full_name)')
+        .eq('user_id', user.id)
+        .eq('chapter_id', session.chapter_id)
+        .gt('questions_attempted', 0)
+
+      if (practicedTopicsData && practicedTopicsData.length > 0) {
+        // Build list of (topic, next dimension) pairs
+        const topicDimensionPairs: Array<{
+          topicId: string
+          topicName: string
+          topicFullName: string
+          bloomLevel: number
+          nextDimension: string
+        }> = []
+
+        for (const pt of practicedTopicsData) {
+          // Get last dimension tested for this topic at this Bloom level
+          const { data: lastResponse } = await supabase
+            .from('user_responses')
+            .select('questions(dimension)')
+            .eq('user_id', user.id)
+            .eq('bloom_level', pt.bloom_level)
+            .eq('questions.topic_id', pt.topic_id)
+            .order('answered_at', { ascending: false })
+            .limit(1)
+            .single()
+
+          const lastDimension = lastResponse?.questions?.dimension || null
+
+          // Get next dimension in round-robin
+          const DIMENSION_ORDER = ['definition', 'example', 'comparison', 'implementation', 'scenario', 'troubleshooting', 'pitfalls']
+          let nextDimension = 'definition'
+
+          if (lastDimension) {
+            const currentIndex = DIMENSION_ORDER.indexOf(lastDimension)
+            if (currentIndex !== -1) {
+              nextDimension = DIMENSION_ORDER[(currentIndex + 1) % DIMENSION_ORDER.length]
+            }
+          }
+
+          const topic = Array.isArray(pt.topics) ? pt.topics[0] : pt.topics
+          topicDimensionPairs.push({
+            topicId: pt.topic_id,
+            topicName: topic?.name || 'Unknown',
+            topicFullName: topic?.full_name || topic?.name || 'Unknown',
+            bloomLevel: pt.bloom_level,
+            nextDimension
+          })
+        }
+
+        // Select one randomly
+        const selected = topicDimensionPairs[Math.floor(Math.random() * topicDimensionPairs.length)]
+
+        selectedArm = {
+          topicId: selected.topicId,
+          topicName: selected.topicName,
+          topicFullName: selected.topicFullName,
+          bloomLevel: selected.bloomLevel,
+          forcedDimension: selected.nextDimension  // Force this dimension
+        }
+
+        spacingReason = `Expanding knowledge coverage: Testing "${selected.nextDimension}" dimension for ${selected.topicName} to ensure balanced understanding across all knowledge dimensions.`
+
+        console.log('[DIMENSION COVERAGE]', {
+          topicName: selectedArm.topicName,
+          bloomLevel: selectedArm.bloomLevel,
+          forcedDimension: selected.nextDimension,
+          reason: spacingReason
+        })
+      } else {
+        // No practiced topics - fall back to Thompson Sampling
+        console.log('[DIMENSION COVERAGE] No practiced topics found, falling back to Thompson Sampling')
+        selectionMethod = 'thompson_sampling'
+        selectedArm = await selectArmThompsonSampling(user.id, session.chapter_id)
+        spacingReason = 'Dimension coverage triggered but no practiced topics found - using RL'
+      }
     } else {
-      // Use Thompson Sampling to select next arm (topic, bloom_level)
+      // Thompson Sampling RL (70%)
       selectedArm = await selectArmThompsonSampling(user.id, session.chapter_id)
       selectionMethod = 'thompson_sampling'
 
@@ -735,6 +829,9 @@ export async function POST(request: NextRequest) {
     // Step 3: Find questions ready for spaced repetition
     // (Reusing 'now' from adaptive spaced repetition check above)
     const readyForReview = existingQuestions?.filter(q => {
+      // Skip if already asked in this session
+      if (alreadyAskedQuestionIds.has(q.id)) return false
+
       const response = responseMap.get(q.id)
       if (!response) return true // Never answered - ready to ask
 
@@ -750,14 +847,32 @@ export async function POST(request: NextRequest) {
     let selectedQuestion: any = null
     let isReview = false
 
-    // Step 4: Decide whether to review or generate new
-    if (readyForReview.length > 0 && Math.random() < 0.3) {
-      // 30% chance to review an existing question (spaced repetition)
-      selectedQuestion = readyForReview[Math.floor(Math.random() * readyForReview.length)]
-      isReview = true
-      console.log(`Selected existing question for spaced repetition review`)
-    } else {
-      // 70% chance to generate a new question (or if no questions ready for review)
+    // Step 4: Spaced repetition ALWAYS reuses existing questions when available
+    if (selectionMethod === 'forced_spacing' && readyForReview.length > 0) {
+      // Spaced repetition: Always reuse exact same question (100%)
+      // Filter out questions already asked in this session
+      const availableForReview = readyForReview.filter(q => !alreadyAskedQuestionIds.has(q.id))
+
+      if (availableForReview.length > 0) {
+        selectedQuestion = availableForReview[Math.floor(Math.random() * availableForReview.length)]
+        isReview = true
+        console.log(`[SPACED REPETITION] Reusing existing question for review`)
+      } else {
+        // All review questions already asked in this session - fall back to RL
+        console.log(`[SPACED REPETITION] All review questions already asked in session, falling back to Thompson Sampling`)
+        selectionMethod = 'thompson_sampling'
+        spacingReason = 'Spaced repetition triggered but all questions already asked in session'
+      }
+    } else if (selectionMethod === 'forced_spacing' && readyForReview.length === 0) {
+      // Fallback: Spaced repetition triggered but no questions exist yet
+      // Switch to Thompson Sampling to generate first question for this topic
+      console.log(`[SPACED REPETITION] No questions available for review, falling back to Thompson Sampling`)
+      selectionMethod = 'thompson_sampling'
+      spacingReason = 'Spaced repetition triggered but no questions exist yet - generating first question'
+    }
+
+    // Generate new question for RL (Thompson Sampling)
+    if (!selectedQuestion) {
       console.log(`Generating new question for ${selectedArm.topicName} at Bloom ${selectedArm.bloomLevel}`)
 
       // Get subject ID from chapter
@@ -783,17 +898,24 @@ export async function POST(request: NextRequest) {
         Object.assign(subjectDimensionMap, KNOWLEDGE_DIMENSIONS)
       }
 
-      // Determine which knowledge dimension to focus on for comprehensive mastery
-      // Note: Using topicId for lookup now
-      const { data: dimensionResult } = await supabase.rpc('get_least_tested_dimension_by_id', {
-        p_user_id: user.id,
-        p_chapter_id: session.chapter_id,
-        p_topic_id: selectedArm.topicId,
-        p_bloom_level: selectedArm.bloomLevel
-      })
+      // Determine which knowledge dimension to focus on
+      let targetDimension: string
 
-      const targetDimension = dimensionResult || 'definition'  // Default to definition dimension
-      console.log(`Target dimension: ${targetDimension}`)
+      if (selectionMethod === 'dimension_coverage' && (selectedArm as any).forcedDimension) {
+        // Dimension coverage: Use forced dimension from round-robin
+        targetDimension = (selectedArm as any).forcedDimension
+        console.log(`[DIMENSION COVERAGE] Using forced dimension: ${targetDimension}`)
+      } else {
+        // RL or fallback: Use least-tested dimension
+        const { data: dimensionResult } = await supabase.rpc('get_least_tested_dimension_by_id', {
+          p_user_id: user.id,
+          p_chapter_id: session.chapter_id,
+          p_topic_id: selectedArm.topicId,
+          p_bloom_level: selectedArm.bloomLevel
+        })
+        targetDimension = dimensionResult || 'definition'  // Default to definition dimension
+        console.log(`Target dimension (least-tested): ${targetDimension}`)
+      }
 
       // Select question format based on Bloom level
       const availableFormats = getFormatsByBloomLevel(selectedArm.bloomLevel)
