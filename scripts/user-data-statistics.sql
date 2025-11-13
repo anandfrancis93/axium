@@ -52,9 +52,9 @@ WITH user_stats AS (
     (SELECT COUNT(*) FROM rl_decision_log WHERE user_id = auth.uid() AND decision_type = 'mastery_update') as mastery_update_logs,
     (SELECT COUNT(*) FROM rl_decision_log WHERE user_id = auth.uid() AND decision_type = 'data_deletion') as data_deletion_logs,
 
-    -- Questions (AI-generated for user)
-    (SELECT COUNT(*) FROM questions WHERE created_by = auth.uid()) as ai_generated_questions,
-    (SELECT COUNT(DISTINCT topic_id) FROM questions WHERE created_by = auth.uid()) as topics_with_generated_questions,
+    -- Questions (AI-generated) - no user tracking, so count all
+    (SELECT COUNT(*) FROM questions) as total_ai_generated_questions,
+    (SELECT COUNT(DISTINCT topic_id) FROM questions) as topics_with_generated_questions,
 
     -- API Call Logs
     (SELECT COUNT(*) FROM api_call_log WHERE user_id = auth.uid()) as total_api_calls,
@@ -109,9 +109,9 @@ SELECT
   mastery_update_logs as "Mastery Update Logs",
   data_deletion_logs as "Data Deletion Logs",
 
-  -- Generated Content
-  ai_generated_questions as "AI Questions Generated",
-  topics_with_generated_questions as "Topics w/ AI Questions",
+  -- Generated Content (system-wide, not user-specific)
+  total_ai_generated_questions as "Total AI Questions (All Users)",
+  topics_with_generated_questions as "Topics w/ AI Questions (All)",
 
   -- API Usage
   total_api_calls as "Total API Calls",
