@@ -1017,20 +1017,20 @@ ${interpretation}`
                 </div>
               )}
 
-              {/* Topic Details - Shows primary topic in full context */}
-              {feedback.mastery_updates && feedback.mastery_updates.length > 0 && (
+              {/* Topic Details - Shows hierarchical topic path */}
+              {armSelected && armSelected.topic_name && (
                 <div className="neuro-inset p-4 rounded-lg mb-6">
                   <div className="text-sm md:text-base font-medium text-gray-400 mb-3">Topic Details:</div>
                   <div className="space-y-1 font-mono text-sm md:text-base">
                     {(() => {
-                      const primaryTopic = feedback.mastery_updates[0]
                       const trees: React.ReactNode[] = []
 
-                      // Parse the full hierarchical path
+                      // Parse the full hierarchical path from armSelected
                       // Example: "Domain > Objective > Parent > Topic"
-                      const parts = primaryTopic.topic_full_name
-                        ? primaryTopic.topic_full_name.split(' > ')
-                        : [primaryTopic.topic_name]
+                      const fullName = armSelected.topic_full_name || armSelected.topic_name
+                      const parts = fullName.includes(' > ')
+                        ? fullName.split(' > ')
+                        : [armSelected.topic_name]
 
                       // Display each level with proper tree structure
                       parts.forEach((part: string, level: number) => {
