@@ -929,9 +929,15 @@ export default function TopicMasteryPage() {
                           {idx + 1}
                         </td>
                         <td className="py-3 px-3 text-gray-200 max-w-md">
-                          <div className="truncate">
-                            {q.question_text.substring(0, 80)}...
-                          </div>
+                          <Tooltip content={
+                            <div className="max-w-lg">
+                              {q.question_text}
+                            </div>
+                          }>
+                            <div className="truncate cursor-help">
+                              {q.question_text.substring(0, 80)}...
+                            </div>
+                          </Tooltip>
                         </td>
                         <td className="py-3 px-3 text-gray-400">
                           {q.dimension}
