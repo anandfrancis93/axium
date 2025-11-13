@@ -597,99 +597,204 @@ export default function TopicMasteryPage() {
                     </button>
                   </div>
 
-                  {/* Dimension Table */}
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b border-gray-700">
-                          <th className="text-left py-3 px-4 text-gray-400 font-medium">Topic</th>
-                          {bloomLevelDimensions[selectedBloomLevel].map((dim: any) => (
-                            <th key={dim.dimension} className="text-center py-3 px-4 text-gray-400 font-medium">
-                              {dim.dimension}
-                            </th>
-                          ))}
-                          <th className="text-center py-3 px-4 text-gray-400 font-medium">Overall</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr className="border-b border-gray-800 hover:bg-gray-900/30">
-                          <td className="py-3 px-4 text-gray-200 font-medium">
-                            {topic}
-                          </td>
-                          {bloomLevelDimensions[selectedBloomLevel].map((dim: any) => {
-                            const hasQuestions = dim.hasQuestions
-                            const hasHighConfAttempts = dim.highConfidenceTotal > 0
-                            const mastery = dim.mastery
-                            const colorClass = hasHighConfAttempts
-                              ? mastery >= 80 ? 'text-green-400' :
-                                mastery >= 60 ? 'text-blue-400' :
-                                mastery >= 40 ? 'text-yellow-400' :
-                                'text-red-400'
-                              : 'text-gray-600'
+                  {/* Mastery Table (High-Confidence Only) */}
+                  <div className="mb-8">
+                    <h3 className="text-lg font-semibold text-gray-300 mb-3">
+                      Mastery (High-Confidence Answers)
+                    </h3>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-gray-700">
+                            <th className="text-left py-3 px-4 text-gray-400 font-medium">Topic</th>
+                            {bloomLevelDimensions[selectedBloomLevel].map((dim: any) => (
+                              <th key={dim.dimension} className="text-center py-3 px-4 text-gray-400 font-medium">
+                                {dim.dimension}
+                              </th>
+                            ))}
+                            <th className="text-center py-3 px-4 text-gray-400 font-medium">Overall</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr className="border-b border-gray-800 hover:bg-gray-900/30">
+                            <td className="py-3 px-4 text-gray-200 font-medium">
+                              {topic}
+                            </td>
+                            {bloomLevelDimensions[selectedBloomLevel].map((dim: any) => {
+                              const hasQuestions = dim.hasQuestions
+                              const hasHighConfAttempts = dim.highConfidenceTotal > 0
+                              const mastery = dim.mastery
+                              const colorClass = hasHighConfAttempts
+                                ? mastery >= 80 ? 'text-green-400' :
+                                  mastery >= 60 ? 'text-blue-400' :
+                                  mastery >= 40 ? 'text-yellow-400' :
+                                  'text-red-400'
+                                : 'text-gray-600'
 
-                            return (
-                              <td key={dim.dimension} className="text-center py-3 px-4">
-                                {!hasQuestions ? (
-                                  <>
-                                    <div className="text-lg font-bold text-gray-700">
-                                      —
-                                    </div>
-                                    <div className="text-xs text-gray-600">
-                                      No questions
-                                    </div>
-                                  </>
-                                ) : hasHighConfAttempts ? (
-                                  <>
-                                    <div className={`text-lg font-bold ${colorClass}`}>
-                                      {Math.round(mastery)}%
-                                    </div>
-                                    <div className="text-xs text-gray-500">
-                                      {dim.highConfidenceCorrect}/{dim.highConfidenceTotal}
-                                    </div>
-                                  </>
-                                ) : (
-                                  <>
-                                    <div className="text-lg font-bold text-gray-600">
-                                      —
-                                    </div>
-                                    <div className="text-xs text-gray-600">
-                                      Not attempted
-                                    </div>
-                                  </>
-                                )}
-                              </td>
-                            )
-                          })}
-                          <td className="text-center py-3 px-4">
-                            {(() => {
-                              // Only include dimensions that have questions for this topic AND have attempts
-                              const attemptedDimensions = bloomLevelDimensions[selectedBloomLevel].filter(d => d.hasQuestions && d.totalAttempts > 0)
-                              if (attemptedDimensions.length === 0) {
+                              return (
+                                <td key={dim.dimension} className="text-center py-3 px-4">
+                                  {!hasQuestions ? (
+                                    <>
+                                      <div className="text-lg font-bold text-gray-700">
+                                        —
+                                      </div>
+                                      <div className="text-xs text-gray-600">
+                                        No questions
+                                      </div>
+                                    </>
+                                  ) : hasHighConfAttempts ? (
+                                    <>
+                                      <div className={`text-lg font-bold ${colorClass}`}>
+                                        {Math.round(mastery)}%
+                                      </div>
+                                      <div className="text-xs text-gray-500">
+                                        {dim.highConfidenceCorrect}/{dim.highConfidenceTotal}
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <div className="text-lg font-bold text-gray-600">
+                                        —
+                                      </div>
+                                      <div className="text-xs text-gray-600">
+                                        No high-conf
+                                      </div>
+                                    </>
+                                  )}
+                                </td>
+                              )
+                            })}
+                            <td className="text-center py-3 px-4">
+                              {(() => {
+                                // Only include dimensions that have questions for this topic AND have high-conf attempts
+                                const attemptedDimensions = bloomLevelDimensions[selectedBloomLevel].filter(d => d.hasQuestions && d.highConfidenceTotal > 0)
+                                if (attemptedDimensions.length === 0) {
+                                  return (
+                                    <>
+                                      <div className="text-lg font-bold text-gray-600">—</div>
+                                      <div className="text-xs text-gray-600">No high-conf</div>
+                                    </>
+                                  )
+                                }
+                                const overall = attemptedDimensions.reduce((sum, d) => sum + d.mastery, 0) / attemptedDimensions.length
+                                const colorClass = overall >= 80 ? 'text-green-400' :
+                                                   overall >= 60 ? 'text-blue-400' :
+                                                   overall >= 40 ? 'text-yellow-400' :
+                                                   'text-red-400'
                                 return (
                                   <>
-                                    <div className="text-lg font-bold text-gray-600">—</div>
-                                    <div className="text-xs text-gray-600">No attempts</div>
+                                    <div className={`text-lg font-bold ${colorClass}`}>
+                                      {Math.round(overall)}%
+                                    </div>
+                                    <div className="text-xs text-gray-500">Average</div>
                                   </>
                                 )
-                              }
-                              const overall = attemptedDimensions.reduce((sum, d) => sum + d.mastery, 0) / attemptedDimensions.length
-                              const colorClass = overall >= 80 ? 'text-green-400' :
-                                                 overall >= 60 ? 'text-blue-400' :
-                                                 overall >= 40 ? 'text-yellow-400' :
-                                                 'text-red-400'
+                              })()}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Raw Accuracy Table (All Attempts) */}
+                  <div className="mb-8">
+                    <h3 className="text-lg font-semibold text-gray-300 mb-3">
+                      Raw Accuracy (All Attempts)
+                    </h3>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-gray-700">
+                            <th className="text-left py-3 px-4 text-gray-400 font-medium">Topic</th>
+                            {bloomLevelDimensions[selectedBloomLevel].map((dim: any) => (
+                              <th key={dim.dimension} className="text-center py-3 px-4 text-gray-400 font-medium">
+                                {dim.dimension}
+                              </th>
+                            ))}
+                            <th className="text-center py-3 px-4 text-gray-400 font-medium">Overall</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr className="border-b border-gray-800 hover:bg-gray-900/30">
+                            <td className="py-3 px-4 text-gray-200 font-medium">
+                              {topic}
+                            </td>
+                            {bloomLevelDimensions[selectedBloomLevel].map((dim: any) => {
+                              const hasQuestions = dim.hasQuestions
+                              const hasAttempts = dim.totalAttempts > 0
+                              const rawAccuracy = dim.rawAccuracy
+                              const colorClass = hasAttempts
+                                ? rawAccuracy >= 80 ? 'text-green-400' :
+                                  rawAccuracy >= 60 ? 'text-blue-400' :
+                                  rawAccuracy >= 40 ? 'text-yellow-400' :
+                                  'text-red-400'
+                                : 'text-gray-600'
+
                               return (
-                                <>
-                                  <div className={`text-lg font-bold ${colorClass}`}>
-                                    {Math.round(overall)}%
-                                  </div>
-                                  <div className="text-xs text-gray-500">Average</div>
-                                </>
+                                <td key={dim.dimension} className="text-center py-3 px-4">
+                                  {!hasQuestions ? (
+                                    <>
+                                      <div className="text-lg font-bold text-gray-700">
+                                        —
+                                      </div>
+                                      <div className="text-xs text-gray-600">
+                                        No questions
+                                      </div>
+                                    </>
+                                  ) : hasAttempts ? (
+                                    <>
+                                      <div className={`text-lg font-bold ${colorClass}`}>
+                                        {Math.round(rawAccuracy)}%
+                                      </div>
+                                      <div className="text-xs text-gray-500">
+                                        {dim.totalCorrect}/{dim.totalAttempts}
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <div className="text-lg font-bold text-gray-600">
+                                        —
+                                      </div>
+                                      <div className="text-xs text-gray-600">
+                                        Not attempted
+                                      </div>
+                                    </>
+                                  )}
+                                </td>
                               )
-                            })()}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
+                            })}
+                            <td className="text-center py-3 px-4">
+                              {(() => {
+                                // Only include dimensions that have questions for this topic AND have attempts
+                                const attemptedDimensions = bloomLevelDimensions[selectedBloomLevel].filter(d => d.hasQuestions && d.totalAttempts > 0)
+                                if (attemptedDimensions.length === 0) {
+                                  return (
+                                    <>
+                                      <div className="text-lg font-bold text-gray-600">—</div>
+                                      <div className="text-xs text-gray-600">No attempts</div>
+                                    </>
+                                  )
+                                }
+                                const overall = attemptedDimensions.reduce((sum, d) => sum + d.rawAccuracy, 0) / attemptedDimensions.length
+                                const colorClass = overall >= 80 ? 'text-green-400' :
+                                                   overall >= 60 ? 'text-blue-400' :
+                                                   overall >= 40 ? 'text-yellow-400' :
+                                                   'text-red-400'
+                                return (
+                                  <>
+                                    <div className={`text-lg font-bold ${colorClass}`}>
+                                      {Math.round(overall)}%
+                                    </div>
+                                    <div className="text-xs text-gray-500">Average</div>
+                                  </>
+                                )
+                              })()}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
 
                   {/* Legend */}
