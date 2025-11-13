@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { BarChartIcon, TrendingUpIcon, AwardIcon, TargetIcon, CheckIcon, ArrowRightIcon, TrophyIcon } from '@/components/icons'
+import { BarChartIcon, TrendingUpIcon, AwardIcon, TargetIcon, CheckIcon, ArrowRightIcon, TrophyIcon, SearchIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import { Tooltip } from '@/components/Tooltip'
 
@@ -24,6 +24,7 @@ export default function PerformancePage() {
   const [spacedRepetitionData, setSpacedRepetitionData] = useState<any[]>([])
   const [apiCostData, setApiCostData] = useState<any>(null)
   const [examScoreData, setExamScoreData] = useState<any>(null)
+  const [topicSearchQuery, setTopicSearchQuery] = useState('')
 
   useEffect(() => {
     loadPerformanceData()
@@ -1090,70 +1091,110 @@ export default function PerformancePage() {
             </h2>
           </div>
 
-          {startedTopics.length > 0 ? (
-            <div className="max-h-[600px] overflow-y-auto pr-2 space-y-3">
-              {topicStats.map(topic => (
-                <div
-                  key={topic.id}
-                  className={`neuro-inset p-4 rounded-lg flex items-center justify-between hover:bg-gray-900/30 transition-colors ${
-                    topic.status === 'not_started' ? 'opacity-50' : ''
-                  }`}
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-gray-200 font-medium truncate">{topic.name}</h3>
-                      {topic.status === 'mastered' && (
-                        <span className="neuro-raised px-2 py-0.5 text-xs text-green-400 rounded flex-shrink-0">
-                          Mastered
-                        </span>
-                      )}
-                      {topic.status === 'struggling' && (
-                        <span className="neuro-raised px-2 py-0.5 text-xs text-red-400 rounded flex-shrink-0">
-                          Needs Review
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-6 text-sm">
-                      <div className="text-gray-500">
-                        Level: <span className="text-blue-400 font-medium">L{topic.currentBloomLevel}</span>
-                      </div>
-                      {topic.overallRawAccuracy !== null && (
-                        <Tooltip content="Includes all attempts regardless of confidence">
-                          <div className="text-gray-500">
-                            Raw Accuracy: <span className="text-gray-400">{Math.round(topic.overallRawAccuracy)}%</span>
-                          </div>
-                        </Tooltip>
-                      )}
-                      {topic.totalAttempts > 0 && (
-                        <div className="text-gray-500">
-                          Attempts: <span className="text-gray-400">{topic.totalAttempts}</span>
-                        </div>
-                      )}
-                    </div>
+          {/* Search Box */}
+          <div className="mb-6 relative">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+              <SearchIcon size={18} className="text-gray-500" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search topics..."
+              value={topicSearchQuery}
+              onChange={(e) => setTopicSearchQuery(e.target.value)}
+              className="neuro-input w-full pl-12 pr-4"
+            />
+          </div>
+
+          {(() => {
+            const filteredTopics = topicStats.filter(topic =>
+              topic.name.toLowerCase().includes(topicSearchQuery.toLowerCase())
+            )
+
+            if (startedTopics.length === 0) {
+              return (
+                <div className="neuro-inset p-8 rounded-lg text-center">
+                  <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <TargetIcon size={40} className="text-gray-600" />
                   </div>
-                  <Link
-                    href={`/performance/${subject}/${chapter}/${encodeURIComponent(topic.name)}`}
-                    className="neuro-btn text-sm text-gray-300 hover:text-blue-400 px-4 py-2 ml-4 flex-shrink-0 flex items-center gap-2"
-                  >
-                    View Details
-                    <ArrowRightIcon size={14} />
-                  </Link>
+                  <div className="text-gray-400 text-lg font-semibold mb-2">
+                    No topics started yet
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Begin learning to see your progress here!
+                  </div>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="neuro-inset p-8 rounded-lg text-center">
-              <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <TargetIcon size={40} className="text-gray-600" />
+              )
+            }
+
+            if (filteredTopics.length === 0) {
+              return (
+                <div className="neuro-inset p-8 rounded-lg text-center">
+                  <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <SearchIcon size={40} className="text-gray-600" />
+                  </div>
+                  <div className="text-gray-400 text-lg font-semibold mb-2">
+                    No topics found
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Try a different search term
+                  </div>
+                </div>
+              )
+            }
+
+            return (
+              <div className="max-h-[600px] overflow-y-auto pr-2 space-y-3">
+                {filteredTopics.map(topic => (
+                  <div
+                    key={topic.id}
+                    className={`neuro-inset p-4 rounded-lg flex items-center justify-between hover:bg-gray-900/30 transition-colors ${
+                      topic.status === 'not_started' ? 'opacity-50' : ''
+                    }`}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="text-gray-200 font-medium truncate">{topic.name}</h3>
+                        {topic.status === 'mastered' && (
+                          <span className="neuro-raised px-2 py-0.5 text-xs text-green-400 rounded flex-shrink-0">
+                            Mastered
+                          </span>
+                        )}
+                        {topic.status === 'struggling' && (
+                          <span className="neuro-raised px-2 py-0.5 text-xs text-red-400 rounded flex-shrink-0">
+                            Needs Review
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-6 text-sm">
+                        <div className="text-gray-500">
+                          Level: <span className="text-blue-400 font-medium">L{topic.currentBloomLevel}</span>
+                        </div>
+                        {topic.overallRawAccuracy !== null && (
+                          <Tooltip content="Includes all attempts regardless of confidence">
+                            <div className="text-gray-500">
+                              Raw Accuracy: <span className="text-gray-400">{Math.round(topic.overallRawAccuracy)}%</span>
+                            </div>
+                          </Tooltip>
+                        )}
+                        {topic.totalAttempts > 0 && (
+                          <div className="text-gray-500">
+                            Attempts: <span className="text-gray-400">{topic.totalAttempts}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <Link
+                      href={`/performance/${subject}/${chapter}/${encodeURIComponent(topic.name)}`}
+                      className="neuro-btn text-sm text-gray-300 hover:text-blue-400 px-4 py-2 ml-4 flex-shrink-0 flex items-center gap-2"
+                    >
+                      View Details
+                      <ArrowRightIcon size={14} />
+                    </Link>
+                  </div>
+                ))}
               </div>
-              <div className="text-gray-400 text-lg font-semibold mb-2">
-                No topics started yet
-              </div>
-              <div className="text-sm text-gray-600">
-                Begin learning to see your progress here!
-              </div>
-            </div>
-          )}
+            )
+          })()}
         </div>
         )}
 
