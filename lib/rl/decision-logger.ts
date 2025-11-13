@@ -34,7 +34,7 @@ export interface ArmSelectionLog {
   questionId?: string
   topicId: string
   bloomLevel: number
-  selectionMethod?: 'thompson_sampling' | 'forced_spacing'
+  selectionMethod?: 'thompson_sampling' | 'forced_spacing' | 'dimension_coverage'
 }
 
 export interface RewardCalculationLog {
