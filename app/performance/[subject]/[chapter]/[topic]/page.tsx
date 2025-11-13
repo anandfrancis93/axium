@@ -977,7 +977,7 @@ export default function TopicMasteryPage() {
                       <th className="text-center py-2 px-3 text-gray-400 font-medium w-12">#</th>
                       <th className="text-left py-2 px-3 text-gray-400 font-medium w-96">Question</th>
                       <th className="text-left py-2 px-3 text-gray-400 font-medium w-32">Dimension</th>
-                      <th className="text-center py-2 px-3 text-gray-400 font-medium w-40">Date & Time</th>
+                      <th className="text-center py-2 px-3 text-gray-400 font-medium w-48">Date & Time</th>
                       <th className="text-center py-2 px-3 text-gray-400 font-medium w-24">Selected By</th>
                       <th className="text-center py-2 px-3 text-gray-400 font-medium w-24">Previous</th>
                       <th className="text-center py-2 px-3 text-gray-400 font-medium w-24">Current</th>
@@ -1004,7 +1004,7 @@ export default function TopicMasteryPage() {
                         <td className="py-3 px-3 text-gray-400 w-32">
                           {capitalizeDimension(q.dimension)}
                         </td>
-                        <td className="py-3 px-3 text-center text-gray-400 text-xs w-40">
+                        <td className="py-3 px-3 text-center text-gray-400 text-xs w-48">
                           {new Date(q.first_attempt.created_at).toLocaleString('en-US', {
                             month: 'short',
                             day: 'numeric',
