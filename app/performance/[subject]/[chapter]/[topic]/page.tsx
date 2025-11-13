@@ -235,9 +235,18 @@ export default function TopicMasteryPage() {
           const confidence = r.confidence || 0
           const isHighConfidence = confidence >= 3
 
+          // Check for recall or recognition memory
+          const rewardComponents = rewardComponentsMap.get(r.id)
+          const hasMemory = rewardComponents && (
+            (rewardComponents.recall !== undefined && rewardComponents.recall > 0) ||
+            (rewardComponents.recognition !== undefined && rewardComponents.recognition > 0)
+          )
+
           if (!dimensionStatsMap.has(dimension)) {
             dimensionStatsMap.set(dimension, {
               dimension,
+              masteryCount: 0,        // Correct + High Conf + Memory
+              masteryTotal: 0,        // High Conf + Memory attempts
               highConfidenceCorrect: 0,
               highConfidenceTotal: 0,
               lowConfidenceCorrect: 0,
@@ -258,6 +267,14 @@ export default function TopicMasteryPage() {
             } else {
               stats.wrongAnswers++
             }
+
+            // Track mastery (high confidence + memory)
+            if (hasMemory) {
+              stats.masteryTotal++
+              if (isCorrect) {
+                stats.masteryCount++
+              }
+            }
           } else {
             if (isCorrect) {
               stats.lowConfidenceCorrect++
@@ -270,12 +287,14 @@ export default function TopicMasteryPage() {
 
         const dimensionStatsArray = Array.from(dimensionStatsMap.values()).map(stats => ({
           dimension: stats.dimension,
-          mastery: stats.highConfidenceTotal > 0
-            ? (stats.highConfidenceCorrect / stats.highConfidenceTotal) * 100
+          mastery: stats.masteryTotal > 0
+            ? (stats.masteryCount / stats.masteryTotal) * 100
             : 0,
           rawAccuracy: stats.totalAttempts > 0
             ? (stats.totalCorrect / stats.totalAttempts) * 100
             : 0,
+          masteryCount: stats.masteryCount,
+          masteryTotal: stats.masteryTotal,
           highConfidenceCorrect: stats.highConfidenceCorrect,
           highConfidenceTotal: stats.highConfidenceTotal,
           lowConfidenceCorrect: stats.lowConfidenceCorrect,
@@ -308,6 +327,8 @@ export default function TopicMasteryPage() {
           ALL_DIMENSIONS.forEach(dimension => {
             levelDimensionStatsMap.set(dimension, {
               dimension,
+              masteryCount: 0,
+              masteryTotal: 0,
               highConfidenceCorrect: 0,
               highConfidenceTotal: 0,
               lowConfidenceCorrect: 0,
@@ -318,15 +339,33 @@ export default function TopicMasteryPage() {
             })
           })
 
+          let masteryCount = 0
+          let masteryTotal = 0
+
           levelResponses.forEach((r: any) => {
             const confidence = r.confidence || 0
             const isHighConfidence = confidence >= 3
+
+            // Check for recall or recognition memory
+            const rewardComponents = rewardComponentsMap.get(r.id)
+            const hasMemory = rewardComponents && (
+              (rewardComponents.recall !== undefined && rewardComponents.recall > 0) ||
+              (rewardComponents.recognition !== undefined && rewardComponents.recognition > 0)
+            )
 
             if (isHighConfidence) {
               highConfTotal++
               if (r.is_correct) {
                 highConfCorrect++
                 totalCorrect++
+              }
+
+              // Track mastery (high confidence + memory)
+              if (hasMemory) {
+                masteryTotal++
+                if (r.is_correct) {
+                  masteryCount++
+                }
               }
             } else if (r.is_correct) {
               totalCorrect++
@@ -337,6 +376,8 @@ export default function TopicMasteryPage() {
             if (!levelDimensionStatsMap.has(dimension)) {
               levelDimensionStatsMap.set(dimension, {
                 dimension,
+                masteryCount: 0,
+                masteryTotal: 0,
                 highConfidenceCorrect: 0,
                 highConfidenceTotal: 0,
                 lowConfidenceCorrect: 0,
@@ -357,6 +398,14 @@ export default function TopicMasteryPage() {
               } else {
                 dimStats.wrongAnswers++
               }
+
+              // Track mastery for this dimension
+              if (hasMemory) {
+                dimStats.masteryTotal++
+                if (r.is_correct) {
+                  dimStats.masteryCount++
+                }
+              }
             } else {
               if (r.is_correct) {
                 dimStats.lowConfidenceCorrect++
@@ -369,25 +418,28 @@ export default function TopicMasteryPage() {
 
           bloomStats[level.num] = {
             totalAttempts: levelResponses.length,
-            mastery: highConfTotal > 0 ? (highConfCorrect / highConfTotal) * 100 : 0,
+            mastery: masteryTotal > 0 ? (masteryCount / masteryTotal) * 100 : 0,
             rawAccuracy: levelResponses.length > 0 ? (totalCorrect / levelResponses.length) * 100 : 0,
             status: level.num > (progressData?.current_bloom_level || 1) ? 'locked' :
-                    highConfTotal > 0 && (highConfCorrect / highConfTotal) * 100 >= 80 ? 'mastered' :
+                    masteryTotal > 0 && (masteryCount / masteryTotal) * 100 >= 80 ? 'mastered' :
                     'progressing'
           }
 
           bloomDimensions[level.num] = Array.from(levelDimensionStatsMap.values()).map(stats => ({
             dimension: stats.dimension,
-            mastery: stats.highConfidenceTotal > 0
-              ? (stats.highConfidenceCorrect / stats.highConfidenceTotal) * 100
+            mastery: stats.masteryTotal > 0
+              ? (stats.masteryCount / stats.masteryTotal) * 100
               : 0,
             rawAccuracy: stats.totalAttempts > 0
               ? (stats.totalCorrect / stats.totalAttempts) * 100
               : 0,
+            masteryCount: stats.masteryCount,
+            masteryTotal: stats.masteryTotal,
             highConfidenceCorrect: stats.highConfidenceCorrect,
             highConfidenceTotal: stats.highConfidenceTotal,
             lowConfidenceCorrect: stats.lowConfidenceCorrect,
             wrongAnswers: stats.wrongAnswers,
+            totalCorrect: stats.totalCorrect,
             totalAttempts: stats.totalAttempts,
             hasQuestions: stats.hasQuestions
           }))
@@ -572,10 +624,10 @@ export default function TopicMasteryPage() {
                     </button>
                   </div>
 
-                  {/* Mastery Table (High-Confidence Only) */}
+                  {/* Mastery Table (High-Confidence + Memory) */}
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold text-gray-300 mb-3">
-                      Mastery (High-Confidence Answers)
+                      Mastery (High-Confidence + Recall/Recognition)
                     </h3>
                     <div className="overflow-x-auto">
                       <table className="w-full text-sm">
@@ -597,9 +649,9 @@ export default function TopicMasteryPage() {
                             </td>
                             {bloomLevelDimensions[selectedBloomLevel].map((dim: any) => {
                               const hasQuestions = dim.hasQuestions
-                              const hasHighConfAttempts = dim.highConfidenceTotal > 0
+                              const hasMasteryAttempts = dim.masteryTotal > 0
                               const mastery = dim.mastery
-                              const colorClass = hasHighConfAttempts
+                              const colorClass = hasMasteryAttempts
                                 ? mastery >= 80 ? 'text-green-400' :
                                   mastery >= 60 ? 'text-blue-400' :
                                   mastery >= 40 ? 'text-yellow-400' :
@@ -617,13 +669,13 @@ export default function TopicMasteryPage() {
                                         No questions
                                       </div>
                                     </>
-                                  ) : hasHighConfAttempts ? (
+                                  ) : hasMasteryAttempts ? (
                                     <>
                                       <div className={`text-lg font-bold ${colorClass}`}>
                                         {Math.round(mastery)}%
                                       </div>
                                       <div className="text-xs text-gray-500">
-                                        {dim.highConfidenceCorrect}/{dim.highConfidenceTotal}
+                                        {dim.masteryCount}/{dim.masteryTotal}
                                       </div>
                                     </>
                                   ) : (
@@ -632,7 +684,7 @@ export default function TopicMasteryPage() {
                                         —
                                       </div>
                                       <div className="text-xs text-gray-600">
-                                        No high-conf
+                                        No mastery data
                                       </div>
                                     </>
                                   )}
@@ -641,13 +693,13 @@ export default function TopicMasteryPage() {
                             })}
                             <td className="text-center py-3 px-4">
                               {(() => {
-                                // Only include dimensions that have questions for this topic AND have high-conf attempts
-                                const attemptedDimensions = bloomLevelDimensions[selectedBloomLevel].filter(d => d.hasQuestions && d.highConfidenceTotal > 0)
+                                // Only include dimensions that have questions for this topic AND have mastery attempts
+                                const attemptedDimensions = bloomLevelDimensions[selectedBloomLevel].filter(d => d.hasQuestions && d.masteryTotal > 0)
                                 if (attemptedDimensions.length === 0) {
                                   return (
                                     <>
                                       <div className="text-lg font-bold text-gray-600">—</div>
-                                      <div className="text-xs text-gray-600">No high-conf</div>
+                                      <div className="text-xs text-gray-600">No mastery data</div>
                                     </>
                                   )
                                 }
