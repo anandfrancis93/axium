@@ -108,7 +108,7 @@ export default function TopicMasteryPage() {
         .select('dimension, bloom_level')
         .eq('topic_id', topicData.id)
 
-      // Get all responses for this topic
+      // Get all responses for this topic with selection method from RL decision log
       const { data: responses } = await supabase
         .from('user_responses')
         .select(`
@@ -140,6 +140,18 @@ export default function TopicMasteryPage() {
       const rewardComponentsMap = new Map()
       rewardLogs?.forEach((log: any) => {
         rewardComponentsMap.set(log.response_id, log.reward_components)
+      })
+
+      // Get selection methods from arm_selection logs
+      const { data: selectionLogs } = await supabase
+        .from('rl_decision_log')
+        .select('question_id, state_snapshot')
+        .eq('decision_type', 'arm_selection')
+        .in('question_id', responses?.map(r => r.question_id) || [])
+
+      const selectionMethodMap = new Map()
+      selectionLogs?.forEach((log: any) => {
+        selectionMethodMap.set(log.question_id, log.state_snapshot?.selection_method || 'thompson_sampling')
       })
 
       if (responses && responses.length > 0) {
@@ -189,11 +201,14 @@ export default function TopicMasteryPage() {
         const uniqueQuestionsMap = new Map()
         responses.forEach((r: any, idx: number) => {
           const qid = r.question_id
+          const selectionMethod = selectionMethodMap.get(qid) || 'thompson_sampling'
+
           if (!uniqueQuestionsMap.has(qid)) {
             uniqueQuestionsMap.set(qid, {
               question_id: qid,
               question_text: r.questions?.question_text || 'Question',
               dimension: r.questions?.dimension || 'Unknown',
+              selection_method: selectionMethod,
               first_attempt: {
                 is_correct: r.is_correct,
                 reward: r.reward,
@@ -962,6 +977,8 @@ export default function TopicMasteryPage() {
                       <th className="text-center py-2 px-3 text-gray-400 font-medium">#</th>
                       <th className="text-left py-2 px-3 text-gray-400 font-medium">Question</th>
                       <th className="text-left py-2 px-3 text-gray-400 font-medium">Dimension</th>
+                      <th className="text-center py-2 px-3 text-gray-400 font-medium">Date & Time</th>
+                      <th className="text-center py-2 px-3 text-gray-400 font-medium">Selected By</th>
                       <th className="text-center py-2 px-3 text-gray-400 font-medium">Previous</th>
                       <th className="text-center py-2 px-3 text-gray-400 font-medium">Current</th>
                       <th className="text-center py-2 px-3 text-gray-400 font-medium">Attempts</th>
@@ -986,6 +1003,32 @@ export default function TopicMasteryPage() {
                         </td>
                         <td className="py-3 px-3 text-gray-400">
                           {capitalizeDimension(q.dimension)}
+                        </td>
+                        <td className="py-3 px-3 text-center text-gray-400 text-xs">
+                          {new Date(q.first_attempt.created_at).toLocaleString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </td>
+                        <td className="py-3 px-3 text-center">
+                          {q.selection_method === 'thompson_sampling' && (
+                            <span className="px-2 py-1 rounded text-xs font-medium bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                              RL
+                            </span>
+                          )}
+                          {q.selection_method === 'forced_spacing' && (
+                            <span className="px-2 py-1 rounded text-xs font-medium bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+                              SR
+                            </span>
+                          )}
+                          {q.selection_method === 'dimension_coverage' && (
+                            <span className="px-2 py-1 rounded text-xs font-medium bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                              DC
+                            </span>
+                          )}
                         </td>
                         <td className="py-3 px-3 text-center">
                           {q.previous_attempt ? (
