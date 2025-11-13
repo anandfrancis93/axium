@@ -118,6 +118,7 @@ export default function TopicMasteryPage() {
           is_correct,
           confidence,
           reward,
+          recognition_method,
           created_at,
           questions (
             id,
@@ -235,11 +236,8 @@ export default function TopicMasteryPage() {
           const confidence = r.confidence || 0
           const isHighConfidence = confidence >= 3
 
-          // Check for recall memory only
-          const rewardComponents = rewardComponentsMap.get(r.id)
-          const hasRecall = rewardComponents &&
-            rewardComponents.recall !== undefined &&
-            rewardComponents.recall > 0
+          // Check if user recalled from memory (not recognition, guess, or random)
+          const hasRecall = r.recognition_method === 'memory'
 
           if (!dimensionStatsMap.has(dimension)) {
             dimensionStatsMap.set(dimension, {
@@ -345,11 +343,8 @@ export default function TopicMasteryPage() {
             const confidence = r.confidence || 0
             const isHighConfidence = confidence >= 3
 
-            // Check for recall memory only
-            const rewardComponents = rewardComponentsMap.get(r.id)
-            const hasRecall = rewardComponents &&
-              rewardComponents.recall !== undefined &&
-              rewardComponents.recall > 0
+            // Check if user recalled from memory (not recognition, guess, or random)
+            const hasRecall = r.recognition_method === 'memory'
 
             if (isHighConfidence) {
               highConfTotal++
