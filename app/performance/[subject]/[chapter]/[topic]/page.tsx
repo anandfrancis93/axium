@@ -233,7 +233,7 @@ export default function TopicMasteryPage() {
           const dimension = r.questions?.dimension || 'unknown'
           const isCorrect = r.is_correct
           const confidence = r.confidence || 0
-          const isHighConfidence = confidence >= 4
+          const isHighConfidence = confidence >= 3
 
           if (!dimensionStatsMap.has(dimension)) {
             dimensionStatsMap.set(dimension, {
@@ -320,7 +320,7 @@ export default function TopicMasteryPage() {
 
           levelResponses.forEach((r: any) => {
             const confidence = r.confidence || 0
-            const isHighConfidence = confidence >= 4
+            const isHighConfidence = confidence >= 3
 
             if (isHighConfidence) {
               highConfTotal++
