@@ -4,10 +4,11 @@ import { createClient } from '@/lib/supabase/server'
 /**
  * POST /api/audit/reset
  *
- * Delete all RL decision log entries for the current user
+ * Delete all audit and API cost data for the current user
  *
  * Deletes:
- * - All records from rl_decision_log table
+ * - All records from rl_decision_log table (audit trail)
+ * - All records from api_call_log table (API costs)
  */
 export async function POST(request: NextRequest) {
   try {
@@ -23,34 +24,58 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString()
     })
 
-    // Get count before deletion
-    const { count: totalCount } = await supabase
+    // Get counts before deletion
+    const { count: auditCount } = await supabase
       .from('rl_decision_log')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', user.id)
 
+    const { count: apiCallCount } = await supabase
+      .from('api_call_log')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+
     // Delete all rl_decision_log entries for this user
-    const { error: deleteError } = await supabase
+    const { error: auditDeleteError } = await supabase
       .from('rl_decision_log')
       .delete()
       .eq('user_id', user.id)
 
-    if (deleteError) {
-      console.error('Error deleting audit logs:', deleteError)
+    if (auditDeleteError) {
+      console.error('Error deleting audit logs:', auditDeleteError)
       return NextResponse.json(
-        { error: `Failed to delete audit logs: ${deleteError.message}` },
+        { error: `Failed to delete audit logs: ${auditDeleteError.message}` },
+        { status: 500 }
+      )
+    }
+
+    // Delete all api_call_log entries for this user
+    const { error: apiDeleteError } = await supabase
+      .from('api_call_log')
+      .delete()
+      .eq('user_id', user.id)
+
+    if (apiDeleteError) {
+      console.error('Error deleting API call logs:', apiDeleteError)
+      return NextResponse.json(
+        { error: `Failed to delete API call logs: ${apiDeleteError.message}` },
         { status: 500 }
       )
     }
 
     console.log('Reset audit log complete:', {
-      deleted: totalCount || 0
+      audit_logs_deleted: auditCount || 0,
+      api_calls_deleted: apiCallCount || 0
     })
 
     return NextResponse.json({
       success: true,
-      deleted: totalCount || 0,
-      message: `Successfully deleted ${totalCount || 0} audit log entries`
+      deleted: {
+        audit_logs: auditCount || 0,
+        api_calls: apiCallCount || 0,
+        total: (auditCount || 0) + (apiCallCount || 0)
+      },
+      message: `Successfully deleted ${auditCount || 0} audit log entries and ${apiCallCount || 0} API call records`
     })
 
   } catch (error) {

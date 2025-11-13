@@ -543,7 +543,7 @@ export default function AuditPage() {
         throw new Error(result.error || 'Reset failed')
       }
 
-      alert(`Successfully deleted ${result.deleted} audit log entries`)
+      alert(`Successfully deleted ${result.deleted.audit_logs} audit log entries and ${result.deleted.api_calls} API call records (${result.deleted.total} total)`)
 
       // Reload the page data
       await loadData()
@@ -1549,7 +1549,7 @@ Thompson Sampling naturally balances exploration and exploitation based on uncer
       >
         <div className="space-y-4">
           <p className="text-gray-300">
-            Are you sure you want to delete <span className="font-semibold text-red-400">all audit log entries</span>?
+            Are you sure you want to delete <span className="font-semibold text-red-400">all audit log and API cost data</span>?
           </p>
           <div className="neuro-inset p-4 rounded-lg">
             <p className="text-sm text-gray-400 mb-2">This will permanently delete:</p>
@@ -1558,6 +1558,7 @@ Thompson Sampling naturally balances exploration and exploitation based on uncer
               <li>• Data deletion audit trails</li>
               <li>• System transparency records</li>
               <li>• Analytics and spaced repetition tracking data</li>
+              <li>• All API call logs and cost tracking data</li>
             </ul>
           </div>
           <p className="text-red-400 font-semibold text-sm">
