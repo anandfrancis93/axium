@@ -107,6 +107,10 @@ export default function TopicMasteryPage() {
         .select('dimension, bloom_level')
         .eq('topic_id', topicData.id)
 
+      console.log('Debug - Topic:', topic)
+      console.log('Debug - All questions in chapter:', allQuestionsInChapter)
+      console.log('Debug - Questions for this topic:', allQuestions)
+
       // Get all responses for this topic
       const { data: responses } = await supabase
         .from('user_responses')
@@ -305,6 +309,10 @@ export default function TopicMasteryPage() {
               topicDimensionsForLevel.add(q.dimension)
             }
           })
+
+          console.log(`Debug - Bloom Level ${level.num}:`)
+          console.log('  All dimensions in chapter:', Array.from(allDimensionsForLevel))
+          console.log('  Dimensions for this topic:', Array.from(topicDimensionsForLevel))
 
           let highConfCorrect = 0
           let highConfTotal = 0
