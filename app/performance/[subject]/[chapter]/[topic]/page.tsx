@@ -466,7 +466,7 @@ export default function TopicMasteryPage() {
   }
 
   const handleReset = async () => {
-    if (!confirm(`Are you sure you want to reset all progress for "${topic}"? This action cannot be undone.`)) {
+    if (!confirm(`Are you sure you want to reset all progress for "${topic}"? This will delete all responses, sessions, mastery data, and AI-generated questions. This action cannot be undone.`)) {
       return
     }
 
@@ -474,10 +474,10 @@ export default function TopicMasteryPage() {
     try {
       const supabase = createClient()
 
-      // Get topic ID
+      // Get topic ID and chapter ID
       const { data: topicData } = await supabase
         .from('topics')
-        .select('id')
+        .select('id, chapter_id')
         .eq('name', topic)
         .single()
 
@@ -486,11 +486,14 @@ export default function TopicMasteryPage() {
         return
       }
 
-      // Call reset API
-      const response = await fetch('/api/progress/reset', {
+      // Call reset API (using existing comprehensive endpoint)
+      const response = await fetch('/api/rl/reset-topic-progress', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topicId: topicData.id })
+        body: JSON.stringify({
+          chapter_id: topicData.chapter_id,
+          topic_id: topicData.id
+        })
       })
 
       const result = await response.json()
@@ -499,7 +502,7 @@ export default function TopicMasteryPage() {
         throw new Error(result.error || 'Reset failed')
       }
 
-      alert(`Successfully reset ${result.deleted.responses} responses, ${result.deleted.mastery} mastery records, and ${result.deleted.progress} progress records.`)
+      alert(`Successfully reset:\n- ${result.deleted.responses} responses\n- ${result.deleted.mastery} mastery records\n- ${result.deleted.sessions} sessions\n- ${result.deleted.questions} AI questions`)
 
       // Reload the page data
       await loadData()
