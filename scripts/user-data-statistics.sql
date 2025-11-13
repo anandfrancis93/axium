@@ -39,7 +39,7 @@ WITH user_stats AS (
 
     -- Dimension Coverage
     (SELECT COUNT(*) FROM user_dimension_coverage WHERE user_id = auth.uid()) as dimension_coverage_records,
-    (SELECT COUNT(DISTINCT dimension_id) FROM user_dimension_coverage WHERE user_id = auth.uid()) as unique_dimensions_covered,
+    (SELECT COUNT(DISTINCT dimension) FROM user_dimension_coverage WHERE user_id = auth.uid()) as unique_dimensions_covered,
 
     -- RL Arm Stats
     (SELECT COUNT(*) FROM rl_arm_stats WHERE user_id = auth.uid()) as rl_arm_stats_records,
