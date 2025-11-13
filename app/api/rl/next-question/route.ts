@@ -750,7 +750,11 @@ export async function POST(request: NextRequest) {
             .limit(1)
             .single()
 
-          const lastDimension = lastResponse?.questions?.dimension || null
+          // Handle questions field (could be array or single object)
+          const questions = Array.isArray(lastResponse?.questions)
+            ? lastResponse.questions[0]
+            : lastResponse?.questions
+          const lastDimension = questions?.dimension || null
 
           // Get next dimension in round-robin
           const DIMENSION_ORDER = ['definition', 'example', 'comparison', 'implementation', 'scenario', 'troubleshooting', 'pitfalls']
