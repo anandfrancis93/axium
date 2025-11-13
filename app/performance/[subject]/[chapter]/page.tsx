@@ -201,21 +201,21 @@ export default function PerformancePage() {
             ? (dimStats.totalCorrect / dimStats.totalAttempts) * 100
             : null
 
-          // Determine status
+          // Determine status based on attempts only (not confidence/recall)
           // Require ALL 7 dimensions tested with 80%+ average to be "mastered"
           const totalDimensions = 7
 
-          if (stats.overallMastery === null) {
+          if (dimStats.totalAttempts === 0) {
             stats.status = 'not_started'
-          } else if (stats.overallMastery < 0) {
+          } else if (stats.overallRawAccuracy !== null && stats.overallRawAccuracy < 40) {
             stats.status = 'struggling'
-          } else if (stats.overallMastery >= 80 && dimensionScores.length === totalDimensions) {
+          } else if (stats.overallMastery !== null && stats.overallMastery >= 80 && dimensionScores.length === totalDimensions) {
             stats.status = 'mastered'
             debugMasteredCount++
             console.log('Mastered topic:', stats.name, 'Mastery:', stats.overallMastery, 'Dimensions tested:', dimensionScores.length, 'Scores:', dimensionScores)
           } else {
             stats.status = 'progressing'
-            if (stats.overallMastery >= 80) {
+            if (stats.overallMastery !== null && stats.overallMastery >= 80) {
               console.log('High mastery but incomplete dimensions:', stats.name, 'Mastery:', stats.overallMastery, 'Dimensions:', dimensionScores.length, '/ 7')
             }
           }
