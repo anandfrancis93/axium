@@ -235,12 +235,11 @@ export default function TopicMasteryPage() {
           const confidence = r.confidence || 0
           const isHighConfidence = confidence >= 3
 
-          // Check for recall or recognition memory
+          // Check for recall memory only
           const rewardComponents = rewardComponentsMap.get(r.id)
-          const hasMemory = rewardComponents && (
-            (rewardComponents.recall !== undefined && rewardComponents.recall > 0) ||
-            (rewardComponents.recognition !== undefined && rewardComponents.recognition > 0)
-          )
+          const hasRecall = rewardComponents &&
+            rewardComponents.recall !== undefined &&
+            rewardComponents.recall > 0
 
           if (!dimensionStatsMap.has(dimension)) {
             dimensionStatsMap.set(dimension, {
@@ -268,8 +267,8 @@ export default function TopicMasteryPage() {
               stats.wrongAnswers++
             }
 
-            // Track mastery (high confidence + memory)
-            if (hasMemory) {
+            // Track mastery (high confidence + recall)
+            if (hasRecall) {
               stats.masteryTotal++
               if (isCorrect) {
                 stats.masteryCount++
@@ -346,12 +345,11 @@ export default function TopicMasteryPage() {
             const confidence = r.confidence || 0
             const isHighConfidence = confidence >= 3
 
-            // Check for recall or recognition memory
+            // Check for recall memory only
             const rewardComponents = rewardComponentsMap.get(r.id)
-            const hasMemory = rewardComponents && (
-              (rewardComponents.recall !== undefined && rewardComponents.recall > 0) ||
-              (rewardComponents.recognition !== undefined && rewardComponents.recognition > 0)
-            )
+            const hasRecall = rewardComponents &&
+              rewardComponents.recall !== undefined &&
+              rewardComponents.recall > 0
 
             if (isHighConfidence) {
               highConfTotal++
@@ -360,8 +358,8 @@ export default function TopicMasteryPage() {
                 totalCorrect++
               }
 
-              // Track mastery (high confidence + memory)
-              if (hasMemory) {
+              // Track mastery (high confidence + recall)
+              if (hasRecall) {
                 masteryTotal++
                 if (r.is_correct) {
                   masteryCount++
@@ -400,7 +398,7 @@ export default function TopicMasteryPage() {
               }
 
               // Track mastery for this dimension
-              if (hasMemory) {
+              if (hasRecall) {
                 dimStats.masteryTotal++
                 if (r.is_correct) {
                   dimStats.masteryCount++
@@ -624,10 +622,10 @@ export default function TopicMasteryPage() {
                     </button>
                   </div>
 
-                  {/* Mastery Table (High-Confidence + Memory) */}
+                  {/* Mastery Table (High-Confidence + Recall) */}
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold text-gray-300 mb-3">
-                      Mastery (High-Confidence + Recall/Recognition)
+                      Mastery (High-Confidence + Recall)
                     </h3>
                     <div className="overflow-x-auto">
                       <table className="w-full text-sm">
