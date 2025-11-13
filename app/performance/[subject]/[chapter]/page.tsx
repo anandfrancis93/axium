@@ -1106,9 +1106,17 @@ export default function PerformancePage() {
           </div>
 
           {(() => {
-            const filteredTopics = topicStats.filter(topic =>
-              topic.name.toLowerCase().includes(topicSearchQuery.toLowerCase())
-            )
+            const filteredTopics = topicStats
+              .filter(topic =>
+                topic.name.toLowerCase().includes(topicSearchQuery.toLowerCase())
+              )
+              .sort((a, b) => {
+                // Practiced topics first, sorted by most recent
+                if (!a.lastPracticed && !b.lastPracticed) return 0
+                if (!a.lastPracticed) return 1  // b comes first
+                if (!b.lastPracticed) return -1  // a comes first
+                return b.lastPracticed.getTime() - a.lastPracticed.getTime()
+              })
 
             if (startedTopics.length === 0) {
               return (
