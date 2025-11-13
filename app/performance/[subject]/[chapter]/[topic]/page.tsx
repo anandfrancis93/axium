@@ -56,6 +56,7 @@ export default function TopicMasteryPage() {
   const [uniqueQuestions, setUniqueQuestions] = useState<any[]>([])
   const [activeTab, setActiveTab] = useState<'all-levels' | 'trend' | 'history'>('all-levels')
   const [selectedBloomLevel, setSelectedBloomLevel] = useState<number | null>(null)
+  const [isResetting, setIsResetting] = useState(false)
 
   useEffect(() => {
     loadData()
@@ -464,6 +465,53 @@ export default function TopicMasteryPage() {
     }
   }
 
+  const handleReset = async () => {
+    if (!confirm(`Are you sure you want to reset all progress for "${topic}"? This action cannot be undone.`)) {
+      return
+    }
+
+    setIsResetting(true)
+    try {
+      const supabase = createClient()
+
+      // Get topic ID
+      const { data: topicData } = await supabase
+        .from('topics')
+        .select('id')
+        .eq('name', topic)
+        .single()
+
+      if (!topicData) {
+        alert('Topic not found')
+        return
+      }
+
+      // Call reset API
+      const response = await fetch('/api/progress/reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topicId: topicData.id })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Reset failed')
+      }
+
+      alert(`Successfully reset ${result.deleted.responses} responses, ${result.deleted.mastery} mastery records, and ${result.deleted.progress} progress records.`)
+
+      // Reload the page data
+      await loadData()
+
+    } catch (error) {
+      console.error('Error resetting topic:', error)
+      alert(error instanceof Error ? error.message : 'Failed to reset topic')
+    } finally {
+      setIsResetting(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#0a0a0a' }}>
@@ -482,7 +530,17 @@ export default function TopicMasteryPage() {
           <h1 className="text-2xl font-bold text-blue-400 truncate">
             {topic}
           </h1>
-          <HamburgerMenu />
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={handleReset}
+              disabled={isResetting}
+              className="neuro-btn text-red-400 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isResetting ? 'Resetting...' : 'Reset'}
+            </button>
+            <HamburgerMenu />
+          </div>
         </div>
 
         {/* RL Phase Badge */}
