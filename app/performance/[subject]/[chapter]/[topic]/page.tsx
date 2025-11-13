@@ -54,7 +54,7 @@ export default function TopicMasteryPage() {
   const [bloomLevelTopicDimensions, setBloomLevelTopicDimensions] = useState<Record<number, any[]>>({})
   const [masteryTrendData, setMasteryTrendData] = useState<any[]>([])
   const [uniqueQuestions, setUniqueQuestions] = useState<any[]>([])
-  const [activeTab, setActiveTab] = useState<'current' | 'all-levels' | 'trend' | 'history'>('current')
+  const [activeTab, setActiveTab] = useState<'all-levels' | 'trend' | 'history'>('all-levels')
   const [selectedBloomLevel, setSelectedBloomLevel] = useState<number | null>(null)
 
   useEffect(() => {
@@ -450,15 +450,6 @@ export default function TopicMasteryPage() {
 
         {/* Tab Navigation */}
         <div className="flex flex-wrap gap-3 mb-6">
-          {dimensionStats.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setActiveTab('current')}
-              className={`neuro-btn ${activeTab === 'current' ? 'text-blue-400' : 'text-gray-300'}`}
-            >
-              Current Level
-            </button>
-          )}
           <button
             type="button"
             onClick={() => setActiveTab('all-levels')}
@@ -488,27 +479,6 @@ export default function TopicMasteryPage() {
 
         {/* Tab Content */}
         <div>
-          {/* Current Bloom Level Mastery */}
-          {activeTab === 'current' && dimensionStats.length > 0 && (
-            <div>
-              <div className="mb-4">
-                <h2 className="text-lg font-semibold text-gray-200 mb-1">
-                  Current Level: Bloom Level {currentBloomLevel}
-                </h2>
-                <p className="text-sm text-gray-400">
-                  Mastery based on high-confidence (4-5) correct answers. Raw accuracy includes all attempts.
-                </p>
-              </div>
-
-              <ChapterMasteryOverview
-                topicName={topic}
-                bloomLevel={currentBloomLevel}
-                dimensions={dimensionStats}
-                unlockThreshold={80}
-              />
-            </div>
-          )}
-
           {/* All Bloom Levels Summary */}
           {activeTab === 'all-levels' && (
             <div>
