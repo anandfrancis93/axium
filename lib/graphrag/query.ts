@@ -244,9 +244,19 @@ async function simpleTraversal(
  * Filter relationships by knowledge dimension
  */
 function filterByDimension(
-  relationships: Array<{ type: string; [key: string]: any }>,
+  relationships: Array<{
+    source: string
+    target: string
+    type: string
+    description?: string
+  }>,
   dimension: string
-): typeof relationships {
+): Array<{
+  source: string
+  target: string
+  type: string
+  description?: string
+}> {
   const dimensionMap: Record<string, string[]> = {
     definition: ['IS_A', 'DEFINES', 'MEANS'],
     example: ['EXAMPLE_OF', 'INSTANCE_OF', 'DEMONSTRATES', 'USED_FOR'],
