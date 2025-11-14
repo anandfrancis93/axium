@@ -20,6 +20,7 @@ export default function GraphRAGAdminPage() {
   const [chapters, setChapters] = useState<any[]>([])
   const [jobs, setJobs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [testingChapterId, setTestingChapterId] = useState<string | null>(null)
 
   useEffect(() => {
     loadData()
@@ -54,6 +55,17 @@ export default function GraphRAGAdminPage() {
   }
 
   async function triggerIndexing(chapterId: string) {
+    // Cost warning for full indexing
+    const confirmed = confirm(
+      '⚠️ EXPENSIVE OPERATION WARNING ⚠️\n\n' +
+      'This will process ALL chunks in this chapter using Claude API.\n\n' +
+      'Estimated cost: $1-2 for ~800 chunks\n' +
+      'Estimated time: 30-60 minutes\n\n' +
+      'Are you SURE you want to proceed?\n\n' +
+      'Click OK to proceed, or Cancel to stop.'
+    )
+    if (!confirmed) return
+
     try {
       const res = await fetch('/api/graphrag/index', {
         method: 'POST',
@@ -62,18 +74,34 @@ export default function GraphRAGAdminPage() {
       })
 
       if (res.ok) {
-        alert('Indexing started! Refresh the page to see progress.')
+        alert('✅ Indexing started! This will run in the background. Refresh the page to see progress.')
         loadData()
       } else {
         const data = await res.json()
-        alert(`Failed to start indexing: ${data.error}`)
+        alert(`❌ Failed to start indexing: ${data.error}`)
       }
     } catch (error) {
-      alert('Failed to start indexing')
+      alert('❌ Failed to start indexing')
     }
   }
 
   async function triggerTestIndexing(chapterId: string) {
+    // Prevent multiple clicks
+    if (testingChapterId) {
+      alert('Test indexing already in progress. Please wait...')
+      return
+    }
+
+    // Cost warning
+    const confirmed = confirm(
+      '⚠️ COST WARNING ⚠️\n\n' +
+      'This will process 10 chunks using Claude API.\n\n' +
+      'Estimated cost: ~$0.35 per run\n\n' +
+      'Click OK to proceed, or Cancel to stop.'
+    )
+    if (!confirmed) return
+
+    setTestingChapterId(chapterId)
     try {
       const res = await fetch('/api/graphrag/index-test', {
         method: 'POST',
@@ -84,15 +112,17 @@ export default function GraphRAGAdminPage() {
       if (res.ok) {
         const data = await res.json()
         alert(
-          `Test indexing completed!\n\nStats:\n- Chunks: ${data.stats.chunks_processed}\n- Entities: ${data.stats.entities_extracted}\n- Relationships: ${data.stats.relationships_extracted}`
+          `✅ Test indexing completed!\n\nStats:\n- Chunks: ${data.stats.chunks_processed}\n- Entities: ${data.stats.entities_extracted}\n- Relationships: ${data.stats.relationships_extracted}`
         )
         loadData()
       } else {
         const data = await res.json()
-        alert(`Failed: ${data.error}\n\nDetails: ${data.details || 'No details available'}`)
+        alert(`❌ Failed: ${data.error}\n\nDetails: ${data.details || 'No details available'}`)
       }
     } catch (error) {
-      alert('Failed to start test indexing')
+      alert('❌ Failed to start test indexing')
+    } finally {
+      setTestingChapterId(null)
     }
   }
 
@@ -335,15 +365,16 @@ export default function GraphRAGAdminPage() {
                         <div className="flex gap-2">
                           <button
                             onClick={() => triggerTestIndexing(chapter.id)}
-                            className="neuro-btn text-green-400 inline-flex items-center gap-2"
+                            disabled={testingChapterId === chapter.id}
+                            className="neuro-btn text-green-400 inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <Play size={18} />
-                            Test (10 chunks)
+                            {testingChapterId === chapter.id ? 'Testing...' : 'Test (10 chunks)'}
                           </button>
                           <button
                             onClick={() => triggerIndexing(chapter.id)}
                             disabled={job?.status === 'running'}
-                            className="neuro-btn text-blue-400 inline-flex items-center gap-2"
+                            className="neuro-btn text-blue-400 inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <Play size={18} />
                             {job?.status === 'running' ? 'Indexing...' : 'Full Index'}
