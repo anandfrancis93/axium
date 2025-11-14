@@ -181,9 +181,9 @@ export default function GraphRAGAdminPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          chapterId: selectedChapterId,
-          topicId: selectedTopicId,
-          bloomLevel,
+          chapter_id: selectedChapterId,
+          topic_id: selectedTopicId,
+          bloom_level: bloomLevel,
           useGraphRAG: true
         })
       })
