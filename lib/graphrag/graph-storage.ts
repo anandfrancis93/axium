@@ -126,9 +126,9 @@ async function generateEntityEmbeddings(
 async function storeEntitiesInNeo4j(
   chapterId: string,
   entities: Array<ExtractedEntity & { embedding: number[] }>
-): Promise<Array<{ entity: ExtractedEntity; neo4jId: string }>> {
+): Promise<Array<{ entity: ExtractedEntity & { embedding: number[] }; neo4jId: string }>> {
   const session = createSession()
-  const results: Array<{ entity: ExtractedEntity; neo4jId: string }> = []
+  const results: Array<{ entity: ExtractedEntity & { embedding: number[] }; neo4jId: string }> = []
 
   try {
     for (const entity of entities) {
