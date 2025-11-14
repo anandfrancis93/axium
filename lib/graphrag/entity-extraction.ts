@@ -44,8 +44,8 @@ export async function extractEntitiesAndRelationships(
   try {
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-5-20250929',
-      max_tokens: 2000, // Reduced to prevent overly verbose responses
-      temperature: 0.2, // Lower temperature for consistent extraction
+      max_tokens: 3000, // Increased to prevent JSON truncation
+      temperature: 0.1, // Very low temperature for consistent, structured output
       messages: [
         {
           role: 'user',
@@ -98,29 +98,19 @@ ${topicContext ? `TOPIC CONTEXT: ${topicContext}\n\n` : ''}CONTENT:
 ${content}
 
 INSTRUCTIONS:
-1. Extract ALL important entities (concepts, definitions, people, events, processes, tools, patterns)
+1. Extract ONLY the MOST IMPORTANT entities (max 10 total)
 2. For each entity, provide:
-   - name: The canonical name (max 50 chars)
+   - name: The canonical name (max 40 chars)
    - type: One of [concept, definition, person, event, process, tool, pattern, principle, technique, error, pitfall]
-   - description: Brief 1-sentence description (max 100 chars, avoid quotes)
-   - aliases: Alternative names (optional, max 3)
+   - description: Brief description (max 80 chars, NO quotes, simple language)
+   - aliases: Alternative names (optional, max 2)
 
-3. Extract relationships between entities:
+3. Extract ONLY the MOST IMPORTANT relationships (max 15 total):
    - source: Entity name (must match an extracted entity)
    - target: Entity name (must match an extracted entity)
-   - type: One of the following:
-     * IS_A: Taxonomy/inheritance (e.g., "React IS_A JavaScript library")
-     * PART_OF: Composition (e.g., "useState PART_OF React Hooks")
-     * DEPENDS_ON: Prerequisite (e.g., "useEffect DEPENDS_ON understanding closures")
-     * CAUSES: Causation (e.g., "Missing dependency CAUSES stale closure")
-     * SIMILAR_TO: Analogy (e.g., "useEffect SIMILAR_TO componentDidMount")
-     * CONTRASTS_WITH: Comparison (e.g., "TCP CONTRASTS_WITH UDP")
-     * IMPLEMENTS: Implementation (e.g., "Redux IMPLEMENTS Flux pattern")
-     * SOLVES: Problem-solution (e.g., "useMemo SOLVES expensive computation")
-     * PREVENTS: Prevention (e.g., "Cleanup function PREVENTS memory leak")
-     * USED_FOR: Application (e.g., "useRef USED_FOR accessing DOM")
-   - description: Brief explanation (optional, max 80 chars, avoid quotes)
-   - strength: Confidence 0-1 (optional, default 1.0)
+   - type: Choose ONE: IS_A, PART_OF, DEPENDS_ON, CAUSES, SIMILAR_TO, CONTRASTS_WITH, IMPLEMENTS, SOLVES, PREVENTS, USED_FOR
+   - description: Brief explanation (max 60 chars, NO quotes, simple language)
+   - strength: 0-1 (optional)
 
 RULES:
 - Focus on educational/learning relationships
@@ -129,9 +119,10 @@ RULES:
 - Include comparisons and analogies
 - Be conservative: only extract clear, unambiguous relationships
 - Ensure all relationship sources/targets refer to extracted entities
-- Keep descriptions concise (max 100 chars for entities, 80 for relationships)
-- Avoid quotes in descriptions - use simple language
-- Limit to max 20 entities and 30 relationships per chunk
+- Keep descriptions VERY concise (max 80 chars for entities, 60 for relationships)
+- Avoid quotes in descriptions - use simple language only
+- **CRITICAL: Limit to max 10 entities and 15 relationships per chunk**
+- Focus on the MOST IMPORTANT concepts only
 
 OUTPUT FORMAT (valid JSON only, properly escaped):
 {
