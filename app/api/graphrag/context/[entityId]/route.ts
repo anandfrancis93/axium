@@ -12,10 +12,10 @@ import { getContextById } from '@/lib/graphrag/context'
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { entityId: string } }
+  { params }: { params: Promise<{ entityId: string }> }
 ) {
   try {
-    const { entityId } = params
+    const { entityId } = await params
 
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
