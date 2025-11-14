@@ -46,7 +46,7 @@ export async function getGraphContextForQuestions(
              r.description as relDescription
       LIMIT $limit
       `,
-      { chapterId, limit }
+      { chapterId, limit: Math.floor(limit) }
     )
 
     const entities = new Map<string, any>()
