@@ -4,6 +4,7 @@
  * Queries Neo4j for entities and relationships to build context for question generation
  */
 
+import neo4j from 'neo4j-driver'
 import { getNeo4jDriver } from '@/lib/neo4j/client'
 
 export interface GraphContext {
@@ -46,7 +47,7 @@ export async function getGraphContextForQuestions(
              r.description as relDescription
       LIMIT $limit
       `,
-      { chapterId, limit: Math.floor(limit) }
+      { chapterId, limit: neo4j.int(limit) }
     )
 
     const entities = new Map<string, any>()
