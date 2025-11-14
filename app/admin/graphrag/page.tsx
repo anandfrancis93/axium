@@ -190,7 +190,16 @@ export default function GraphRAGAdminPage() {
 
       if (res.ok) {
         const data = await res.json()
-        setGeneratedQuestion(data)
+        // API returns { questions: [...] }, extract first question
+        if (data.questions && data.questions.length > 0) {
+          setGeneratedQuestion({
+            ...data.questions[0],
+            chunks_used: data.chunks_used,
+            dimension: data.dimension_used
+          })
+        } else {
+          alert('No questions generated')
+        }
       } else {
         const data = await res.json()
         alert(`Failed to generate question: ${data.error}`)
@@ -566,11 +575,16 @@ export default function GraphRAGAdminPage() {
                       ✅ Question Generated Successfully
                     </div>
                     <div className="space-y-4">
+                      {/* Question Text */}
                       <div>
                         <div className="text-xs text-gray-500 mb-1">Question:</div>
-                        <div className="text-gray-200">{generatedQuestion.question}</div>
+                        <div className="text-gray-200">
+                          {generatedQuestion.question_text || generatedQuestion.question || 'No question text'}
+                        </div>
                       </div>
-                      {generatedQuestion.options && (
+
+                      {/* Options */}
+                      {generatedQuestion.options && generatedQuestion.options.length > 0 && (
                         <div>
                           <div className="text-xs text-gray-500 mb-2">Options:</div>
                           <div className="space-y-1">
@@ -578,7 +592,7 @@ export default function GraphRAGAdminPage() {
                               <div
                                 key={idx}
                                 className={`p-2 rounded ${
-                                  generatedQuestion.correctAnswer === opt
+                                  generatedQuestion.correct_answer === opt || generatedQuestion.correctAnswer === opt
                                     ? 'bg-green-500/10 text-green-400'
                                     : 'bg-gray-800/50 text-gray-300'
                                 }`}
@@ -589,16 +603,24 @@ export default function GraphRAGAdminPage() {
                           </div>
                         </div>
                       )}
-                      {generatedQuestion.context && (
+
+                      {/* Explanation */}
+                      {generatedQuestion.explanation && (
                         <div>
-                          <div className="text-xs text-gray-500 mb-1">
-                            Retrieved Context (from Knowledge Graph):
-                          </div>
-                          <div className="text-xs text-gray-400 bg-black/30 p-3 rounded max-h-40 overflow-y-auto">
-                            {generatedQuestion.context}
+                          <div className="text-xs text-gray-500 mb-1">Explanation:</div>
+                          <div className="text-xs text-gray-400 bg-black/30 p-3 rounded">
+                            {generatedQuestion.explanation}
                           </div>
                         </div>
                       )}
+
+                      {/* Metadata */}
+                      <div className="flex gap-4 text-xs text-gray-500">
+                        <div>Bloom Level: {generatedQuestion.bloom_level}</div>
+                        <div>Format: {generatedQuestion.question_format}</div>
+                        {generatedQuestion.dimension && <div>Dimension: {generatedQuestion.dimension}</div>}
+                        {generatedQuestion.chunks_used && <div>Chunks Used: {generatedQuestion.chunks_used}</div>}
+                      </div>
                     </div>
                   </div>
                 )}
