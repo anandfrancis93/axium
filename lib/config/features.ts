@@ -31,10 +31,10 @@ export const features: Features = {
     description: 'Knowledge Graph-based RAG for improved question generation',
     adminOnly: true,
     modes: {
-      vectorOnly: true,        // Default: use current system
-      graphOnly: false,        // Experimental: pure GraphRAG
-      hybrid: false,           // Smart routing (Bloom 1-3 → vector, 4-6 → graph)
-      sideBySide: false,       // Admin comparison mode
+      vectorOnly: false,       // Disabled: no longer using vector-only mode
+      graphOnly: true,         // ✅ ENABLED: Use GraphRAG for ALL Bloom levels (1-6)
+      hybrid: false,           // Disabled: not needed when using graph for all levels
+      sideBySide: false,       // Admin comparison mode (for testing only)
     }
   }
 }
