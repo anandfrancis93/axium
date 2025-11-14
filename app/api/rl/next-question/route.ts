@@ -1057,6 +1057,7 @@ export async function POST(request: NextRequest) {
       arm_selected: {
         topic_id: selectedArm.topicId,
         topic_name: selectedArm.topicName,
+        topic_full_name: selectedArm.topicFullName,  // Full hierarchical path
         bloom_level: selectedArm.bloomLevel
       },
       is_review: isReview,
