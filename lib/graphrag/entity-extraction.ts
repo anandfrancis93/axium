@@ -59,8 +59,18 @@ export async function extractEntitiesAndRelationships(
       throw new Error('Unexpected response type from Claude')
     }
 
+    // Strip markdown code fences if present
+    let jsonText = content.text.trim()
+    if (jsonText.startsWith('```')) {
+      // Remove opening fence (```json or ```)
+      jsonText = jsonText.replace(/^```(?:json)?\n?/, '')
+      // Remove closing fence
+      jsonText = jsonText.replace(/\n?```$/, '')
+      jsonText = jsonText.trim()
+    }
+
     // Parse JSON response
-    const result = JSON.parse(content.text) as ExtractionResult
+    const result = JSON.parse(jsonText) as ExtractionResult
 
     // Validate and clean
     return validateAndCleanExtraction(result)
