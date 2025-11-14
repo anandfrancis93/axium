@@ -22,6 +22,8 @@ export default function GraphRAGAdminPage() {
   const [loading, setLoading] = useState(true)
   const [testingChapterId, setTestingChapterId] = useState<string | null>(null)
   const [selectedChapterId, setSelectedChapterId] = useState<string>('')
+  const [selectedTopicId, setSelectedTopicId] = useState<string>('')
+  const [topics, setTopics] = useState<any[]>([])
   const [bloomLevel, setBloomLevel] = useState<number>(4)
   const [generatedQuestion, setGeneratedQuestion] = useState<any>(null)
   const [generating, setGenerating] = useState(false)
@@ -138,9 +140,36 @@ export default function GraphRAGAdminPage() {
     }
   }
 
+  async function loadTopicsForChapter(chapterId: string) {
+    if (!chapterId) {
+      setTopics([])
+      setSelectedTopicId('')
+      return
+    }
+
+    try {
+      const res = await fetch(`/api/topics?chapterId=${chapterId}`)
+      if (res.ok) {
+        const data = await res.json()
+        setTopics(data)
+        // Auto-select first topic
+        if (data.length > 0) {
+          setSelectedTopicId(data[0].id)
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load topics:', error)
+    }
+  }
+
   async function generateGraphRAGQuestion() {
     if (!selectedChapterId) {
       alert('Please select a chapter first')
+      return
+    }
+
+    if (!selectedTopicId) {
+      alert('Please select a topic first')
       return
     }
 
@@ -153,6 +182,7 @@ export default function GraphRAGAdminPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           chapterId: selectedChapterId,
+          topicId: selectedTopicId,
           bloomLevel,
           useGraphRAG: true
         })
@@ -452,7 +482,11 @@ export default function GraphRAGAdminPage() {
                   </label>
                   <select
                     value={selectedChapterId}
-                    onChange={(e) => setSelectedChapterId(e.target.value)}
+                    onChange={(e) => {
+                      const chapterId = e.target.value
+                      setSelectedChapterId(chapterId)
+                      loadTopicsForChapter(chapterId)
+                    }}
                     className="neuro-input w-full"
                   >
                     <option value="">Choose a chapter...</option>
@@ -470,6 +504,27 @@ export default function GraphRAGAdminPage() {
                     </div>
                   )}
                 </div>
+
+                {/* Topic Selection */}
+                {selectedChapterId && (
+                  <div>
+                    <label className="text-sm text-gray-400 mb-2 block">
+                      Select Topic
+                    </label>
+                    <select
+                      value={selectedTopicId}
+                      onChange={(e) => setSelectedTopicId(e.target.value)}
+                      className="neuro-input w-full"
+                    >
+                      <option value="">Choose a topic...</option>
+                      {topics.map(topic => (
+                        <option key={topic.id} value={topic.id}>
+                          {topic.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 {/* Bloom Level Selection */}
                 <div>
@@ -497,7 +552,7 @@ export default function GraphRAGAdminPage() {
                 {/* Generate Button */}
                 <button
                   onClick={generateGraphRAGQuestion}
-                  disabled={generating || !selectedChapterId}
+                  disabled={generating || !selectedChapterId || !selectedTopicId}
                   className="neuro-btn text-blue-400 inline-flex items-center gap-2 px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Zap size={18} />
