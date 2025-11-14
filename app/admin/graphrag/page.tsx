@@ -73,6 +73,29 @@ export default function GraphRAGAdminPage() {
     }
   }
 
+  async function triggerTestIndexing(chapterId: string) {
+    try {
+      const res = await fetch('/api/graphrag/index-test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chapterId })
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        alert(
+          `Test indexing completed!\n\nStats:\n- Chunks: ${data.stats.chunks_processed}\n- Entities: ${data.stats.entities_extracted}\n- Relationships: ${data.stats.relationships_extracted}`
+        )
+        loadData()
+      } else {
+        const data = await res.json()
+        alert(`Failed: ${data.error}`)
+      }
+    } catch (error) {
+      alert('Failed to start test indexing')
+    }
+  }
+
   function getJobStatus(chapterId: string) {
     const job = jobs.find(j => j.chapter_id === chapterId)
     if (!job) return null
@@ -309,14 +332,23 @@ export default function GraphRAGAdminPage() {
                           )}
                         </div>
 
-                        <button
-                          onClick={() => triggerIndexing(chapter.id)}
-                          disabled={job?.status === 'running'}
-                          className="neuro-btn text-blue-400 inline-flex items-center gap-2"
-                        >
-                          <Play size={18} />
-                          {job?.status === 'running' ? 'Indexing...' : 'Index'}
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => triggerTestIndexing(chapter.id)}
+                            className="neuro-btn text-green-400 inline-flex items-center gap-2"
+                          >
+                            <Play size={18} />
+                            Test (10 chunks)
+                          </button>
+                          <button
+                            onClick={() => triggerIndexing(chapter.id)}
+                            disabled={job?.status === 'running'}
+                            className="neuro-btn text-blue-400 inline-flex items-center gap-2"
+                          >
+                            <Play size={18} />
+                            {job?.status === 'running' ? 'Indexing...' : 'Full Index'}
+                          </button>
+                        </div>
                       </div>
                     )
                   })
