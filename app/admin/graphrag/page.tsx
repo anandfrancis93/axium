@@ -21,6 +21,10 @@ export default function GraphRAGAdminPage() {
   const [jobs, setJobs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [testingChapterId, setTestingChapterId] = useState<string | null>(null)
+  const [selectedChapterId, setSelectedChapterId] = useState<string>('')
+  const [bloomLevel, setBloomLevel] = useState<number>(4)
+  const [generatedQuestion, setGeneratedQuestion] = useState<any>(null)
+  const [generating, setGenerating] = useState(false)
 
   useEffect(() => {
     loadData()
@@ -123,6 +127,40 @@ export default function GraphRAGAdminPage() {
       alert('❌ Failed to start test indexing')
     } finally {
       setTestingChapterId(null)
+    }
+  }
+
+  async function generateGraphRAGQuestion() {
+    if (!selectedChapterId) {
+      alert('Please select a chapter first')
+      return
+    }
+
+    setGenerating(true)
+    setGeneratedQuestion(null)
+
+    try {
+      const res = await fetch('/api/questions/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chapterId: selectedChapterId,
+          bloomLevel,
+          useGraphRAG: true
+        })
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        setGeneratedQuestion(data)
+      } else {
+        const data = await res.json()
+        alert(`Failed to generate question: ${data.error}`)
+      }
+    } catch (error) {
+      alert('Failed to generate question')
+    } finally {
+      setGenerating(false)
     }
   }
 
@@ -387,25 +425,119 @@ export default function GraphRAGAdminPage() {
               </div>
             </div>
 
-            {/* Test Comparison */}
+            {/* GraphRAG Question Generator */}
             <div className="neuro-card mt-8">
-              <h2 className="text-xl font-semibold text-gray-200 mb-4">
-                Test Comparison
-              </h2>
-              <div className="text-sm text-gray-400 mb-4">
-                Once indexing is complete, use the{' '}
-                <Link href="/admin" className="text-blue-400 underline">
-                  Question Generator
-                </Link>{' '}
-                to compare Vector RAG vs GraphRAG side-by-side.
+              <div className="flex items-center gap-3 mb-6">
+                <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center">
+                  <GitBranch size={20} className="text-blue-400" />
+                </div>
+                <h2 className="text-xl font-semibold text-gray-200">
+                  Test GraphRAG Question Generation
+                </h2>
               </div>
-              <Link
-                href="/admin"
-                className="neuro-btn text-blue-400 inline-flex items-center gap-2"
-              >
-                <GitBranch size={18} />
-                Go to Question Generator
-              </Link>
+
+              <div className="space-y-4">
+                {/* Chapter Selection */}
+                <div>
+                  <label className="text-sm text-gray-400 mb-2 block">
+                    Select Indexed Chapter
+                  </label>
+                  <select
+                    value={selectedChapterId}
+                    onChange={(e) => setSelectedChapterId(e.target.value)}
+                    className="neuro-input w-full"
+                  >
+                    <option value="">Choose a chapter...</option>
+                    {chapters
+                      .filter(ch => {
+                        const job = getJobStatus(ch.id)
+                        return job?.status === 'completed' || job?.entities_extracted > 0
+                      })
+                      .map(chapter => (
+                        <option key={chapter.id} value={chapter.id}>
+                          {chapter.name}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+
+                {/* Bloom Level Selection */}
+                <div>
+                  <label className="text-sm text-gray-400 mb-2 block">
+                    Bloom Level (GraphRAG works best at levels 4-6)
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                    {[1, 2, 3, 4, 5, 6].map(level => (
+                      <button
+                        key={level}
+                        onClick={() => setBloomLevel(level)}
+                        className={`neuro-btn p-3 text-center ${
+                          bloomLevel === level ? 'ring-2 ring-blue-400' : ''
+                        }`}
+                      >
+                        <div className="text-gray-300 font-medium">Level {level}</div>
+                        <div className="text-xs text-gray-500">
+                          {['Remember', 'Understand', 'Apply', 'Analyze', 'Evaluate', 'Create'][level - 1]}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Generate Button */}
+                <button
+                  onClick={generateGraphRAGQuestion}
+                  disabled={generating || !selectedChapterId}
+                  className="neuro-btn text-blue-400 inline-flex items-center gap-2 px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Zap size={18} />
+                  {generating ? 'Generating...' : 'Generate GraphRAG Question'}
+                </button>
+
+                {/* Generated Question Display */}
+                {generatedQuestion && (
+                  <div className="neuro-inset p-6 rounded-lg mt-6">
+                    <div className="text-sm text-green-400 mb-3 font-medium">
+                      ✅ Question Generated Successfully
+                    </div>
+                    <div className="space-y-4">
+                      <div>
+                        <div className="text-xs text-gray-500 mb-1">Question:</div>
+                        <div className="text-gray-200">{generatedQuestion.question}</div>
+                      </div>
+                      {generatedQuestion.options && (
+                        <div>
+                          <div className="text-xs text-gray-500 mb-2">Options:</div>
+                          <div className="space-y-1">
+                            {generatedQuestion.options.map((opt: string, idx: number) => (
+                              <div
+                                key={idx}
+                                className={`p-2 rounded ${
+                                  generatedQuestion.correctAnswer === opt
+                                    ? 'bg-green-500/10 text-green-400'
+                                    : 'bg-gray-800/50 text-gray-300'
+                                }`}
+                              >
+                                {String.fromCharCode(65 + idx)}. {opt}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {generatedQuestion.context && (
+                        <div>
+                          <div className="text-xs text-gray-500 mb-1">
+                            Retrieved Context (from Knowledge Graph):
+                          </div>
+                          <div className="text-xs text-gray-400 bg-black/30 p-3 rounded max-h-40 overflow-y-auto">
+                            {generatedQuestion.context}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </>
         )}
