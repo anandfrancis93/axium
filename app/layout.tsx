@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import InstallPWA from "@/components/InstallPWA";
 
 export const metadata: Metadata = {
   title: "Axium - Intelligent Self-Learning App",
@@ -43,6 +44,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         {children}
+        <InstallPWA />
       </body>
     </html>
   );
