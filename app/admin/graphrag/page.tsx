@@ -25,6 +25,7 @@ export default function GraphRAGAdminPage() {
   const [bloomLevel, setBloomLevel] = useState<number>(4)
   const [generatedQuestion, setGeneratedQuestion] = useState<any>(null)
   const [generating, setGenerating] = useState(false)
+  const [indexedChapters, setIndexedChapters] = useState<string[]>([])
 
   useEffect(() => {
     loadData()
@@ -49,6 +50,13 @@ export default function GraphRAGAdminPage() {
         if (jobsRes.ok) {
           const data = await jobsRes.json()
           setJobs(data.jobs || [])
+        }
+
+        // Load chapters that have entities (for question generation)
+        const indexedRes = await fetch('/api/graphrag/indexed-chapters')
+        if (indexedRes.ok) {
+          const data = await indexedRes.json()
+          setIndexedChapters(data.chapterIds || [])
         }
       }
     } catch (error) {
@@ -449,16 +457,18 @@ export default function GraphRAGAdminPage() {
                   >
                     <option value="">Choose a chapter...</option>
                     {chapters
-                      .filter(ch => {
-                        const job = getJobStatus(ch.id)
-                        return job?.status === 'completed' || job?.entities_extracted > 0
-                      })
+                      .filter(ch => indexedChapters.includes(ch.id))
                       .map(chapter => (
                         <option key={chapter.id} value={chapter.id}>
                           {chapter.name}
                         </option>
                       ))}
                   </select>
+                  {chapters.filter(ch => indexedChapters.includes(ch.id)).length === 0 && (
+                    <div className="text-sm text-yellow-400 mt-2">
+                      No indexed chapters found. Run "Test (10 chunks)" on a chapter first.
+                    </div>
+                  )}
                 </div>
 
                 {/* Bloom Level Selection */}
