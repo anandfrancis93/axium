@@ -141,7 +141,8 @@ export async function POST(request: NextRequest) {
       bloom_level,
       question_format = 'mcq_single',
       dimension = 'definition',  // Default to definition dimension
-      num_questions = 1
+      num_questions = 1,
+      useGraphRAG = false  // Flag to use GraphRAG instead of vector search
     } = body
 
     // Validate inputs
@@ -192,81 +193,105 @@ export async function POST(request: NextRequest) {
 
     const formatInstructions = FORMAT_INSTRUCTIONS[question_format] || FORMAT_INSTRUCTIONS.mcq_single
 
-    console.log(`Generating ${num_questions} ${question_format} question(s) for topic: "${topicFullName}" at Bloom level ${bloomLevelNum}, dimension: ${dimension}`)
+    console.log(`Generating ${num_questions} ${question_format} question(s) for topic: "${topicFullName}" at Bloom level ${bloomLevelNum}, dimension: ${dimension}${useGraphRAG ? ' (using GraphRAG)' : ''}`)
 
-    // Step 1: Generate embedding for the topic using full hierarchical path
-    console.log('Generating topic embedding using full path...')
-    const embeddingStartTime = Date.now()
-    const embeddingResponse = await openai.embeddings.create({
-      model: 'text-embedding-3-small',
-      input: topicFullName,  // Use full hierarchical path for better matching
-    })
-    const topicEmbedding = embeddingResponse.data[0].embedding
+    // Step 1 & 2: Context Retrieval (Vector RAG or GraphRAG)
+    let context = ''
+    let chunksUsed = 0
 
-    // Log embedding API call
-    await logAPICall({
-      userId: user.id,
-      provider: 'openai',
-      model: 'text-embedding-3-small',
-      endpoint: '/api/questions/generate',
-      inputTokens: embeddingResponse.usage?.prompt_tokens || 0,
-      outputTokens: 0,
-      latencyMs: Date.now() - embeddingStartTime,
-      purpose: 'rag_embedding',
-      metadata: { topic_id, topic, bloom_level: bloomLevelNum, dimension, question_format }
-    })
+    if (useGraphRAG) {
+      // GraphRAG: Query knowledge graph for entities and relationships
+      console.log('Using GraphRAG - querying knowledge graph...')
+      const { getGraphContextForQuestions } = await import('@/lib/graphrag/question-context')
 
-    // Step 2: Vector similarity search to find relevant chunks
-    console.log('Searching for relevant chunks...')
-
-    // Format embedding as PostgreSQL vector string
-    const embeddingString = `[${topicEmbedding.join(',')}]`
-
-    const { data: chunks, error: searchError } = await supabase.rpc(
-      'match_knowledge_chunks',
-      {
-        query_embedding: embeddingString,
-        match_threshold: 0.1,
-        match_count: 5,
-        filter_chapter_id: chapter_id,
+      try {
+        const graphContext = await getGraphContextForQuestions(chapter_id, 30)
+        context = graphContext.contextText
+        chunksUsed = graphContext.entities.length + graphContext.relationships.length
+        console.log(`Retrieved ${graphContext.entities.length} entities and ${graphContext.relationships.length} relationships from knowledge graph`)
+      } catch (error) {
+        console.error('Error querying knowledge graph:', error)
+        return NextResponse.json(
+          { error: 'Failed to query knowledge graph: ' + (error as Error).message },
+          { status: 500 }
+        )
       }
-    )
 
-    if (searchError) {
-      console.error('Error searching chunks:', searchError)
-      return NextResponse.json(
-        { error: 'Failed to search knowledge base: ' + searchError.message },
-        { status: 500 }
-      )
-    }
+      if (!context || chunksUsed === 0) {
+        return NextResponse.json(
+          { error: `No graph data found for this chapter. Make sure you've run indexing first.` },
+          { status: 404 }
+        )
+      }
+    } else {
+      // Vector RAG: Generate embedding and search chunks
+      console.log('Using Vector RAG - generating topic embedding...')
+      const embeddingStartTime = Date.now()
+      const embeddingResponse = await openai.embeddings.create({
+        model: 'text-embedding-3-small',
+        input: topicFullName,
+      })
+      const topicEmbedding = embeddingResponse.data[0].embedding
 
-    // Debug: Check what we got back
-    console.log('Search results:', { chunks, chunksLength: chunks?.length })
+      // Log embedding API call
+      await logAPICall({
+        userId: user.id,
+        provider: 'openai',
+        model: 'text-embedding-3-small',
+        endpoint: '/api/questions/generate',
+        inputTokens: embeddingResponse.usage?.prompt_tokens || 0,
+        outputTokens: 0,
+        latencyMs: Date.now() - embeddingStartTime,
+        purpose: 'rag_embedding',
+        metadata: { topic_id, topic, bloom_level: bloomLevelNum, dimension, question_format }
+      })
 
-    if (!chunks || chunks.length === 0) {
-      // Try to get total count of chunks for this chapter
-      const { count } = await supabase
-        .from('knowledge_chunks')
-        .select('*', { count: 'exact', head: true })
-        .eq('chapter_id', chapter_id)
+      console.log('Searching for relevant chunks...')
+      const embeddingString = `[${topicEmbedding.join(',')}]`
 
-      return NextResponse.json(
+      const { data: chunks, error: searchError } = await supabase.rpc(
+        'match_knowledge_chunks',
         {
-          error: `No relevant content found for topic "${topicFullName}". Found ${count || 0} total chunks in this chapter. Try a broader topic or check if embeddings are stored correctly.`,
-          debug: { chapter_id, topic: topicFullName, total_chunks: count }
-        },
-        { status: 404 }
+          query_embedding: embeddingString,
+          match_threshold: 0.1,
+          match_count: 5,
+          filter_chapter_id: chapter_id,
+        }
       )
+
+      if (searchError) {
+        console.error('Error searching chunks:', searchError)
+        return NextResponse.json(
+          { error: 'Failed to search knowledge base: ' + searchError.message },
+          { status: 500 }
+        )
+      }
+
+      console.log('Search results:', { chunks, chunksLength: chunks?.length })
+
+      if (!chunks || chunks.length === 0) {
+        const { count } = await supabase
+          .from('knowledge_chunks')
+          .select('*', { count: 'exact', head: true })
+          .eq('chapter_id', chapter_id)
+
+        return NextResponse.json(
+          {
+            error: `No relevant content found for topic "${topicFullName}". Found ${count || 0} total chunks in this chapter.`,
+            debug: { chapter_id, topic: topicFullName, total_chunks: count }
+          },
+          { status: 404 }
+        )
+      }
+
+      console.log(`Found ${chunks.length} relevant chunks`)
+
+      // Build context from chunks
+      context = chunks.map((chunk: any) => chunk.content).join('\n\n---\n\n')
+      chunksUsed = chunks.length
     }
 
-    console.log(`Found ${chunks.length} relevant chunks`)
-
-    // Step 3: Prepare context from retrieved chunks
-    const context = chunks.map((chunk: any, idx: number) =>
-      `[Chunk ${idx + 1}]\n${chunk.content}`
-    ).join('\n\n---\n\n')
-
-    // Step 4: Generate questions using Grok AI
+    // Step 3: Generate questions using AI
     console.log('Generating questions with Grok AI...')
     const bloomDescription = BLOOM_LEVELS[bloomLevelNum as keyof typeof BLOOM_LEVELS]
 
@@ -425,7 +450,7 @@ Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other 
     return NextResponse.json({
       success: true,
       questions: previewQuestions,
-      chunks_used: chunks.length,
+      chunks_used: chunksUsed,
       dimension_used: dimension,
       note: 'Questions are for preview/testing only - not stored in database',
     })
