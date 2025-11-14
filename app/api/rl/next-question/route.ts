@@ -380,15 +380,24 @@ FORMAT YOUR RESPONSE AS VALID JSON:
 Return ONLY valid JSON, no other text.`
 
   const claudeStartTime = Date.now()
-  const completion = await anthropic.messages.create({
-    model: 'claude-sonnet-4-5-20250929',
-    max_tokens: 2000,
-    temperature: 0.7,
-    system: 'You are an expert educator. Always respond with valid JSON only.',
-    messages: [
-      { role: 'user', content: prompt },
-    ],
-  })
+
+  // Add 30-second timeout to prevent hanging
+  const timeoutPromise = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error('Claude API timeout after 30s')), 30000)
+  )
+
+  const completion = await Promise.race([
+    anthropic.messages.create({
+      model: 'claude-sonnet-4-5-20250929',
+      max_tokens: 2000,
+      temperature: 0.7,
+      system: 'You are an expert educator. Always respond with valid JSON only.',
+      messages: [
+        { role: 'user', content: prompt },
+      ],
+    }),
+    timeoutPromise
+  ]) as any
 
   // Log Claude API call
   await logAPICall({
@@ -455,8 +464,8 @@ Return ONLY valid JSON, no other text.`
     question_type: 'mcq',
     question_format: questionFormat,  // Track which format was used
     options: q.options,
-    correct_answer: q.correct_answer,
-    explanation: q.explanation,
+    correct_answer: q.correct_answer || q.options?.correct_answer,  // Extract from options if needed
+    explanation: q.explanation || q.options?.explanation,  // Extract from options if needed
     bloom_level: bloomLevel,
     topic: topicName,  // Store topic name for reference
     topic_id: topicId,  // ✅ Use topic_id from RL arm selection (handles hierarchy correctly)
