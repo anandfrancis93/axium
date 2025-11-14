@@ -44,8 +44,8 @@ export async function extractEntitiesAndRelationships(
   try {
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-5-20250929',
-      max_tokens: 4000,
-      temperature: 0.3, // Lower temperature for consistent extraction
+      max_tokens: 2000, // Reduced to prevent overly verbose responses
+      temperature: 0.2, // Lower temperature for consistent extraction
       messages: [
         {
           role: 'user',
@@ -70,7 +70,15 @@ export async function extractEntitiesAndRelationships(
     }
 
     // Parse JSON response
-    const result = JSON.parse(jsonText) as ExtractionResult
+    let result: ExtractionResult
+    try {
+      result = JSON.parse(jsonText) as ExtractionResult
+    } catch (parseError) {
+      console.error('JSON parsing failed. First 500 chars:', jsonText.substring(0, 500))
+      console.error('Last 500 chars:', jsonText.substring(Math.max(0, jsonText.length - 500)))
+      console.error('Parse error:', parseError)
+      throw new Error('Failed to parse Claude response as JSON')
+    }
 
     // Validate and clean
     return validateAndCleanExtraction(result)
@@ -92,10 +100,10 @@ ${content}
 INSTRUCTIONS:
 1. Extract ALL important entities (concepts, definitions, people, events, processes, tools, patterns)
 2. For each entity, provide:
-   - name: The canonical name
+   - name: The canonical name (max 50 chars)
    - type: One of [concept, definition, person, event, process, tool, pattern, principle, technique, error, pitfall]
-   - description: Brief 1-sentence description
-   - aliases: Alternative names (optional)
+   - description: Brief 1-sentence description (max 100 chars, avoid quotes)
+   - aliases: Alternative names (optional, max 3)
 
 3. Extract relationships between entities:
    - source: Entity name (must match an extracted entity)
@@ -111,7 +119,7 @@ INSTRUCTIONS:
      * SOLVES: Problem-solution (e.g., "useMemo SOLVES expensive computation")
      * PREVENTS: Prevention (e.g., "Cleanup function PREVENTS memory leak")
      * USED_FOR: Application (e.g., "useRef USED_FOR accessing DOM")
-   - description: Brief explanation (optional)
+   - description: Brief explanation (optional, max 80 chars, avoid quotes)
    - strength: Confidence 0-1 (optional, default 1.0)
 
 RULES:
@@ -121,8 +129,11 @@ RULES:
 - Include comparisons and analogies
 - Be conservative: only extract clear, unambiguous relationships
 - Ensure all relationship sources/targets refer to extracted entities
+- Keep descriptions concise (max 100 chars for entities, 80 for relationships)
+- Avoid quotes in descriptions - use simple language
+- Limit to max 20 entities and 30 relationships per chunk
 
-OUTPUT FORMAT (valid JSON only):
+OUTPUT FORMAT (valid JSON only, properly escaped):
 {
   "entities": [
     {
