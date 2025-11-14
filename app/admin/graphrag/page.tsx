@@ -89,7 +89,7 @@ export default function GraphRAGAdminPage() {
         loadData()
       } else {
         const data = await res.json()
-        alert(`Failed: ${data.error}`)
+        alert(`Failed: ${data.error}\n\nDetails: ${data.details || 'No details available'}`)
       }
     } catch (error) {
       alert('Failed to start test indexing')
