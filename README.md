@@ -9,10 +9,10 @@ Axium uses a sophisticated RL (Reinforcement Learning) system to select optimal 
 ## Key Features
 
 ### Adaptive Learning
-- **RL-Driven Topic Selection**: Thompson Sampling algorithm selects optimal topics and Bloom levels based on learning potential
+- **RL-Driven Topic Selection**: Priority-based epsilon-greedy algorithm with calibration optimization
 - **Progressive Bloom Unlocking**: Master each level before advancing (Remember → Understand → Apply → Analyze → Evaluate → Create)
-- **6 RL Phases**: Automatic progression tracking from Cold Start → Exploration → Optimization → Stabilization → Adaptation → Meta-Learning
-- **Multi-Component Rewards**: Learning gain, confidence calibration, recognition method, spacing, and engagement
+- **80-20 Learning Strategy**: 80% RL-optimized practice, 20% spaced repetition review
+- **Calibration-Based Scoring**: Single unified metric measuring confidence accuracy (-1.5 to +1.5)
 
 ### Knowledge Graph Integration
 - **GraphRAG**: Neo4j knowledge graph with 920+ entities and 900+ relationships synced to PostgreSQL
@@ -30,7 +30,7 @@ Axium uses a sophisticated RL (Reinforcement Learning) system to select optimal 
 - **Comprehensive Dashboard**: Topic-level mastery, Bloom distribution, calibration metrics
 - **Statistical Tracking**: Confidence calibration error, mastery variance, streak tracking
 - **Recognition Methods**: Memory vs. Recognition vs. Educated Guess vs. Random
-- **Auto-Recalculation**: Automatically fixes missing statistics on page load
+- **Calibration Trends**: Track confidence accuracy improvement over time
 
 ### User Experience
 - **Neumorphic Dark Theme**: Custom design system with minimal cognitive load
@@ -58,28 +58,26 @@ axium/
 │   ├── subjects/              # Main dashboard
 │   ├── learn/                 # RL-driven quiz interface
 │   ├── analytics/             # Performance analytics
-│   ├── admin/                 # Admin panel
-│   │   ├── graphrag/          # GraphRAG management
-│   │   └── QuestionGenerator.tsx
 │   └── api/
 │       ├── quiz/
 │       │   ├── next-question/ # RL topic selection + question generation
 │       │   └── submit/        # Answer submission + mastery updates
 │       ├── analytics/         # Analytics queries
-│       ├── graphrag/          # GraphRAG indexing
+│       ├── progression/       # Progression evaluation
 │       └── questions/         # Question generation
 │
 ├── lib/
 │   ├── db/                    # Database utilities
 │   │   └── questions.ts       # Question persistence
 │   ├── progression/           # RL algorithms
-│   │   ├── rl-topic-selector.ts
-│   │   ├── format-selection.ts
-│   │   └── confidence-calibration.ts
-│   ├── rl/                    # RL core
-│   │   ├── thompson-sampling.ts
-│   │   ├── rewards.ts
-│   │   └── mastery.ts
+│   │   ├── rl-topic-selector.ts       # Priority-based epsilon-greedy
+│   │   ├── format-selection.ts        # Format recommendation
+│   │   ├── confidence-calibration.ts  # Calibration tracking
+│   │   ├── adaptive-difficulty.ts     # Difficulty adjustment
+│   │   └── bloom-progression.ts       # Bloom level advancement
+│   ├── rl/                    # RL core utilities
+│   │   ├── rewards.ts         # Reward calculation (unused)
+│   │   └── mastery.ts         # Mastery utilities
 │   ├── graphrag/              # GraphRAG utilities
 │   ├── neo4j/                 # Neo4j client
 │   ├── supabase/              # Supabase clients
@@ -125,7 +123,7 @@ axium/
 
 ## Learning Flow
 
-1. **Topic Selection**: Thompson Sampling selects optimal (topic, Bloom level) based on RL state
+1. **Topic Selection**: Priority-based epsilon-greedy algorithm (80%) or spaced repetition (20%)
 2. **Context Retrieval**: Fetch GraphRAG context from `graphrag_entities.context_summary`
 3. **Question Generation**: xAI Grok generates question using curriculum context
 4. **Question Storage**: Save to `questions` table with `rag_context` field
@@ -134,29 +132,74 @@ axium/
    - Answer submission
    - Recognition method selection
    - Feedback with explanation
-6. **Reward Calculation**: Multi-component reward system
-7. **Mastery Update**: EMA-based mastery calculation with confidence weighting
-8. **RL State Update**: Update Thompson Sampling statistics, RL phase, format performance
+6. **Calibration Scoring**: 3D matrix (correctness × confidence × recognition) = -1.5 to +1.5
+7. **Mastery Update**: Simple percentage calculation per format per Bloom level
+8. **Statistics Update**: Auto-update calibration mean, stddev, slope via database trigger
 
 ## Key Algorithms
 
-### Thompson Sampling
-Each (topic, Bloom level) is an "arm" in a multi-armed bandit. System maintains Beta distributions and samples to balance exploration vs. exploitation.
+### Priority-Based Epsilon-Greedy Selection
 
-### Multi-Component Rewards
-- **Learning Gain** (-10 to +10): Mastery improvement
-- **Calibration** (-5 to +5): Confidence vs. performance alignment
-- **Recognition** (-3 to +5): Memory > Recognition > Guess > Random
-- **Spacing** (0 to +5): Retention over time
-- **Engagement** (-3 to 0): Difficulty appropriateness penalty
+Topic selection uses a weighted priority score with 4 components:
+
+1. **Calibration Mean** (40% weight): Lower calibration score = higher priority
+   - Measures confidence accuracy on a scale of -1.5 to +1.5
+   - Topics with poor calibration get more practice
+
+2. **Time Since Practice** (30% weight): Spaced repetition intervals
+   - 168+ hours (1 week): 0.9 priority
+   - 72+ hours (3 days): 0.7 priority
+   - 24+ hours (1 day): 0.5 priority
+   - Never practiced: 0.3 priority
+
+3. **Mastery Gaps** (20% weight): Lowest mastery across Bloom levels
+   - Finds weakest Bloom level for each topic
+   - Lower mastery = higher priority
+
+4. **Variance** (10% weight): Calibration consistency
+   - High stddev (>0.5) adds +0.1 priority
+   - Rewards addressing inconsistent performance
+
+**Epsilon-Greedy Strategy**: Balances exploitation (best topic) vs exploration (random topic)
+- Cold Start (< 10 attempts): 100% random exploration
+- Exploration (10-50 attempts): 30% random (ε=0.3)
+- Optimization (50-150 attempts): 10% random (ε=0.1)
+- Stabilization (150+ attempts): 5% random (ε=0.05)
+
+### Calibration Score
+
+Single unified metric using 3D matrix (correctness × confidence × recognition):
+
+**Range**: -1.5 to +1.5
+- Positive: Good calibration (confidence matches performance)
+- Negative: Poor calibration (overconfident when wrong, underconfident when right)
+
+**Recognition Methods**:
+- Memory > Recognition > Educated Guess > Random
+
+**Example Scores**:
+- Correct + High Confidence + Memory = +1.5 (perfect)
+- Incorrect + High Confidence + Memory = -1.5 (worst)
+- Correct + Low Confidence + Random = +0.5 (good calibration, knew it was random)
 
 ### Mastery Calculation
-Exponential Moving Average (EMA) with confidence weighting:
+
+Simple percentage per format per Bloom level:
 ```
-new_mastery = old_mastery + alpha * (score - old_mastery) * confidence_weight
+mastery = (questions_correct / questions_attempted) × 100
+```
+
+Stored as nested JSON in `user_progress.mastery_scores`:
+```json
+{
+  "1": {"mcq_single": 85, "true_false": 90},
+  "2": {"mcq_single": 70, "mcq_multi": 65}
+}
 ```
 
 ## RL Phases
+
+**Topic-Level Phases** (tracked in `user_progress.rl_phase` per topic):
 
 | Phase | Attempts | Behavior |
 |-------|----------|----------|
@@ -166,6 +209,11 @@ new_mastery = old_mastery + alpha * (score - old_mastery) * confidence_weight
 | Stabilization | 150+, low variance | Stable performance |
 | Adaptation | 150+, changing | Responding to changes |
 | Meta-Learning | 500+, excellent | Self-optimization |
+
+**Global Phase** (used for epsilon selection in topic selector):
+- Determined by total attempts across all topics
+- Controls exploration rate (ε) in epsilon-greedy algorithm
+- 4 phases: cold_start → exploration → optimization → stabilization
 
 ## Question Formats
 
