@@ -327,49 +327,129 @@ function LearnPageContent() {
 
         {/* Step 3: Recognition Method Selection */}
         {currentStep === 'recognition' && answerResult && (
-          <div className="neuro-card p-6">
-            {/* Correct/Incorrect Indicator */}
-            <div className={`p-4 rounded-lg mb-6 text-center ${answerResult.isCorrect ? 'bg-green-400/10 border border-green-400' : 'bg-red-400/10 border border-red-400'}`}>
-              <div className={`text-3xl font-bold ${answerResult.isCorrect ? 'text-green-400' : 'text-red-400'}`}>
-                {answerResult.isCorrect ? '✓ Correct!' : '✗ Incorrect'}
+          <>
+            {/* Question with Result */}
+            <div className="neuro-card p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-xs font-medium text-blue-400 bg-blue-400/10 px-3 py-1 rounded-full">
+                  Bloom Level {currentQuestion.bloom_level}
+                </span>
+                <span className="text-xs font-medium text-gray-500 bg-gray-500/10 px-3 py-1 rounded-full">
+                  {currentQuestion.question_format === 'mcq_single' ? 'Multiple Choice' :
+                   currentQuestion.question_format === 'mcq_multi' ? 'Multiple Select' :
+                   currentQuestion.question_format === 'true_false' ? 'True/False' :
+                   currentQuestion.question_format === 'fill_blank' ? 'Fill in the Blank' :
+                   currentQuestion.question_format === 'open_ended' ? 'Open Ended' : 'Question'}
+                </span>
+              </div>
+              <h2 className="text-xl font-semibold text-gray-200 mb-6">
+                {currentQuestion.question_text}
+              </h2>
+
+              {/* Answer Options with Result */}
+              {(currentQuestion.question_format === 'mcq_single' || currentQuestion.question_format === 'mcq_multi') && currentQuestion.options && (
+                <div className="space-y-3 mb-6">
+                  {currentQuestion.options.map((option, idx) => {
+                    const isUserAnswer = Array.isArray(userAnswer)
+                      ? userAnswer.includes(option)
+                      : userAnswer === option
+                    const isCorrectAnswer = Array.isArray(answerResult.correctAnswer)
+                      ? answerResult.correctAnswer.includes(option)
+                      : answerResult.correctAnswer === option
+
+                    return (
+                      <div
+                        key={idx}
+                        className={`p-4 rounded-lg border-2 ${
+                          isUserAnswer && isCorrectAnswer
+                            ? 'bg-green-400/10 border-green-400'
+                            : isUserAnswer && !isCorrectAnswer
+                            ? 'bg-red-400/10 border-red-400'
+                            : isCorrectAnswer
+                            ? 'bg-green-400/5 border-green-400/50'
+                            : 'bg-gray-800/30 border-gray-700/30'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          {isUserAnswer && isCorrectAnswer && (
+                            <span className="text-green-400 text-xl">✓</span>
+                          )}
+                          {isUserAnswer && !isCorrectAnswer && (
+                            <span className="text-red-400 text-xl">✗</span>
+                          )}
+                          {!isUserAnswer && isCorrectAnswer && (
+                            <span className="text-green-400 text-xl">✓</span>
+                          )}
+                          <div className="flex-1">
+                            <div className={`${
+                              isUserAnswer || isCorrectAnswer ? 'font-semibold' : ''
+                            } ${
+                              isCorrectAnswer ? 'text-green-400' :
+                              isUserAnswer ? 'text-red-400' :
+                              'text-gray-300'
+                            }`}>
+                              {option}
+                            </div>
+                            {isUserAnswer && (
+                              <div className="text-xs text-gray-500 mt-1">Your answer</div>
+                            )}
+                            {!isUserAnswer && isCorrectAnswer && (
+                              <div className="text-xs text-gray-500 mt-1">Correct answer</div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+
+              {/* Result Indicator */}
+              <div className={`p-4 rounded-lg text-center ${answerResult.isCorrect ? 'bg-green-400/10 border border-green-400' : 'bg-red-400/10 border border-red-400'}`}>
+                <div className={`text-2xl font-bold ${answerResult.isCorrect ? 'text-green-400' : 'text-red-400'}`}>
+                  {answerResult.isCorrect ? '✓ Correct!' : '✗ Incorrect'}
+                </div>
               </div>
             </div>
 
-            <h3 className="text-lg font-semibold text-gray-200 mb-4">How did you arrive at your answer?</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <button
-                onClick={() => handleRecognitionSelect('memory')}
-                className="neuro-btn text-purple-400 p-6 text-left"
-              >
-                <div className="text-lg font-bold mb-1">Recalled from Memory</div>
-                <div className="text-sm text-gray-400">I remembered this from studying</div>
-              </button>
-              <button
-                onClick={() => handleRecognitionSelect('recognition')}
-                className="neuro-btn text-blue-400 p-6 text-left"
-              >
-                <div className="text-lg font-bold mb-1">Recognized from Options</div>
-                <div className="text-sm text-gray-400">I recognized the correct answer when I saw it</div>
-              </button>
-              <button
-                onClick={() => handleRecognitionSelect('educated_guess')}
-                className="neuro-btn text-yellow-400 p-6 text-left"
-              >
-                <div className="text-lg font-bold mb-1">Made an Educated Guess</div>
-                <div className="text-sm text-gray-400">I used logic/reasoning to narrow it down</div>
-              </button>
-              <button
-                onClick={() => handleRecognitionSelect('random_guess')}
-                className="neuro-btn text-red-400 p-6 text-left"
-              >
-                <div className="text-lg font-bold mb-1">Made a Random Guess</div>
-                <div className="text-sm text-gray-400">I had no idea and guessed randomly</div>
-              </button>
+            {/* Recognition Method Selection */}
+            <div className="neuro-card p-6">
+              <h3 className="text-lg font-semibold text-gray-200 mb-4">How did you arrive at your answer?</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button
+                  onClick={() => handleRecognitionSelect('memory')}
+                  className="neuro-btn text-purple-400 p-6 text-left"
+                >
+                  <div className="text-lg font-bold mb-1">Recalled from Memory</div>
+                  <div className="text-sm text-gray-400">I remembered this from studying</div>
+                </button>
+                <button
+                  onClick={() => handleRecognitionSelect('recognition')}
+                  className="neuro-btn text-blue-400 p-6 text-left"
+                >
+                  <div className="text-lg font-bold mb-1">Recognized from Options</div>
+                  <div className="text-sm text-gray-400">I recognized the correct answer when I saw it</div>
+                </button>
+                <button
+                  onClick={() => handleRecognitionSelect('educated_guess')}
+                  className="neuro-btn text-yellow-400 p-6 text-left"
+                >
+                  <div className="text-lg font-bold mb-1">Made an Educated Guess</div>
+                  <div className="text-sm text-gray-400">I used logic/reasoning to narrow it down</div>
+                </button>
+                <button
+                  onClick={() => handleRecognitionSelect('random_guess')}
+                  className="neuro-btn text-red-400 p-6 text-left"
+                >
+                  <div className="text-lg font-bold mb-1">Made a Random Guess</div>
+                  <div className="text-sm text-gray-400">I had no idea and guessed randomly</div>
+                </button>
+              </div>
+              <p className="text-xs text-gray-500 mt-4 text-center">
+                💡 Why we ask: This helps us understand your learning process and provide better recommendations
+              </p>
             </div>
-            <p className="text-xs text-gray-500 mt-4 text-center">
-              💡 Why we ask: This helps us understand your learning process and provide better recommendations
-            </p>
-          </div>
+          </>
         )}
 
         {/* Step 4: Results with all sections */}
