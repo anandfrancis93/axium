@@ -36,17 +36,21 @@ export default async function TestPhase2Page() {
     .select('id, full_path, name')
     .in('id', entityIds)
 
-  // Find matching topics
+  // Find matching topics - ONLY include topics that exist in topics table
   const topicsWithPaths = prerequisiteTopics?.map(entity => {
     const path = withPrereqs?.find(p => p.target_entity_id === entity.id)
     const topic = topics?.find(t => t.full_name === entity.full_path)
+
+    // Only return if we found a matching topic in the topics table
+    if (!topic) return null
+
     return {
-      id: topic?.id || entity.id,
+      id: topic.id,  // Use topic.id, NOT entity.id
       name: entity.name,
       full_name: entity.full_path,
       path_depth: path?.path_depth || 0
     }
-  }).filter(t => t.id) || []
+  }).filter(t => t !== null) || []
 
   return (
     <div className="min-h-screen bg-black text-white">
