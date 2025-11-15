@@ -6,7 +6,7 @@
 
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { QuestionCard } from '@/components/quiz/QuestionCard'
 import { ConfidenceSlider } from '@/components/quiz/ConfidenceSlider'
@@ -14,7 +14,7 @@ import { AnswerFeedback } from '@/components/quiz/AnswerFeedback'
 import { QuizSession, QuizQuestion, AnswerResult } from '@/lib/types/quiz'
 import { Loader2, Trophy, Clock, Target } from 'lucide-react'
 
-export default function LearnPage() {
+function LearnPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const topicId = searchParams.get('topicId')
@@ -244,5 +244,20 @@ export default function LearnPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function LearnPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen neuro-container flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="animate-spin text-blue-400 mx-auto mb-4" size={48} />
+          <p className="text-gray-400">Loading quiz...</p>
+        </div>
+      </div>
+    }>
+      <LearnPageContent />
+    </Suspense>
   )
 }
