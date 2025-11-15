@@ -78,11 +78,12 @@ export interface AnswerSubmission {
 }
 
 export interface AnswerResult {
-  isCorrect: boolean
+  isCorrect: boolean  // TRACK 2: Correctness (format-dependent)
   correctAnswer: string | string[]
   explanation: string
-  reward: number  // RL reward
-  calibrationBreakdown?: {  // Reward breakdown for transparency
+  calibrationScore: number  // TRACK 1: Calibration score (-1.5 to +1.5, format-independent)
+  reward: number  // Legacy: Same as calibrationScore for backward compatibility
+  calibrationBreakdown?: {  // Reward breakdown for transparency (future enhancement)
     correctness: number
     confidenceCalibration: number
     recognitionAlignment: number

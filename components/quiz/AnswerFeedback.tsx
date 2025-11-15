@@ -99,11 +99,17 @@ export function AnswerFeedback({
                 </div>
               </div>
 
-              {result.reward !== undefined && (
+              {result.calibrationScore !== undefined && (
                 <div className="flex items-center gap-2">
-                  <span className="text-gray-500">RL Reward:</span>
-                  <span className={`font-bold ${result.reward > 0 ? 'text-green-400' : result.reward < 0 ? 'text-red-400' : 'text-gray-400'}`}>
-                    {result.reward > 0 ? '+' : ''}{result.reward.toFixed(2)}
+                  <span className="text-gray-500">Calibration Score:</span>
+                  <span
+                    className={`font-bold ${result.calibrationScore > 0 ? 'text-green-400' : result.calibrationScore < 0 ? 'text-red-400' : 'text-gray-400'}`}
+                    title="How well your confidence matched your performance (-1.5 to +1.5)"
+                  >
+                    {result.calibrationScore > 0 ? '+' : ''}{result.calibrationScore.toFixed(2)}
+                  </span>
+                  <span className="text-xs text-gray-600">
+                    (TRACK 1: RL metric)
                   </span>
                 </div>
               )}
@@ -111,6 +117,64 @@ export function AnswerFeedback({
           </div>
         </div>
       </div>
+
+      {/* Calibration Score Explanation Card */}
+      {result.calibrationScore !== undefined && (
+        <div className="neuro-card p-6 border-l-4 border-blue-400">
+          <div className="flex items-start gap-3 mb-3">
+            <TrendingUp size={20} className="text-blue-400 flex-shrink-0 mt-1" />
+            <div className="flex-1">
+              <h4 className="text-lg font-semibold text-blue-400 mb-2">
+                Calibration Score: {result.calibrationScore > 0 ? '+' : ''}{result.calibrationScore.toFixed(2)}
+              </h4>
+              <p className="text-sm text-gray-400 mb-3">
+                This measures how well your confidence matched your actual performance.
+              </p>
+
+              {/* Visual scale */}
+              <div className="mb-3">
+                <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+                  <span>Poor</span>
+                  <span>Perfect</span>
+                </div>
+                <div className="neuro-inset rounded-full h-3 overflow-hidden relative">
+                  <div
+                    className={`absolute h-full transition-all ${
+                      result.calibrationScore > 0 ? 'bg-green-400' : 'bg-red-400'
+                    }`}
+                    style={{
+                      left: '50%',
+                      width: `${Math.abs(result.calibrationScore) * 33.33}%`,
+                      transformOrigin: result.calibrationScore > 0 ? 'left' : 'right'
+                    }}
+                  />
+                  <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gray-600" />
+                </div>
+                <div className="flex items-center justify-between text-xs text-gray-600 mt-1">
+                  <span>-1.5</span>
+                  <span>0</span>
+                  <span>+1.5</span>
+                </div>
+              </div>
+
+              <div className="text-xs text-gray-500">
+                <strong>What this means:</strong>
+                <ul className="list-disc list-inside mt-1 space-y-1">
+                  <li>
+                    <strong className="text-green-400">Positive (+):</strong> Good calibration - your confidence matched your performance
+                  </li>
+                  <li>
+                    <strong className="text-red-400">Negative (-):</strong> Poor calibration - overconfident when wrong or underconfident when right
+                  </li>
+                  <li>
+                    <strong>Magnitude:</strong> Higher absolute value = stronger calibration quality (good or bad)
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Explanation */}
       {result.explanation && (

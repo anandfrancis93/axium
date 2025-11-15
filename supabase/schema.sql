@@ -84,9 +84,9 @@ CREATE TABLE user_progress (
   -- Current Bloom level the user is working on (1-6)
   current_bloom_level INTEGER NOT NULL DEFAULT 1 CHECK (current_bloom_level BETWEEN 1 AND 6),
 
-  -- Mastery scores per Bloom level (0-100)
-  -- Example: {"1": 95, "2": 80, "3": 45, "4": 0, "5": 0, "6": 0}
-  mastery_scores JSONB DEFAULT '{"1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0}',
+  -- Mastery scores per Bloom level per Format (0-100) - TRACK 2 (Student Display)
+  -- Example: {"1": {"mcq_single": 85, "open_ended": 70}, "2": {"mcq_single": 78}}
+  mastery_scores JSONB DEFAULT '{}',
 
   -- Total attempts across all Bloom levels
   total_attempts INTEGER DEFAULT 0,
@@ -94,14 +94,22 @@ CREATE TABLE user_progress (
   -- Correct answers count
   correct_answers INTEGER DEFAULT 0,
 
-  -- Average confidence (1-5 scale)
+  -- Average confidence (1-3 scale)
   avg_confidence DECIMAL(3,2) DEFAULT 0.0,
-
-  -- Confidence calibration error (how well confidence matches performance)
-  confidence_calibration_error DECIMAL(3,2) DEFAULT 0.0,
 
   -- Average response time in seconds
   avg_response_time_seconds DECIMAL(8,2) DEFAULT 0.0,
+
+  -- ============ TRACK 1: CALIBRATION (RL System - Format Independent) ============
+  -- Calibration score statistics
+  calibration_mean DECIMAL(4,2) DEFAULT 0.0,           -- Average calibration score (-1.5 to +1.5)
+  calibration_stddev DECIMAL(4,2) DEFAULT 0.0,         -- Standard deviation (consistency)
+  calibration_slope DECIMAL(6,4) DEFAULT 0.0,          -- Linear regression slope (improvement rate)
+  calibration_r_squared DECIMAL(3,2) DEFAULT 0.0,      -- Regression fit quality (0-1)
+  questions_to_mastery INTEGER,                        -- Projected questions to reach mastery
+
+  -- RL Phase tracking
+  rl_phase TEXT DEFAULT 'cold_start',  -- 'cold_start', 'exploration', 'optimization', 'stabilization'
 
   -- Last practiced timestamp
   last_practiced_at TIMESTAMP WITH TIME ZONE,
@@ -209,8 +217,11 @@ CREATE TABLE user_responses (
   -- User's answer
   user_answer TEXT NOT NULL,
 
-  -- Correctness
+  -- Correctness (TRACK 2 - Student Display, Format Dependent)
   is_correct BOOLEAN NOT NULL,
+
+  -- Question format
+  question_format TEXT,  -- 'mcq_single', 'mcq_multi', 'true_false', 'fill_blank', 'matching', 'open_ended'
 
   -- User's self-reported confidence (1-3 scale: Low=1, Medium=2, High=3)
   confidence INTEGER CHECK (confidence IN (1, 2, 3)),
@@ -221,7 +232,10 @@ CREATE TABLE user_responses (
   -- Time taken to answer (in seconds)
   time_taken_seconds DECIMAL(8,2),
 
-  -- Reward calculated by RL system
+  -- TRACK 1: Calibration Score (RL System - Format Independent)
+  calibration_score DECIMAL(4,2),  -- -1.5 to +1.5
+
+  -- Legacy: Total reward (deprecated, use calibration_score instead)
   reward DECIMAL(5,2),
 
   -- AI grading (for open-ended questions)

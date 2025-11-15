@@ -2,17 +2,24 @@
  * RecognitionMethodSelector Component
  *
  * Captures HOW the user arrived at their answer (metacognition)
+ * Filters available methods based on question format
  */
 
 'use client'
 
+import { useEffect } from 'react'
 import { Brain, Eye, Lightbulb, Shuffle } from 'lucide-react'
-
-export type RecognitionMethod = 'memory' | 'recognition' | 'educated_guess' | 'random_guess'
+import { QuestionFormat, RecognitionMethod } from '@/lib/types/quiz'
+import {
+  getAvailableRecognitionMethods,
+  getDefaultRecognitionMethod,
+  getUnavailableMethodExplanation
+} from '@/lib/utils/recognition-method'
 
 interface RecognitionMethodSelectorProps {
   value: RecognitionMethod
   onChange: (value: RecognitionMethod) => void
+  questionFormat: QuestionFormat  // Filter methods by format
   disabled?: boolean
 }
 
@@ -50,8 +57,26 @@ const recognitionMethods = [
 export function RecognitionMethodSelector({
   value,
   onChange,
+  questionFormat,
   disabled = false
 }: RecognitionMethodSelectorProps) {
+  // Get available methods for this format
+  const availableMethods = getAvailableRecognitionMethods(questionFormat)
+  const unavailableExplanation = getUnavailableMethodExplanation(questionFormat)
+
+  // Filter methods to only show available ones
+  const filteredMethods = recognitionMethods.filter(method =>
+    availableMethods.includes(method.value)
+  )
+
+  // Auto-select default if current value is not available
+  useEffect(() => {
+    if (!availableMethods.includes(value)) {
+      const defaultMethod = getDefaultRecognitionMethod(questionFormat)
+      onChange(defaultMethod)
+    }
+  }, [questionFormat, value, onChange, availableMethods])
+
   return (
     <div className="neuro-card p-6 space-y-4">
       <h3 className="text-sm font-semibold text-gray-300">
@@ -59,7 +84,7 @@ export function RecognitionMethodSelector({
       </h3>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {recognitionMethods.map((method) => {
+        {filteredMethods.map((method) => {
           const Icon = method.icon
           const isSelected = value === method.value
 
@@ -106,8 +131,15 @@ export function RecognitionMethodSelector({
         })}
       </div>
 
-      <div className="neuro-inset rounded-lg p-3 text-xs text-gray-500">
-        <strong>💡 Why we ask:</strong> This helps us understand your learning process and provide better recommendations. Your honest answer improves the system!
+      <div className="neuro-inset rounded-lg p-3 text-xs text-gray-500 space-y-2">
+        <div>
+          <strong>💡 Why we ask:</strong> This helps us understand your learning process and provide better recommendations. Your honest answer improves the system!
+        </div>
+        {unavailableExplanation && (
+          <div className="text-yellow-400">
+            <strong>ℹ️ Note:</strong> {unavailableExplanation}
+          </div>
+        )}
       </div>
     </div>
   )

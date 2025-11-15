@@ -3,7 +3,10 @@
  *
  * POST /api/quiz/submit
  *
- * Submits an answer, checks correctness, calculates reward, updates progress
+ * Submits an answer, checks correctness, calculates calibration score, updates progress
+ * Uses TWO-TRACK system:
+ * - TRACK 1 (Calibration): Format-independent metacognitive score for RL optimization
+ * - TRACK 2 (Correctness): Format-dependent scores for student motivation
  */
 
 import { createClient } from '@/lib/supabase/server'
@@ -54,11 +57,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if answer is correct
+    // Check if answer is correct (TRACK 2: Correctness)
     const isCorrect = checkAnswer(answer, question.correct_answer, question.question_format)
 
-    // Calculate reward based on 3D calibration matrix (correctness + confidence + recognition method)
-    const reward = calculateReward(isCorrect, confidence, recognitionMethod)
+    // Calculate calibration score based on 3D matrix (TRACK 1: Calibration)
+    // This is format-independent and measures metacognitive accuracy
+    const calibrationScore = calculateCalibrationScore(isCorrect, confidence, recognitionMethod)
 
     // Store the response (use topicId from submission for on-the-fly questions)
     const responseTopicId = topicId || question.topic_id
@@ -71,12 +75,13 @@ export async function POST(request: NextRequest) {
         topic_id: responseTopicId,
         bloom_level: question.bloom_level,
         user_answer: Array.isArray(answer) ? answer : [answer],
-        is_correct: isCorrect,
+        is_correct: isCorrect,                      // TRACK 2: Correctness
         confidence: confidence,
         recognition_method: recognitionMethod,
-        response_time_seconds: timeTaken,
+        time_taken_seconds: timeTaken,
         question_format: question.question_format,
-        reward: reward
+        calibration_score: calibrationScore,        // TRACK 1: Calibration (primary)
+        reward: calibrationScore                    // Legacy: Store same value for backward compatibility
       })
 
     if (insertError) {
@@ -84,15 +89,15 @@ export async function POST(request: NextRequest) {
       // Continue anyway - don't fail the submission
     }
 
-    // Update user progress
+    // Update user progress (TRACK 2: Format-specific correctness)
+    // Note: TRACK 1 (calibration statistics) are automatically updated by database trigger
     await updateUserProgress(
       supabase,
       user.id,
       responseTopicId,
       question.bloom_level,
-      isCorrect,
-      confidence,
-      reward
+      question.question_format,
+      isCorrect
     )
 
     // Build result
@@ -100,7 +105,8 @@ export async function POST(request: NextRequest) {
       isCorrect,
       correctAnswer: question.correct_answer,
       explanation: question.explanation,
-      reward,
+      calibrationScore,                        // TRACK 1: For RL system
+      reward: calibrationScore,                // Legacy: Same as calibrationScore
       sessionComplete: false  // This would be determined by the session state
     }
 
@@ -155,20 +161,28 @@ function checkAnswer(
 }
 
 /**
- * Calculate RL reward based on 3D calibration matrix:
+ * Calculate TRACK 1 calibration score based on 3D matrix:
  * - Correctness (Correct/Incorrect)
  * - Confidence (Low=1, Medium=2, High=3)
  * - Recognition Method (memory, recognition, educated_guess, random_guess)
  *
  * Total: 2 × 3 × 4 = 24 unique scenarios
+ *
+ * This score is FORMAT-INDEPENDENT and measures metacognitive accuracy.
+ * Used by RL system for topic selection and adaptive learning.
+ *
+ * Range: -1.5 to +1.5
+ * - Positive: Good calibration (confidence matches performance)
+ * - Negative: Poor calibration (overconfident when wrong, underconfident when right)
+ * - Magnitude: Degree of calibration quality
  */
-function calculateReward(
+function calculateCalibrationScore(
   isCorrect: boolean,
   confidence: number,
   recognitionMethod: string
 ): number {
-  // 3D Reward Matrix
-  const rewardMatrix: Record<string, Record<number, Record<string, number>>> = {
+  // 3D Calibration Matrix
+  const calibrationMatrix: Record<string, Record<number, Record<string, number>>> = {
     // CORRECT ANSWERS
     correct: {
       // High Confidence + Correct
@@ -220,27 +234,31 @@ function calculateReward(
   }
 
   const correctnessKey = isCorrect ? 'correct' : 'incorrect'
-  const reward = rewardMatrix[correctnessKey]?.[confidence]?.[recognitionMethod]
+  const calibrationScore = calibrationMatrix[correctnessKey]?.[confidence]?.[recognitionMethod]
 
-  if (reward === undefined) {
-    console.warn(`Invalid reward parameters: ${correctnessKey}, confidence=${confidence}, method=${recognitionMethod}`)
+  if (calibrationScore === undefined) {
+    console.warn(`Invalid calibration parameters: ${correctnessKey}, confidence=${confidence}, method=${recognitionMethod}`)
     return isCorrect ? 0.5 : -0.5  // Fallback
   }
 
-  return reward  // No clamping needed, matrix already balanced
+  return calibrationScore  // No clamping needed, matrix already balanced
 }
 
 /**
- * Update user progress for the topic/Bloom level
+ * Update TRACK 2: Format-specific correctness scores
+ *
+ * Updates mastery_scores with format-specific performance.
+ * Structure: {"bloom_level": {"format": score, ...}, ...}
+ *
+ * Note: TRACK 1 (calibration statistics) are automatically updated by database trigger
  */
 async function updateUserProgress(
   supabase: any,
   userId: string,
   topicId: string,
   bloomLevel: number,
-  isCorrect: boolean,
-  confidence: number,
-  reward: number
+  questionFormat: string,
+  isCorrect: boolean
 ) {
   // Fetch current progress
   const { data: progress } = await supabase
@@ -251,26 +269,61 @@ async function updateUserProgress(
     .single()
 
   if (!progress) {
-    // Create initial progress
+    // Create initial progress record
+    const initialMasteryScores = {
+      [bloomLevel]: {
+        [questionFormat]: isCorrect ? 100 : 0
+      }
+    }
+
     await supabase
       .from('user_progress')
       .insert({
         user_id: userId,
         topic_id: topicId,
         current_bloom_level: bloomLevel,
-        mastery_scores: { [bloomLevel]: isCorrect ? 100 : 0 },
+        mastery_scores: initialMasteryScores,
         total_attempts: 1,
         correct_answers: isCorrect ? 1 : 0,
-        confidence_calibration_error: Math.abs((isCorrect ? 5 : 1) - confidence) / 4
+        last_practiced_at: new Date().toISOString()
       })
   } else {
     // Update existing progress
     const newCorrect = progress.correct_answers + (isCorrect ? 1 : 0)
     const newTotal = progress.total_attempts + 1
-    const newMastery = Math.round((newCorrect / newTotal) * 100)
 
+    // Update format-specific mastery scores
     const updatedMasteryScores = { ...progress.mastery_scores }
-    updatedMasteryScores[bloomLevel] = newMastery
+
+    // Get or initialize Bloom level object
+    if (!updatedMasteryScores[bloomLevel]) {
+      updatedMasteryScores[bloomLevel] = {}
+    } else if (typeof updatedMasteryScores[bloomLevel] === 'number') {
+      // Migrate legacy format: {"1": 85} → {"1": {"overall": 85}}
+      const legacyScore = updatedMasteryScores[bloomLevel]
+      updatedMasteryScores[bloomLevel] = { overall: legacyScore }
+    }
+
+    // Calculate format-specific mastery for this Bloom level
+    // Get all responses for this user/topic/bloom/format
+    const { data: formatResponses } = await supabase
+      .from('user_responses')
+      .select('is_correct')
+      .eq('user_id', userId)
+      .eq('topic_id', topicId)
+      .eq('bloom_level', bloomLevel)
+      .eq('question_format', questionFormat)
+
+    if (formatResponses && formatResponses.length > 0) {
+      const formatCorrect = formatResponses.filter(r => r.is_correct).length
+      const formatTotal = formatResponses.length
+      const formatMastery = Math.round((formatCorrect / formatTotal) * 100)
+
+      updatedMasteryScores[bloomLevel][questionFormat] = formatMastery
+    } else {
+      // First response for this format
+      updatedMasteryScores[bloomLevel][questionFormat] = isCorrect ? 100 : 0
+    }
 
     await supabase
       .from('user_progress')
@@ -278,7 +331,7 @@ async function updateUserProgress(
         total_attempts: newTotal,
         correct_answers: newCorrect,
         mastery_scores: updatedMasteryScores,
-        last_activity: new Date().toISOString(),
+        last_practiced_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       })
       .eq('user_id', userId)

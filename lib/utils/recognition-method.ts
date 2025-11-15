@@ -1,0 +1,79 @@
+/**
+ * Recognition Method Utilities
+ *
+ * Determines which recognition methods are available for each question format
+ */
+
+import { QuestionFormat, RecognitionMethod } from '@/lib/types/quiz'
+
+/**
+ * Get available recognition methods for a given question format
+ *
+ * Logic:
+ * - MCQ (single/multi), Fill-blank, True/False, Matching: All 4 methods
+ *   (These have visible options to recognize)
+ * - Open-ended: Only 2 methods (memory, educated_guess)
+ *   (No options to recognize, must recall or reason)
+ */
+export function getAvailableRecognitionMethods(format: QuestionFormat): RecognitionMethod[] {
+  switch (format) {
+    case 'open_ended':
+      // Open-ended has no options to recognize
+      return ['memory', 'educated_guess']
+
+    case 'mcq_single':
+    case 'mcq_multi':
+    case 'true_false':
+    case 'fill_blank':
+    case 'matching':
+      // These formats have options/choices that can be recognized
+      return ['memory', 'recognition', 'educated_guess', 'random_guess']
+
+    default:
+      // Fallback: all methods
+      return ['memory', 'recognition', 'educated_guess', 'random_guess']
+  }
+}
+
+/**
+ * Check if a recognition method is valid for a given format
+ */
+export function isRecognitionMethodValid(
+  method: RecognitionMethod,
+  format: QuestionFormat
+): boolean {
+  const availableMethods = getAvailableRecognitionMethods(format)
+  return availableMethods.includes(method)
+}
+
+/**
+ * Get default recognition method for a format
+ * (The most common/appropriate method for that format)
+ */
+export function getDefaultRecognitionMethod(format: QuestionFormat): RecognitionMethod {
+  switch (format) {
+    case 'open_ended':
+      return 'educated_guess'  // Most common for open-ended
+    case 'mcq_single':
+    case 'mcq_multi':
+    case 'true_false':
+      return 'recognition'  // Most common for MCQ-style
+    case 'fill_blank':
+    case 'matching':
+      return 'memory'  // Most common for recall-based
+    default:
+      return 'recognition'
+  }
+}
+
+/**
+ * Get explanation for why certain methods are unavailable
+ */
+export function getUnavailableMethodExplanation(format: QuestionFormat): string | null {
+  switch (format) {
+    case 'open_ended':
+      return 'For open-ended questions, you cannot recognize from options or guess randomly, so only memory recall and educated reasoning are available.'
+    default:
+      return null  // All methods available
+  }
+}

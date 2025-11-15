@@ -226,6 +226,7 @@ function LearnPageContent() {
             <RecognitionMethodSelector
               value={recognitionMethod}
               onChange={setRecognitionMethod}
+              questionFormat={currentQuestion.question_format}
               disabled={submitting}
             />
 
