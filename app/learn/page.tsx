@@ -546,7 +546,21 @@ function LearnPageContent() {
                 <div className="p-4 neuro-inset rounded-lg">
                   <div className="text-sm text-gray-400 mb-2">Why This Topic?</div>
                   <div className="text-gray-300">
-                    {(currentQuestion as any).selection_reason || 'Selected to optimize your learning progress'}
+                    {(() => {
+                      const reason = (currentQuestion as any).selection_reason || 'Selected to optimize your learning progress'
+                      const colonIndex = reason.indexOf(':')
+                      if (colonIndex > 0) {
+                        const phaseName = reason.substring(0, colonIndex)
+                        const description = reason.substring(colonIndex + 1)
+                        return (
+                          <>
+                            <span className="text-blue-400 font-semibold">{phaseName}</span>
+                            <span>:{description}</span>
+                          </>
+                        )
+                      }
+                      return reason
+                    })()}
                   </div>
                 </div>
 
