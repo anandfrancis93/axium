@@ -13,6 +13,7 @@ import ExplanationModal from '@/components/ExplanationModal'
 import { useTextSelection } from '@/hooks/useTextSelection'
 import { DifficultyIndicator } from '@/components/DifficultyBadge'
 import { LearningDepthIndicator } from '@/components/LearningDepthIndicator'
+import { UnlockPreview } from '@/components/UnlockPreview'
 
 type ConfidenceLevel = 'low' | 'medium' | 'high'
 type RecognitionMethod = 'memory' | 'recognition' | 'educated_guess' | 'random'
@@ -1191,6 +1192,17 @@ ${interpretation}`
                       <div className="font-medium">Total Reward: <span className="text-blue-400">{feedback.reward_components?.total?.toFixed(1)}</span></div>
                     </Tooltip>
                   </div>
+                </div>
+              )}
+
+              {/* What This Unlocks - Show motivation after correct answers */}
+              {feedback.is_correct && armSelected && armSelected.topic_id && (
+                <div className="mb-6">
+                  <UnlockPreview
+                    topicId={armSelected.topic_id}
+                    topicName={armSelected.topic_name || 'this topic'}
+                    compact={false}
+                  />
                 </div>
               )}
 

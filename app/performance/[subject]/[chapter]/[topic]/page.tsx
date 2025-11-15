@@ -12,6 +12,7 @@ import { LockIcon, InfoIcon, TrendingUpIcon } from '@/components/icons'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Area, AreaChart, ReferenceLine } from 'recharts'
 import { ChapterMasteryOverview } from '@/components/ChapterMasteryOverview'
 import Modal from '@/components/Modal'
+import { PrerequisitePathView } from '@/components/PrerequisitePathView'
 
 const BLOOM_LEVELS = [
   { num: 1, name: 'Remember' },
@@ -47,6 +48,7 @@ export default function TopicMasteryPage() {
 
   const [loading, setLoading] = useState(true)
   const [chapterData, setChapterData] = useState<any>(null)
+  const [topicId, setTopicId] = useState<string | null>(null)
   const [rlPhase, setRlPhase] = useState<string | null>(null)
   const [currentBloomLevel, setCurrentBloomLevel] = useState<number>(1)
   const [dimensionStats, setDimensionStats] = useState<any[]>([])
@@ -93,6 +95,8 @@ export default function TopicMasteryPage() {
         .single()
 
       if (!topicData) return
+
+      setTopicId(topicData.id)
 
       // Get RL phase and current Bloom level
       const { data: progressData } = await supabase
@@ -576,6 +580,17 @@ export default function TopicMasteryPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+
+        {/* Prerequisite Path - Show learning path to reach this topic */}
+        {topicId && (
+          <div className="mb-6">
+            <PrerequisitePathView
+              topicId={topicId}
+              topicName={topic}
+              showCollapsed={true}
+            />
+          </div>
+        )}
 
         {/* Tab Navigation */}
         <div className="flex flex-wrap gap-3 mb-6">

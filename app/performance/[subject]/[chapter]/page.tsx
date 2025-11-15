@@ -10,6 +10,8 @@ import { Tooltip } from '@/components/Tooltip'
 import Modal from '@/components/Modal'
 import { DifficultyBadge } from '@/components/DifficultyBadge'
 import { LearningDepthBadge } from '@/components/LearningDepthIndicator'
+import { PrerequisitePathIndicator } from '@/components/PrerequisitePathView'
+import { UnlockBadge } from '@/components/UnlockPreview'
 
 export default function PerformancePage() {
   const router = useRouter()
@@ -780,8 +782,10 @@ export default function PerformancePage() {
                   className="neuro-inset p-4 rounded-lg flex items-center justify-between hover:bg-gray-900/30 transition-colors"
                 >
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex items-center gap-3 mb-2 flex-wrap">
                       <h3 className="text-gray-200 font-medium truncate">{topic.name}</h3>
+                      <PrerequisitePathIndicator topicId={topic.id} topicName={topic.name} />
+                      <UnlockBadge topicId={topic.id} />
                       {topic.status === 'mastered' && (
                         <span className="neuro-raised px-2 py-0.5 text-xs text-green-400 rounded flex-shrink-0">
                           Mastered
@@ -852,8 +856,10 @@ export default function PerformancePage() {
                     className="neuro-inset p-4 rounded-lg flex items-center justify-between hover:bg-gray-900/30 transition-colors"
                   >
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3 mb-2">
+                      <div className="flex items-center gap-3 mb-2 flex-wrap">
                         <h3 className="text-gray-200 font-medium truncate">{topic.name}</h3>
+                        <PrerequisitePathIndicator topicId={topic.id} topicName={topic.name} />
+                        <UnlockBadge topicId={topic.id} />
                         <span className="neuro-raised px-2 py-0.5 text-xs text-green-400 rounded flex-shrink-0">
                           Mastered
                         </span>
@@ -1074,8 +1080,10 @@ export default function PerformancePage() {
                     }`}
                   >
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3 mb-2">
+                      <div className="flex items-center gap-3 mb-2 flex-wrap">
                         <h3 className="text-gray-200 font-medium truncate">{topic.name}</h3>
+                        <PrerequisitePathIndicator topicId={topic.id} topicName={topic.name} />
+                        <UnlockBadge topicId={topic.id} />
                         {topic.status === 'mastered' && (
                           <span className="neuro-raised px-2 py-0.5 text-xs text-green-400 rounded flex-shrink-0">
                             Mastered
