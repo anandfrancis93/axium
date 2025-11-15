@@ -1,0 +1,937 @@
+[dotenv@17.2.3] injecting env (0) from .env.local -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+================================================================================
+Generating Initial Test Question Set (~50 questions)
+================================================================================
+
+
+================================================================================
+Generating: Cryptography Topics (Bloom 2-3)
+================================================================================
+
+================================================================================
+Batch Question Generation
+================================================================================
+
+📍 Step 1: Retrieving entities...
+Fetching entities for scope tag: cryptography
+✅ Found 10 entities to process
+
+🤖 Step 2: Generating questions...
+
+────────────────────────────────────────────────────────────────────────────────
+Batch 1/2 (Entities 1-5)
+
+  Entity: Technical (Subtopic)
+    Generating: Bloom 2 - mcq_single
+    ✅ Generated (637 tokens, $0.004515)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 2 - true_false
+    ✅ Generated (433 tokens, $0.002631)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - mcq_single
+    ✅ Generated (636 tokens, $0.004608)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - true_false
+    ✅ Generated (465 tokens, $0.003183)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+
+  Entity: Compensating (Subtopic)
+    Generating: Bloom 2 - mcq_single
+    ✅ Generated (674 tokens, $0.004974)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 2 - true_false
+    ✅ Generated (488 tokens, $0.003360)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - mcq_single
+    ✅ Generated (665 tokens, $0.004947)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - true_false
+    ✅ Generated (492 tokens, $0.003492)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+
+  Entity: Preventive (Subtopic)
+    Generating: Bloom 2 - mcq_single
+    ✅ Generated (659 tokens, $0.004641)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 2 - true_false
+    ✅ Generated (503 tokens, $0.003477)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - mcq_single
+    ✅ Generated (704 tokens, $0.005424)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - true_false
+    ✅ Generated (477 tokens, $0.003159)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+
+  Entity: Technical implications (Topic)
+    Generating: Bloom 2 - mcq_single
+    ✅ Generated (1327 tokens, $0.007233)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 2 - true_false
+    ✅ Generated (1076 tokens, $0.004644)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - mcq_single
+    ✅ Generated (1366 tokens, $0.007926)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - true_false
+    ✅ Generated (1124 tokens, $0.005436)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+
+  Entity: Dependencies (Subtopic)
+    Generating: Bloom 2 - mcq_single
+    ✅ Generated (693 tokens, $0.005307)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 2 - true_false
+    ✅ Generated (466 tokens, $0.003078)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - mcq_single
+    ✅ Generated (693 tokens, $0.005415)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - true_false
+    ✅ Generated (497 tokens, $0.003615)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+Progress saved to test-questions-cryptography.json
+
+⏸️  Pausing 3000ms before next batch...
+
+────────────────────────────────────────────────────────────────────────────────
+Batch 2/2 (Entities 6-10)
+
+  Entity: Blockchain (Topic)
+    Generating: Bloom 2 - mcq_single
+    ✅ Generated (759 tokens, $0.005913)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 2 - true_false
+    ✅ Generated (498 tokens, $0.003174)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - mcq_single
+    ✅ Generated (741 tokens, $0.005751)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - true_false
+    ✅ Generated (541 tokens, $0.003891)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+
+  Entity: Certificates (Topic)
+    Generating: Bloom 2 - mcq_single
+    ✅ Generated (1537 tokens, $0.008547)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 2 - true_false
+    ✅ Generated (1246 tokens, $0.005358)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - mcq_single
+    ✅ Generated (1512 tokens, $0.008280)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - true_false
+    ✅ Generated (1241 tokens, $0.005355)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+
+  Entity: Certificate authorities (Subtopic)
+    Generating: Bloom 2 - mcq_single
+    ✅ Generated (708 tokens, $0.005316)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 2 - true_false
+    ✅ Generated (494 tokens, $0.003282)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - mcq_single
+    ✅ Generated (700 tokens, $0.005304)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - true_false
+    ✅ Generated (526 tokens, $0.003834)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+
+  Entity: Certificate revocation lists (CRLs) (Subtopic)
+    Generating: Bloom 2 - mcq_single
+    ✅ Generated (824 tokens, $0.006960)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 2 - true_false
+    ✅ Generated (522 tokens, $0.003606)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - mcq_single
+    ✅ Generated (761 tokens, $0.006123)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - true_false
+    ✅ Generated (537 tokens, $0.003903)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+
+  Entity: Certificate signing request (CSR) generation (Subtopic)
+    Generating: Bloom 2 - mcq_single
+    ✅ Generated (717 tokens, $0.005307)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 2 - true_false
+    ✅ Generated (504 tokens, $0.003288)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - mcq_single
+    ✅ Generated (774 tokens, $0.006270)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - true_false
+    ✅ Generated (519 tokens, $0.003585)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+Progress saved to test-questions-cryptography.json
+
+
+================================================================================
+Batch Generation Complete
+================================================================================
+
+📊 Summary:
+   Total Entities: 10
+   Total Questions: 40
+   Successful: 0 (0%)
+   Failed: 0 (0%)
+   Duplicates: 0
+
+💰 Cost:
+   Total Tokens: 29,736
+   Total Cost: $0.1941
+   Avg Cost per Question: $Infinity
+
+⏱️  Performance:
+   Duration: 395s (7 minutes)
+   Questions/minute: 6
+Progress saved to test-questions-cryptography.json
+
+💾 Results saved to: test-questions-cryptography.json
+
+================================================================================
+
+✅ Cryptography Topics (Bloom 2-3) complete: 0/40 questions
+
+⏸️  Pausing 5s before next category...
+
+
+================================================================================
+Generating: Network Security Topics (Bloom 2-3)
+================================================================================
+
+================================================================================
+Batch Question Generation
+================================================================================
+
+📍 Step 1: Retrieving entities...
+Fetching entities for scope tag: network-security
+✅ Found 10 entities to process
+
+🤖 Step 2: Generating questions...
+
+────────────────────────────────────────────────────────────────────────────────
+Batch 1/2 (Entities 1-5)
+
+  Entity: Security Control Categories (Topic)
+    Generating: Bloom 2 - mcq_single
+    ✅ Generated (998 tokens, $0.006378)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 2 - mcq_multi
+    ✅ Generated (1043 tokens, $0.006813)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - mcq_single
+    ✅ Generated (1007 tokens, $0.006621)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - mcq_multi
+    ✅ Generated (1050 tokens, $0.007026)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+
+  Entity: Physical (Subtopic)
+    Generating: Bloom 2 - mcq_single
+    ✅ Generated (730 tokens, $0.005658)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 2 - mcq_multi
+    ✅ Generated (795 tokens, $0.006393)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - mcq_single
+    ✅ Generated (698 tokens, $0.005286)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - mcq_multi
+    ✅ Generated (773 tokens, $0.006171)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+
+  Entity: Technical (Subtopic)
+    Generating: Bloom 2 - mcq_single
+    ✅ Generated (654 tokens, $0.004770)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 2 - mcq_multi
+    ✅ Generated (736 tokens, $0.005760)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - mcq_single
+    ✅ Generated (643 tokens, $0.004713)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - mcq_multi
+    ✅ Generated (714 tokens, $0.005538)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+
+  Entity: Security Control types (Topic)
+    Generating: Bloom 2 - mcq_single
+    ✅ Generated (1154 tokens, $0.006174)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 2 - mcq_multi
+    ✅ Generated (1264 tokens, $0.007584)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - mcq_single
+    ✅ Generated (1180 tokens, $0.006672)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    Generating: Bloom 3 - mcq_multi
+    ✅ Generated (1293 tokens, $0.008127)
+Unexpected error storing question: Error: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+    at throwForMissingRequestStore (C:\Users\anand\axium\node_modules\next\src\server\app-render\work-unit-async-storage.external.ts:348:9)
+    at cookies (C:\Users\anand\axium\node_modules\next\src\server\request\cookies.ts:141:30)
+    at createClient (C:\Users\anand\axium\lib\supabase\server.ts:10:29)
+    at storeGeneratedQuestion (C:\Users\anand\axium\lib\graphrag\storage.ts:83:28)
+    at batchGenerateQuestions (C:\Users\anand\axium\scripts\batch-generate-questions.ts:220:45)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async generateTestSet (C:\Users\anand\axium\scripts\generate-test-set.ts:69:22)
+    ❌ Storage failed: `cookies` was called outside a request scope. Read more: https://nextjs.org/docs/messages/next-dynamic-api-wrong-context
+
+  Entity: Compensating (Subtopic)
+    Generating: Bloom 2 - mcq_single
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8gxzHtQmD55WzY1uryi"}
+    Generating: Bloom 2 - mcq_multi
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8gy94jKE6cQELkY6Ldn"}
+    Generating: Bloom 3 - mcq_single
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8gyH1iY3BgPDTQPZB8Q"}
+    Generating: Bloom 3 - mcq_multi
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8gySJZnaBXr39ursvBL"}
+Progress saved to test-questions-network.json
+
+⏸️  Pausing 3000ms before next batch...
+
+────────────────────────────────────────────────────────────────────────────────
+Batch 2/2 (Entities 6-10)
+
+  Entity: Preventive (Subtopic)
+    Generating: Bloom 2 - mcq_single
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8gyq14WVZSEJ2bnzywA"}
+    Generating: Bloom 2 - mcq_multi
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8gyzJuQsNGDKPTDXojn"}
+    Generating: Bloom 3 - mcq_single
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8gzAETA2jFuHXZ591ek"}
+    Generating: Bloom 3 - mcq_multi
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8gzKGBK38bvYVWQTFeJ"}
+
+  Entity: Business processes impacting security operation (Topic)
+    Generating: Bloom 2 - mcq_single
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8gzUSpqZ3q5UhCcLPC2"}
+    Generating: Bloom 2 - mcq_multi
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8gzdWnK19KwxCFP1gSk"}
+    Generating: Bloom 3 - mcq_single
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8gznPaMGiELn7Rd6ggQ"}
+    Generating: Bloom 3 - mcq_multi
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8gzwNpigMPMrYQLcGnB"}
+
+  Entity: Approval process (Subtopic)
+    Generating: Bloom 2 - mcq_single
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h16XVK5XfWhuSiH3U6"}
+    Generating: Bloom 2 - mcq_multi
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h1Ev1fSaCHXumcQiTv"}
+    Generating: Bloom 3 - mcq_single
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h1QHaDdYPhgUvWBCMG"}
+    Generating: Bloom 3 - mcq_multi
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h1ZE668eq6ejGduo4s"}
+
+  Entity: Backout plan (Subtopic)
+    Generating: Bloom 2 - mcq_single
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h1iZRXThV9271eh7pE"}
+    Generating: Bloom 2 - mcq_multi
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h1rxC5grXP73UDXAdn"}
+    Generating: Bloom 3 - mcq_single
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h21sUNUND4G6Ff3g15"}
+    Generating: Bloom 3 - mcq_multi
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h2B38RiWquK4AF63uP"}
+
+  Entity: Impact analysis (Subtopic)
+    Generating: Bloom 2 - mcq_single
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h2KpUJ5wpCe3oG8C6q"}
+    Generating: Bloom 2 - mcq_multi
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h2VC2iJ5YfSsBMgMQP"}
+    Generating: Bloom 3 - mcq_single
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h2drRX2vfxZU5Ao5BA"}
+    Generating: Bloom 3 - mcq_multi
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h2nruuWoJ5xLH1Q21a"}
+Progress saved to test-questions-network.json
+
+
+================================================================================
+Batch Generation Complete
+================================================================================
+
+📊 Summary:
+   Total Entities: 10
+   Total Questions: 40
+   Successful: 0 (0%)
+   Failed: 24 (60%)
+   Duplicates: 0
+
+💰 Cost:
+   Total Tokens: 14,732
+   Total Cost: $0.0997
+   Avg Cost per Question: $Infinity
+
+⏱️  Performance:
+   Duration: 231s (4 minutes)
+   Questions/minute: 10
+Progress saved to test-questions-network.json
+
+💾 Results saved to: test-questions-network.json
+
+================================================================================
+
+✅ Network Security Topics (Bloom 2-3) complete: 0/40 questions
+
+⏸️  Pausing 5s before next category...
+
+
+================================================================================
+Generating: Incident Response Topics (Bloom 3-4)
+================================================================================
+
+================================================================================
+Batch Question Generation
+================================================================================
+
+📍 Step 1: Retrieving entities...
+Fetching entities for scope tag: incident-response
+✅ Found 5 entities to process
+
+🤖 Step 2: Generating questions...
+
+────────────────────────────────────────────────────────────────────────────────
+Batch 1/1 (Entities 1-5)
+
+  Entity: Managerial (Subtopic)
+    Generating: Bloom 3 - mcq_multi
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h3W2fMbVBn4X8CB1Wa"}
+    Generating: Bloom 3 - true_false
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h3fEJQLqpy8se9PGw5"}
+    Generating: Bloom 4 - mcq_multi
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h3p57froJCBswbPkNx"}
+    Generating: Bloom 4 - true_false
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h3yzAp3JYrHQa2oFps"}
+
+  Entity: Security Control types (Topic)
+    Generating: Bloom 3 - mcq_multi
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h48j2aEBsrtULmpw6d"}
+    Generating: Bloom 3 - true_false
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h4JuDBopa39mTFRAry"}
+    Generating: Bloom 4 - mcq_multi
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h4USC3rw2kLUxbba8n"}
+    Generating: Bloom 4 - true_false
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h4dpk5DCjQtqypbPLF"}
+
+  Entity: Corrective (Subtopic)
+    Generating: Bloom 3 - mcq_multi
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h4nhJEfmMzL6e8oqiU"}
+    Generating: Bloom 3 - true_false
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h4xCnpQF4yuH8He3Hj"}
+    Generating: Bloom 4 - mcq_multi
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h58MyYbU54YSky1gj4"}
+    Generating: Bloom 4 - true_false
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h5JFnqsTLzXvc15zJc"}
+
+  Entity: Detective (Subtopic)
+    Generating: Bloom 3 - mcq_multi
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h5TviBdAYRAMUWsdX7"}
+    Generating: Bloom 3 - true_false
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h5d6s8UJQLWaQGt96R"}
+    Generating: Bloom 4 - mcq_multi
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h5nNySYn962URzjujR"}
+    Generating: Bloom 4 - true_false
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h5wNiQJUyeFNxcpWff"}
+
+  Entity: Preventive (Subtopic)
+    Generating: Bloom 3 - mcq_multi
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h67bcmpAPJcnfnbkTv"}
+    Generating: Bloom 3 - true_false
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h6Gp1GRKk3mhSShDJ5"}
+    Generating: Bloom 4 - mcq_multi
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h6SEYPHuQzpoiUd2kG"}
+    Generating: Bloom 4 - true_false
+    ❌ Failed: Anthropic API error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CV8h6cKGYcANdbGFWcVUT"}
+Progress saved to test-questions-incident-response.json
+
+
+================================================================================
+Batch Generation Complete
+================================================================================
+
+📊 Summary:
+   Total Entities: 5
+   Total Questions: 20
+   Successful: 0 (0%)
+   Failed: 20 (100%)
+   Duplicates: 0
+
+💰 Cost:
+   Total Tokens: 0
+   Total Cost: $0.0000
+   Avg Cost per Question: $NaN
+
+⏱️  Performance:
+   Duration: 47s (1 minutes)
+   Questions/minute: 26
+Progress saved to test-questions-incident-response.json
+
+💾 Results saved to: test-questions-incident-response.json
+
+================================================================================
+
+✅ Incident Response Topics (Bloom 3-4) complete: 0/20 questions
+
+⏸️  Pausing 5s before next category...
+
+
+================================================================================
+Test Set Generation Complete
+================================================================================
+
+📊 Overall Summary:
+   Total Questions: 100
+   Successful: 0 (0%)
+   Failed: 44 (44%)
+   Total Cost: $0.2938
+
+📁 Output Files:
+   - test-questions-cryptography.json
+   - test-questions-network.json
+   - test-questions-incident-response.json
+
+✅ Test set ready for QA review and testing!
+================================================================================
+

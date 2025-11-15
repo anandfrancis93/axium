@@ -1,0 +1,130 @@
+715. Security Program Management and Oversight > Explain elements of the risk management process
+716. Security Program Management and Oversight > Explain elements of the risk management process > Risk identification
+717. Security Program Management and Oversight > Explain elements of the risk management process > Risk assessment
+718. Security Program Management and Oversight > Explain elements of the risk management process > Risk assessment > Ad hoc
+719. Security Program Management and Oversight > Explain elements of the risk management process > Risk assessment > Recurring
+720. Security Program Management and Oversight > Explain elements of the risk management process > Risk assessment > One-time
+721. Security Program Management and Oversight > Explain elements of the risk management process > Risk assessment > Continuous
+722. Security Program Management and Oversight > Explain elements of the risk management process > Risk analysis
+723. Security Program Management and Oversight > Explain elements of the risk management process > Risk analysis > Qualitative
+724. Security Program Management and Oversight > Explain elements of the risk management process > Risk analysis > Quantitative
+725. Security Program Management and Oversight > Explain elements of the risk management process > Risk analysis > Single loss expectancy (SLE)
+726. Security Program Management and Oversight > Explain elements of the risk management process > Risk analysis > Annualized loss expectancy (ALE)
+727. Security Program Management and Oversight > Explain elements of the risk management process > Risk analysis > Annualized rate of occurrence (ARO)
+728. Security Program Management and Oversight > Explain elements of the risk management process > Risk analysis > Probability
+729. Security Program Management and Oversight > Explain elements of the risk management process > Risk analysis > Likelihood
+730. Security Program Management and Oversight > Explain elements of the risk management process > Risk analysis > Exposure factor
+731. Security Program Management and Oversight > Explain elements of the risk management process > Risk analysis > Impact
+732. Security Program Management and Oversight > Explain elements of the risk management process > Risk register
+733. Security Program Management and Oversight > Explain elements of the risk management process > Risk register > Key risk indicators
+734. Security Program Management and Oversight > Explain elements of the risk management process > Risk register > Risk owners
+735. Security Program Management and Oversight > Explain elements of the risk management process > Risk register > Risk threshold
+736. Security Program Management and Oversight > Explain elements of the risk management process > Risk tolerance
+737. Security Program Management and Oversight > Explain elements of the risk management process > Risk appetite
+738. Security Program Management and Oversight > Explain elements of the risk management process > Risk appetite > Expansionary
+739. Security Program Management and Oversight > Explain elements of the risk management process > Risk appetite > Conservative
+740. Security Program Management and Oversight > Explain elements of the risk management process > Risk appetite > Neutral
+741. Security Program Management and Oversight > Explain elements of the risk management process > Risk management strategies
+742. Security Program Management and Oversight > Explain elements of the risk management process > Risk management strategies > Transfer
+743. Security Program Management and Oversight > Explain elements of the risk management process > Risk management strategies > Accept
+744. Security Program Management and Oversight > Explain elements of the risk management process > Risk management strategies > Accept > Exemption
+745. Security Program Management and Oversight > Explain elements of the risk management process > Risk management strategies > Accept > Exception
+746. Security Program Management and Oversight > Explain elements of the risk management process > Risk management strategies > Avoid
+747. Security Program Management and Oversight > Explain elements of the risk management process > Risk management strategies > Mitigate
+748. Security Program Management and Oversight > Explain elements of the risk management process > Risk reporting
+749. Security Program Management and Oversight > Explain elements of the risk management process > Business impact analysis
+750. Security Program Management and Oversight > Explain elements of the risk management process > Business impact analysis > Recovery time objective (RTO)
+751. Security Program Management and Oversight > Explain elements of the risk management process > Business impact analysis > Recovery point objective (RPO)
+752. Security Program Management and Oversight > Explain elements of the risk management process > Business impact analysis > Mean time to repair (MTTR)
+753. Security Program Management and Oversight > Explain elements of the risk management process > Business impact analysis > Mean time between failures (MTBF)
+754. Security Program Management and Oversight > Explain the processes associated with third-party risk assessment and management
+755. Security Program Management and Oversight > Explain the processes associated with third-party risk assessment and management > Vendor assessment
+756. Security Program Management and Oversight > Explain the processes associated with third-party risk assessment and management > Vendor assessment > Penetration testing
+757. Security Program Management and Oversight > Explain the processes associated with third-party risk assessment and management > Vendor assessment > Right-to-audit clause
+758. Security Program Management and Oversight > Explain the processes associated with third-party risk assessment and management > Vendor assessment > Evidence of internal audits
+759. Security Program Management and Oversight > Explain the processes associated with third-party risk assessment and management > Vendor assessment > Independent assessments
+760. Security Program Management and Oversight > Explain the processes associated with third-party risk assessment and management > Vendor assessment > Supply chain analysis
+761. Security Program Management and Oversight > Explain the processes associated with third-party risk assessment and management > Vendor selection
+762. Security Program Management and Oversight > Explain the processes associated with third-party risk assessment and management > Vendor selection > Due diligence
+763. Security Program Management and Oversight > Explain the processes associated with third-party risk assessment and management > Vendor selection > Conflict of interest
+764. Security Program Management and Oversight > Explain the processes associated with third-party risk assessment and management > Agreement types
+765. Security Program Management and Oversight > Explain the processes associated with third-party risk assessment and management > Agreement types > Service-level agreement (SLA)
+766. Security Program Management and Oversight > Explain the processes associated with third-party risk assessment and management > Agreement types > Memorandum of agreement (MOA)
+767. Security Program Management and Oversight > Explain the processes associated with third-party risk assessment and management > Agreement types > Memorandum of understanding (MOU)
+768. Security Program Management and Oversight > Explain the processes associated with third-party risk assessment and management > Agreement types > Master service agreement (MSA)
+769. Security Program Management and Oversight > Explain the processes associated with third-party risk assessment and management > Agreement types > Work order (WO) / Statement of work (SOW)
+770. Security Program Management and Oversight > Explain the processes associated with third-party risk assessment and management > Agreement types > Non-disclosure agreement (NDA)
+771. Security Program Management and Oversight > Explain the processes associated with third-party risk assessment and management > Agreement types > Business partners agreement (BPA)
+772. Security Program Management and Oversight > Explain the processes associated with third-party risk assessment and management > Vendor monitoring
+773. Security Program Management and Oversight > Explain the processes associated with third-party risk assessment and management > Questionnaires
+774. Security Program Management and Oversight > Explain the processes associated with third-party risk assessment and management > Rules of engagement
+775. Security Program Management and Oversight > Summarize elements of effective security compliance
+776. Security Program Management and Oversight > Summarize elements of effective security compliance > Compliance reporting
+777. Security Program Management and Oversight > Summarize elements of effective security compliance > Compliance reporting > Internal
+778. Security Program Management and Oversight > Summarize elements of effective security compliance > Compliance reporting > External
+779. Security Program Management and Oversight > Summarize elements of effective security compliance > Consequences of non-compliance
+780. Security Program Management and Oversight > Summarize elements of effective security compliance > Consequences of non-compliance > Fines
+781. Security Program Management and Oversight > Summarize elements of effective security compliance > Consequences of non-compliance > Sanctions
+782. Security Program Management and Oversight > Summarize elements of effective security compliance > Consequences of non-compliance > Reputational damage
+783. Security Program Management and Oversight > Summarize elements of effective security compliance > Consequences of non-compliance > Loss of license
+784. Security Program Management and Oversight > Summarize elements of effective security compliance > Consequences of non-compliance > Contractual impacts
+785. Security Program Management and Oversight > Summarize elements of effective security compliance > Compliance monitoring
+786. Security Program Management and Oversight > Summarize elements of effective security compliance > Compliance monitoring > Due diligence/care
+787. Security Program Management and Oversight > Summarize elements of effective security compliance > Compliance monitoring > Attestation and acknowledgement
+788. Security Program Management and Oversight > Summarize elements of effective security compliance > Compliance monitoring > Internal and external
+789. Security Program Management and Oversight > Summarize elements of effective security compliance > Compliance monitoring > Automation
+790. Security Program Management and Oversight > Summarize elements of effective security compliance > Privacy
+791. Security Program Management and Oversight > Summarize elements of effective security compliance > Privacy > Legal implications
+792. Security Program Management and Oversight > Summarize elements of effective security compliance > Privacy > Legal implications > Local/regional
+793. Security Program Management and Oversight > Summarize elements of effective security compliance > Privacy > Legal implications > National
+794. Security Program Management and Oversight > Summarize elements of effective security compliance > Privacy > Legal implications > Global
+795. Security Program Management and Oversight > Summarize elements of effective security compliance > Privacy > Data subject
+796. Security Program Management and Oversight > Summarize elements of effective security compliance > Privacy > Controller vs. processor
+797. Security Program Management and Oversight > Summarize elements of effective security compliance > Privacy > Ownership
+798. Security Program Management and Oversight > Summarize elements of effective security compliance > Privacy > Data inventory and retention
+799. Security Program Management and Oversight > Summarize elements of effective security compliance > Privacy > Right to be forgotten
+800. Security Program Management and Oversight > Explain types and purposes of audits and assessments
+801. Security Program Management and Oversight > Explain types and purposes of audits and assessments > Attestation
+802. Security Program Management and Oversight > Explain types and purposes of audits and assessments > Internal
+803. Security Program Management and Oversight > Explain types and purposes of audits and assessments > Internal > Compliance
+804. Security Program Management and Oversight > Explain types and purposes of audits and assessments > Internal > Audit committee
+805. Security Program Management and Oversight > Explain types and purposes of audits and assessments > Internal > Self-assessments
+806. Security Program Management and Oversight > Explain types and purposes of audits and assessments > External
+807. Security Program Management and Oversight > Explain types and purposes of audits and assessments > External > Regulatory
+808. Security Program Management and Oversight > Explain types and purposes of audits and assessments > External > Examinations
+809. Security Program Management and Oversight > Explain types and purposes of audits and assessments > External > Assessment
+810. Security Program Management and Oversight > Explain types and purposes of audits and assessments > External > Independent third-party audit
+811. Security Program Management and Oversight > Explain types and purposes of audits and assessments > Penetration testing
+812. Security Program Management and Oversight > Explain types and purposes of audits and assessments > Penetration testing > Physical
+813. Security Program Management and Oversight > Explain types and purposes of audits and assessments > Penetration testing > Offensive
+814. Security Program Management and Oversight > Explain types and purposes of audits and assessments > Penetration testing > Defensive
+815. Security Program Management and Oversight > Explain types and purposes of audits and assessments > Penetration testing > Integrated
+816. Security Program Management and Oversight > Explain types and purposes of audits and assessments > Penetration testing > Known environment
+817. Security Program Management and Oversight > Explain types and purposes of audits and assessments > Penetration testing > Partially known environment
+818. Security Program Management and Oversight > Explain types and purposes of audits and assessments > Penetration testing > Unknown environment
+819. Security Program Management and Oversight > Explain types and purposes of audits and assessments > Penetration testing > Reconnaissance
+820. Security Program Management and Oversight > Explain types and purposes of audits and assessments > Penetration testing > Reconnaissance > Passive
+821. Security Program Management and Oversight > Explain types and purposes of audits and assessments > Penetration testing > Reconnaissance > Active
+822. Security Program Management and Oversight > Given a scenario, implement security awareness practices
+823. Security Program Management and Oversight > Given a scenario, implement security awareness practices > Phishing
+824. Security Program Management and Oversight > Given a scenario, implement security awareness practices > Phishing > Campaigns
+825. Security Program Management and Oversight > Given a scenario, implement security awareness practices > Phishing > Recognizing a phishing attempt
+826. Security Program Management and Oversight > Given a scenario, implement security awareness practices > Phishing > Responding to reported suspicious messages
+827. Security Program Management and Oversight > Given a scenario, implement security awareness practices > Anomalous behavior recognition
+828. Security Program Management and Oversight > Given a scenario, implement security awareness practices > Anomalous behavior recognition > Risky
+829. Security Program Management and Oversight > Given a scenario, implement security awareness practices > Anomalous behavior recognition > Unexpected
+830. Security Program Management and Oversight > Given a scenario, implement security awareness practices > Anomalous behavior recognition > Unintentional
+831. Security Program Management and Oversight > Given a scenario, implement security awareness practices > User guidance and training
+832. Security Program Management and Oversight > Given a scenario, implement security awareness practices > User guidance and training > Policy/handbooks
+833. Security Program Management and Oversight > Given a scenario, implement security awareness practices > User guidance and training > Situational awareness
+834. Security Program Management and Oversight > Given a scenario, implement security awareness practices > User guidance and training > Insider threat
+835. Security Program Management and Oversight > Given a scenario, implement security awareness practices > User guidance and training > Password management
+836. Security Program Management and Oversight > Given a scenario, implement security awareness practices > User guidance and training > Removable media and cables
+837. Security Program Management and Oversight > Given a scenario, implement security awareness practices > User guidance and training > Social engineering
+838. Security Program Management and Oversight > Given a scenario, implement security awareness practices > User guidance and training > Operational security
+839. Security Program Management and Oversight > Given a scenario, implement security awareness practices > User guidance and training > Hybrid/remote work environments
+840. Security Program Management and Oversight > Given a scenario, implement security awareness practices > Reporting and monitoring
+841. Security Program Management and Oversight > Given a scenario, implement security awareness practices > Reporting and monitoring > Initial
+842. Security Program Management and Oversight > Given a scenario, implement security awareness practices > Reporting and monitoring > Recurring
+843. Security Program Management and Oversight > Given a scenario, implement security awareness practices > Development
+844. Security Program Management and Oversight > Given a scenario, implement security awareness practices > Execution

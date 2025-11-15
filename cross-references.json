@@ -1,0 +1,1467 @@
+{
+  "metadata": {
+    "generatedAt": "2025-11-14T21:10:15.837Z",
+    "totalDuplicates": 47,
+    "crossDomain": 31,
+    "sameDomain": 16
+  },
+  "crossReferences": [
+    {
+      "name": "Encryption",
+      "count": 6,
+      "domains": [
+        "General Security Concepts",
+        "Security Architecture",
+        "Security Program Management and Oversight",
+        "Threats, Vulnerabilities, and Mitigations"
+      ],
+      "types": [
+        "Topic",
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Encryption",
+          "id": "1dfe2982-936f-4764-9bd3-96769d32ac66",
+          "fullPath": "General Security Concepts > Explain the importance of using appropriate cryptographic solutions > Encryption",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "General Security Concepts"
+        },
+        {
+          "name": "Encryption",
+          "id": "d069868e-9533-45b7-8ac0-4fcee0626fde",
+          "fullPath": "Security Architecture > Compare and contrast concepts and strategies to protect data > Methods to secure data > Encryption",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Architecture"
+        },
+        {
+          "name": "Encryption",
+          "id": "7fb2c2ee-a951-43fd-bf69-aaf89070bbc4",
+          "fullPath": "Security Architecture > Explain the importance of resilience and recovery in security architecture > Backups > Encryption",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Architecture"
+        },
+        {
+          "name": "Encryption",
+          "id": "1f909215-471b-4d3c-a752-36065d9c3950",
+          "fullPath": "Security Program Management and Oversight > Summarize elements of effective security governance > Standards > Encryption",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Program Management and Oversight"
+        },
+        {
+          "name": "Encryption",
+          "id": "ee57bf3c-a46e-4135-8722-5d41cfa2d5b4",
+          "fullPath": "Threats, Vulnerabilities, and Mitigations > Explain the purpose of mitigation techniques used to secure the enterprise > Encryption",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "Threats, Vulnerabilities, and Mitigations"
+        },
+        {
+          "name": "Encryption",
+          "id": "b2704f4d-2300-4f66-835b-72a14c20c2a3",
+          "fullPath": "Threats, Vulnerabilities, and Mitigations > Explain the purpose of mitigation techniques used to secure the enterprise > Hardening techniques > Encryption",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Threats, Vulnerabilities, and Mitigations"
+        }
+      ]
+    },
+    {
+      "name": "External",
+      "count": 3,
+      "domains": [
+        "Security Program Management and Oversight",
+        "Threats, Vulnerabilities, and Mitigations"
+      ],
+      "types": [
+        "Topic",
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "External",
+          "id": "0ed38c62-cb42-4f24-a71c-9c949a8d472b",
+          "fullPath": "Security Program Management and Oversight > Explain types and purposes of audits and assessments > External",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "Security Program Management and Oversight"
+        },
+        {
+          "name": "External",
+          "id": "10dc4150-e38d-4f0e-b1d1-b4f7f8057720",
+          "fullPath": "Security Program Management and Oversight > Summarize elements of effective security compliance > Compliance reporting > External",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Program Management and Oversight"
+        },
+        {
+          "name": "External",
+          "id": "8a909d47-2e42-4ef1-b5bf-8c7000a63845",
+          "fullPath": "Threats, Vulnerabilities, and Mitigations > Compare and contrast common threat actors and motivations > Attributes of threat actors > External",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Threats, Vulnerabilities, and Mitigations"
+        }
+      ]
+    },
+    {
+      "name": "Internal",
+      "count": 3,
+      "domains": [
+        "Security Program Management and Oversight",
+        "Threats, Vulnerabilities, and Mitigations"
+      ],
+      "types": [
+        "Topic",
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Internal",
+          "id": "6bf23025-6ea3-4b4b-8ec3-47cbb368f9a0",
+          "fullPath": "Security Program Management and Oversight > Explain types and purposes of audits and assessments > Internal",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "Security Program Management and Oversight"
+        },
+        {
+          "name": "Internal",
+          "id": "47024ac5-2a35-4e5b-9ce2-ecf31a3ebc8b",
+          "fullPath": "Security Program Management and Oversight > Summarize elements of effective security compliance > Compliance reporting > Internal",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Program Management and Oversight"
+        },
+        {
+          "name": "Internal",
+          "id": "23839a1a-c1b0-4b6f-a878-16463a21c6ca",
+          "fullPath": "Threats, Vulnerabilities, and Mitigations > Compare and contrast common threat actors and motivations > Attributes of threat actors > Internal",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Threats, Vulnerabilities, and Mitigations"
+        }
+      ]
+    },
+    {
+      "name": "Ownership",
+      "count": 3,
+      "domains": [
+        "General Security Concepts",
+        "Security Operations",
+        "Security Program Management and Oversight"
+      ],
+      "types": [
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Ownership",
+          "id": "aec298f9-0e06-468a-b32f-1f783c7f8fb1",
+          "fullPath": "General Security Concepts > Explain the importance of change management processes and the impact to security > Business processes impacting security operation > Ownership",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "General Security Concepts"
+        },
+        {
+          "name": "Ownership",
+          "id": "ed789655-1f20-4899-b6f7-499af15de80a",
+          "fullPath": "Security Operations > Explain the security implications of proper hardware, software, and data asset management > Assignment/accounting > Ownership",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Operations"
+        },
+        {
+          "name": "Ownership",
+          "id": "9076e3f6-c805-413e-b820-31333d6bae17",
+          "fullPath": "Security Program Management and Oversight > Summarize elements of effective security compliance > Privacy > Ownership",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Program Management and Oversight"
+        }
+      ]
+    },
+    {
+      "name": "Penetration testing",
+      "count": 3,
+      "domains": [
+        "Security Operations",
+        "Security Program Management and Oversight"
+      ],
+      "types": [
+        "Subtopic",
+        "Topic"
+      ],
+      "entities": [
+        {
+          "name": "Penetration testing",
+          "id": "b2ef0c7b-4553-4a78-a674-26268afa4dbd",
+          "fullPath": "Security Operations > Explain various activities associated with vulnerability management > Identification methods > Penetration testing",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Operations"
+        },
+        {
+          "name": "Penetration testing",
+          "id": "32a831c8-1970-4ea7-8310-4bff02f9fb3b",
+          "fullPath": "Security Program Management and Oversight > Explain the processes associated with third-party risk assessment and management > Vendor assessment > Penetration testing",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Program Management and Oversight"
+        },
+        {
+          "name": "Penetration testing",
+          "id": "e2ce542f-4a15-42ed-99af-8c60f98ef215",
+          "fullPath": "Security Program Management and Oversight > Explain types and purposes of audits and assessments > Penetration testing",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "Security Program Management and Oversight"
+        }
+      ]
+    },
+    {
+      "name": "Reporting",
+      "count": 3,
+      "domains": [
+        "Security Operations"
+      ],
+      "types": [
+        "Subtopic",
+        "Topic"
+      ],
+      "entities": [
+        {
+          "name": "Reporting",
+          "id": "e497f7ef-78c7-4e9f-bc53-d8072b3a0d04",
+          "fullPath": "Security Operations > Explain appropriate incident response activities > Digital forensics > Reporting",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Operations"
+        },
+        {
+          "name": "Reporting",
+          "id": "5d41fa25-66ea-415d-9b04-fab85080b587",
+          "fullPath": "Security Operations > Explain security alerting and monitoring concepts and tools > Activities > Reporting",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Operations"
+        },
+        {
+          "name": "Reporting",
+          "id": "1076eb1c-b98a-4fd5-a610-01eccb7590e6",
+          "fullPath": "Security Operations > Explain various activities associated with vulnerability management > Reporting",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "Security Operations"
+        }
+      ]
+    },
+    {
+      "name": "Segmentation",
+      "count": 3,
+      "domains": [
+        "Security Architecture",
+        "Security Operations",
+        "Threats, Vulnerabilities, and Mitigations"
+      ],
+      "types": [
+        "Subtopic",
+        "Topic"
+      ],
+      "entities": [
+        {
+          "name": "Segmentation",
+          "id": "4be6501a-8d6b-42e7-ab1a-eef5afc90d95",
+          "fullPath": "Security Architecture > Compare and contrast concepts and strategies to protect data > Methods to secure data > Segmentation",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Architecture"
+        },
+        {
+          "name": "Segmentation",
+          "id": "b4d67ef1-375c-4fb8-9969-e106e88976da",
+          "fullPath": "Security Operations > Explain various activities associated with vulnerability management > Vulnerability response and remediation > Segmentation",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Operations"
+        },
+        {
+          "name": "Segmentation",
+          "id": "7aea0bc6-f3bc-406b-b0b2-30075e7985c8",
+          "fullPath": "Threats, Vulnerabilities, and Mitigations > Explain the purpose of mitigation techniques used to secure the enterprise > Segmentation",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "Threats, Vulnerabilities, and Mitigations"
+        }
+      ]
+    },
+    {
+      "name": "Access control",
+      "count": 2,
+      "domains": [
+        "Security Program Management and Oversight",
+        "Threats, Vulnerabilities, and Mitigations"
+      ],
+      "types": [
+        "Subtopic",
+        "Topic"
+      ],
+      "entities": [
+        {
+          "name": "Access control",
+          "id": "68847f88-2396-47d6-97c8-f89d80618125",
+          "fullPath": "Security Program Management and Oversight > Summarize elements of effective security governance > Standards > Access control",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Program Management and Oversight"
+        },
+        {
+          "name": "Access control",
+          "id": "79385834-ca12-4fae-bc2d-2d5628927a37",
+          "fullPath": "Threats, Vulnerabilities, and Mitigations > Explain the purpose of mitigation techniques used to secure the enterprise > Access control",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "Threats, Vulnerabilities, and Mitigations"
+        }
+      ]
+    },
+    {
+      "name": "Analysis",
+      "count": 2,
+      "domains": [
+        "Security Operations"
+      ],
+      "types": [
+        "Subtopic",
+        "Topic"
+      ],
+      "entities": [
+        {
+          "name": "Analysis",
+          "id": "a60e0cdd-984b-49cc-a345-b926fa3cec73",
+          "fullPath": "Security Operations > Explain appropriate incident response activities > Process > Analysis",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Operations"
+        },
+        {
+          "name": "Analysis",
+          "id": "00a3369d-3959-45ff-9840-67432fbc023d",
+          "fullPath": "Security Operations > Explain various activities associated with vulnerability management > Analysis",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "Security Operations"
+        }
+      ]
+    },
+    {
+      "name": "Application security",
+      "count": 2,
+      "domains": [
+        "Security Operations"
+      ],
+      "types": [
+        "Subtopic",
+        "Topic"
+      ],
+      "entities": [
+        {
+          "name": "Application security",
+          "id": "12bc3221-e8cb-4110-848e-c52431e51d98",
+          "fullPath": "Security Operations > Explain various activities associated with vulnerability management > Identification methods > Application security",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Operations"
+        },
+        {
+          "name": "Application security",
+          "id": "89b77e81-d534-4b14-adcd-5abd96a9fdee",
+          "fullPath": "Security Operations > Given a scenario, apply common security techniques to computing resources > Application security",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "Security Operations"
+        }
+      ]
+    },
+    {
+      "name": "Attestation",
+      "count": 2,
+      "domains": [
+        "Security Operations",
+        "Security Program Management and Oversight"
+      ],
+      "types": [
+        "Topic"
+      ],
+      "entities": [
+        {
+          "name": "Attestation",
+          "id": "f5711d60-d0bc-45e4-8eda-da67812add05",
+          "fullPath": "Security Operations > Given a scenario, implement and maintain identity and access management > Attestation",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "Security Operations"
+        },
+        {
+          "name": "Attestation",
+          "id": "1a451289-0f54-43e1-b0f6-81891e7a0d91",
+          "fullPath": "Security Program Management and Oversight > Explain types and purposes of audits and assessments > Attestation",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "Security Program Management and Oversight"
+        }
+      ]
+    },
+    {
+      "name": "Availability",
+      "count": 2,
+      "domains": [
+        "General Security Concepts",
+        "Security Architecture"
+      ],
+      "types": [
+        "Topic",
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Availability",
+          "id": "59f8f97e-b858-4a5d-9617-be802f6526a2",
+          "fullPath": "General Security Concepts > Summarize fundamental security concepts > Availability",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "General Security Concepts"
+        },
+        {
+          "name": "Availability",
+          "id": "6acaa0a4-41a7-419b-8f50-e897ad961554",
+          "fullPath": "Security Architecture > Compare and contrast security implications of different architecture models > Considerations > Availability",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Architecture"
+        }
+      ]
+    },
+    {
+      "name": "Bluetooth",
+      "count": 2,
+      "domains": [
+        "Security Operations",
+        "Threats, Vulnerabilities, and Mitigations"
+      ],
+      "types": [
+        "Sub-subtopic",
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Bluetooth",
+          "id": "a7a4084d-b168-424b-8db4-d51005f77dcb",
+          "fullPath": "Security Operations > Given a scenario, apply common security techniques to computing resources > Mobile solutions > Connection methods > Bluetooth",
+          "entityType": "Sub-subtopic",
+          "depth": 4,
+          "domainName": "Security Operations"
+        },
+        {
+          "name": "Bluetooth",
+          "id": "45ef222c-eeb9-48e4-8b01-f11c64f65d1a",
+          "fullPath": "Threats, Vulnerabilities, and Mitigations > Explain common threat vectors and attack surfaces > Unsecure networks > Bluetooth",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Threats, Vulnerabilities, and Mitigations"
+        }
+      ]
+    },
+    {
+      "name": "Brute force",
+      "count": 2,
+      "domains": [
+        "Threats, Vulnerabilities, and Mitigations"
+      ],
+      "types": [
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Brute force",
+          "id": "ff984197-3a16-4fb2-9197-5c7f726cfc96",
+          "fullPath": "Threats, Vulnerabilities, and Mitigations > Given a scenario, analyze indicators of malicious activity > Password attacks > Brute force",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Threats, Vulnerabilities, and Mitigations"
+        },
+        {
+          "name": "Brute force",
+          "id": "33cbfdc9-a72d-411b-864e-f7594fdaaa63",
+          "fullPath": "Threats, Vulnerabilities, and Mitigations > Given a scenario, analyze indicators of malicious activity > Physical attacks > Brute force",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Threats, Vulnerabilities, and Mitigations"
+        }
+      ]
+    },
+    {
+      "name": "Buffer overflow",
+      "count": 2,
+      "domains": [
+        "Threats, Vulnerabilities, and Mitigations"
+      ],
+      "types": [
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Buffer overflow",
+          "id": "3443bb26-c3f9-444f-91bc-61109695791a",
+          "fullPath": "Threats, Vulnerabilities, and Mitigations > Explain various types of vulnerabilities > Application > Buffer overflow",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Threats, Vulnerabilities, and Mitigations"
+        },
+        {
+          "name": "Buffer overflow",
+          "id": "bfdda849-3d4e-43e8-89f1-07a86c49bfc5",
+          "fullPath": "Threats, Vulnerabilities, and Mitigations > Given a scenario, analyze indicators of malicious activity > Application attacks > Buffer overflow",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Threats, Vulnerabilities, and Mitigations"
+        }
+      ]
+    },
+    {
+      "name": "Change management",
+      "count": 2,
+      "domains": [
+        "Security Program Management and Oversight"
+      ],
+      "types": [
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Change management",
+          "id": "ae2c88f1-46e3-4942-a536-ac8f4132718d",
+          "fullPath": "Security Program Management and Oversight > Summarize elements of effective security governance > Policies > Change management",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Program Management and Oversight"
+        },
+        {
+          "name": "Change management",
+          "id": "ffa98ed8-dc7c-4a66-9613-d3061aeb5a66",
+          "fullPath": "Security Program Management and Oversight > Summarize elements of effective security governance > Procedures > Change management",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Program Management and Oversight"
+        }
+      ]
+    },
+    {
+      "name": "Complexity",
+      "count": 2,
+      "domains": [
+        "Security Operations"
+      ],
+      "types": [
+        "Subtopic",
+        "Sub-subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Complexity",
+          "id": "eb119ea9-45bb-47bf-85e1-5f694084eadb",
+          "fullPath": "Security Operations > Explain the importance of automation and orchestration related to secure operations > Other considerations > Complexity",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Operations"
+        },
+        {
+          "name": "Complexity",
+          "id": "70f7bfff-e9c9-4c9d-932e-8592275a7712",
+          "fullPath": "Security Operations > Given a scenario, implement and maintain identity and access management > Password concepts > Password best practices > Complexity",
+          "entityType": "Sub-subtopic",
+          "depth": 4,
+          "domainName": "Security Operations"
+        }
+      ]
+    },
+    {
+      "name": "Cost",
+      "count": 2,
+      "domains": [
+        "Security Architecture",
+        "Security Operations"
+      ],
+      "types": [
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Cost",
+          "id": "9136fd7b-5540-4867-be5f-fd59cec5f80b",
+          "fullPath": "Security Architecture > Compare and contrast security implications of different architecture models > Considerations > Cost",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Architecture"
+        },
+        {
+          "name": "Cost",
+          "id": "c64c0f50-4fc3-4969-8b65-590ec5f50632",
+          "fullPath": "Security Operations > Explain the importance of automation and orchestration related to secure operations > Other considerations > Cost",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Operations"
+        }
+      ]
+    },
+    {
+      "name": "Embedded systems",
+      "count": 2,
+      "domains": [
+        "Security Architecture",
+        "Security Operations"
+      ],
+      "types": [
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Embedded systems",
+          "id": "4cfeec9d-4e9f-44ec-aa1c-48ccd6e4c2cb",
+          "fullPath": "Security Architecture > Compare and contrast security implications of different architecture models > Architecture and infrastructure concepts > Embedded systems",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Architecture"
+        },
+        {
+          "name": "Embedded systems",
+          "id": "9fedaeac-629c-495a-be8f-9868fcb98cc1",
+          "fullPath": "Security Operations > Given a scenario, apply common security techniques to computing resources > Hardening targets > Embedded systems",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Operations"
+        }
+      ]
+    },
+    {
+      "name": "Exposure factor",
+      "count": 2,
+      "domains": [
+        "Security Operations",
+        "Security Program Management and Oversight"
+      ],
+      "types": [
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Exposure factor",
+          "id": "1eced8ee-4d76-4ccd-8043-b2ceab9c790c",
+          "fullPath": "Security Operations > Explain various activities associated with vulnerability management > Analysis > Exposure factor",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Operations"
+        },
+        {
+          "name": "Exposure factor",
+          "id": "714ad23e-e0da-4c92-9437-8f372cd96746",
+          "fullPath": "Security Program Management and Oversight > Explain elements of the risk management process > Risk analysis > Exposure factor",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Program Management and Oversight"
+        }
+      ]
+    },
+    {
+      "name": "Global",
+      "count": 2,
+      "domains": [
+        "Security Program Management and Oversight"
+      ],
+      "types": [
+        "Sub-subtopic",
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Global",
+          "id": "9556732f-e211-4520-8460-92c7a7f1a702",
+          "fullPath": "Security Program Management and Oversight > Summarize elements of effective security compliance > Privacy > Legal implications > Global",
+          "entityType": "Sub-subtopic",
+          "depth": 4,
+          "domainName": "Security Program Management and Oversight"
+        },
+        {
+          "name": "Global",
+          "id": "a10db363-ea33-4dc4-b970-c2b0231030ac",
+          "fullPath": "Security Program Management and Oversight > Summarize elements of effective security governance > External considerations > Global",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Program Management and Oversight"
+        }
+      ]
+    },
+    {
+      "name": "Hashing",
+      "count": 2,
+      "domains": [
+        "General Security Concepts",
+        "Security Architecture"
+      ],
+      "types": [
+        "Topic",
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Hashing",
+          "id": "26c333ff-6c32-487f-a93f-99d59b9fda1c",
+          "fullPath": "General Security Concepts > Explain the importance of using appropriate cryptographic solutions > Hashing",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "General Security Concepts"
+        },
+        {
+          "name": "Hashing",
+          "id": "3e5c2d53-db46-4eb5-8772-ee6aa4672935",
+          "fullPath": "Security Architecture > Compare and contrast concepts and strategies to protect data > Methods to secure data > Hashing",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Architecture"
+        }
+      ]
+    },
+    {
+      "name": "High availability",
+      "count": 2,
+      "domains": [
+        "Security Architecture"
+      ],
+      "types": [
+        "Subtopic",
+        "Topic"
+      ],
+      "entities": [
+        {
+          "name": "High availability",
+          "id": "b9afefd7-b2b2-4e0f-bf0e-9e67cd6bf152",
+          "fullPath": "Security Architecture > Compare and contrast security implications of different architecture models > Architecture and infrastructure concepts > High availability",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Architecture"
+        },
+        {
+          "name": "High availability",
+          "id": "9b502161-d036-4641-bbab-f610ec575a95",
+          "fullPath": "Security Architecture > Explain the importance of resilience and recovery in security architecture > High availability",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "Security Architecture"
+        }
+      ]
+    },
+    {
+      "name": "Infrastructure",
+      "count": 2,
+      "domains": [
+        "Security Architecture",
+        "Security Operations"
+      ],
+      "types": [
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Infrastructure",
+          "id": "3f84c5b5-7595-4367-bf32-30e16c170af9",
+          "fullPath": "Security Architecture > Explain the importance of resilience and recovery in security architecture > Capacity planning > Infrastructure",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Architecture"
+        },
+        {
+          "name": "Infrastructure",
+          "id": "72075d43-3dce-400d-a587-946fbe6f712a",
+          "fullPath": "Security Operations > Explain security alerting and monitoring concepts and tools > Monitoring computing resources > Infrastructure",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Operations"
+        }
+      ]
+    },
+    {
+      "name": "Insider threat",
+      "count": 2,
+      "domains": [
+        "Security Program Management and Oversight",
+        "Threats, Vulnerabilities, and Mitigations"
+      ],
+      "types": [
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Insider threat",
+          "id": "52b88886-f124-48db-a51c-5617c3fde15c",
+          "fullPath": "Security Program Management and Oversight > Given a scenario, implement security awareness practices > User guidance and training > Insider threat",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Program Management and Oversight"
+        },
+        {
+          "name": "Insider threat",
+          "id": "4c686e96-e91e-4462-ad9a-f80d2b7f8672",
+          "fullPath": "Threats, Vulnerabilities, and Mitigations > Compare and contrast common threat actors and motivations > Threat actors > Insider threat",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Threats, Vulnerabilities, and Mitigations"
+        }
+      ]
+    },
+    {
+      "name": "Least privilege",
+      "count": 2,
+      "domains": [
+        "Security Operations",
+        "Threats, Vulnerabilities, and Mitigations"
+      ],
+      "types": [
+        "Subtopic",
+        "Topic"
+      ],
+      "entities": [
+        {
+          "name": "Least privilege",
+          "id": "11b746ac-9e14-419f-9092-296e9fff222b",
+          "fullPath": "Security Operations > Given a scenario, implement and maintain identity and access management > Access controls > Least privilege",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Operations"
+        },
+        {
+          "name": "Least privilege",
+          "id": "7b576033-06a2-4199-b68b-b392e05ae2ea",
+          "fullPath": "Threats, Vulnerabilities, and Mitigations > Explain the purpose of mitigation techniques used to secure the enterprise > Least privilege",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "Threats, Vulnerabilities, and Mitigations"
+        }
+      ]
+    },
+    {
+      "name": "Local/regional",
+      "count": 2,
+      "domains": [
+        "Security Program Management and Oversight"
+      ],
+      "types": [
+        "Sub-subtopic",
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Local/regional",
+          "id": "f03f2ada-a7bc-420e-bdd8-b9ed864b5772",
+          "fullPath": "Security Program Management and Oversight > Summarize elements of effective security compliance > Privacy > Legal implications > Local/regional",
+          "entityType": "Sub-subtopic",
+          "depth": 4,
+          "domainName": "Security Program Management and Oversight"
+        },
+        {
+          "name": "Local/regional",
+          "id": "45ee7c09-ac29-45ba-9e3f-31b156156afa",
+          "fullPath": "Security Program Management and Oversight > Summarize elements of effective security governance > External considerations > Local/regional",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Program Management and Oversight"
+        }
+      ]
+    },
+    {
+      "name": "Monitoring",
+      "count": 2,
+      "domains": [
+        "Security Operations",
+        "Threats, Vulnerabilities, and Mitigations"
+      ],
+      "types": [
+        "Topic"
+      ],
+      "entities": [
+        {
+          "name": "Monitoring",
+          "id": "f12e6140-a623-4774-b70a-13ff21e7409b",
+          "fullPath": "Security Operations > Given a scenario, apply common security techniques to computing resources > Monitoring",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "Security Operations"
+        },
+        {
+          "name": "Monitoring",
+          "id": "b4d2ab71-8708-4cf7-8b1d-9f83cd151a6d",
+          "fullPath": "Threats, Vulnerabilities, and Mitigations > Explain the purpose of mitigation techniques used to secure the enterprise > Monitoring",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "Threats, Vulnerabilities, and Mitigations"
+        }
+      ]
+    },
+    {
+      "name": "National",
+      "count": 2,
+      "domains": [
+        "Security Program Management and Oversight"
+      ],
+      "types": [
+        "Sub-subtopic",
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "National",
+          "id": "dc3400d6-a22d-40e5-b45e-b0bcf5f7814d",
+          "fullPath": "Security Program Management and Oversight > Summarize elements of effective security compliance > Privacy > Legal implications > National",
+          "entityType": "Sub-subtopic",
+          "depth": 4,
+          "domainName": "Security Program Management and Oversight"
+        },
+        {
+          "name": "National",
+          "id": "9f7b8672-2b85-4d4c-935a-182680caa9a9",
+          "fullPath": "Security Program Management and Oversight > Summarize elements of effective security governance > External considerations > National",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Program Management and Oversight"
+        }
+      ]
+    },
+    {
+      "name": "Obfuscation",
+      "count": 2,
+      "domains": [
+        "General Security Concepts",
+        "Security Architecture"
+      ],
+      "types": [
+        "Topic",
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Obfuscation",
+          "id": "fdfc7dca-9420-42da-acbd-bd5f02efbf3c",
+          "fullPath": "General Security Concepts > Explain the importance of using appropriate cryptographic solutions > Obfuscation",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "General Security Concepts"
+        },
+        {
+          "name": "Obfuscation",
+          "id": "cba76e82-248a-430d-8868-02d6895a23b0",
+          "fullPath": "Security Architecture > Compare and contrast concepts and strategies to protect data > Methods to secure data > Obfuscation",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Architecture"
+        }
+      ]
+    },
+    {
+      "name": "Patching",
+      "count": 2,
+      "domains": [
+        "Security Operations",
+        "Threats, Vulnerabilities, and Mitigations"
+      ],
+      "types": [
+        "Subtopic",
+        "Topic"
+      ],
+      "entities": [
+        {
+          "name": "Patching",
+          "id": "9fbda832-2403-4772-b87f-a89af19f3e6f",
+          "fullPath": "Security Operations > Explain various activities associated with vulnerability management > Vulnerability response and remediation > Patching",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Operations"
+        },
+        {
+          "name": "Patching",
+          "id": "0fd70e08-9d82-42a6-88f9-c32c22461d2f",
+          "fullPath": "Threats, Vulnerabilities, and Mitigations > Explain the purpose of mitigation techniques used to secure the enterprise > Patching",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "Threats, Vulnerabilities, and Mitigations"
+        }
+      ]
+    },
+    {
+      "name": "Phishing",
+      "count": 2,
+      "domains": [
+        "Security Program Management and Oversight",
+        "Threats, Vulnerabilities, and Mitigations"
+      ],
+      "types": [
+        "Topic",
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Phishing",
+          "id": "2f0fb2b6-fd0a-409a-b730-0ef819c6c5b9",
+          "fullPath": "Security Program Management and Oversight > Given a scenario, implement security awareness practices > Phishing",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "Security Program Management and Oversight"
+        },
+        {
+          "name": "Phishing",
+          "id": "d428834b-f50a-47ae-9ece-b11e3532b0b8",
+          "fullPath": "Threats, Vulnerabilities, and Mitigations > Explain common threat vectors and attack surfaces > Human vectors/social engineering > Phishing",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Threats, Vulnerabilities, and Mitigations"
+        }
+      ]
+    },
+    {
+      "name": "Physical",
+      "count": 2,
+      "domains": [
+        "General Security Concepts",
+        "Security Program Management and Oversight"
+      ],
+      "types": [
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Physical",
+          "id": "ec179375-a667-459b-9d28-db80aaf98134",
+          "fullPath": "General Security Concepts > Compare and contrast various types of security controls > Security Control Categories > Physical",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "General Security Concepts"
+        },
+        {
+          "name": "Physical",
+          "id": "733ab31e-9136-49c9-a441-5da8c1d8bc39",
+          "fullPath": "Security Program Management and Oversight > Explain types and purposes of audits and assessments > Penetration testing > Physical",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Program Management and Oversight"
+        }
+      ]
+    },
+    {
+      "name": "Physical security",
+      "count": 2,
+      "domains": [
+        "General Security Concepts",
+        "Security Program Management and Oversight"
+      ],
+      "types": [
+        "Topic",
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Physical security",
+          "id": "d0e17684-eddb-4024-a63a-912e159272c9",
+          "fullPath": "General Security Concepts > Summarize fundamental security concepts > Physical security",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "General Security Concepts"
+        },
+        {
+          "name": "Physical security",
+          "id": "82618e5c-9f34-4499-85c3-d2788edb5d13",
+          "fullPath": "Security Program Management and Oversight > Summarize elements of effective security governance > Standards > Physical security",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Program Management and Oversight"
+        }
+      ]
+    },
+    {
+      "name": "Power",
+      "count": 2,
+      "domains": [
+        "Security Architecture"
+      ],
+      "types": [
+        "Subtopic",
+        "Topic"
+      ],
+      "entities": [
+        {
+          "name": "Power",
+          "id": "974204c9-f531-4ec5-93b2-8a9951c2d792",
+          "fullPath": "Security Architecture > Compare and contrast security implications of different architecture models > Considerations > Power",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Architecture"
+        },
+        {
+          "name": "Power",
+          "id": "523ab84e-9e2e-4b0d-b16d-608ccaad35ec",
+          "fullPath": "Security Architecture > Explain the importance of resilience and recovery in security architecture > Power",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "Security Architecture"
+        }
+      ]
+    },
+    {
+      "name": "Recovery",
+      "count": 2,
+      "domains": [
+        "Security Architecture",
+        "Security Operations"
+      ],
+      "types": [
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Recovery",
+          "id": "825c25c1-4dec-48dd-bd5f-aabe53494631",
+          "fullPath": "Security Architecture > Explain the importance of resilience and recovery in security architecture > Backups > Recovery",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Architecture"
+        },
+        {
+          "name": "Recovery",
+          "id": "220c84c0-fe76-4bd1-b0c4-fb9fbd7b2554",
+          "fullPath": "Security Operations > Explain appropriate incident response activities > Process > Recovery",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Operations"
+        }
+      ]
+    },
+    {
+      "name": "Recurring",
+      "count": 2,
+      "domains": [
+        "Security Program Management and Oversight"
+      ],
+      "types": [
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Recurring",
+          "id": "87aaf8cb-c663-4a25-b169-38d7671ea4d7",
+          "fullPath": "Security Program Management and Oversight > Explain elements of the risk management process > Risk assessment > Recurring",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Program Management and Oversight"
+        },
+        {
+          "name": "Recurring",
+          "id": "11e68fe2-4e5e-40f7-9aa3-0c6c48deb13f",
+          "fullPath": "Security Program Management and Oversight > Given a scenario, implement security awareness practices > Reporting and monitoring > Recurring",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Program Management and Oversight"
+        }
+      ]
+    },
+    {
+      "name": "Regulatory",
+      "count": 2,
+      "domains": [
+        "Security Program Management and Oversight"
+      ],
+      "types": [
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Regulatory",
+          "id": "5997b35d-e23d-4fd6-b52c-d75b427e048f",
+          "fullPath": "Security Program Management and Oversight > Explain types and purposes of audits and assessments > External > Regulatory",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Program Management and Oversight"
+        },
+        {
+          "name": "Regulatory",
+          "id": "466831e4-bda9-4915-8731-b409cd4d6837",
+          "fullPath": "Security Program Management and Oversight > Summarize elements of effective security governance > External considerations > Regulatory",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Program Management and Oversight"
+        }
+      ]
+    },
+    {
+      "name": "Risk tolerance",
+      "count": 2,
+      "domains": [
+        "Security Operations",
+        "Security Program Management and Oversight"
+      ],
+      "types": [
+        "Subtopic",
+        "Topic"
+      ],
+      "entities": [
+        {
+          "name": "Risk tolerance",
+          "id": "c356ce9b-28a2-496d-9b21-5ff2ff83f01d",
+          "fullPath": "Security Operations > Explain various activities associated with vulnerability management > Analysis > Risk tolerance",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Operations"
+        },
+        {
+          "name": "Risk tolerance",
+          "id": "039a7d0c-3bdf-423b-a904-252e9da348f2",
+          "fullPath": "Security Program Management and Oversight > Explain elements of the risk management process > Risk tolerance",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "Security Program Management and Oversight"
+        }
+      ]
+    },
+    {
+      "name": "Sensors",
+      "count": 2,
+      "domains": [
+        "General Security Concepts",
+        "Security Architecture"
+      ],
+      "types": [
+        "Subtopic",
+        "Sub-subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Sensors",
+          "id": "24933ba0-fcee-41b6-9e00-0a32ce1e0d1c",
+          "fullPath": "General Security Concepts > Summarize fundamental security concepts > Physical security > Sensors",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "General Security Concepts"
+        },
+        {
+          "name": "Sensors",
+          "id": "6fb73489-a550-4cd1-a56c-26bd3b811056",
+          "fullPath": "Security Architecture > Given a scenario, apply security principles to secure enterprise infrastructure > Infrastructure considerations > Network appliances > Sensors",
+          "entityType": "Sub-subtopic",
+          "depth": 4,
+          "domainName": "Security Architecture"
+        }
+      ]
+    },
+    {
+      "name": "Simulation",
+      "count": 2,
+      "domains": [
+        "Security Architecture",
+        "Security Operations"
+      ],
+      "types": [
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Simulation",
+          "id": "5f2a664a-cf27-4635-a30e-ec01a00b7dcf",
+          "fullPath": "Security Architecture > Explain the importance of resilience and recovery in security architecture > Testing > Simulation",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Architecture"
+        },
+        {
+          "name": "Simulation",
+          "id": "3513c786-14ea-47de-a123-f61dfbfcd5e5",
+          "fullPath": "Security Operations > Explain appropriate incident response activities > Testing > Simulation",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Operations"
+        }
+      ]
+    },
+    {
+      "name": "Supply chain",
+      "count": 2,
+      "domains": [
+        "Threats, Vulnerabilities, and Mitigations"
+      ],
+      "types": [
+        "Topic"
+      ],
+      "entities": [
+        {
+          "name": "Supply chain",
+          "id": "6dfab00e-2b9a-41fa-83b4-1c06fbb1a7e6",
+          "fullPath": "Threats, Vulnerabilities, and Mitigations > Explain common threat vectors and attack surfaces > Supply chain",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "Threats, Vulnerabilities, and Mitigations"
+        },
+        {
+          "name": "Supply chain",
+          "id": "a928c3ca-9d3c-41f7-b1bf-a178827524f0",
+          "fullPath": "Threats, Vulnerabilities, and Mitigations > Explain various types of vulnerabilities > Supply chain",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "Threats, Vulnerabilities, and Mitigations"
+        }
+      ]
+    },
+    {
+      "name": "Testing",
+      "count": 2,
+      "domains": [
+        "Security Architecture",
+        "Security Operations"
+      ],
+      "types": [
+        "Topic"
+      ],
+      "entities": [
+        {
+          "name": "Testing",
+          "id": "f2718d3b-7671-4d6d-8cfe-5fa03b5b7f81",
+          "fullPath": "Security Architecture > Explain the importance of resilience and recovery in security architecture > Testing",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "Security Architecture"
+        },
+        {
+          "name": "Testing",
+          "id": "084127fc-c124-4156-b91a-4a7dba83afdd",
+          "fullPath": "Security Operations > Explain appropriate incident response activities > Testing",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "Security Operations"
+        }
+      ]
+    },
+    {
+      "name": "Tokenization",
+      "count": 2,
+      "domains": [
+        "General Security Concepts",
+        "Security Architecture"
+      ],
+      "types": [
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Tokenization",
+          "id": "0f893014-4828-42d8-8b65-4b68951fa3ca",
+          "fullPath": "General Security Concepts > Explain the importance of using appropriate cryptographic solutions > Obfuscation > Tokenization",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "General Security Concepts"
+        },
+        {
+          "name": "Tokenization",
+          "id": "ddf1c5fb-ffb3-4960-8650-c147e29fb5f5",
+          "fullPath": "Security Architecture > Compare and contrast concepts and strategies to protect data > Methods to secure data > Tokenization",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Architecture"
+        }
+      ]
+    },
+    {
+      "name": "Tools",
+      "count": 2,
+      "domains": [
+        "General Security Concepts",
+        "Security Operations"
+      ],
+      "types": [
+        "Topic"
+      ],
+      "entities": [
+        {
+          "name": "Tools",
+          "id": "f8b75797-aa2f-47db-913b-64d2ab56d6b1",
+          "fullPath": "General Security Concepts > Explain the importance of using appropriate cryptographic solutions > Tools",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "General Security Concepts"
+        },
+        {
+          "name": "Tools",
+          "id": "4dc2cff2-fe5d-4b52-953a-4c83ecbf6f16",
+          "fullPath": "Security Operations > Explain security alerting and monitoring concepts and tools > Tools",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "Security Operations"
+        }
+      ]
+    },
+    {
+      "name": "Virtualization",
+      "count": 2,
+      "domains": [
+        "Security Architecture",
+        "Threats, Vulnerabilities, and Mitigations"
+      ],
+      "types": [
+        "Subtopic",
+        "Topic"
+      ],
+      "entities": [
+        {
+          "name": "Virtualization",
+          "id": "ab95214c-de19-4ab9-ae3e-fa72cc24f280",
+          "fullPath": "Security Architecture > Compare and contrast security implications of different architecture models > Architecture and infrastructure concepts > Virtualization",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Security Architecture"
+        },
+        {
+          "name": "Virtualization",
+          "id": "55951d3f-1508-48ee-bf53-8a5cf66d4912",
+          "fullPath": "Threats, Vulnerabilities, and Mitigations > Explain various types of vulnerabilities > Virtualization",
+          "entityType": "Topic",
+          "depth": 2,
+          "domainName": "Threats, Vulnerabilities, and Mitigations"
+        }
+      ]
+    },
+    {
+      "name": "Wireless",
+      "count": 2,
+      "domains": [
+        "Threats, Vulnerabilities, and Mitigations"
+      ],
+      "types": [
+        "Subtopic"
+      ],
+      "entities": [
+        {
+          "name": "Wireless",
+          "id": "907cd878-64be-4d95-848c-c6e2a7a8cb7c",
+          "fullPath": "Threats, Vulnerabilities, and Mitigations > Explain common threat vectors and attack surfaces > Unsecure networks > Wireless",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Threats, Vulnerabilities, and Mitigations"
+        },
+        {
+          "name": "Wireless",
+          "id": "1e5a56aa-7142-4ee7-b551-851321f86364",
+          "fullPath": "Threats, Vulnerabilities, and Mitigations > Given a scenario, analyze indicators of malicious activity > Network attacks > Wireless",
+          "entityType": "Subtopic",
+          "depth": 3,
+          "domainName": "Threats, Vulnerabilities, and Mitigations"
+        }
+      ]
+    }
+  ]
+}

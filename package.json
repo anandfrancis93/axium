@@ -7,7 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "recalculate-mastery": "tsx scripts/recalculate-mastery.ts"
+    "recalculate-mastery": "tsx scripts/recalculate-mastery.ts",
+    "parse-curriculum": "tsx scripts/parse-curriculum.ts",
+    "neo4j:import": "tsx scripts/import-to-neo4j.ts",
+    "neo4j:import:test": "tsx scripts/import-to-neo4j.ts --test",
+    "neo4j:validate": "tsx scripts/validate-neo4j.ts"
   },
   "repository": {
     "type": "git",
@@ -54,6 +58,7 @@
     "sharp-cli": "^5.2.0",
     "supabase": "^2.54.11",
     "tailwindcss": "^3.4.18",
+    "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   }
 }
