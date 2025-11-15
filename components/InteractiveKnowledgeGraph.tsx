@@ -36,7 +36,7 @@ if (typeof window !== 'undefined' && !(window as any).AFRAME) {
 // Polyfill for THREE.js (required by react-force-graph VR/AR deps, but we only use 2D)
 if (typeof window !== 'undefined' && !(window as any).THREE) {
   // Minimal THREE.js stub to satisfy VR/AR dependencies
-  const emptyConstructor = function() { return this }
+  const emptyConstructor = function(this: any) { return this }
   emptyConstructor.prototype = {}
 
   ;(window as any).THREE = {
