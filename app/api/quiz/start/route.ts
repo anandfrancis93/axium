@@ -10,6 +10,7 @@ import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { QuizStartParams, QuizQuestion } from '@/lib/types/quiz'
 import OpenAI from 'openai'
+import { saveQuestions } from '@/lib/db/questions'
 
 // Initialize xAI Grok client
 const grok = new OpenAI({
@@ -105,6 +106,21 @@ export async function POST(request: NextRequest) {
       questionCount,
       graphContext
     )
+
+    // Save generated questions to database for future spaced repetition
+    await saveQuestions(questions.map(q => ({
+      id: q.id,
+      topic_id: selectedTopicId,
+      bloom_level: bloomLevel,
+      question_format: q.question_format,
+      question_text: q.question_text,
+      options: q.options,
+      correct_answer: q.correct_answer,
+      explanation: q.explanation,
+      rag_context: graphContext.length > 0 ? graphContext.join('\n---\n') : undefined,
+      source_type: 'ai_generated_realtime',
+      model: 'grok-beta'
+    })))
 
     // Create session
     const session = {

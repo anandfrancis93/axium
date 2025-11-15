@@ -12,6 +12,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { AnswerSubmission, AnswerResult } from '@/lib/types/quiz'
+import { updateQuestionStats } from '@/lib/db/questions'
 
 export async function POST(request: NextRequest) {
   try {
@@ -109,6 +110,9 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('Response saved successfully:', insertData)
+
+    // Update question statistics (times_used, avg_correctness_rate)
+    await updateQuestionStats(questionId, isCorrect)
 
     // Update user progress (TRACK 2: Format-specific correctness)
     // Note: TRACK 1 (calibration statistics) are automatically updated by database trigger

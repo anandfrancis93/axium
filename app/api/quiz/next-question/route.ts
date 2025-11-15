@@ -11,6 +11,7 @@ import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { selectNextTopic } from '@/lib/progression/rl-topic-selector'
 import OpenAI from 'openai'
+import { saveQuestion } from '@/lib/db/questions'
 
 // Initialize xAI client
 const xai = new OpenAI({
@@ -101,6 +102,21 @@ export async function POST(request: NextRequest) {
         description: topicHierarchy.description || null
       } : null
     }
+
+    // Save generated question to database for future spaced repetition
+    await saveQuestion({
+      id: enrichedQuestion.id,
+      topic_id: selection.topicId,
+      bloom_level: selection.bloomLevel,
+      question_format: recommendedFormat,
+      question_text: enrichedQuestion.question_text,
+      options: enrichedQuestion.options,
+      correct_answer: enrichedQuestion.correct_answer,
+      explanation: enrichedQuestion.explanation,
+      rag_context: context || undefined,
+      source_type: 'ai_generated_realtime',
+      model: 'grok-beta'
+    })
 
     return NextResponse.json({
       success: true,
