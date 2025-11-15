@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
       options: q.options,
       correct_answer: q.correct_answer,
       explanation: q.explanation,
-      rag_context: graphContext.length > 0 ? graphContext.join('\n---\n') : undefined,
+      rag_context: graphContext.length > 0 ? graphContext : undefined,
       source_type: 'ai_generated_realtime',
       model: 'grok-beta'
     })))
