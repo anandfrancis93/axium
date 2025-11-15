@@ -353,9 +353,20 @@ function LearnPageContent() {
                     const isUserAnswer = Array.isArray(userAnswer)
                       ? userAnswer.includes(option)
                       : userAnswer === option
+
+                    // Handle different correct answer formats (with/without letter prefix)
+                    const normalizeAnswer = (ans: string) => {
+                      // Remove letter prefix like "A. ", "B. ", etc.
+                      return ans.replace(/^[A-Z]\.\s*/, '').trim()
+                    }
+
+                    const normalizedOption = normalizeAnswer(option)
                     const isCorrectAnswer = Array.isArray(answerResult.correctAnswer)
-                      ? answerResult.correctAnswer.includes(option)
-                      : answerResult.correctAnswer === option
+                      ? answerResult.correctAnswer.some((ca: string) =>
+                          ca === option || normalizeAnswer(ca) === normalizedOption
+                        )
+                      : answerResult.correctAnswer === option ||
+                        normalizeAnswer(String(answerResult.correctAnswer)) === normalizedOption
 
                     return (
                       <div
@@ -493,9 +504,18 @@ function LearnPageContent() {
                   <h4 className="text-sm font-semibold text-gray-400 mb-3">Understanding All Options:</h4>
                   <div className="space-y-2">
                     {currentQuestion.options.map((option, idx) => {
+                      // Handle different correct answer formats (with/without letter prefix)
+                      const normalizeAnswer = (ans: string) => {
+                        return ans.replace(/^[A-Z]\.\s*/, '').trim()
+                      }
+
+                      const normalizedOption = normalizeAnswer(option)
                       const isCorrect = Array.isArray(answerResult.correctAnswer)
-                        ? answerResult.correctAnswer.includes(option)
-                        : answerResult.correctAnswer === option
+                        ? answerResult.correctAnswer.some((ca: string) =>
+                            ca === option || normalizeAnswer(ca) === normalizedOption
+                          )
+                        : answerResult.correctAnswer === option ||
+                          normalizeAnswer(String(answerResult.correctAnswer)) === normalizedOption
 
                       return (
                         <div
