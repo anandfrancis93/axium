@@ -396,7 +396,7 @@ async function cachePrerequisitePaths(
       .from('graphrag_prerequisite_paths')
       .upsert({
         target_entity_id: supabaseId,
-        path_depth: pathRecord.get('path_length'),
+        path_depth: toNumber(pathRecord.get('path_length')) || 0, // Convert Neo4j Integer
         path_entity_ids: pathSupabaseIds,
         path_names: pathNames,
         total_difficulty: totalDifficulty,
