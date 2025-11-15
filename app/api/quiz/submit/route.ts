@@ -67,7 +67,16 @@ export async function POST(request: NextRequest) {
     // Store the response (use topicId from submission for on-the-fly questions)
     const responseTopicId = topicId || question.topic_id
 
-    const { error: insertError } = await supabase
+    console.log('Attempting to insert response:', {
+      user_id: user.id,
+      question_id: questionId,
+      topic_id: responseTopicId,
+      calibration_score: calibrationScore,
+      confidence,
+      recognition_method: recognitionMethod
+    })
+
+    const { data: insertData, error: insertError } = await supabase
       .from('user_responses')
       .insert({
         user_id: user.id,
@@ -83,11 +92,23 @@ export async function POST(request: NextRequest) {
         calibration_score: calibrationScore,        // TRACK 1: Calibration (primary)
         reward: calibrationScore                    // Legacy: Store same value for backward compatibility
       })
+      .select()
 
     if (insertError) {
-      console.error('Error storing response:', insertError)
-      // Continue anyway - don't fail the submission
+      console.error('ERROR storing response:', insertError)
+      console.error('Insert error details:', JSON.stringify(insertError, null, 2))
+      // Return error to client so it's visible
+      return NextResponse.json(
+        {
+          error: 'Failed to save response',
+          details: insertError.message,
+          code: insertError.code
+        },
+        { status: 500 }
+      )
     }
+
+    console.log('Response saved successfully:', insertData)
 
     // Update user progress (TRACK 2: Format-specific correctness)
     // Note: TRACK 1 (calibration statistics) are automatically updated by database trigger

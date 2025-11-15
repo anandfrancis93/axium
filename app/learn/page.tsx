@@ -147,6 +147,14 @@ function LearnPageContent() {
 
       const timeTaken = Math.round((new Date().getTime() - startTime.getTime()) / 1000)
 
+      console.log('Submitting answer:', {
+        questionId: currentQuestion.id,
+        topicId: currentQuestion.topic_id,
+        confidence,
+        recognitionMethod: method,
+        timeTaken
+      })
+
       const response = await fetch('/api/quiz/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -161,11 +169,14 @@ function LearnPageContent() {
         })
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error('Failed to submit answer')
+        console.error('Submit API error:', data)
+        throw new Error(data.details || data.error || 'Failed to submit answer')
       }
 
-      const data = await response.json()
+      console.log('Submit response:', data)
       setAnswerResult(data.result)
 
       // Update counts
