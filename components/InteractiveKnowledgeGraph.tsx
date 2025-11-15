@@ -17,6 +17,22 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import { Loader2 } from 'lucide-react'
 
+// Polyfill for AFRAME (required by react-force-graph VR/AR deps, but we only use 2D)
+if (typeof window !== 'undefined' && !(window as any).AFRAME) {
+  (window as any).AFRAME = {
+    registerComponent: () => {},
+    registerSystem: () => {},
+    registerGeometry: () => {},
+    registerPrimitive: () => {},
+    registerShader: () => {},
+    components: {},
+    systems: {},
+    geometries: {},
+    primitives: {},
+    shaders: {}
+  }
+}
+
 // Dynamically import ForceGraph2D (client-side only)
 const ForceGraph2D = dynamic(() => import('react-force-graph').then(mod => mod.ForceGraph2D), {
   ssr: false,
