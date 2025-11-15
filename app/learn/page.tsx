@@ -579,7 +579,14 @@ function LearnPageContent() {
                       </div>
                     </div>
                     <div className="text-xs text-gray-500 mt-2">
-                      Higher priority = more critical for your learning
+                      {(() => {
+                        const priority = ((currentQuestion as any).selection_priority || 0) * 100
+                        if (priority === 0) return "Learning about your knowledge - random exploration"
+                        if (priority <= 25) return "Optional practice - you're doing well here"
+                        if (priority <= 50) return "Recommended practice - building stronger foundations"
+                        if (priority <= 75) return "Important practice - needs attention"
+                        return "Urgent practice - significant gap detected"
+                      })()}
                     </div>
                   </div>
                 )}
