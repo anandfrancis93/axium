@@ -27,7 +27,7 @@ interface UserProgress {
   correct_answers: number
   mastery_scores: any
   current_bloom_level: number
-  last_practiced_at: string
+  last_practiced_at: string | null
 }
 
 interface CalibrationTrend {
@@ -94,7 +94,7 @@ export default function AnalyticsPage() {
           )
         `)
         .eq('user_id', user.id)
-        .order('last_practiced_at', { ascending: false })
+        .order('last_practiced_at', { ascending: false, nullsFirst: false })
 
       if (progressError) throw progressError
 
@@ -243,13 +243,15 @@ export default function AnalyticsPage() {
                         {progress.topic_name}
                       </td>
                       <td className="px-4 py-3 text-xs text-gray-500">
-                        {new Date(progress.last_practiced_at).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
+                        {progress.last_practiced_at
+                          ? new Date(progress.last_practiced_at).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })
+                          : 'Never'}
                       </td>
                       <td className="px-4 py-3 text-xs text-gray-500">
                         {progress.total_attempts}
