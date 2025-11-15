@@ -271,14 +271,14 @@ function LearnPageContent() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <button
                 onClick={() => handleConfidenceSelect(1)}
-                className="neuro-btn text-yellow-400 p-6 text-center"
+                className="neuro-btn text-red-400 p-6 text-center"
               >
                 <div className="text-2xl font-bold mb-2">Low</div>
                 <div className="text-sm text-gray-400">Not very confident</div>
               </button>
               <button
                 onClick={() => handleConfidenceSelect(2)}
-                className="neuro-btn text-blue-400 p-6 text-center"
+                className="neuro-btn text-yellow-400 p-6 text-center"
               >
                 <div className="text-2xl font-bold mb-2">Medium</div>
                 <div className="text-sm text-gray-400">Somewhat confident</div>
