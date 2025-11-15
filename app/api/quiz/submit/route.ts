@@ -315,7 +315,7 @@ async function updateUserProgress(
       .eq('question_format', questionFormat)
 
     if (formatResponses && formatResponses.length > 0) {
-      const formatCorrect = formatResponses.filter(r => r.is_correct).length
+      const formatCorrect = formatResponses.filter((r: { is_correct: boolean }) => r.is_correct).length
       const formatTotal = formatResponses.length
       const formatMastery = Math.round((formatCorrect / formatTotal) * 100)
 
