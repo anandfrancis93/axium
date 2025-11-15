@@ -59,7 +59,7 @@ export async function selectNextTopic(userId: string): Promise<TopicSelection> {
     .not('topic_id', 'is', null)
 
   if (contentError) {
-    console.error('Error fetching topics with content:', contentError)
+    console.error('[RL] Error fetching topics with content:', contentError)
     throw new Error('Failed to fetch available topics')
   }
 
@@ -67,11 +67,13 @@ export async function selectNextTopic(userId: string): Promise<TopicSelection> {
     topicsWithContent?.map((chunk: any) => chunk.topic_id) || []
   )
 
+  console.log(`[RL] Found ${availableTopicIds.size} topics with learning content`)
+
   if (availableTopicIds.size === 0) {
     throw new Error('No learning materials uploaded. Please upload content first.')
   }
 
-  // Fetch all user progress
+  // Fetch all user progress (may be empty for new users)
   const { data: progressData, error } = await supabase
     .from('user_progress')
     .select(`
@@ -94,10 +96,10 @@ export async function selectNextTopic(userId: string): Promise<TopicSelection> {
 
   if (error) {
     console.error('Error fetching user progress:', error)
-    throw new Error('Failed to fetch user progress')
+    // Don't fail - just treat as new user with no progress
   }
 
-  const progress = progressData as unknown as UserProgressRow[]
+  const progress = (progressData || []) as unknown as UserProgressRow[]
 
   // Filter to only topics with available content
   const progressWithContent = progress.filter(p => availableTopicIds.has(p.topic_id))
@@ -107,7 +109,9 @@ export async function selectNextTopic(userId: string): Promise<TopicSelection> {
   const globalPhase = determineGlobalPhase(totalAttempts)
 
   // Cold start: Pure random from available topics with content
+  // This includes: new users (no progress), users with no progress on topics with content, or < 10 total attempts
   if (globalPhase === 'cold_start' || progressWithContent.length === 0) {
+    console.log('[RL] Cold start mode - selecting random topic with content')
     return handleColdStart(supabase, userId, availableTopicIds)
   }
 
