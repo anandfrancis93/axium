@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
       .from('user_responses')
       .insert({
         user_id: user.id,
-        question_id: questionId.startsWith('generated-') ? null : questionId, // null for on-the-fly
+        question_id: questionId, // Store generated IDs as-is (don't convert to null)
         topic_id: responseTopicId,
         bloom_level: question.bloom_level,
         user_answer: Array.isArray(answer) ? answer : [answer],
