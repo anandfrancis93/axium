@@ -11,6 +11,8 @@ import UnlockNotification, { UnlockInfo } from '@/components/UnlockNotification'
 import SelectionToolbar from '@/components/SelectionToolbar'
 import ExplanationModal from '@/components/ExplanationModal'
 import { useTextSelection } from '@/hooks/useTextSelection'
+import { DifficultyIndicator } from '@/components/DifficultyBadge'
+import { LearningDepthIndicator } from '@/components/LearningDepthIndicator'
 
 type ConfidenceLevel = 'low' | 'medium' | 'high'
 type RecognitionMethod = 'memory' | 'recognition' | 'educated_guess' | 'random'
@@ -707,11 +709,38 @@ ${interpretation}`
         {/* Main Question Card */}
         <div className="neuro-card">
           {/* Question Text */}
-          <div className="mb-8">
+          <div className="mb-6">
             <p className="text-lg md:text-xl lg:text-2xl text-gray-200 leading-relaxed">
               {question.question_text}
             </p>
           </div>
+
+          {/* GraphRAG Metadata: Difficulty & Learning Depth */}
+          {questionMetadata && (
+            <div className="flex flex-wrap items-center gap-3 mb-8 pb-6 border-b border-gray-800">
+              {questionMetadata.difficulty_score && (
+                <DifficultyIndicator
+                  score={questionMetadata.difficulty_score}
+                  size="sm"
+                  showDescription={false}
+                />
+              )}
+              {questionMetadata.learning_depth !== null && questionMetadata.learning_depth !== undefined && (
+                <LearningDepthIndicator
+                  depth={questionMetadata.learning_depth}
+                  maxDepth={10}
+                  showBar={false}
+                  size="sm"
+                />
+              )}
+              {questionMetadata.topic_name && (
+                <div className="neuro-inset px-3 py-2 rounded-lg">
+                  <div className="text-xs text-gray-500">Topic</div>
+                  <div className="text-sm font-medium text-gray-300">{questionMetadata.topic_name}</div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* STEP 1: Confidence Selection */}
           {currentStep === 'confidence' && (

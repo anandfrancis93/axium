@@ -8,6 +8,8 @@ import { BarChartIcon, TrendingUpIcon, AwardIcon, TargetIcon, CheckIcon, ArrowRi
 import HamburgerMenu from '@/components/HamburgerMenu'
 import { Tooltip } from '@/components/Tooltip'
 import Modal from '@/components/Modal'
+import { DifficultyBadge } from '@/components/DifficultyBadge'
+import { LearningDepthBadge } from '@/components/LearningDepthIndicator'
 
 export default function PerformancePage() {
   const router = useRouter()
@@ -841,7 +843,7 @@ export default function PerformancePage() {
                           Mastered
                         </span>
                       </div>
-                      <div className="flex items-center gap-6 text-sm">
+                      <div className="flex items-center gap-4 text-sm flex-wrap">
                         <div className="text-gray-500">
                           Level: <span className="text-blue-400 font-medium">L{topic.currentBloomLevel}</span>
                         </div>
@@ -856,6 +858,10 @@ export default function PerformancePage() {
                           <div className="text-gray-500">
                             Attempts: <span className="text-gray-400">{topic.totalAttempts}</span>
                           </div>
+                        )}
+                        {/* GraphRAG Metadata */}
+                        {topic.depth !== null && topic.depth !== undefined && (
+                          <LearningDepthBadge depth={topic.depth} showIcon showLabel={false} showDepth />
                         )}
                       </div>
                     </div>
@@ -1066,7 +1072,7 @@ export default function PerformancePage() {
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-6 text-sm">
+                      <div className="flex items-center gap-4 text-sm flex-wrap">
                         <div className="text-gray-500">
                           Level: <span className="text-blue-400 font-medium">L{topic.currentBloomLevel}</span>
                         </div>
@@ -1081,6 +1087,10 @@ export default function PerformancePage() {
                           <div className="text-gray-500">
                             Attempts: <span className="text-gray-400">{topic.totalAttempts}</span>
                           </div>
+                        )}
+                        {/* GraphRAG Metadata */}
+                        {topic.depth !== null && topic.depth !== undefined && (
+                          <LearningDepthBadge depth={topic.depth} showIcon showLabel={false} showDepth />
                         )}
                       </div>
                     </div>
