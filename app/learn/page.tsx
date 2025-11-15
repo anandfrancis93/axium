@@ -790,7 +790,19 @@ function LearnPageContent() {
             {/* Action Buttons */}
             <div className="flex gap-4">
               <button
-                onClick={() => router.push('/subjects')}
+                onClick={() => {
+                  // Clear all saved quiz state
+                  sessionStorage.removeItem('currentQuestion')
+                  sessionStorage.removeItem('currentStep')
+                  sessionStorage.removeItem('userAnswer')
+                  sessionStorage.removeItem('confidence')
+                  sessionStorage.removeItem('recognitionMethod')
+                  sessionStorage.removeItem('answerResult')
+                  sessionStorage.removeItem('startTime')
+                  sessionStorage.removeItem('questionCount')
+                  sessionStorage.removeItem('correctCount')
+                  router.push('/subjects')
+                }}
                 className="neuro-btn text-gray-300 flex-1 py-4 text-lg font-semibold"
               >
                 Done
