@@ -118,8 +118,8 @@ export async function GET(request: NextRequest) {
       source: rel.source_entity_id,
       target: rel.target_entity_id,
       type: rel.relationship_type,
-      confidence: rel.confidence,
-      reasoning: rel.reasoning
+      confidence: rel.confidence ?? undefined,
+      reasoning: rel.reasoning ?? undefined
     }))
 
     return NextResponse.json({
