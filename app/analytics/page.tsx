@@ -252,10 +252,13 @@ export default function AnalyticsPage() {
                   <Target size={20} className="text-blue-400 opacity-50" />
                 </div>
                 <div className="text-4xl font-bold text-gray-200 mb-1">
-                  {selectedTopic.calibration_mean > 0 ? '+' : ''}{selectedTopic.calibration_mean.toFixed(2)}
+                  {selectedTopic.calibration_mean != null
+                    ? `${selectedTopic.calibration_mean > 0 ? '+' : ''}${selectedTopic.calibration_mean.toFixed(2)}`
+                    : '—'}
                 </div>
                 <div className="text-xs text-gray-600">
-                  {selectedTopic.calibration_mean > 0.5 ? 'Well calibrated' :
+                  {selectedTopic.calibration_mean == null ? 'Not enough data yet' :
+                   selectedTopic.calibration_mean > 0.5 ? 'Well calibrated' :
                    selectedTopic.calibration_mean > 0 ? 'Good calibration' :
                    selectedTopic.calibration_mean > -0.5 ? 'Needs improvement' : 'Poor calibration'}
                 </div>
@@ -268,10 +271,13 @@ export default function AnalyticsPage() {
                   <Activity size={20} className="text-purple-400 opacity-50" />
                 </div>
                 <div className="text-4xl font-bold text-gray-200 mb-1">
-                  {selectedTopic.calibration_stddev.toFixed(2)}
+                  {selectedTopic.calibration_stddev != null
+                    ? selectedTopic.calibration_stddev.toFixed(2)
+                    : '—'}
                 </div>
                 <div className="text-xs text-gray-600">
-                  {selectedTopic.calibration_stddev < 0.3 ? 'Very consistent' :
+                  {selectedTopic.calibration_stddev == null ? 'Not enough data yet' :
+                   selectedTopic.calibration_stddev < 0.3 ? 'Very consistent' :
                    selectedTopic.calibration_stddev < 0.6 ? 'Moderately consistent' : 'Variable performance'}
                 </div>
               </div>
@@ -280,19 +286,23 @@ export default function AnalyticsPage() {
               <div className="neuro-card p-6">
                 <div className="flex items-center justify-between mb-3">
                   <div className="text-sm text-cyan-400 font-medium">Learning Rate</div>
-                  {selectedTopic.calibration_slope > 0 ? (
+                  {selectedTopic.calibration_slope != null && selectedTopic.calibration_slope > 0 ? (
                     <TrendingUp size={20} className="text-cyan-400 opacity-50" />
                   ) : (
                     <TrendingDown size={20} className="text-red-400 opacity-50" />
                   )}
                 </div>
                 <div className={`text-4xl font-bold mb-1 ${
-                  selectedTopic.calibration_slope > 0 ? 'text-green-400' : 'text-red-400'
+                  selectedTopic.calibration_slope != null && selectedTopic.calibration_slope > 0 ? 'text-green-400' : 'text-red-400'
                 }`}>
-                  {selectedTopic.calibration_slope > 0 ? '+' : ''}{selectedTopic.calibration_slope.toFixed(4)}
+                  {selectedTopic.calibration_slope != null
+                    ? `${selectedTopic.calibration_slope > 0 ? '+' : ''}${selectedTopic.calibration_slope.toFixed(4)}`
+                    : '—'}
                 </div>
                 <div className="text-xs text-gray-600">
-                  per question (R² = {selectedTopic.calibration_r_squared.toFixed(2)})
+                  {selectedTopic.calibration_slope == null || selectedTopic.calibration_r_squared == null
+                    ? 'Not enough data yet'
+                    : `per question (R² = ${selectedTopic.calibration_r_squared.toFixed(2)})`}
                 </div>
               </div>
 
