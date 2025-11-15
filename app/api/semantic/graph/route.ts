@@ -69,7 +69,14 @@ export async function GET(request: NextRequest) {
 
     // Fetch relationships (edges) between these entities
     // Note: Large entityId arrays may cause query failures, so we handle this gracefully
-    let relationships = []
+    let relationships: Array<{
+      source_entity_id: string
+      target_entity_id: string
+      relationship_type: string
+      confidence: number | null
+      reasoning: string | null
+    }> = []
+
     try {
       const { data, error: relationshipsError } = await supabase
         .from('graphrag_relationships')
