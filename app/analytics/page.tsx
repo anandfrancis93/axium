@@ -8,7 +8,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { TrendingUp, TrendingDown, Activity, Target, Zap, BarChart3, Brain, Eye, Search } from 'lucide-react'
+import { TrendingUp, TrendingDown, Activity, Target, Zap, BarChart3, Brain, Eye, Search, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
 import { CalibrationLineChart } from '@/components/analytics/CalibrationLineChart'
 import { CalibrationScatterPlot } from '@/components/analytics/CalibrationScatterPlot'
@@ -62,6 +62,7 @@ export default function AnalyticsPage() {
   const [individualResponses, setIndividualResponses] = useState<IndividualResponse[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
+  const [recalculating, setRecalculating] = useState(false)
 
   useEffect(() => {
     fetchAnalytics()
@@ -165,6 +166,35 @@ export default function AnalyticsPage() {
     }
   }
 
+  async function recalculateStatistics() {
+    try {
+      setRecalculating(true)
+
+      const response = await fetch('/api/analytics/recalculate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to recalculate statistics')
+      }
+
+      const data = await response.json()
+      console.log('Recalculation result:', data)
+
+      // Refresh analytics data
+      await fetchAnalytics()
+
+      alert(`Successfully recalculated statistics for ${data.updated} topics!`)
+
+    } catch (error) {
+      console.error('Error recalculating statistics:', error)
+      alert('Failed to recalculate statistics. Please try again.')
+    } finally {
+      setRecalculating(false)
+    }
+  }
+
   // Filter topics based on search query
   const filteredProgress = userProgress.filter(progress =>
     progress.topic_name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -213,9 +243,19 @@ export default function AnalyticsPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-gray-200">Learning Analytics</h1>
-          <Link href="/dashboard" className="neuro-btn text-gray-300">
-            ← Back to Dashboard
-          </Link>
+          <div className="flex gap-3">
+            <button
+              onClick={recalculateStatistics}
+              disabled={recalculating}
+              className="neuro-btn text-blue-400 flex items-center gap-2"
+            >
+              <RefreshCw size={18} className={recalculating ? 'animate-spin' : ''} />
+              {recalculating ? 'Recalculating...' : 'Recalculate Stats'}
+            </button>
+            <Link href="/dashboard" className="neuro-btn text-gray-300">
+              ← Back to Dashboard
+            </Link>
+          </div>
         </div>
 
         {/* Topic Selector */}
