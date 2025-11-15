@@ -62,7 +62,6 @@ export default function AnalyticsPage() {
   const [individualResponses, setIndividualResponses] = useState<IndividualResponse[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [autoRecalculating, setAutoRecalculating] = useState(false)
 
   useEffect(() => {
     fetchAnalytics()
@@ -112,74 +111,10 @@ export default function AnalyticsPage() {
         setSelectedTopic(formattedProgress[0])
       }
 
-      // Auto-detect and fix missing statistics
-      const topicsWithMissingStats = formattedProgress.filter(p =>
-        p.total_attempts > 0 && (p.calibration_mean === null || p.calibration_mean === 0)
-      )
-
-      if (topicsWithMissingStats.length > 0) {
-        console.log(`Detected ${topicsWithMissingStats.length} topics with missing statistics. Auto-triggering recalculation...`)
-        await autoRecalculateStatistics()
-      }
-
     } catch (error) {
       console.error('Error fetching analytics:', error)
     } finally {
       setLoading(false)
-    }
-  }
-
-  async function autoRecalculateStatistics() {
-    try {
-      setAutoRecalculating(true)
-
-      const response = await fetch('/api/analytics/recalculate', {
-        method: 'POST'
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        console.log(`Statistics recalculated successfully for ${data.updatedTopics} topics`)
-
-        // Refresh analytics data
-        const supabase = createClient()
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) return
-
-        const { data: progressData, error: progressError } = await supabase
-          .from('user_progress')
-          .select(`
-            *,
-            topics (
-              name
-            )
-          `)
-          .eq('user_id', user.id)
-          .order('last_practiced_at', { ascending: false, nullsFirst: false })
-
-        if (!progressError && progressData) {
-          const formattedProgress = progressData.map(p => ({
-            ...p,
-            topic_name: p.topics?.name || 'Unknown Topic'
-          }))
-          setUserProgress(formattedProgress)
-
-          // Update selected topic if it exists in new data
-          if (selectedTopic) {
-            const updatedSelectedTopic = formattedProgress.find(p => p.id === selectedTopic.id)
-            if (updatedSelectedTopic) {
-              setSelectedTopic(updatedSelectedTopic)
-            }
-          }
-        }
-      } else {
-        console.error('Failed to recalculate statistics:', data.error)
-      }
-    } catch (error) {
-      console.error('Error auto-recalculating statistics:', error)
-    } finally {
-      setAutoRecalculating(false)
     }
   }
 
@@ -242,18 +177,6 @@ export default function AnalyticsPage() {
         <div className="text-center">
           <Activity className="animate-spin text-blue-400 mx-auto mb-4" size={48} />
           <p className="text-gray-400">Loading analytics...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (autoRecalculating) {
-    return (
-      <div className="min-h-screen neuro-container flex items-center justify-center">
-        <div className="text-center">
-          <Activity className="animate-spin text-green-400 mx-auto mb-4" size={48} />
-          <p className="text-gray-400 text-lg font-semibold mb-2">Recalculating Statistics...</p>
-          <p className="text-sm text-gray-600">Detected topics with missing statistics. Auto-fixing now...</p>
         </div>
       </div>
     )

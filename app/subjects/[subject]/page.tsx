@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { PlayIcon, BarChartIcon, BookIcon, SettingsIcon } from '@/components/icons'
+import { PlayIcon, BarChartIcon, BookIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 
 export const dynamic = 'force-dynamic'
@@ -164,13 +164,9 @@ export default async function SubjectPage({
             <h3 className="text-2xl font-bold text-gray-200 mb-2">
               No Chapters Yet
             </h3>
-            <p className="text-sm text-gray-500 mb-8 max-w-md mx-auto">
-              Create chapters for this subject to start your learning journey.
+            <p className="text-sm text-gray-500 max-w-md mx-auto">
+              Chapters need to be added for this subject.
             </p>
-            <Link href="/admin" className="neuro-btn-primary inline-flex items-center gap-2 px-6 py-3">
-              <SettingsIcon size={18} />
-              <span>Go to Admin Panel</span>
-            </Link>
           </div>
         )}
       </main>
