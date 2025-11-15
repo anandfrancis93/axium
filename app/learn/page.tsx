@@ -344,7 +344,7 @@ function LearnPageContent() {
               </button>
             </div>
             <p className="text-xs text-gray-500 mt-4 text-center">
-              💡 Tip: Being honest about your confidence helps the system personalize your learning
+              Tip: Being honest about your confidence helps the system personalize your learning
             </p>
           </div>
           </>
