@@ -245,27 +245,29 @@ function LearnPageContent() {
           </div>
         </div>
 
-        {/* Question Text */}
-        <div className="neuro-card p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-xs font-medium text-blue-400 bg-blue-400/10 px-3 py-1 rounded-full">
-              Bloom Level {currentQuestion.bloom_level}
-            </span>
-            <span className="text-xs font-medium text-gray-500 bg-gray-500/10 px-3 py-1 rounded-full">
-              {currentQuestion.question_format === 'mcq_single' ? 'Multiple Choice' :
-               currentQuestion.question_format === 'mcq_multi' ? 'Multiple Select' :
-               currentQuestion.question_format === 'true_false' ? 'True/False' :
-               currentQuestion.question_format === 'fill_blank' ? 'Fill in the Blank' :
-               currentQuestion.question_format === 'open_ended' ? 'Open Ended' : 'Question'}
-            </span>
-          </div>
-          <h2 className="text-xl font-semibold text-gray-200">
-            {currentQuestion.question_text}
-          </h2>
-        </div>
-
         {/* Step 1: Confidence Selection */}
         {currentStep === 'confidence' && (
+          <>
+            {/* Question Text */}
+            <div className="neuro-card p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-xs font-medium text-blue-400 bg-blue-400/10 px-3 py-1 rounded-full">
+                  Bloom Level {currentQuestion.bloom_level}
+                </span>
+                <span className="text-xs font-medium text-gray-500 bg-gray-500/10 px-3 py-1 rounded-full">
+                  {currentQuestion.question_format === 'mcq_single' ? 'Multiple Choice' :
+                   currentQuestion.question_format === 'mcq_multi' ? 'Multiple Select' :
+                   currentQuestion.question_format === 'true_false' ? 'True/False' :
+                   currentQuestion.question_format === 'fill_blank' ? 'Fill in the Blank' :
+                   currentQuestion.question_format === 'open_ended' ? 'Open Ended' : 'Question'}
+                </span>
+              </div>
+              <h2 className="text-xl font-semibold text-gray-200">
+                {currentQuestion.question_text}
+              </h2>
+            </div>
+
+            {/* Confidence Buttons */}
           <div className="neuro-card p-6">
             <h3 className="text-lg font-semibold text-gray-200 mb-4">How confident are you?</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -295,6 +297,7 @@ function LearnPageContent() {
               💡 Tip: Being honest about your confidence helps the system personalize your learning
             </p>
           </div>
+          </>
         )}
 
         {/* Step 2: Answer Selection */}
