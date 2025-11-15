@@ -1,0 +1,81 @@
+🔄 Starting Neo4j → Supabase sync
+Mode: full
+============================================================
+Started sync job: 987a7f2c-7e98-42ab-907c-cea000ff21eb
+
+📥 Syncing entities from Neo4j...
+Found 844 entities in Neo4j
+✅ Synced entities 1-100
+✅ Synced entities 101-200
+✅ Synced entities 201-300
+✅ Synced entities 301-400
+✅ Synced entities 401-500
+✅ Synced entities 501-600
+✅ Synced entities 601-700
+✅ Synced entities 701-800
+✅ Synced entities 801-844
+
+📊 Counting relationships for each entity...
+✅ Updated counts for entities 1-100
+✅ Updated counts for entities 101-200
+✅ Updated counts for entities 201-300
+✅ Updated counts for entities 301-400
+✅ Updated counts for entities 401-500
+✅ Updated counts for entities 501-600
+✅ Updated counts for entities 601-700
+✅ Updated counts for entities 701-800
+✅ Updated counts for entities 801-844
+
+✅ Synced 844 entities
+
+📥 Syncing relationships from Neo4j...
+Found 788 semantic relationships in Neo4j
+✅ Synced relationships 1-100
+✅ Synced relationships 101-200
+✅ Synced relationships 201-300
+✅ Synced relationships 301-400
+✅ Synced relationships 401-500
+✅ Synced relationships 501-600
+✅ Synced relationships 601-700
+✅ Synced relationships 701-788
+
+✅ Synced 788 relationships
+
+📥 Generating prerequisite paths...
+Found 325 entities with prerequisites
+
+✅ Generated 0 prerequisite paths
+
+📥 Generating domain learning paths...
+Found 5 domains
+✅ Generated path for domain: Threats, Vulnerabilities, and Mitigations (50 nodes)
+✅ Generated path for domain: Security Architecture (50 nodes)
+✅ Generated path for domain: Security Operations (50 nodes)
+✅ Generated path for domain: Security Program Management and Oversight (50 nodes)
+✅ Generated path for domain: General Security Concepts (50 nodes)
+
+✅ Generated 5 domain paths
+
+============================================================
+📊 Sync Summary
+============================================================
+Entities synced: 844
+Relationships synced: 788
+Prerequisite paths generated: 0
+Domain paths generated: 5
+Errors: 325
+
+⚠️  Errors:
+  - Path for 8883aac3-d1eb-4874-b6ef-8d4c8abd5c62: invalid input syntax for type integer: "{"low":1,"high":0}"
+  - Path for 6420246f-c2bb-4449-922f-5f242f1b518c: invalid input syntax for type integer: "{"low":1,"high":0}"
+  - Path for 23839a1a-c1b0-4b6f-a878-16463a21c6ca: invalid input syntax for type integer: "{"low":1,"high":0}"
+  - Path for 8a909d47-2e42-4ef1-b5bf-8c7000a63845: invalid input syntax for type integer: "{"low":1,"high":0}"
+  - Path for df5696ba-279d-4a0f-be02-9da1d37c93b1: invalid input syntax for type integer: "{"low":1,"high":0}"
+  - Path for 938bf3dc-ffe8-4d2e-9e1f-2c4de4ccc2ae: invalid input syntax for type integer: "{"low":1,"high":0}"
+  - Path for da721364-1e8e-45e7-9d21-90cba93e8bdb: invalid input syntax for type integer: "{"low":1,"high":0}"
+  - Path for 799ce193-c761-4651-a47f-08f384a16761: invalid input syntax for type integer: "{"low":2,"high":0}"
+  - Path for 533b261c-9be5-44e1-8e1e-6aab3f46685b: invalid input syntax for type integer: "{"low":2,"high":0}"
+  - Path for 073808b6-7a15-4866-bf06-c3053c2d8950: invalid input syntax for type integer: "{"low":2,"high":0}"
+  ... and 315 more
+
+⚠️  Sync completed with errors
