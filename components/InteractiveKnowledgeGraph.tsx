@@ -35,28 +35,84 @@ if (typeof window !== 'undefined' && !(window as any).AFRAME) {
 
 // Polyfill for THREE.js (required by react-force-graph VR/AR deps, but we only use 2D)
 if (typeof window !== 'undefined' && !(window as any).THREE) {
-  // Minimal THREE.js stub to satisfy VR/AR dependencies
+  // Comprehensive THREE.js stub to satisfy VR/AR dependencies
   const emptyConstructor = function(this: any) { return this }
   emptyConstructor.prototype = {}
 
   ;(window as any).THREE = {
-    Object3D: emptyConstructor,
+    // Core Math
     Vector2: emptyConstructor,
     Vector3: emptyConstructor,
+    Vector4: emptyConstructor,
+    Matrix3: emptyConstructor,
+    Matrix4: emptyConstructor,
+    Quaternion: emptyConstructor,
+    Euler: emptyConstructor,
     Color: emptyConstructor,
-    Mesh: emptyConstructor,
-    MeshBasicMaterial: emptyConstructor,
+    Box2: emptyConstructor,
+    Box3: emptyConstructor,
+    Sphere: emptyConstructor,
+    Plane: emptyConstructor,
+    Ray: emptyConstructor,
+
+    // Core Objects
+    Object3D: emptyConstructor,
+    Scene: emptyConstructor,
+    Group: emptyConstructor,
+
+    // Geometries
     BufferGeometry: emptyConstructor,
     SphereGeometry: emptyConstructor,
-    CylinderGeometry: emptyConstructor,
     BoxGeometry: emptyConstructor,
-    Line: emptyConstructor,
+    CylinderGeometry: emptyConstructor,
+    PlaneGeometry: emptyConstructor,
+    CircleGeometry: emptyConstructor,
+    ConeGeometry: emptyConstructor,
+    TorusGeometry: emptyConstructor,
+
+    // Materials
+    Material: emptyConstructor,
+    MeshBasicMaterial: emptyConstructor,
+    MeshStandardMaterial: emptyConstructor,
+    MeshPhongMaterial: emptyConstructor,
     LineBasicMaterial: emptyConstructor,
-    Group: emptyConstructor,
-    Sprite: emptyConstructor,
+    LineDashedMaterial: emptyConstructor,
+    PointsMaterial: emptyConstructor,
     SpriteMaterial: emptyConstructor,
+    ShaderMaterial: emptyConstructor,
+
+    // Objects
+    Mesh: emptyConstructor,
+    Line: emptyConstructor,
+    LineSegments: emptyConstructor,
+    Points: emptyConstructor,
+    Sprite: emptyConstructor,
+
+    // Lights
+    Light: emptyConstructor,
+    AmbientLight: emptyConstructor,
+    DirectionalLight: emptyConstructor,
+    PointLight: emptyConstructor,
+    SpotLight: emptyConstructor,
+
+    // Cameras
+    Camera: emptyConstructor,
+    PerspectiveCamera: emptyConstructor,
+    OrthographicCamera: emptyConstructor,
+
+    // Textures
+    Texture: emptyConstructor,
     TextureLoader: emptyConstructor,
-    CanvasTexture: emptyConstructor
+    CanvasTexture: emptyConstructor,
+
+    // Helpers
+    AxesHelper: emptyConstructor,
+    GridHelper: emptyConstructor,
+
+    // Misc
+    Raycaster: emptyConstructor,
+    Clock: emptyConstructor,
+    EventDispatcher: emptyConstructor
   }
 }
 
