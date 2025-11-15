@@ -1039,6 +1039,13 @@ export async function POST(request: NextRequest) {
       selectionMethod
     })
 
+    // Fetch semantic data from GraphRAG cache
+    const { data: entityData } = await supabase
+      .from('graphrag_entities')
+      .select('difficulty_score, learning_depth, name')
+      .eq('full_path', selectedArm.topicFullName)
+      .single()
+
     return NextResponse.json({
       question: questionWithoutAnswer,
       question_metadata: {
@@ -1046,7 +1053,11 @@ export async function POST(request: NextRequest) {
         explanation,
         question_id: selectedQuestion.id,
         bloom_level: selectedQuestion.bloom_level,
-        topic: selectedQuestion.topic
+        topic: selectedQuestion.topic,
+        // GraphRAG semantic features
+        difficulty_score: entityData?.difficulty_score || null,
+        learning_depth: entityData?.learning_depth || null,
+        topic_name: entityData?.name || selectedArm.topicName
       },
       session_progress: {
         session_id: session.id,

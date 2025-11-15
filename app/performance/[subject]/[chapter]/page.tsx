@@ -61,6 +61,18 @@ export default function PerformancePage() {
         .eq('chapter_id', fetchedChapter.id)
         .order('name')
 
+      // Get learning depth from GraphRAG cache
+      const { data: graphragData } = await supabase
+        .from('graphrag_entities')
+        .select('full_path, learning_depth')
+        .in('full_path', topicsData?.map(t => t.full_name) || [])
+
+      // Build map of full_path -> learning_depth
+      const depthMap = new Map<string, number>()
+      graphragData?.forEach(entity => {
+        depthMap.set(entity.full_path, entity.learning_depth || 0)
+      })
+
       // Get mastery data for all topics
       const { data: masteryData } = await supabase
         .from('user_topic_mastery')
@@ -90,11 +102,14 @@ export default function PerformancePage() {
       const userResponses = allUserResponses?.filter(r => topicIdSet.has(r.topic_id)) || []
 
       topicsData?.forEach((topic: any) => {
+        // Get learning depth from GraphRAG cache, fallback to topics.depth
+        const learningDepth = depthMap.get(topic.full_name) ?? topic.depth ?? 0
+
         topicStatsMap.set(topic.id, {
           id: topic.id,
           name: topic.name,
           full_name: topic.full_name || topic.name,
-          depth: topic.depth || 0,
+          depth: learningDepth, // Use GraphRAG learning_depth
           description: topic.description,
           currentBloomLevel: 1,
           totalAttempts: 0,

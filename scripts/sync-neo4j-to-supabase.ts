@@ -64,6 +64,17 @@ function createSupabaseClient() {
 }
 
 /**
+ * Convert Neo4j Integer to JavaScript number
+ */
+function toNumber(value: any): number | null {
+  if (value === null || value === undefined) return null
+  if (typeof value === 'number') return value
+  if (value.toInt) return value.toInt() // Neo4j Integer object
+  if (value.low !== undefined) return value.low // Neo4j Integer as plain object
+  return parseInt(value, 10) || null
+}
+
+/**
  * Start sync job in database
  */
 async function startSyncJob(supabase: ReturnType<typeof createSupabaseClient>, syncType: string) {
@@ -152,9 +163,9 @@ async function syncEntities(
       domain_name: record.get('domain_name'),
       objective_name: record.get('objective_name'),
       scopes: record.get('scopes') || [],
-      difficulty_score: record.get('difficulty_score'),
-      learning_depth: record.get('learning_depth') || 0,
-      estimated_study_time: record.get('estimated_study_time'),
+      difficulty_score: toNumber(record.get('difficulty_score')),
+      learning_depth: toNumber(record.get('learning_depth')) || 0,
+      estimated_study_time: toNumber(record.get('estimated_study_time')),
       semantic_data_synced_at: new Date().toISOString(),
       neo4j_synced_at: new Date().toISOString(),
       chapter_id: '00000000-0000-0000-0000-000000000000' // Placeholder
