@@ -687,12 +687,58 @@ function LearnPageContent() {
                     </div>
                   </div>
                   <div className="text-xs text-gray-500 mt-2">
-                    {answerResult.calibrationScore > 1.0 && 'Excellent! Your confidence matched your performance perfectly'}
-                    {answerResult.calibrationScore > 0.5 && answerResult.calibrationScore <= 1.0 && 'Good calibration! You assessed yourself well'}
-                    {answerResult.calibrationScore > 0 && answerResult.calibrationScore <= 0.5 && 'Fair calibration'}
-                    {answerResult.calibrationScore === 0 && 'Neutral calibration'}
-                    {answerResult.calibrationScore < 0 && answerResult.calibrationScore >= -0.5 && 'Slight miscalibration'}
-                    {answerResult.calibrationScore < -0.5 && 'Poor calibration - try to be more honest about your confidence'}
+                    {(() => {
+                      // Get calibration feedback based on all 24 scenarios
+                      const isCorrect = answerResult.isCorrect
+                      const conf = confidence
+                      const method = recognitionMethod
+
+                      // CORRECT ANSWERS
+                      if (isCorrect) {
+                        if (conf === 3) {
+                          if (method === 'memory') return 'You were highly confident, used memory recall, and got it right. Perfect calibration!'
+                          if (method === 'recognition') return 'You were highly confident, recognized the answer from options, and got it right. Great calibration!'
+                          if (method === 'educated_guess') return 'You were highly confident with an educated guess and got it right. Good result, but consider being more cautious with guesses.'
+                          if (method === 'random_guess') return 'You were highly confident with a random guess and got lucky. This shows poor calibration - random guesses shouldn\'t have high confidence.'
+                        }
+                        if (conf === 2) {
+                          if (method === 'memory') return 'You had medium confidence, used memory recall, and got it right. You could trust your memory more!'
+                          if (method === 'recognition') return 'You had medium confidence, recognized the answer, and got it right. Well-calibrated response!'
+                          if (method === 'educated_guess') return 'You had medium confidence with an educated guess and got it right. Good reasoning and appropriate confidence level!'
+                          if (method === 'random_guess') return 'You had medium confidence with a random guess and got lucky. Random guesses should have lower confidence.'
+                        }
+                        if (conf === 1) {
+                          if (method === 'memory') return 'You had low confidence, used memory recall, and got it right. Trust your memory more - you knew it!'
+                          if (method === 'recognition') return 'You had low confidence, recognized the answer, and got it right. Your intuition was better than you thought!'
+                          if (method === 'educated_guess') return 'You had low confidence with an educated guess and got it right. Good calibration - appropriate uncertainty that worked out!'
+                          if (method === 'random_guess') return 'You had low confidence with a random guess and got lucky. Excellent calibration - you knew it was a guess!'
+                        }
+                      }
+
+                      // INCORRECT ANSWERS
+                      if (!isCorrect) {
+                        if (conf === 3) {
+                          if (method === 'memory') return 'You were highly confident, thought you recalled from memory, but got it wrong. This is false memory - the worst calibration scenario.'
+                          if (method === 'recognition') return 'You were highly confident, thought you recognized the answer, but got it wrong. Misrecognition with high confidence shows poor calibration.'
+                          if (method === 'educated_guess') return 'You were highly confident with an educated guess but got it wrong. Overconfidence in your reasoning led to poor calibration.'
+                          if (method === 'random_guess') return 'You were highly confident with a random guess and got it wrong. Why high confidence on a random guess? This shows miscalibration.'
+                        }
+                        if (conf === 2) {
+                          if (method === 'memory') return 'You had medium confidence, thought you recalled from memory, but got it wrong. False memory with moderate confidence.'
+                          if (method === 'recognition') return 'You had medium confidence, thought you recognized the answer, but got it wrong. Misrecognition shows miscalibration.'
+                          if (method === 'educated_guess') return 'You had medium confidence with an educated guess and got it wrong. Your reasoning didn\'t work out this time.'
+                          if (method === 'random_guess') return 'You had medium confidence with a random guess and got it wrong. Random guesses should have lower confidence.'
+                        }
+                        if (conf === 1) {
+                          if (method === 'memory') return 'You had low confidence, thought you recalled from memory, but got it wrong. Good calibration - you sensed the uncertainty!'
+                          if (method === 'recognition') return 'You had low confidence, thought you recognized the answer, but got it wrong. Good calibration - your doubt was warranted!'
+                          if (method === 'educated_guess') return 'You had low confidence with an educated guess and got it wrong. Good calibration - you knew your logic was uncertain!'
+                          if (method === 'random_guess') return 'You had low confidence with a random guess and got it wrong. Excellent calibration - you knew it was just a guess!'
+                        }
+                      }
+
+                      return 'Calibration feedback unavailable'
+                    })()}
                   </div>
                 </div>
 
