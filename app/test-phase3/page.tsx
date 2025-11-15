@@ -10,8 +10,13 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
-import { InteractiveKnowledgeGraph } from '@/components/InteractiveKnowledgeGraph'
 import GraphTestControls from './GraphTestControls'
+import {
+  FullGraphSection,
+  ScopedGraphSection,
+  StaticPathSection,
+  AnimatedPathSection
+} from './GraphSections'
 
 export default async function TestPhase3Page() {
   const supabase = await createClient()
@@ -74,13 +79,7 @@ export default async function TestPhase3Page() {
           <p className="text-gray-400 mb-6">
             Showing all entities and relationships (limited to 200 nodes for performance)
           </p>
-          <InteractiveKnowledgeGraph
-            height={600}
-            onNodeClick={(id, name) => {
-              console.log('Clicked node:', id, name)
-              alert(`Clicked: ${name}\nID: ${id}`)
-            }}
-          />
+          <FullGraphSection />
         </section>
 
         {/* Section 2: Scoped Graph (CompTIA Security+) */}
@@ -91,13 +90,7 @@ export default async function TestPhase3Page() {
           <p className="text-gray-400 mb-6">
             Filtered to show only CompTIA Security+ topics
           </p>
-          <InteractiveKnowledgeGraph
-            scope="CompTIA Security+"
-            height={600}
-            onNodeClick={(id, name) => {
-              console.log('Clicked CompTIA node:', id, name)
-            }}
-          />
+          <ScopedGraphSection />
         </section>
 
         {/* Section 3: Path Highlighting Demo (Static) */}
@@ -118,11 +111,9 @@ export default async function TestPhase3Page() {
                 {samplePath.path_names.join(' → ')}
               </div>
             </div>
-            <InteractiveKnowledgeGraph
-              scope="CompTIA Security+"
+            <StaticPathSection
               focusNodeId={samplePath.target_entity_id}
               highlightPath={samplePath.path_entity_ids}
-              height={600}
             />
           </section>
         )}
@@ -145,13 +136,9 @@ export default async function TestPhase3Page() {
                 Animation speed: 2 seconds per step
               </div>
             </div>
-            <InteractiveKnowledgeGraph
-              scope="CompTIA Security+"
+            <AnimatedPathSection
               focusNodeId={samplePath.target_entity_id}
               highlightPath={samplePath.path_entity_ids}
-              animatePath={true}
-              animationSpeed={2000}
-              height={600}
             />
           </section>
         )}
