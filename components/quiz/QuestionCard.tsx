@@ -100,17 +100,17 @@ export function QuestionCard({
                 onClick={() => handleMultipleChoice(option)}
                 disabled={disabled}
                 className={`
-                  w-full text-left p-4 rounded-lg transition-all
+                  w-full text-left transition-all
                   ${isOptionSelected(option)
-                    ? 'neuro-raised border-2 border-blue-400 text-blue-400'
-                    : 'neuro-inset text-gray-300 hover:border-blue-400/30 border-2 border-transparent'
+                    ? 'neuro-raised text-blue-400'
+                    : 'neuro-inset text-gray-300'
                   }
                   ${showCorrectAnswer && isCorrectOption(option)
-                    ? 'border-green-400 text-green-400'
+                    ? 'text-green-400'
                     : ''
                   }
                   ${showCorrectAnswer && isOptionSelected(option) && !isCorrectOption(option)
-                    ? 'border-red-400 text-red-400'
+                    ? 'text-red-400'
                     : ''
                   }
                   ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}
@@ -148,10 +148,10 @@ export function QuestionCard({
                 onClick={() => handleAnswerChange(option)}
                 disabled={disabled}
                 className={`
-                  flex-1 p-4 rounded-lg transition-all
+                  flex-1 transition-all
                   ${answer === option
-                    ? 'neuro-raised border-2 border-blue-400 text-blue-400'
-                    : 'neuro-inset text-gray-300 hover:border-blue-400/30 border-2 border-transparent'
+                    ? 'neuro-raised text-blue-400'
+                    : 'neuro-inset text-gray-300'
                   }
                   ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}
                 `}
