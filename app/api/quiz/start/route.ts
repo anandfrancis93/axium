@@ -168,14 +168,14 @@ async function getGraphRAGContext(
     // Option 1: Get from graphrag_entities (if topic exists in knowledge graph)
     const { data: entity } = await supabase
       .from('graphrag_entities')
-      .select('name, type, description, summary, full_path')
+      .select('name, type, description, context_summary, full_path')
       .eq('name', topicName)
       .limit(1)
       .single()
 
-    if (entity && entity.summary) {
-      console.log('Using GraphRAG entity summary for context')
-      return entity.summary
+    if (entity && entity.context_summary) {
+      console.log('Using GraphRAG entity context_summary for context')
+      return entity.context_summary
     }
 
     // Option 2: Get from prerequisite paths (related topics)
