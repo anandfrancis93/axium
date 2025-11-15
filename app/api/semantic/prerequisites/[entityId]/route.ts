@@ -37,10 +37,10 @@ interface PrerequisiteResponse {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { entityId: string } }
+  { params }: { params: Promise<{ entityId: string }> }
 ) {
   try {
-    const { entityId } = params
+    const { entityId } = await params
 
     if (!NEO4J_URI || !NEO4J_PASSWORD) {
       return NextResponse.json(
