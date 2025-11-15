@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "seed:test": "tsx scripts/seed-test-data.ts",
     "recalculate-mastery": "tsx scripts/recalculate-mastery.ts",
     "parse-curriculum": "tsx scripts/parse-curriculum.ts",
     "neo4j:import": "tsx scripts/import-to-neo4j.ts",
