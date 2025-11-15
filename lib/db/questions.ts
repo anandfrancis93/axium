@@ -12,8 +12,8 @@ export interface QuestionData {
   question_format: string
   question_text: string
   options?: string[]
-  correct_answer: string
-  correct_answers?: string[]  // For mcq_multi
+  correct_answer: string | string[]  // Can be string or array
+  correct_answers?: string[]  // For mcq_multi (separate field in DB)
   explanation?: string
   rag_context?: string
   source_type?: 'manual' | 'ai_generated_realtime' | 'ai_generated_graphrag'
@@ -29,6 +29,11 @@ export async function saveQuestion(question: QuestionData) {
   try {
     const supabase = await createClient()
 
+    // Handle correct_answer: if array, store in correct_answers and use first item for correct_answer
+    const isMultiAnswer = Array.isArray(question.correct_answer)
+    const correctAnswer = isMultiAnswer ? question.correct_answer[0] : question.correct_answer
+    const correctAnswers = isMultiAnswer ? question.correct_answer : (question.correct_answers || null)
+
     const { data, error } = await supabase
       .from('questions')
       .insert({
@@ -39,8 +44,8 @@ export async function saveQuestion(question: QuestionData) {
         question_type: question.question_format, // Map to old schema field
         question_format: question.question_format, // New schema field
         options: question.options || null,
-        correct_answer: question.correct_answer,
-        correct_answers: question.correct_answers || null,
+        correct_answer: correctAnswer,
+        correct_answers: correctAnswers,
         explanation: question.explanation || null,
         rag_context: question.rag_context || null,
         source_type: question.source_type || 'ai_generated_realtime',
@@ -73,24 +78,31 @@ export async function saveQuestions(questions: QuestionData[]) {
   try {
     const supabase = await createClient()
 
-    const questionsToInsert = questions.map(q => ({
-      id: q.id,
-      topic_id: q.topic_id,
-      bloom_level: q.bloom_level,
-      question_text: q.question_text,
-      question_type: q.question_format,
-      question_format: q.question_format,
-      options: q.options || null,
-      correct_answer: q.correct_answer,
-      correct_answers: q.correct_answers || null,
-      explanation: q.explanation || null,
-      rag_context: q.rag_context || null,
-      source_type: q.source_type || 'ai_generated_realtime',
-      model: q.model || 'grok-beta',
-      tokens_used: q.tokens_used || null,
-      generation_cost: q.generation_cost || null,
-      times_used: 1
-    }))
+    const questionsToInsert = questions.map(q => {
+      // Handle correct_answer: if array, store in correct_answers and use first item for correct_answer
+      const isMultiAnswer = Array.isArray(q.correct_answer)
+      const correctAnswer = isMultiAnswer ? q.correct_answer[0] : q.correct_answer
+      const correctAnswers = isMultiAnswer ? q.correct_answer : (q.correct_answers || null)
+
+      return {
+        id: q.id,
+        topic_id: q.topic_id,
+        bloom_level: q.bloom_level,
+        question_text: q.question_text,
+        question_type: q.question_format,
+        question_format: q.question_format,
+        options: q.options || null,
+        correct_answer: correctAnswer,
+        correct_answers: correctAnswers,
+        explanation: q.explanation || null,
+        rag_context: q.rag_context || null,
+        source_type: q.source_type || 'ai_generated_realtime',
+        model: q.model || 'grok-beta',
+        tokens_used: q.tokens_used || null,
+        generation_cost: q.generation_cost || null,
+        times_used: 1
+      }
+    })
 
     const { data, error } = await supabase
       .from('questions')
