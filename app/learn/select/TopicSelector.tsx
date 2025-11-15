@@ -13,13 +13,11 @@ import { ChevronRight, Target, TrendingUp } from 'lucide-react'
 interface Topic {
   id: string
   name: string
-  topic_order: number
 }
 
 interface Chapter {
   id: string
   name: string
-  chapter_order: number
   topics: Topic[]
 }
 
@@ -102,7 +100,7 @@ export default function TopicSelector({ subjects, progressMap }: TopicSelectorPr
         ) : (
           <div className="space-y-2">
             {currentSubject?.chapters
-              .sort((a, b) => a.chapter_order - b.chapter_order)
+              .sort((a, b) => a.name.localeCompare(b.name))
               .map((chapter) => (
                 <button
                   key={chapter.id}
@@ -140,7 +138,7 @@ export default function TopicSelector({ subjects, progressMap }: TopicSelectorPr
         ) : (
           <div className="space-y-2">
             {currentChapter?.topics
-              .sort((a, b) => a.topic_order - b.topic_order)
+              .sort((a, b) => a.name.localeCompare(b.name))
               .map((topic) => {
                 const progress = progressMap.get(topic.id)
                 const hasProgress = !!progress

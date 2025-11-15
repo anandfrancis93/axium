@@ -26,11 +26,9 @@ export default async function SelectTopicPage() {
       chapters (
         id,
         name,
-        chapter_order,
         topics (
           id,
-          name,
-          topic_order
+          name
         )
       )
     `)
