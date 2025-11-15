@@ -272,13 +272,9 @@ export default function AnalyticsPage() {
             <div className="text-gray-400 text-lg font-semibold mb-2">
               No learning data yet
             </div>
-            <div className="text-sm text-gray-600 mb-6">
+            <div className="text-sm text-gray-600">
               Start answering questions to see your calibration statistics and learning trends.
             </div>
-            <Link href="/learn" className="neuro-btn text-blue-400 inline-flex items-center gap-2 px-6 py-3">
-              <Zap size={18} />
-              <span>Start Learning</span>
-            </Link>
           </div>
         </div>
       </div>
