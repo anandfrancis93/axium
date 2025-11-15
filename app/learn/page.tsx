@@ -553,9 +553,25 @@ function LearnPageContent() {
                         const colonIndex = reason.indexOf(':')
                         if (colonIndex > 0) {
                           const phaseName = reason.substring(0, colonIndex).trim()
-                          return `RL - ${phaseName} phase`
+                          return `RL - ${phaseName}`
                         }
                         return 'RL-Driven'
+                      }
+                    })()}
+                  </div>
+                  <div className="text-sm text-gray-400 mt-2">
+                    {(() => {
+                      const reason = (currentQuestion as any).selection_reason || ''
+
+                      if ((currentQuestion as any).selection_method === 'spaced_repetition') {
+                        return 'Reviewing topics based on optimal timing for memory retention'
+                      } else {
+                        // Extract explanation from selection_reason (text after colon)
+                        const colonIndex = reason.indexOf(':')
+                        if (colonIndex > 0) {
+                          return reason.substring(colonIndex + 1).trim()
+                        }
+                        return 'AI-driven topic selection based on your learning progress'
                       }
                     })()}
                   </div>
