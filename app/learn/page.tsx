@@ -662,10 +662,10 @@ function LearnPageContent() {
                       {answerResult.calibrationScore > 0 ? '+' : ''}{answerResult.calibrationScore.toFixed(2)}
                     </div>
                     <div className="flex-1">
-                      <div className="neuro-inset rounded-full h-2 overflow-hidden relative">
+                      <div className="neuro-inset rounded-full h-2 overflow-hidden relative bg-gray-800/30">
                         <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gray-600" />
                         <div
-                          className={`absolute h-full ${
+                          className={`absolute top-0 bottom-0 ${
                             answerResult.calibrationScore > 0 ? 'bg-green-400' : 'bg-red-400'
                           }`}
                           style={{
