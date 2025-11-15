@@ -604,7 +604,6 @@ function LearnPageContent() {
               {/* Hierarchical Tree */}
               {currentQuestion.hierarchy && (
                 <div className="p-4 neuro-inset rounded-lg">
-                  <div className="text-xs text-gray-500 mb-3">Learning Path</div>
                   <div className="space-y-3">
                     {/* Subject Level */}
                     {currentQuestion.hierarchy.subject && (
@@ -629,7 +628,6 @@ function LearnPageContent() {
                           <div className="neuro-raised w-8 h-8 rounded-lg flex items-center justify-center">
                             <span className="text-xs text-cyan-400 font-bold">C</span>
                           </div>
-                          <div className="w-px h-6 bg-gray-700"></div>
                         </div>
                         <div className="flex-1 pt-1">
                           <div className="text-xs text-gray-500">Chapter</div>
@@ -639,17 +637,11 @@ function LearnPageContent() {
                     )}
 
                     {/* Topic Level */}
-                    <div className="flex items-start gap-3">
-                      <div className="neuro-raised w-8 h-8 rounded-lg flex items-center justify-center">
-                        <span className="text-xs text-green-400 font-bold">T</span>
-                      </div>
-                      <div className="flex-1 pt-1">
-                        <div className="text-xs text-gray-500">Topic</div>
-                        <div className="font-semibold text-green-400">{currentQuestion.hierarchy.topic}</div>
-                        {currentQuestion.hierarchy.description && (
-                          <div className="text-xs text-gray-600 mt-1">{currentQuestion.hierarchy.description}</div>
-                        )}
-                      </div>
+                    <div className="pt-1">
+                      <div className="font-semibold text-green-400">{currentQuestion.hierarchy.topic}</div>
+                      {currentQuestion.hierarchy.description && (
+                        <div className="text-xs text-gray-600 mt-1">{currentQuestion.hierarchy.description}</div>
+                      )}
                     </div>
                   </div>
                 </div>
