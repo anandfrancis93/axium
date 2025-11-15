@@ -470,14 +470,10 @@ function LearnPageContent() {
                     return (
                       <div
                         key={idx}
-                        className={`p-4 rounded-lg border-2 ${
-                          isUserAnswer && isCorrectAnswer
-                            ? 'bg-green-400/10 border-green-400'
-                            : isUserAnswer && !isCorrectAnswer
-                            ? 'bg-red-400/10 border-red-400'
-                            : isCorrectAnswer
-                            ? 'bg-green-400/5 border-green-400/50'
-                            : 'bg-gray-800/30 border-gray-700/30'
+                        className={`transition-all ${
+                          isUserAnswer
+                            ? 'neuro-raised'
+                            : 'neuro-inset'
                         }`}
                       >
                         <div className="flex-1">
@@ -485,7 +481,7 @@ function LearnPageContent() {
                             isUserAnswer || isCorrectAnswer ? 'font-semibold' : ''
                           } ${
                             isCorrectAnswer ? 'text-green-400' :
-                            isUserAnswer ? 'text-red-400' :
+                            isUserAnswer && !isCorrectAnswer ? 'text-red-400' :
                             'text-gray-300'
                           }`}>
                             {option}
