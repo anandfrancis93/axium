@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     // Add metadata to question and map field names
     const enrichedQuestion = {
       ...question,
-      id: `generated-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+      id: crypto.randomUUID(), // Generate proper UUID for database compatibility
       topic_id: selection.topicId,
       topic_name: selection.topicName,
       bloom_level: selection.bloomLevel,

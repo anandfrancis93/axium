@@ -266,7 +266,7 @@ Return ONLY valid JSON array with no markdown formatting:
 
     // Transform to QuizQuestion format
     return generatedQuestions.map((q: any, idx: number) => ({
-      id: `generated-${Date.now()}-${idx}`,
+      id: crypto.randomUUID(), // Generate proper UUID for database compatibility
       topic_id: '', // Will be set by session
       bloom_level: bloomLevel,
       question_format: q.question_format,
