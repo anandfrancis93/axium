@@ -76,7 +76,6 @@ axium/
 │   │   ├── adaptive-difficulty.ts     # Difficulty adjustment
 │   │   └── bloom-progression.ts       # Bloom level advancement
 │   ├── rl/                    # RL core utilities
-│   │   ├── rewards.ts         # Reward calculation (unused)
 │   │   └── mastery.ts         # Mastery utilities
 │   ├── graphrag/              # GraphRAG utilities
 │   ├── neo4j/                 # Neo4j client
@@ -109,7 +108,7 @@ axium/
 - `subjects`, `chapters`, `topics` - Learning content hierarchy
 - `questions` - All generated questions (persistent, reusable)
 - `user_progress` - Mastery scores, RL phase, metadata
-- `user_responses` - Answer history with rewards and recognition methods
+- `user_responses` - Answer history with calibration scores and recognition methods
 
 ### GraphRAG Tables
 - `graphrag_entities` - Neo4j entity cache (920+ entities)
