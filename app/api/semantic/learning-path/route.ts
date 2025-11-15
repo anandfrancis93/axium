@@ -111,7 +111,7 @@ async function getPathToEntity(
     ORDER BY node.learningDepth ASC
   `, { targetEntityId })
 
-  const path: PathNode[] = result.records.map(record => {
+  const path: PathNode[] = result.records.map((record: any) => {
     const difficultyScore = record.get('difficultyScore') || 3
     return {
       id: record.get('id'),
@@ -139,7 +139,7 @@ async function getPathToEntity(
     LIMIT 10
   `)
 
-  const startingPoints: PathNode[] = rootResult.records.map(record => {
+  const startingPoints: PathNode[] = rootResult.records.map((record: any) => {
     const difficultyScore = record.get('difficultyScore') || 3
     return {
       id: record.get('id'),
@@ -181,7 +181,7 @@ async function getPathForDomain(
     LIMIT 50
   `, { domain })
 
-  const path: PathNode[] = result.records.map(record => {
+  const path: PathNode[] = result.records.map((record: any) => {
     const difficultyScore = record.get('difficultyScore') || 3
     return {
       id: record.get('id'),
