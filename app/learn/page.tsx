@@ -13,7 +13,7 @@ import { ConfidenceSlider } from '@/components/quiz/ConfidenceSlider'
 import { RecognitionMethodSelector } from '@/components/quiz/RecognitionMethodSelector'
 import { AnswerFeedback } from '@/components/quiz/AnswerFeedback'
 import { QuizSession, QuizQuestion, AnswerResult, RecognitionMethod } from '@/lib/types/quiz'
-import { Loader2, Trophy, Clock, Target, BookOpen, TrendingUp } from 'lucide-react'
+import { Loader2, Clock } from 'lucide-react'
 
 type QuizStep = 'confidence' | 'answer' | 'recognition' | 'results'
 
@@ -445,73 +445,96 @@ function LearnPageContent() {
         {/* Step 4: Results with all sections */}
         {currentStep === 'results' && answerResult && recognitionMethod && currentQuestion && (
           <>
-            {/* Section 1: Explanation */}
+            {/* Section 1: Question and Options with Results */}
             <div className="neuro-card p-6">
-              <h3 className="text-xl font-semibold text-gray-200 mb-4 flex items-center gap-2">
-                <BookOpen size={24} className="text-blue-400" />
-                Answer Explanation
-              </h3>
-
-              {/* Explanation */}
-              <div className="prose prose-invert max-w-none mb-6">
-                <p className="text-gray-300 leading-relaxed">{answerResult.explanation}</p>
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-xs font-medium text-blue-400 bg-blue-400/10 px-3 py-1 rounded-full">
+                  Bloom Level {currentQuestion.bloom_level}
+                </span>
+                <span className="text-xs font-medium text-gray-500 bg-gray-500/10 px-3 py-1 rounded-full">
+                  {currentQuestion.question_format === 'mcq_single' ? 'Multiple Choice' :
+                   currentQuestion.question_format === 'mcq_multi' ? 'Multiple Select' :
+                   currentQuestion.question_format === 'true_false' ? 'True/False' :
+                   currentQuestion.question_format === 'fill_blank' ? 'Fill in the Blank' :
+                   currentQuestion.question_format === 'open_ended' ? 'Open Ended' : 'Question'}
+                </span>
               </div>
+              <h2 className="text-xl font-semibold text-gray-200 mb-6">
+                {currentQuestion.question_text}
+              </h2>
 
-              {/* Why Other Options Are Wrong (for MCQ) */}
+              {/* Answer Options with Result */}
               {(currentQuestion.question_format === 'mcq_single' || currentQuestion.question_format === 'mcq_multi') && currentQuestion.options && (
-                <div className="mt-6">
-                  <h4 className="text-sm font-semibold text-gray-400 mb-3">Understanding All Options:</h4>
-                  <div className="space-y-2">
-                    {currentQuestion.options.map((option, idx) => {
-                      // Handle different correct answer formats (with/without letter prefix)
-                      const normalizeAnswer = (ans: string) => {
-                        return ans.replace(/^[A-Z]\.\s*/, '').trim()
-                      }
+                <div className="space-y-3">
+                  {currentQuestion.options.map((option, idx) => {
+                    const isUserAnswer = Array.isArray(userAnswer)
+                      ? userAnswer.includes(option)
+                      : userAnswer === option
 
-                      const normalizedOption = normalizeAnswer(option)
-                      const isCorrect = Array.isArray(answerResult.correctAnswer)
-                        ? answerResult.correctAnswer.some((ca: string) =>
-                            ca === option || normalizeAnswer(ca) === normalizedOption
-                          )
-                        : answerResult.correctAnswer === option ||
-                          normalizeAnswer(String(answerResult.correctAnswer)) === normalizedOption
+                    // Handle different correct answer formats (with/without letter prefix)
+                    const normalizeAnswer = (ans: string) => {
+                      return ans.replace(/^[A-Z]\.\s*/, '').trim()
+                    }
 
-                      return (
-                        <div
-                          key={idx}
-                          className={`p-3 rounded-lg border ${
-                            isCorrect
-                              ? 'bg-green-400/5 border-green-400/30'
-                              : 'bg-gray-800/30 border-gray-700/30'
-                          }`}
-                        >
-                          <div className="flex items-start gap-2">
-                            {isCorrect ? (
-                              <span className="text-green-400 mt-0.5">✓</span>
-                            ) : (
-                              <span className="text-gray-600 mt-0.5">✗</span>
-                            )}
-                            <div className="flex-1">
-                              <div className={`font-medium ${isCorrect ? 'text-green-400' : 'text-gray-400'}`}>
-                                {option}
-                              </div>
-                              {isCorrect && (
-                                <div className="text-xs text-gray-500 mt-1">Correct answer</div>
-                              )}
-                            </div>
+                    const normalizedOption = normalizeAnswer(option)
+                    const isCorrectAnswer = Array.isArray(answerResult.correctAnswer)
+                      ? answerResult.correctAnswer.some((ca: string) =>
+                          ca === option || normalizeAnswer(ca) === normalizedOption
+                        )
+                      : answerResult.correctAnswer === option ||
+                        normalizeAnswer(String(answerResult.correctAnswer)) === normalizedOption
+
+                    return (
+                      <div
+                        key={idx}
+                        className={`p-4 rounded-lg border-2 ${
+                          isUserAnswer && isCorrectAnswer
+                            ? 'bg-green-400/10 border-green-400'
+                            : isUserAnswer && !isCorrectAnswer
+                            ? 'bg-red-400/10 border-red-400'
+                            : isCorrectAnswer
+                            ? 'bg-green-400/5 border-green-400/50'
+                            : 'bg-gray-800/30 border-gray-700/30'
+                        }`}
+                      >
+                        <div className="flex-1">
+                          <div className={`${
+                            isUserAnswer || isCorrectAnswer ? 'font-semibold' : ''
+                          } ${
+                            isCorrectAnswer ? 'text-green-400' :
+                            isUserAnswer ? 'text-red-400' :
+                            'text-gray-300'
+                          }`}>
+                            {option}
                           </div>
+                          {isUserAnswer && (
+                            <div className="text-xs text-gray-500 mt-1">Your answer</div>
+                          )}
+                          {!isUserAnswer && isCorrectAnswer && (
+                            <div className="text-xs text-gray-500 mt-1">Correct answer</div>
+                          )}
                         </div>
-                      )
-                    })}
-                  </div>
+                      </div>
+                    )
+                  })}
                 </div>
               )}
             </div>
 
-            {/* Section 2: Why This Question? */}
+            {/* Section 2: Answer Explanation */}
             <div className="neuro-card p-6">
-              <h3 className="text-xl font-semibold text-gray-200 mb-4 flex items-center gap-2">
-                <Target size={24} className="text-purple-400" />
+              <h3 className="text-xl font-semibold text-gray-200 mb-4">
+                Answer Explanation
+              </h3>
+
+              <div className="prose prose-invert max-w-none">
+                <p className="text-gray-300 leading-relaxed">{answerResult.explanation}</p>
+              </div>
+            </div>
+
+            {/* Section 3: Why This Question? */}
+            <div className="neuro-card p-6">
+              <h3 className="text-xl font-semibold text-gray-200 mb-4">
                 Why This Question?
               </h3>
 
@@ -586,12 +609,9 @@ function LearnPageContent() {
               </div>
             </div>
 
-            {/* Section 3: Topic Hierarchy Tree */}
+            {/* Section 4: Topic Details */}
             <div className="neuro-card p-6">
-              <h3 className="text-xl font-semibold text-gray-200 mb-4 flex items-center gap-2">
-                <svg className="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                </svg>
+              <h3 className="text-xl font-semibold text-gray-200 mb-4">
                 Topic Details
               </h3>
 
@@ -688,10 +708,9 @@ function LearnPageContent() {
               </div>
             </div>
 
-            {/* Section 4: Your Rewards */}
+            {/* Section 5: Your Performance */}
             <div className="neuro-card p-6">
-              <h3 className="text-xl font-semibold text-gray-200 mb-4 flex items-center gap-2">
-                <Trophy size={24} className="text-yellow-400" />
+              <h3 className="text-xl font-semibold text-gray-200 mb-4">
                 Your Performance
               </h3>
 
