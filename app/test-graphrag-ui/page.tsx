@@ -104,7 +104,7 @@ export default async function TestGraphRAGUIPage() {
                       {/* Metadata */}
                       <div className="pt-4 border-t border-gray-800">
                         <div className="flex items-center gap-4 text-sm">
-                          <DifficultyBadge score={entity.difficulty_score} showIcon showDescription={false} />
+                          <DifficultyBadge score={entity.difficulty_score} showIcon showLabel={false} />
                           <LearningDepthBadge depth={entity.learning_depth || 0} showIcon showDepth />
                           {entity.domain_name && (
                             <span className="text-gray-500">{entity.domain_name}</span>
@@ -152,7 +152,7 @@ export default async function TestGraphRAGUIPage() {
 
                       <div className="pt-4 border-t border-gray-800">
                         <div className="flex items-center gap-4 text-sm">
-                          <DifficultyBadge score={entity.difficulty_score} showIcon showDescription={false} />
+                          <DifficultyBadge score={entity.difficulty_score} showIcon showLabel={false} />
                           <LearningDepthBadge depth={entity.learning_depth || 0} showIcon showDepth />
                           {entity.domain_name && (
                             <span className="text-gray-500">{entity.domain_name}</span>
@@ -200,7 +200,7 @@ export default async function TestGraphRAGUIPage() {
 
                       <div className="pt-4 border-t border-gray-800">
                         <div className="flex items-center gap-4 text-sm">
-                          <DifficultyBadge score={entity.difficulty_score} showIcon showDescription={false} />
+                          <DifficultyBadge score={entity.difficulty_score} showIcon showLabel={false} />
                           <LearningDepthBadge depth={entity.learning_depth || 0} showIcon showDepth />
                           {entity.domain_name && (
                             <span className="text-gray-500">{entity.domain_name}</span>
