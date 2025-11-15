@@ -21,6 +21,7 @@ export type RecognitionMethod =
 export interface QuizQuestion {
   id: string
   topic_id: string
+  topic_name?: string
   bloom_level: number
   question_format: QuestionFormat
   question_text: string
@@ -28,6 +29,15 @@ export interface QuizQuestion {
   correct_answer: string | string[]  // Single or multiple correct answers
   explanation: string
   difficulty_score?: number
+  selection_reason?: string  // Why this question was selected (RL/SR)
+  selection_priority?: number  // Priority score for selection
+  selection_method?: 'rl' | 'spaced_repetition'  // Selection method used
+  hierarchy?: {
+    subject: string | null
+    chapter: string | null
+    topic: string
+    description: string | null
+  }
   metadata?: {
     generated_at?: string
     source?: string

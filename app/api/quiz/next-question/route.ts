@@ -54,6 +54,13 @@ export async function POST(request: NextRequest) {
       priority: selection.priority
     })
 
+    // Fetch topic hierarchy for display
+    const { data: topicHierarchy } = await supabase
+      .from('topics')
+      .select('name, description, chapter_id, chapters(name, subject_id, subjects(name))')
+      .eq('id', selection.topicId)
+      .single()
+
     // Fetch knowledge graph context for the selected topic
     const context = await fetchKnowledgeContext(supabase, selection.topicId, selection.topicName)
 
@@ -82,9 +89,17 @@ export async function POST(request: NextRequest) {
       bloom_level: selection.bloomLevel,
       selection_reason: selection.selectionReason,
       selection_priority: selection.priority,
+      selection_method: selection.selectionMethod,
       question_format: recommendedFormat,
       // Map 'question' field to 'question_text' for consistency with QuizQuestion type
-      question_text: question.question || question.question_text
+      question_text: question.question || question.question_text,
+      // Add hierarchy for display
+      hierarchy: topicHierarchy ? {
+        subject: topicHierarchy.chapters?.subjects?.name || null,
+        chapter: topicHierarchy.chapters?.name || null,
+        topic: topicHierarchy.name,
+        description: topicHierarchy.description || null
+      } : null
     }
 
     return NextResponse.json({

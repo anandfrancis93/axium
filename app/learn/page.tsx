@@ -520,17 +520,60 @@ function LearnPageContent() {
                 Topic Details
               </h3>
 
-              <div className="space-y-3">
-                {/* Topic Name */}
-                <div className="flex items-start gap-3 p-4 neuro-raised rounded-lg">
-                  <div className="neuro-inset w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <span className="text-cyan-400 font-bold">T</span>
+              <div className="space-y-4">
+                {/* Hierarchical Tree */}
+                {currentQuestion.hierarchy && (
+                  <div className="p-4 neuro-inset rounded-lg">
+                    <div className="text-xs text-gray-500 mb-3">Learning Path</div>
+                    <div className="space-y-3">
+                      {/* Subject Level */}
+                      {currentQuestion.hierarchy.subject && (
+                        <div className="flex items-start gap-3">
+                          <div className="flex flex-col items-center">
+                            <div className="neuro-raised w-8 h-8 rounded-lg flex items-center justify-center">
+                              <span className="text-xs text-blue-400 font-bold">S</span>
+                            </div>
+                            <div className="w-px h-6 bg-gray-700"></div>
+                          </div>
+                          <div className="flex-1 pt-1">
+                            <div className="text-xs text-gray-500">Subject</div>
+                            <div className="font-semibold text-gray-300">{currentQuestion.hierarchy.subject}</div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Chapter Level */}
+                      {currentQuestion.hierarchy.chapter && (
+                        <div className="flex items-start gap-3">
+                          <div className="flex flex-col items-center">
+                            <div className="neuro-raised w-8 h-8 rounded-lg flex items-center justify-center">
+                              <span className="text-xs text-cyan-400 font-bold">C</span>
+                            </div>
+                            <div className="w-px h-6 bg-gray-700"></div>
+                          </div>
+                          <div className="flex-1 pt-1">
+                            <div className="text-xs text-gray-500">Chapter</div>
+                            <div className="font-semibold text-gray-300">{currentQuestion.hierarchy.chapter}</div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Topic Level */}
+                      <div className="flex items-start gap-3">
+                        <div className="neuro-raised w-8 h-8 rounded-lg flex items-center justify-center">
+                          <span className="text-xs text-green-400 font-bold">T</span>
+                        </div>
+                        <div className="flex-1 pt-1">
+                          <div className="text-xs text-gray-500">Topic</div>
+                          <div className="font-semibold text-green-400">{currentQuestion.hierarchy.topic}</div>
+                          {currentQuestion.hierarchy.description && (
+                            <div className="text-xs text-gray-600 mt-1">{currentQuestion.hierarchy.description}</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <div className="text-xs text-gray-500 mb-1">Topic</div>
-                    <div className="font-semibold text-gray-200">{(currentQuestion as any).topic_name || 'Unknown Topic'}</div>
-                  </div>
-                </div>
+                )}
 
                 {/* Bloom Level */}
                 <div className="flex items-start gap-3 p-4 neuro-inset rounded-lg">
