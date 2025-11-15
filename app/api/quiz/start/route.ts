@@ -86,8 +86,11 @@ export async function POST(request: NextRequest) {
     }
 
     const topicName = topic.name
-    const chapterName = topic.chapters?.name || ''
-    const subjectName = topic.chapters?.subjects?.name || ''
+    // chapters is an array from the join, get first element
+    const chapter = Array.isArray(topic.chapters) ? topic.chapters[0] : topic.chapters
+    const chapterName = chapter?.name || ''
+    const subject = Array.isArray(chapter?.subjects) ? chapter.subjects[0] : chapter?.subjects
+    const subjectName = subject?.name || ''
 
     // Retrieve GraphRAG context from knowledge graph
     const graphContext = await getGraphRAGContext(supabase, selectedTopicId, topicName)
