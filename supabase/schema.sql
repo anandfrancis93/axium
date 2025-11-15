@@ -252,71 +252,12 @@ CREATE INDEX idx_user_responses_topic_id ON user_responses(topic_id);
 CREATE INDEX idx_user_responses_session_id ON user_responses(session_id);
 
 -- ============================================================================
--- LEARNING SESSIONS TABLE
--- Tracks each learning session
--- ============================================================================
-CREATE TABLE learning_sessions (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-
-  -- Session metadata
-  started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  ended_at TIMESTAMP WITH TIME ZONE,
-  duration_seconds INTEGER,
-
-  -- Session stats
-  total_questions INTEGER DEFAULT 0,
-  correct_answers INTEGER DEFAULT 0,
-  accuracy DECIMAL(3,2),
-
-  -- Topics covered
-  topics_covered UUID[],
-  bloom_levels_practiced INTEGER[],
-
-  -- Session type
-  session_type TEXT DEFAULT 'practice', -- 'practice', 'review', 'test', 'challenge'
-
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Indexes
-CREATE INDEX idx_learning_sessions_user_id ON learning_sessions(user_id, started_at DESC);
-
--- ============================================================================
--- RL STATE TABLE
--- Stores RL agent state for adaptive learning
--- ============================================================================
-CREATE TABLE rl_state (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-
-  -- Current strategy
-  strategy TEXT DEFAULT 'exploration', -- 'exploration', 'exploitation', 'balanced'
-
-  -- Exploration rate (epsilon)
-  exploration_rate DECIMAL(3,2) DEFAULT 0.3,
-
-  -- Topic selection weights (JSONB for flexibility)
-  topic_weights JSONB DEFAULT '{}',
-
-  -- Performance history (last N sessions)
-  recent_performance JSONB DEFAULT '[]',
-
-  -- Last updated
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-
-  UNIQUE(user_id)
-);
-
--- ============================================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
 -- ============================================================================
 
 -- Enable RLS on all user-specific tables
 ALTER TABLE user_progress ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_responses ENABLE ROW LEVEL SECURITY;
-ALTER TABLE learning_sessions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE rl_state ENABLE ROW LEVEL SECURITY;
 
 -- User Progress Policies
 CREATE POLICY "Users can view their own progress"
@@ -339,32 +280,6 @@ CREATE POLICY "Users can view their own responses"
 CREATE POLICY "Users can insert their own responses"
   ON user_responses FOR INSERT
   WITH CHECK (auth.uid() = user_id);
-
--- Learning Sessions Policies
-CREATE POLICY "Users can view their own sessions"
-  ON learning_sessions FOR SELECT
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert their own sessions"
-  ON learning_sessions FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update their own sessions"
-  ON learning_sessions FOR UPDATE
-  USING (auth.uid() = user_id);
-
--- RL State Policies
-CREATE POLICY "Users can view their own RL state"
-  ON rl_state FOR SELECT
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert their own RL state"
-  ON rl_state FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update their own RL state"
-  ON rl_state FOR UPDATE
-  USING (auth.uid() = user_id);
 
 -- Public read access for subjects, chapters, topics, questions, knowledge_chunks
 ALTER TABLE subjects ENABLE ROW LEVEL SECURITY;
