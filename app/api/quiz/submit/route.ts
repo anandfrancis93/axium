@@ -125,6 +125,13 @@ export async function POST(request: NextRequest) {
 }
 
 /**
+ * Normalize answer by removing letter prefix (e.g., "A. ", "B. ")
+ */
+function normalizeAnswer(answer: string): string {
+  return answer.replace(/^[A-Z]\.\s*/, '').trim()
+}
+
+/**
  * Check if the user's answer is correct
  */
 function checkAnswer(
@@ -134,8 +141,12 @@ function checkAnswer(
 ): boolean {
   if (questionFormat === 'mcq_multi') {
     // Multiple select - must match all correct answers
-    const userSet = new Set(Array.isArray(userAnswer) ? userAnswer : [userAnswer])
-    const correctSet = new Set(Array.isArray(correctAnswer) ? correctAnswer : [correctAnswer])
+    const userAnswers = Array.isArray(userAnswer) ? userAnswer : [userAnswer]
+    const correctAnswers = Array.isArray(correctAnswer) ? correctAnswer : [correctAnswer]
+
+    // Normalize all answers for comparison
+    const userSet = new Set(userAnswers.map(normalizeAnswer))
+    const correctSet = new Set(correctAnswers.map(normalizeAnswer))
 
     if (userSet.size !== correctSet.size) return false
 
@@ -157,7 +168,8 @@ function checkAnswer(
   const userValue = Array.isArray(userAnswer) ? userAnswer[0] : userAnswer
   const correctValue = Array.isArray(correctAnswer) ? correctAnswer[0] : correctAnswer
 
-  return userValue === correctValue
+  // Normalize both values before comparison
+  return normalizeAnswer(userValue) === normalizeAnswer(correctValue)
 }
 
 /**
