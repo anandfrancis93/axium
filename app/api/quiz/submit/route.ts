@@ -100,10 +100,16 @@ export async function POST(request: NextRequest) {
       isCorrect
     )
 
+    // Expand correct answer if it's just a letter (A, B, C, D) to full option text
+    let expandedCorrectAnswer = question.correct_answer
+    if (question.options && (question.question_format === 'mcq_single' || question.question_format === 'mcq_multi')) {
+      expandedCorrectAnswer = expandCorrectAnswer(question.correct_answer, question.options)
+    }
+
     // Build result
     const result: AnswerResult = {
       isCorrect,
-      correctAnswer: question.correct_answer,
+      correctAnswer: expandedCorrectAnswer,
       explanation: question.explanation,
       calibrationScore,                        // TRACK 1: For RL system
       reward: calibrationScore,                // Legacy: Same as calibrationScore
@@ -132,6 +138,40 @@ function normalizeAnswer(answer: string): string {
 }
 
 /**
+ * Extract letter prefix from answer (e.g., "A. Text" -> "A")
+ */
+function extractLetter(answer: string): string | null {
+  const match = answer.match(/^([A-Z])\./)
+  return match ? match[1] : null
+}
+
+/**
+ * Expand letter-only correct answers (A, B, C) to full option text
+ */
+function expandCorrectAnswer(
+  correctAnswer: string | string[],
+  options: string[]
+): string | string[] {
+  const expandSingle = (ans: string): string => {
+    // If answer is just a letter (A, B, C, D), find the matching option
+    if (/^[A-Z]$/.test(ans.trim())) {
+      const letter = ans.trim()
+      const matchingOption = options.find(opt => {
+        const optLetter = extractLetter(opt)
+        return optLetter === letter
+      })
+      return matchingOption || ans
+    }
+    return ans
+  }
+
+  if (Array.isArray(correctAnswer)) {
+    return correctAnswer.map(expandSingle)
+  }
+  return expandSingle(correctAnswer)
+}
+
+/**
  * Check if the user's answer is correct
  */
 function checkAnswer(
@@ -144,16 +184,32 @@ function checkAnswer(
     const userAnswers = Array.isArray(userAnswer) ? userAnswer : [userAnswer]
     const correctAnswers = Array.isArray(correctAnswer) ? correctAnswer : [correctAnswer]
 
-    // Normalize all answers for comparison
-    const userSet = new Set(userAnswers.map(normalizeAnswer))
-    const correctSet = new Set(correctAnswers.map(normalizeAnswer))
+    // Check if correct answers are just letters (A, B, C) or full text
+    const correctAreLetters = correctAnswers.every(ans => /^[A-Z]$/.test(ans.trim()))
 
-    if (userSet.size !== correctSet.size) return false
+    if (correctAreLetters) {
+      // Compare by letter only
+      const userLetters = new Set(userAnswers.map(ans => extractLetter(ans) || normalizeAnswer(ans)))
+      const correctLetters = new Set(correctAnswers.map(ans => ans.trim()))
 
-    for (const ans of correctSet) {
-      if (!userSet.has(ans)) return false
+      if (userLetters.size !== correctLetters.size) return false
+
+      for (const letter of correctLetters) {
+        if (!userLetters.has(letter)) return false
+      }
+      return true
+    } else {
+      // Compare by normalized text
+      const userSet = new Set(userAnswers.map(normalizeAnswer))
+      const correctSet = new Set(correctAnswers.map(normalizeAnswer))
+
+      if (userSet.size !== correctSet.size) return false
+
+      for (const ans of correctSet) {
+        if (!userSet.has(ans)) return false
+      }
+      return true
     }
-    return true
   }
 
   if (questionFormat === 'open_ended' || questionFormat === 'fill_blank') {
@@ -168,7 +224,14 @@ function checkAnswer(
   const userValue = Array.isArray(userAnswer) ? userAnswer[0] : userAnswer
   const correctValue = Array.isArray(correctAnswer) ? correctAnswer[0] : correctAnswer
 
-  // Normalize both values before comparison
+  // Check if correct answer is just a letter (A, B, C, D)
+  if (/^[A-Z]$/.test(correctValue.trim())) {
+    // Extract letter from user's answer
+    const userLetter = extractLetter(userValue)
+    return userLetter === correctValue.trim()
+  }
+
+  // Otherwise, normalize both values before comparison
   return normalizeAnswer(userValue) === normalizeAnswer(correctValue)
 }
 
