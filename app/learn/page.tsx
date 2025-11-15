@@ -438,9 +438,6 @@ function LearnPageContent() {
                   <div className="text-sm text-gray-400">I had no idea and guessed randomly</div>
                 </button>
               </div>
-              <p className="text-xs text-gray-500 mt-4 text-center">
-                💡 Why we ask: This helps us understand your learning process and provide better recommendations
-              </p>
             </div>
           </>
         )}
