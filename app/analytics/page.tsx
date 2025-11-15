@@ -93,7 +93,7 @@ export default function AnalyticsPage() {
           )
         `)
         .eq('user_id', user.id)
-        .order('total_attempts', { ascending: false })
+        .order('last_practiced_at', { ascending: false })
 
       if (progressError) throw progressError
 
@@ -214,30 +214,55 @@ export default function AnalyticsPage() {
         {/* Topic Selector */}
         <div className="neuro-card p-6">
           <h2 className="text-sm font-semibold text-gray-400 mb-3">Select Topic</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {userProgress.map(progress => (
-              <button
-                key={progress.id}
-                onClick={() => setSelectedTopic(progress)}
-                className={`
-                  p-4 rounded-lg text-left transition-all
-                  ${selectedTopic?.id === progress.id
-                    ? 'neuro-raised border-2 border-blue-400'
-                    : 'neuro-inset hover:border-blue-400/30 border-2 border-transparent'
-                  }
-                `}
-              >
-                <div className="text-sm font-semibold text-gray-200 mb-2">
-                  {progress.topic_name}
-                </div>
-                <div className="flex items-center gap-4 text-xs text-gray-500">
-                  <span>{progress.total_attempts} attempts</span>
-                  <span className={getRLPhaseColor(progress.rl_phase)}>
-                    {formatRLPhase(progress.rl_phase)}
-                  </span>
-                </div>
-              </button>
-            ))}
+          <div className="neuro-inset rounded-lg overflow-hidden">
+            <div className="max-h-80 overflow-y-auto scrollbar-custom">
+              <table className="w-full">
+                <thead className="sticky top-0 bg-[#0a0a0a] z-10">
+                  <tr className="border-b border-gray-800">
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Topic</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Last Practiced</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Attempts</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Phase</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {userProgress.map(progress => (
+                    <tr
+                      key={progress.id}
+                      onClick={() => setSelectedTopic(progress)}
+                      className={`
+                        cursor-pointer transition-all border-b border-gray-800/50
+                        ${selectedTopic?.id === progress.id
+                          ? 'bg-blue-400/10'
+                          : 'hover:bg-gray-800/30'
+                        }
+                      `}
+                    >
+                      <td className="px-4 py-3 text-sm font-semibold text-gray-200">
+                        {progress.topic_name}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-gray-500">
+                        {new Date(progress.last_practiced_at).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-gray-500">
+                        {progress.total_attempts}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`text-xs font-medium ${getRLPhaseColor(progress.rl_phase)}`}>
+                          {formatRLPhase(progress.rl_phase)}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
