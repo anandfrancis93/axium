@@ -10,9 +10,9 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { QuestionCard } from '@/components/quiz/QuestionCard'
 import { ConfidenceSlider } from '@/components/quiz/ConfidenceSlider'
-import { RecognitionMethodSelector, RecognitionMethod } from '@/components/quiz/RecognitionMethodSelector'
+import { RecognitionMethodSelector } from '@/components/quiz/RecognitionMethodSelector'
 import { AnswerFeedback } from '@/components/quiz/AnswerFeedback'
-import { QuizSession, QuizQuestion, AnswerResult } from '@/lib/types/quiz'
+import { QuizSession, QuizQuestion, AnswerResult, RecognitionMethod } from '@/lib/types/quiz'
 import { Loader2, Trophy, Clock, Target } from 'lucide-react'
 
 function LearnPageContent() {
