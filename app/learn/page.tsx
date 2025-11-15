@@ -781,13 +781,21 @@ function LearnPageContent() {
               </div>
             </div>
 
-            {/* Next Question Button */}
-            <button
-              onClick={handleNextQuestion}
-              className="neuro-btn text-blue-400 w-full py-4 text-lg font-semibold"
-            >
-              Next Question →
-            </button>
+            {/* Action Buttons */}
+            <div className="flex gap-4">
+              <button
+                onClick={() => router.push('/subjects')}
+                className="neuro-btn text-gray-300 flex-1 py-4 text-lg font-semibold"
+              >
+                Done
+              </button>
+              <button
+                onClick={handleNextQuestion}
+                className="neuro-btn text-blue-400 flex-1 py-4 text-lg font-semibold"
+              >
+                Next Question →
+              </button>
+            </div>
           </>
         )}
       </div>
