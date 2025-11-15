@@ -41,7 +41,6 @@ interface UserProgressRow {
   calibration_mean: number | null
   calibration_stddev: number | null
   calibration_slope: number | null
-  rl_phase: string | null
   last_practiced_at: string | null
   mastery_scores: Record<string, any>
 }
@@ -102,7 +101,6 @@ export async function selectNextTopic(userId: string): Promise<TopicSelection> {
       calibration_mean,
       calibration_stddev,
       calibration_slope,
-      rl_phase,
       last_practiced_at,
       mastery_scores
     `)
@@ -269,12 +267,8 @@ function selectRLTopic(
     eligibleTopics.some(t => t.id === p.topic_id)
   )
 
-  // Determine global phase
-  const globalPhase = determineGlobalPhase(totalAttempts)
-  console.log(`[RL] Global phase: ${globalPhase}`)
-
-  // Cold start: Random selection from eligible topics
-  if (globalPhase === 'cold_start' || eligibleProgress.length === 0) {
+  // Cold start: Random selection when user has < 10 total attempts
+  if (totalAttempts < 10 || eligibleProgress.length === 0) {
     const randomIndex = Math.floor(Math.random() * eligibleTopics.length)
     const selected = eligibleTopics[randomIndex]
 
@@ -289,7 +283,7 @@ function selectRLTopic(
   }
 
   // Calculate priority for each topic with progress
-  const priorities = calculateTopicPriorities(eligibleProgress, globalPhase)
+  const priorities = calculateTopicPriorities(eligibleProgress)
 
   if (priorities.length === 0) {
     // Fallback to cold start
@@ -307,7 +301,7 @@ function selectRLTopic(
   }
 
   // Apply epsilon-greedy selection
-  const epsilonRate = getEpsilonRate(globalPhase)
+  const epsilonRate = getEpsilonRate(totalAttempts)
   const selection = epsilonGreedySelect(priorities, epsilonRate)
 
   return {
@@ -321,21 +315,10 @@ function selectRLTopic(
 }
 
 /**
- * Determine global RL phase based on total attempts
- */
-function determineGlobalPhase(totalAttempts: number): string {
-  if (totalAttempts < 10) return 'cold_start'
-  if (totalAttempts < 50) return 'exploration'
-  if (totalAttempts < 150) return 'optimization'
-  return 'stabilization'
-}
-
-/**
  * Calculate priority scores for all topics
  */
 function calculateTopicPriorities(
-  progress: UserProgressRow[],
-  globalPhase: string
+  progress: UserProgressRow[]
 ): TopicPriority[] {
   const now = new Date()
 
@@ -440,19 +423,17 @@ function calculateTopicPriorities(
 }
 
 /**
- * Get epsilon rate based on global phase
+ * Get epsilon rate based on total attempts (exploration vs exploitation balance)
+ * - < 10 attempts: 100% random (pure exploration)
+ * - 10-50 attempts: 30% random, 70% best (learning)
+ * - 50-150 attempts: 10% random, 90% best (optimizing)
+ * - 150+ attempts: 5% random, 95% best (stable)
  */
-function getEpsilonRate(globalPhase: string): number {
-  switch (globalPhase) {
-    case 'exploration':
-      return 0.3
-    case 'optimization':
-      return 0.1
-    case 'stabilization':
-      return 0.05
-    default:
-      return 0.3
-  }
+function getEpsilonRate(totalAttempts: number): number {
+  if (totalAttempts < 10) return 1.0   // 100% random exploration
+  if (totalAttempts < 50) return 0.3   // 30% random
+  if (totalAttempts < 150) return 0.1  // 10% random
+  return 0.05                          // 5% random
 }
 
 /**

@@ -8,7 +8,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { TrendingUp, TrendingDown, Activity, Target, Zap, BarChart3, Brain, Eye, Search } from 'lucide-react'
+import { TrendingUp, TrendingDown, Activity, Target, Zap, BarChart3, Eye, Search } from 'lucide-react'
 import Link from 'next/link'
 import { CalibrationLineChart } from '@/components/analytics/CalibrationLineChart'
 import { CalibrationScatterPlot } from '@/components/analytics/CalibrationScatterPlot'
@@ -22,7 +22,6 @@ interface UserProgress {
   calibration_slope: number
   calibration_r_squared: number
   questions_to_mastery: number | null
-  rl_phase: string
   total_attempts: number
   correct_answers: number
   mastery_scores: any
@@ -240,13 +239,12 @@ export default function AnalyticsPage() {
                     <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Topic</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Last Practiced</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Attempts</th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Phase</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredProgress.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="px-4 py-8 text-center text-gray-500 text-sm">
+                      <td colSpan={3} className="px-4 py-8 text-center text-gray-500 text-sm">
                         No topics found matching "{searchQuery}"
                       </td>
                     </tr>
@@ -279,11 +277,6 @@ export default function AnalyticsPage() {
                       </td>
                       <td className="px-4 py-3 text-xs text-gray-500">
                         {progress.total_attempts}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`text-xs font-medium ${getRLPhaseColor(progress.rl_phase)}`}>
-                          {formatRLPhase(progress.rl_phase)}
-                        </span>
                       </td>
                     </tr>
                   )))}
@@ -374,31 +367,6 @@ export default function AnalyticsPage() {
                     ? 'questions remaining'
                     : 'Not enough data yet'}
                 </div>
-              </div>
-            </div>
-
-            {/* RL Phase Indicator */}
-            <div className="neuro-card p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center">
-                  <Brain size={20} className="text-blue-400" />
-                </div>
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-200">
-                    RL Phase: {formatRLPhase(selectedTopic.rl_phase)}
-                  </h2>
-                  <p className="text-sm text-gray-500">
-                    Current learning optimization phase
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                {renderRLPhaseProgress(selectedTopic.rl_phase, selectedTopic.total_attempts)}
-              </div>
-
-              <div className="mt-4 neuro-inset rounded-lg p-4 text-sm text-gray-400">
-                {getRLPhaseDescription(selectedTopic.rl_phase)}
               </div>
             </div>
 
@@ -597,86 +565,6 @@ function FormatPerformanceGrid({ formats }: { formats: FormatPerformance[] }) {
 }
 
 // Helper Functions
-
-function getRLPhaseColor(phase: string): string {
-  switch (phase) {
-    case 'cold_start': return 'text-gray-400'
-    case 'exploration': return 'text-blue-400'
-    case 'optimization': return 'text-cyan-400'
-    case 'stabilization': return 'text-green-400'
-    default: return 'text-gray-400'
-  }
-}
-
-function formatRLPhase(phase: string): string {
-  switch (phase) {
-    case 'cold_start': return 'Cold Start'
-    case 'exploration': return 'Exploration'
-    case 'optimization': return 'Optimization'
-    case 'stabilization': return 'Stabilization'
-    default: return phase
-  }
-}
-
-function getRLPhaseDescription(phase: string): string {
-  switch (phase) {
-    case 'cold_start':
-      return '🌱 Just getting started. The system is gathering initial data about your learning patterns. Keep practicing to unlock more insights!'
-    case 'exploration':
-      return '🔍 Actively exploring your learning style. The system is testing different approaches to find what works best for you.'
-    case 'optimization':
-      return '🎯 Focusing on high-value learning strategies. The system has identified your strengths and is optimizing your learning path.'
-    case 'stabilization':
-      return '✅ Stable, consistent performance achieved! You\'ve developed reliable learning patterns. Maintain this momentum!'
-    default:
-      return 'Learning phase information unavailable.'
-  }
-}
-
-function renderRLPhaseProgress(currentPhase: string, attempts: number) {
-  const phases = [
-    { name: 'Cold Start', key: 'cold_start', threshold: 10 },
-    { name: 'Exploration', key: 'exploration', threshold: 50 },
-    { name: 'Optimization', key: 'optimization', threshold: 150 },
-    { name: 'Stabilization', key: 'stabilization', threshold: Infinity }
-  ]
-
-  const currentIndex = phases.findIndex(p => p.key === currentPhase)
-
-  return (
-    <div className="flex items-center gap-2">
-      {phases.map((phase, index) => {
-        const isComplete = index < currentIndex
-        const isCurrent = index === currentIndex
-        const isUpcoming = index > currentIndex
-
-        return (
-          <div key={phase.key} className="flex-1">
-            <div
-              className={`h-2 rounded-full transition-all ${
-                isComplete ? 'bg-green-400' :
-                isCurrent ? 'bg-blue-400' :
-                'bg-gray-700'
-              }`}
-            />
-            <div className={`text-xs mt-2 ${
-              isComplete ? 'text-green-400' :
-              isCurrent ? 'text-blue-400' :
-              'text-gray-600'
-            }`}>
-              {phase.name}
-            </div>
-            {phase.threshold !== Infinity && (
-              <div className="text-xs text-gray-600 mt-1">
-                {phase.threshold} attempts
-              </div>
-            )}
-          </div>
-        )
-      })}
-    </div>
-  )
-}
 
 function formatQuestionType(format: string): string {
   switch (format) {

@@ -86,7 +86,6 @@ axium/
 │   ├── quiz/                  # Quiz UI components
 │   ├── analytics/             # Analytics visualizations
 │   ├── HamburgerMenu.tsx      # Navigation
-│   ├── RLPhaseBadge.tsx       # RL phase indicators
 │   └── QuestionFormatBadge.tsx
 │
 ├── supabase/
@@ -107,7 +106,7 @@ axium/
 ### Core Tables
 - `subjects`, `chapters`, `topics` - Learning content hierarchy
 - `questions` - All generated questions (persistent, reusable)
-- `user_progress` - Mastery scores, RL phase, metadata
+- `user_progress` - Mastery scores, calibration statistics, metadata
 - `user_responses` - Answer history with calibration scores and recognition methods
 
 ### GraphRAG Tables
@@ -195,24 +194,6 @@ Stored as nested JSON in `user_progress.mastery_scores`:
   "2": {"mcq_single": 70, "mcq_multi": 65}
 }
 ```
-
-## RL Phases
-
-**Topic-Level Phases** (tracked in `user_progress.rl_phase` per topic):
-
-| Phase | Attempts | Behavior |
-|-------|----------|----------|
-| Cold Start | < 10 | Random exploration |
-| Exploration | 10-50 | Testing strategies (ε=0.3) |
-| Optimization | 50-150 | Exploiting best topics (ε=0.1) |
-| Stabilization | 150+, low variance | Stable performance |
-| Adaptation | 150+, changing | Responding to changes |
-| Meta-Learning | 500+, excellent | Self-optimization |
-
-**Global Phase** (used for epsilon selection in topic selector):
-- Determined by total attempts across all topics
-- Controls exploration rate (ε) in epsilon-greedy algorithm
-- 4 phases: cold_start → exploration → optimization → stabilization
 
 ## Question Formats
 

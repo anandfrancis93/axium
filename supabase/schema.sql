@@ -108,9 +108,6 @@ CREATE TABLE user_progress (
   calibration_r_squared DECIMAL(3,2) DEFAULT 0.0,      -- Regression fit quality (0-1)
   questions_to_mastery INTEGER,                        -- Projected questions to reach mastery
 
-  -- RL Phase tracking
-  rl_phase TEXT DEFAULT 'cold_start',  -- 'cold_start', 'exploration', 'optimization', 'stabilization'
-
   -- Last practiced timestamp
   last_practiced_at TIMESTAMP WITH TIME ZONE,
 
