@@ -365,16 +365,16 @@ export function InteractiveKnowledgeGraph({
       {/* Graph */}
       <div className="neuro-inset rounded-lg overflow-hidden">
         <ForceGraph2D
-          ref={graphRef}
+          ref={graphRef as any}
           graphData={graphData}
           height={height}
           width={width}
           backgroundColor="#0a0a0a"
-          nodeCanvasObject={paintNode}
-          linkCanvasObject={paintLink}
-          onNodeClick={handleNodeClick}
-          onNodeHover={setHoveredNode}
-          nodeLabel={(node: GraphNode) => `${node.name} (L${node.learning_depth || 0})`}
+          nodeCanvasObject={paintNode as any}
+          linkCanvasObject={paintLink as any}
+          onNodeClick={handleNodeClick as any}
+          onNodeHover={setHoveredNode as any}
+          nodeLabel={((node: any) => `${node.name} (L${node.learning_depth || 0})`) as any}
           linkDirectionalArrowLength={0}  // Custom arrows
           linkCurvature={0.2}
           enableNodeDrag={true}
