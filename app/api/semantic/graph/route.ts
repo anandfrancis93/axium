@@ -68,18 +68,31 @@ export async function GET(request: NextRequest) {
     const entityIds = entities.map(e => e.id)
 
     // Fetch relationships (edges) between these entities
-    const { data: relationships, error: relationshipsError } = await supabase
-      .from('graphrag_relationships')
-      .select('source_entity_id, target_entity_id, relationship_type, confidence, reasoning')
-      .in('source_entity_id', entityIds)
-      .in('target_entity_id', entityIds)
+    // Note: Large entityId arrays may cause query failures, so we handle this gracefully
+    let relationships = []
+    try {
+      const { data, error: relationshipsError } = await supabase
+        .from('graphrag_relationships')
+        .select('source_entity_id, target_entity_id, relationship_type, confidence, reasoning')
+        .in('source_entity_id', entityIds)
+        .in('target_entity_id', entityIds)
 
-    if (relationshipsError) {
-      console.error('Error fetching relationships:', relationshipsError)
-      return NextResponse.json(
-        { error: 'Failed to fetch graph relationships' },
-        { status: 500 }
-      )
+      if (relationshipsError) {
+        console.error('Error fetching relationships:', relationshipsError)
+        // Continue without relationships rather than failing completely
+        relationships = []
+      } else {
+        relationships = data || []
+      }
+    } catch (error) {
+      console.error('Error fetching relationships:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        details: error instanceof Error ? error.stack : '',
+        hint: 'Query may be too large, consider using scope filter',
+        code: (error as any).code || ''
+      })
+      // Continue without relationships rather than failing completely
+      relationships = []
     }
 
     // Transform to react-force-graph format
