@@ -95,8 +95,8 @@ export async function POST(request: NextRequest) {
       question_text: question.question || question.question_text,
       // Add hierarchy for display
       hierarchy: topicHierarchy ? {
-        subject: topicHierarchy.chapters?.subjects?.name || null,
-        chapter: topicHierarchy.chapters?.name || null,
+        subject: (topicHierarchy.chapters as any)?.[0]?.subjects?.name || null,
+        chapter: (topicHierarchy.chapters as any)?.[0]?.name || null,
         topic: topicHierarchy.name,
         description: topicHierarchy.description || null
       } : null
