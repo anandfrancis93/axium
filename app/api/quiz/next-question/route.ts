@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
       recommendedFormat
     )
 
-    // Add metadata to question
+    // Add metadata to question and map field names
     const enrichedQuestion = {
       ...question,
       id: `generated-${Date.now()}-${Math.random().toString(36).substring(7)}`,
@@ -82,7 +82,9 @@ export async function POST(request: NextRequest) {
       bloom_level: selection.bloomLevel,
       selection_reason: selection.selectionReason,
       selection_priority: selection.priority,
-      question_format: recommendedFormat
+      question_format: recommendedFormat,
+      // Map 'question' field to 'question_text' for consistency with QuizQuestion type
+      question_text: question.question || question.question_text
     }
 
     return NextResponse.json({
