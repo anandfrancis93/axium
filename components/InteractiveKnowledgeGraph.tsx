@@ -41,6 +41,7 @@ if (typeof window !== 'undefined' && !(window as any).THREE) {
 
   ;(window as any).THREE = {
     Object3D: emptyConstructor,
+    Vector2: emptyConstructor,
     Vector3: emptyConstructor,
     Color: emptyConstructor,
     Mesh: emptyConstructor,
