@@ -7,23 +7,23 @@
   --background: #0a0a0a;
   --foreground: #e0e0e0;
 
-  /* Neumorphic shadows - enhanced for better visibility */
-  --shadow-light: #3a3a3a;
+  /* Neumorphic shadows - subtle and refined */
+  --shadow-light: #2a2a2a;
   --shadow-dark: #000000;
 
-  /* Elevation levels - enhanced shadows for better contrast */
-  --elevation-1: 4px 4px 12px var(--shadow-dark), -4px -4px 12px var(--shadow-light);
-  --elevation-2: 6px 6px 18px var(--shadow-dark), -6px -6px 18px var(--shadow-light);
-  --elevation-3: 10px 10px 30px var(--shadow-dark), -10px -10px 30px var(--shadow-light);
+  /* Elevation levels - subtle depth */
+  --elevation-1: 3px 3px 8px var(--shadow-dark), -3px -3px 8px var(--shadow-light);
+  --elevation-2: 4px 4px 12px var(--shadow-dark), -4px -4px 12px var(--shadow-light);
+  --elevation-3: 6px 6px 20px var(--shadow-dark), -6px -6px 20px var(--shadow-light);
 
-  /* Inset (pressed) effect - deeper inset */
-  --inset: inset 5px 5px 12px 0px var(--shadow-dark), inset -5px -5px 12px 0px var(--shadow-light);
+  /* Inset (pressed) effect - subtle inset */
+  --inset: inset 3px 3px 8px 0px var(--shadow-dark), inset -3px -3px 8px 0px var(--shadow-light);
 
-  /* Surface colors - enhanced contrast */
+  /* Surface colors - subtle contrast */
   --surface: #0a0a0a;
   --surface-subtle: #0d0d0d;
-  --surface-raised: #151515;
-  --surface-elevated: #1a1a1a;
+  --surface-raised: #121212;
+  --surface-elevated: #161616;
 
   /* Accent colors */
   --accent-primary: #3b82f6;
