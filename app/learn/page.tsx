@@ -553,7 +553,11 @@ function LearnPageContent() {
                         const colonIndex = reason.indexOf(':')
                         if (colonIndex > 0) {
                           const phaseName = reason.substring(0, colonIndex).trim()
-                          return `RL - ${phaseName}`
+                          // Capitalize first letter of each word
+                          const capitalizedPhase = phaseName.split(' ').map(word =>
+                            word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                          ).join(' ')
+                          return `RL - ${capitalizedPhase}`
                         }
                         return 'RL-Driven'
                       }
@@ -577,8 +581,8 @@ function LearnPageContent() {
                   </div>
                 </div>
 
-                {/* Priority Score */}
-                {(currentQuestion as any).selection_priority !== undefined && (
+                {/* Priority Score - Only show when > 0% */}
+                {(currentQuestion as any).selection_priority !== undefined && ((currentQuestion as any).selection_priority || 0) > 0 && (
                   <div className="p-4 neuro-inset rounded-lg">
                     <div className="text-sm text-gray-400 mb-2">Priority Score</div>
                     <div className="flex items-center gap-3">
@@ -597,7 +601,6 @@ function LearnPageContent() {
                     <div className="text-xs text-gray-500 mt-2">
                       {(() => {
                         const priority = ((currentQuestion as any).selection_priority || 0) * 100
-                        if (priority === 0) return "Learning about your knowledge - random exploration"
                         if (priority <= 25) return "Optional practice - you're doing well here"
                         if (priority <= 50) return "Recommended practice - building stronger foundations"
                         if (priority <= 75) return "Important practice - needs attention"
