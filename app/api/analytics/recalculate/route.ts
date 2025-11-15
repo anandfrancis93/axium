@@ -22,17 +22,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get all topics the user has practiced
-    const { data: progressRecords, error: progressError } = await supabase
-      .from('user_progress')
+    // Get all unique topics the user has answered questions for
+    const { data: responseTopics, error: responsesError } = await supabase
+      .from('user_responses')
       .select('topic_id')
       .eq('user_id', user.id)
+      .not('calibration_score', 'is', null)
 
-    if (progressError) {
-      throw progressError
+    if (responsesError) {
+      throw responsesError
     }
 
-    if (!progressRecords || progressRecords.length === 0) {
+    if (!responseTopics || responseTopics.length === 0) {
       return NextResponse.json({
         success: true,
         message: 'No practice data found',
@@ -40,16 +41,18 @@ export async function POST(request: NextRequest) {
       })
     }
 
+    // Get unique topic IDs
+    const uniqueTopicIds = [...new Set(responseTopics.map(r => r.topic_id))]
+
     let updated = 0
 
     // Process each topic
-    for (const progress of progressRecords) {
-      const topicId = progress.topic_id
+    for (const topicId of uniqueTopicIds) {
 
-      // Get all calibration scores for this topic
+      // Get all responses for this topic
       const { data: responses, error: responsesError } = await supabase
         .from('user_responses')
-        .select('calibration_score, created_at')
+        .select('calibration_score, is_correct, created_at')
         .eq('user_id', user.id)
         .eq('topic_id', topicId)
         .not('calibration_score', 'is', null)
@@ -61,6 +64,8 @@ export async function POST(request: NextRequest) {
 
       const scores = responses.map(r => r.calibration_score as number)
       const count = scores.length
+      const totalAttempts = responses.length
+      const correctAnswers = responses.filter(r => r.is_correct).length
 
       // Calculate mean
       const mean = scores.reduce((sum, score) => sum + score, 0) / count
@@ -118,22 +123,29 @@ export async function POST(request: NextRequest) {
         questionsToMastery = Math.min(questionsNeeded, 1000)
       }
 
-      // Update user_progress
-      const { error: updateError } = await supabase
+      // Upsert user_progress (update if exists, create if doesn't)
+      const { error: upsertError } = await supabase
         .from('user_progress')
-        .update({
+        .upsert({
+          user_id: user.id,
+          topic_id: topicId,
+          total_attempts: totalAttempts,
+          correct_answers: correctAnswers,
           calibration_mean: Number(mean.toFixed(2)),
           calibration_stddev: Number(stddev.toFixed(2)),
           calibration_slope: Number(slope.toFixed(6)),
           calibration_r_squared: Number(rSquared.toFixed(2)),
           questions_to_mastery: questionsToMastery,
+          last_practiced_at: responses[responses.length - 1].created_at,
           updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id,topic_id'
         })
-        .eq('user_id', user.id)
-        .eq('topic_id', topicId)
 
-      if (!updateError) {
+      if (!upsertError) {
         updated++
+      } else {
+        console.error('Error upserting progress for topic', topicId, ':', upsertError)
       }
     }
 
