@@ -40,7 +40,7 @@ export async function getUserStats(userId: string): Promise<UserStats> {
   const overallAccuracy = totalAttempts > 0 ? correctAnswers / totalAttempts : 0
 
   const averageConfidence = responses && responses.length > 0
-    ? responses.reduce((sum: number, r) => sum + (r.confidence || 0) / 5, 0) / responses.length
+    ? responses.reduce((sum: number, r) => sum + (r.confidence || 0) / 3, 0) / responses.length
     : 0.5
 
   const masteryScores = progressData?.map(p => {

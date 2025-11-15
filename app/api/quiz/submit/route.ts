@@ -155,6 +155,7 @@ function checkAnswer(
 
 /**
  * Calculate RL reward based on correctness and confidence calibration
+ * Confidence scale: 1=Low, 2=Medium, 3=High
  */
 function calculateReward(
   isCorrect: boolean,
@@ -169,16 +170,17 @@ function calculateReward(
     reward -= 0.5
   }
 
-  // Confidence calibration bonus/penalty
-  if (isCorrect && confidence >= 4) {
-    reward += 0.2  // Well-calibrated confident correct
-  } else if (isCorrect && confidence <= 2) {
+  // Confidence calibration bonus/penalty (1-3 scale)
+  if (isCorrect && confidence === 3) {
+    reward += 0.2  // Well-calibrated: confident and correct
+  } else if (isCorrect && confidence === 1) {
     reward -= 0.1  // Under-confident but correct
-  } else if (!isCorrect && confidence >= 4) {
+  } else if (!isCorrect && confidence === 3) {
     reward -= 0.3  // Over-confident and wrong
-  } else if (!isCorrect && confidence <= 2) {
-    reward += 0.1  // Well-calibrated, knew they didn't know
+  } else if (!isCorrect && confidence === 1) {
+    reward += 0.1  // Well-calibrated: knew they didn't know
   }
+  // confidence === 2 (Medium) gets no bonus/penalty
 
   return Math.max(-1, Math.min(1, reward))  // Clamp to [-1, 1]
 }

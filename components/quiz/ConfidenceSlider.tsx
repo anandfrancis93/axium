@@ -15,11 +15,9 @@ interface ConfidenceSliderProps {
 }
 
 const confidenceLevels = [
-  { value: 1, label: 'Guessing', color: 'text-red-400', description: 'Complete guess' },
-  { value: 2, label: 'Unsure', color: 'text-orange-400', description: 'Not confident' },
-  { value: 3, label: 'Moderate', color: 'text-yellow-400', description: 'Somewhat confident' },
-  { value: 4, label: 'Confident', color: 'text-blue-400', description: 'Pretty sure' },
-  { value: 5, label: 'Certain', color: 'text-green-400', description: 'Absolutely sure' }
+  { value: 1, label: 'Low', color: 'text-red-400', description: 'Not confident at all' },
+  { value: 2, label: 'Medium', color: 'text-yellow-400', description: 'Somewhat confident' },
+  { value: 3, label: 'High', color: 'text-green-400', description: 'Very confident' }
 ]
 
 export function ConfidenceSlider({
@@ -49,7 +47,7 @@ export function ConfidenceSlider({
         <input
           type="range"
           min="1"
-          max="5"
+          max="3"
           step="1"
           value={value}
           onChange={(e) => onChange(Number(e.target.value))}
@@ -57,7 +55,7 @@ export function ConfidenceSlider({
             if (!disabled) {
               const rect = e.currentTarget.getBoundingClientRect()
               const percent = (e.clientX - rect.left) / rect.width
-              const hovered = Math.max(1, Math.min(5, Math.round(percent * 5)))
+              const hovered = Math.max(1, Math.min(3, Math.round(percent * 3)))
               setHoveredValue(hovered)
             }
           }}
