@@ -9,9 +9,9 @@ Axium uses a sophisticated RL (Reinforcement Learning) system to select optimal 
 ## Key Features
 
 ### Adaptive Learning
-- **RL-Driven Topic Selection**: Priority-based epsilon-greedy algorithm with calibration optimization
+- **Priority-Based Topic Selection**: Multi-factor weighted formula (calibration + spacing + mastery + variance)
 - **Progressive Bloom Unlocking**: Master each level before advancing (Remember → Understand → Apply → Analyze → Evaluate → Create)
-- **80-20 Learning Strategy**: 80% RL-optimized practice, 20% spaced repetition review
+- **80-20 Learning Strategy**: 80% priority-based practice, 20% spaced repetition review
 - **Calibration-Based Scoring**: Single unified metric measuring confidence accuracy (-1.5 to +1.5)
 
 ### Knowledge Graph Integration
@@ -69,8 +69,8 @@ axium/
 ├── lib/
 │   ├── db/                    # Database utilities
 │   │   └── questions.ts       # Question persistence
-│   ├── progression/           # RL algorithms
-│   │   ├── rl-topic-selector.ts       # Priority-based epsilon-greedy
+│   ├── progression/           # Learning progression logic
+│   │   ├── rl-topic-selector.ts       # Priority-based topic selection
 │   │   ├── format-selection.ts        # Format recommendation
 │   │   ├── confidence-calibration.ts  # Calibration tracking
 │   │   ├── adaptive-difficulty.ts     # Difficulty adjustment
@@ -121,7 +121,7 @@ axium/
 
 ## Learning Flow
 
-1. **Topic Selection**: Priority-based epsilon-greedy algorithm (80%) or spaced repetition (20%)
+1. **Topic Selection**: Priority-based selection (80%) or spaced repetition (20%)
 2. **Context Retrieval**: Fetch GraphRAG context from `graphrag_entities.context_summary`
 3. **Question Generation**: xAI Grok generates question using curriculum context
 4. **Question Storage**: Save to `questions` table with `rag_context` field
@@ -136,7 +136,7 @@ axium/
 
 ## Key Algorithms
 
-### Priority-Based Epsilon-Greedy Selection
+### Priority-Based Topic Selection
 
 Topic selection uses a weighted priority score with 4 components:
 
@@ -156,13 +156,12 @@ Topic selection uses a weighted priority score with 4 components:
 
 4. **Variance** (10% weight): Calibration consistency
    - High stddev (>0.5) adds +0.1 priority
-   - Rewards addressing inconsistent performance
+   - Addresses inconsistent performance
 
-**Epsilon-Greedy Strategy**: Balances exploitation (best topic) vs exploration (random topic)
-- Cold Start (< 10 attempts): 100% random exploration
-- Exploration (10-50 attempts): 30% random (ε=0.3)
-- Optimization (50-150 attempts): 10% random (ε=0.1)
-- Stabilization (150+ attempts): 5% random (ε=0.05)
+**Selection Strategy**: Always selects highest priority topic (no randomization)
+- Priority score determines which topic needs the most work
+- 20% of questions use time-based spaced repetition instead
+- Diversity comes from the multi-factor priority formula
 
 ### Calibration Score
 

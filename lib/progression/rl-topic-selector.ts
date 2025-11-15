@@ -1,19 +1,20 @@
 /**
- * Enhanced RL Topic Selection Algorithm v2.0
+ * Priority-Based Topic Selection Algorithm
  *
  * 80-20 SPLIT:
- * - 8 out of 10 questions: RL-driven (calibration, mastery gaps, variance)
- * - 2 out of 10 questions: Spaced repetition (time-based review)
+ * - 80% of questions: Priority-based (calibration, spacing, mastery gaps, variance)
+ * - 20% of questions: Spaced repetition (time-based review)
+ *
+ * PRIORITY COMPONENTS:
+ * - Calibration mean (40%): Lower calibration = higher priority
+ * - Time since practice (30%): Longer time = higher priority
+ * - Mastery gaps (20%): Lower mastery = higher priority
+ * - Variance (10%): Higher inconsistency = higher priority
  *
  * PREREQUISITE CHECKING:
  * - Uses Supabase prerequisites array
  * - Verifies prerequisite mastery before unlocking topics
  * - Filters to only eligible topics
- *
- * CONTINUOUS LEARNING:
- * - No session concept - generates questions indefinitely
- * - Tracks question count in user_responses
- * - Adapts strategy based on total attempts
  */
 
 import { createClient } from '@/lib/supabase/server'
@@ -300,16 +301,16 @@ function selectRLTopic(
     }
   }
 
-  // Apply epsilon-greedy selection
-  const epsilonRate = getEpsilonRate(totalAttempts)
-  const selection = epsilonGreedySelect(priorities, epsilonRate)
+  // Select highest priority topic
+  const sortedByPriority = [...priorities].sort((a, b) => b.priority - a.priority)
+  const selected = sortedByPriority[0]
 
   return {
-    topicId: selection.topicId,
-    topicName: selection.topicName,
-    bloomLevel: selection.recommendedBloomLevel,
-    selectionReason: `RL: ${selection.reason}`,
-    priority: selection.priority,
+    topicId: selected.topicId,
+    topicName: selected.topicName,
+    bloomLevel: selected.recommendedBloomLevel,
+    selectionReason: `Priority-based: ${selected.reason}`,
+    priority: selected.priority,
     selectionMethod: 'rl'
   }
 }
@@ -422,46 +423,3 @@ function calculateTopicPriorities(
   })
 }
 
-/**
- * Get epsilon rate based on total attempts (exploration vs exploitation balance)
- * - < 10 attempts: 100% random (pure exploration)
- * - 10-50 attempts: 30% random, 70% best (learning)
- * - 50-150 attempts: 10% random, 90% best (optimizing)
- * - 150+ attempts: 5% random, 95% best (stable)
- */
-function getEpsilonRate(totalAttempts: number): number {
-  if (totalAttempts < 10) return 1.0   // 100% random exploration
-  if (totalAttempts < 50) return 0.3   // 30% random
-  if (totalAttempts < 150) return 0.1  // 10% random
-  return 0.05                          // 5% random
-}
-
-/**
- * Epsilon-greedy selection
- */
-function epsilonGreedySelect(
-  priorities: TopicPriority[],
-  epsilon: number
-): TopicPriority {
-  if (priorities.length === 0) {
-    throw new Error('No topics available for selection')
-  }
-
-  // Random exploration
-  if (Math.random() < epsilon) {
-    const randomIndex = Math.floor(Math.random() * priorities.length)
-    const selected = priorities[randomIndex]
-    return {
-      ...selected,
-      reason: `Exploration: ${selected.reason}`
-    }
-  }
-
-  // Exploitation: Select highest priority
-  const sortedByPriority = [...priorities].sort((a, b) => b.priority - a.priority)
-  const selected = sortedByPriority[0]
-  return {
-    ...selected,
-    reason: `Exploitation: ${selected.reason}`
-  }
-}
