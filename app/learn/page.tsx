@@ -13,7 +13,7 @@ import { ConfidenceSlider } from '@/components/quiz/ConfidenceSlider'
 import { RecognitionMethodSelector } from '@/components/quiz/RecognitionMethodSelector'
 import { AnswerFeedback } from '@/components/quiz/AnswerFeedback'
 import { QuizSession, QuizQuestion, AnswerResult, RecognitionMethod } from '@/lib/types/quiz'
-import { Loader2, Trophy, Clock, Target } from 'lucide-react'
+import { Loader2, Trophy, Clock, Target, BookOpen, TrendingUp } from 'lucide-react'
 
 type QuizStep = 'confidence' | 'answer' | 'recognition' | 'results'
 
@@ -372,16 +372,299 @@ function LearnPageContent() {
         {/* Step 4: Results with all sections */}
         {currentStep === 'results' && answerResult && recognitionMethod && currentQuestion && (
           <>
-            {/* TODO: Implement results sections */}
+            {/* Section 1: Explanation */}
             <div className="neuro-card p-6">
-              <h3 className="text-lg font-semibold text-gray-200">Results coming next...</h3>
-              <button
-                onClick={handleNextQuestion}
-                className="neuro-btn text-blue-400 w-full py-4 text-lg font-semibold mt-4"
-              >
-                Next Question →
-              </button>
+              <h3 className="text-xl font-semibold text-gray-200 mb-4 flex items-center gap-2">
+                <BookOpen size={24} className="text-blue-400" />
+                Answer Explanation
+              </h3>
+
+              {/* Correct Answer */}
+              <div className="mb-6 p-4 bg-green-400/10 border border-green-400 rounded-lg">
+                <div className="text-sm text-gray-400 mb-1">Correct Answer:</div>
+                <div className="text-lg font-semibold text-green-400">
+                  {Array.isArray(answerResult.correctAnswer)
+                    ? answerResult.correctAnswer.join(', ')
+                    : answerResult.correctAnswer}
+                </div>
+              </div>
+
+              {/* Your Answer (if incorrect) */}
+              {!answerResult.isCorrect && (
+                <div className="mb-6 p-4 bg-red-400/10 border border-red-400 rounded-lg">
+                  <div className="text-sm text-gray-400 mb-1">Your Answer:</div>
+                  <div className="text-lg font-semibold text-red-400">
+                    {Array.isArray(userAnswer) ? userAnswer.join(', ') : userAnswer}
+                  </div>
+                </div>
+              )}
+
+              {/* Explanation */}
+              <div className="prose prose-invert max-w-none">
+                <p className="text-gray-300 leading-relaxed">{answerResult.explanation}</p>
+              </div>
+
+              {/* Why Other Options Are Wrong (for MCQ) */}
+              {(currentQuestion.question_format === 'mcq_single' || currentQuestion.question_format === 'mcq_multi') && currentQuestion.options && (
+                <div className="mt-6">
+                  <h4 className="text-sm font-semibold text-gray-400 mb-3">Understanding All Options:</h4>
+                  <div className="space-y-2">
+                    {currentQuestion.options.map((option, idx) => {
+                      const isCorrect = Array.isArray(answerResult.correctAnswer)
+                        ? answerResult.correctAnswer.includes(option)
+                        : answerResult.correctAnswer === option
+
+                      return (
+                        <div
+                          key={idx}
+                          className={`p-3 rounded-lg border ${
+                            isCorrect
+                              ? 'bg-green-400/5 border-green-400/30'
+                              : 'bg-gray-800/30 border-gray-700/30'
+                          }`}
+                        >
+                          <div className="flex items-start gap-2">
+                            {isCorrect ? (
+                              <span className="text-green-400 mt-0.5">✓</span>
+                            ) : (
+                              <span className="text-gray-600 mt-0.5">✗</span>
+                            )}
+                            <div className="flex-1">
+                              <div className={`font-medium ${isCorrect ? 'text-green-400' : 'text-gray-400'}`}>
+                                {option}
+                              </div>
+                              {isCorrect && (
+                                <div className="text-xs text-gray-500 mt-1">Correct answer</div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
+
+            {/* Section 2: Why This Question? */}
+            <div className="neuro-card p-6">
+              <h3 className="text-xl font-semibold text-gray-200 mb-4 flex items-center gap-2">
+                <Target size={24} className="text-purple-400" />
+                Why This Question?
+              </h3>
+
+              <div className="space-y-4">
+                {/* Selection Method */}
+                <div className="p-4 neuro-inset rounded-lg">
+                  <div className="text-sm text-gray-400 mb-2">Selection Method</div>
+                  <div className="flex items-center gap-3">
+                    {(currentQuestion as any).selection_method === 'spaced_repetition' ? (
+                      <>
+                        <Clock size={20} className="text-blue-400" />
+                        <div>
+                          <div className="font-semibold text-blue-400">Spaced Repetition (20%)</div>
+                          <div className="text-sm text-gray-500">Reviewing this topic to prevent forgetting</div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <TrendingUp size={20} className="text-green-400" />
+                        <div>
+                          <div className="font-semibold text-green-400">RL-Driven (80%)</div>
+                          <div className="text-sm text-gray-500">Optimizing based on your learning patterns</div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Selection Reason */}
+                <div className="p-4 neuro-inset rounded-lg">
+                  <div className="text-sm text-gray-400 mb-2">Why This Topic?</div>
+                  <div className="text-gray-300">
+                    {(currentQuestion as any).selection_reason || 'Selected to optimize your learning progress'}
+                  </div>
+                </div>
+
+                {/* Priority Score */}
+                {(currentQuestion as any).selection_priority !== undefined && (
+                  <div className="p-4 neuro-inset rounded-lg">
+                    <div className="text-sm text-gray-400 mb-2">Priority Score</div>
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1">
+                        <div className="neuro-inset rounded-full h-3 overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-blue-500 to-blue-400"
+                            style={{ width: `${((currentQuestion as any).selection_priority || 0) * 100}%` }}
+                          />
+                        </div>
+                      </div>
+                      <div className="text-lg font-bold text-blue-400">
+                        {((currentQuestion as any).selection_priority * 100).toFixed(0)}%
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-500 mt-2">
+                      Higher priority = more critical for your learning
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Section 3: Topic Hierarchy Tree */}
+            <div className="neuro-card p-6">
+              <h3 className="text-xl font-semibold text-gray-200 mb-4 flex items-center gap-2">
+                <svg className="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                </svg>
+                Topic Details
+              </h3>
+
+              <div className="space-y-3">
+                {/* Topic Name */}
+                <div className="flex items-start gap-3 p-4 neuro-raised rounded-lg">
+                  <div className="neuro-inset w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <span className="text-cyan-400 font-bold">T</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-xs text-gray-500 mb-1">Topic</div>
+                    <div className="font-semibold text-gray-200">{(currentQuestion as any).topic_name || 'Unknown Topic'}</div>
+                  </div>
+                </div>
+
+                {/* Bloom Level */}
+                <div className="flex items-start gap-3 p-4 neuro-inset rounded-lg">
+                  <div className="neuro-inset w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <span className="text-blue-400 font-bold">{currentQuestion.bloom_level}</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-xs text-gray-500 mb-1">Bloom Level</div>
+                    <div className="font-semibold text-gray-200">
+                      {currentQuestion.bloom_level === 1 && 'Remember - Recall facts and basic concepts'}
+                      {currentQuestion.bloom_level === 2 && 'Understand - Explain ideas or concepts'}
+                      {currentQuestion.bloom_level === 3 && 'Apply - Use information in new situations'}
+                      {currentQuestion.bloom_level === 4 && 'Analyze - Draw connections among ideas'}
+                      {currentQuestion.bloom_level === 5 && 'Evaluate - Justify a stand or decision'}
+                      {currentQuestion.bloom_level === 6 && 'Create - Produce new or original work'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Question Format */}
+                <div className="flex items-start gap-3 p-4 neuro-inset rounded-lg">
+                  <div className="neuro-inset w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <span className="text-purple-400 font-bold">Q</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-xs text-gray-500 mb-1">Question Format</div>
+                    <div className="font-semibold text-gray-200">
+                      {currentQuestion.question_format === 'mcq_single' && 'Multiple Choice (Single Answer)'}
+                      {currentQuestion.question_format === 'mcq_multi' && 'Multiple Choice (Multiple Answers)'}
+                      {currentQuestion.question_format === 'true_false' && 'True/False'}
+                      {currentQuestion.question_format === 'fill_blank' && 'Fill in the Blank'}
+                      {currentQuestion.question_format === 'open_ended' && 'Open Ended'}
+                      {currentQuestion.question_format === 'matching' && 'Matching'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Section 4: Your Rewards */}
+            <div className="neuro-card p-6">
+              <h3 className="text-xl font-semibold text-gray-200 mb-4 flex items-center gap-2">
+                <Trophy size={24} className="text-yellow-400" />
+                Your Performance
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Calibration Score */}
+                <div className="p-4 neuro-inset rounded-lg">
+                  <div className="text-sm text-gray-400 mb-2">Calibration Score</div>
+                  <div className="flex items-center gap-3">
+                    <div className={`text-3xl font-bold ${
+                      answerResult.calibrationScore > 0 ? 'text-green-400' :
+                      answerResult.calibrationScore < 0 ? 'text-red-400' :
+                      'text-gray-400'
+                    }`}>
+                      {answerResult.calibrationScore > 0 ? '+' : ''}{answerResult.calibrationScore.toFixed(2)}
+                    </div>
+                    <div className="flex-1">
+                      <div className="neuro-inset rounded-full h-2 overflow-hidden relative">
+                        <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gray-600" />
+                        <div
+                          className={`absolute h-full ${
+                            answerResult.calibrationScore > 0 ? 'bg-green-400' : 'bg-red-400'
+                          }`}
+                          style={{
+                            left: answerResult.calibrationScore > 0 ? '50%' : `${50 + (answerResult.calibrationScore / 1.5 * 50)}%`,
+                            width: `${Math.abs(answerResult.calibrationScore) / 1.5 * 50}%`
+                          }}
+                        />
+                      </div>
+                      <div className="flex justify-between text-xs text-gray-600 mt-1">
+                        <span>-1.5</span>
+                        <span>0</span>
+                        <span>+1.5</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-2">
+                    {answerResult.calibrationScore > 1.0 && '🎯 Excellent! Your confidence matched your performance perfectly'}
+                    {answerResult.calibrationScore > 0.5 && answerResult.calibrationScore <= 1.0 && '👍 Good calibration! You assessed yourself well'}
+                    {answerResult.calibrationScore > 0 && answerResult.calibrationScore <= 0.5 && '✓ Fair calibration'}
+                    {answerResult.calibrationScore === 0 && 'Neutral calibration'}
+                    {answerResult.calibrationScore < 0 && answerResult.calibrationScore >= -0.5 && '⚠️ Slight miscalibration'}
+                    {answerResult.calibrationScore < -0.5 && '⚠️ Poor calibration - try to be more honest about your confidence'}
+                  </div>
+                </div>
+
+                {/* Your Choices Summary */}
+                <div className="p-4 neuro-inset rounded-lg">
+                  <div className="text-sm text-gray-400 mb-3">Your Choices</div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-500 text-sm">Confidence:</span>
+                      <span className={`font-semibold ${
+                        confidence === 3 ? 'text-green-400' :
+                        confidence === 2 ? 'text-blue-400' :
+                        'text-yellow-400'
+                      }`}>
+                        {confidence === 3 ? 'High' : confidence === 2 ? 'Medium' : 'Low'}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-500 text-sm">Method:</span>
+                      <span className={`font-semibold ${
+                        recognitionMethod === 'memory' ? 'text-purple-400' :
+                        recognitionMethod === 'recognition' ? 'text-blue-400' :
+                        recognitionMethod === 'educated_guess' ? 'text-yellow-400' :
+                        'text-red-400'
+                      }`}>
+                        {recognitionMethod === 'memory' && 'Memory'}
+                        {recognitionMethod === 'recognition' && 'Recognition'}
+                        {recognitionMethod === 'educated_guess' && 'Educated Guess'}
+                        {recognitionMethod === 'random_guess' && 'Random Guess'}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-500 text-sm">Result:</span>
+                      <span className={`font-semibold ${answerResult.isCorrect ? 'text-green-400' : 'text-red-400'}`}>
+                        {answerResult.isCorrect ? 'Correct ✓' : 'Incorrect ✗'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Next Question Button */}
+            <button
+              onClick={handleNextQuestion}
+              className="neuro-btn text-blue-400 w-full py-4 text-lg font-semibold"
+            >
+              Next Question →
+            </button>
           </>
         )}
       </div>
