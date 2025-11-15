@@ -12,6 +12,12 @@ export type QuestionFormat =
   | 'matching'
   | 'open_ended'
 
+export type RecognitionMethod =
+  | 'memory'          // Recalled from memory
+  | 'recognition'     // Recognized from options
+  | 'educated_guess'  // Made an educated guess
+  | 'random_guess'    // Made a random guess
+
 export interface QuizQuestion {
   id: string
   topic_id: string
@@ -65,7 +71,8 @@ export interface AnswerSubmission {
   questionId: string
   question?: QuizQuestion  // Include full question for on-the-fly generated questions
   answer: string | string[]
-  confidence: number  // 1-5
+  confidence: number  // 1-3 (Low, Medium, High)
+  recognitionMethod: RecognitionMethod  // How the user arrived at their answer
   timeTaken: number  // seconds
   topicId: string  // Needed for progress tracking
 }
@@ -75,6 +82,11 @@ export interface AnswerResult {
   correctAnswer: string | string[]
   explanation: string
   reward: number  // RL reward
+  calibrationBreakdown?: {  // Reward breakdown for transparency
+    correctness: number
+    confidenceCalibration: number
+    recognitionAlignment: number
+  }
   nextQuestion?: QuizQuestion
   sessionComplete?: boolean
   sessionStats?: {

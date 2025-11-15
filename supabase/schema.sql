@@ -6,6 +6,18 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "vector";
 
 -- ============================================================================
+-- ENUMS
+-- ============================================================================
+
+-- Recognition method: How the user arrived at their answer (metacognition)
+CREATE TYPE recognition_method AS ENUM (
+  'memory',          -- Recalled from memory
+  'recognition',     -- Recognized from options
+  'educated_guess',  -- Made an educated guess
+  'random_guess'     -- Made a random guess
+);
+
+-- ============================================================================
 -- SUBJECTS TABLE
 -- ============================================================================
 CREATE TABLE subjects (
@@ -202,6 +214,9 @@ CREATE TABLE user_responses (
 
   -- User's self-reported confidence (1-3 scale: Low=1, Medium=2, High=3)
   confidence INTEGER CHECK (confidence IN (1, 2, 3)),
+
+  -- How the user arrived at their answer (metacognition)
+  recognition_method recognition_method,
 
   -- Time taken to answer (in seconds)
   time_taken_seconds DECIMAL(8,2),

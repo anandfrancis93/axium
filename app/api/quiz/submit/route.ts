@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     }
 
     const submission: AnswerSubmission = await request.json()
-    const { questionId, question: submittedQuestion, answer, confidence, timeTaken, topicId } = submission
+    const { questionId, question: submittedQuestion, answer, confidence, recognitionMethod, timeTaken, topicId } = submission
 
     // Use submitted question (for on-the-fly) or fetch from database
     let question = submittedQuestion
@@ -57,8 +57,8 @@ export async function POST(request: NextRequest) {
     // Check if answer is correct
     const isCorrect = checkAnswer(answer, question.correct_answer, question.question_format)
 
-    // Calculate reward based on correctness and confidence calibration
-    const reward = calculateReward(isCorrect, confidence)
+    // Calculate reward based on 3D calibration matrix (correctness + confidence + recognition method)
+    const reward = calculateReward(isCorrect, confidence, recognitionMethod)
 
     // Store the response (use topicId from submission for on-the-fly questions)
     const responseTopicId = topicId || question.topic_id
@@ -73,6 +73,7 @@ export async function POST(request: NextRequest) {
         user_answer: Array.isArray(answer) ? answer : [answer],
         is_correct: isCorrect,
         confidence: confidence,
+        recognition_method: recognitionMethod,
         response_time_seconds: timeTaken,
         question_format: question.question_format,
         reward: reward
@@ -154,35 +155,79 @@ function checkAnswer(
 }
 
 /**
- * Calculate RL reward based on correctness and confidence calibration
- * Confidence scale: 1=Low, 2=Medium, 3=High
+ * Calculate RL reward based on 3D calibration matrix:
+ * - Correctness (Correct/Incorrect)
+ * - Confidence (Low=1, Medium=2, High=3)
+ * - Recognition Method (memory, recognition, educated_guess, random_guess)
+ *
+ * Total: 2 × 3 × 4 = 24 unique scenarios
  */
 function calculateReward(
   isCorrect: boolean,
-  confidence: number
+  confidence: number,
+  recognitionMethod: string
 ): number {
-  let reward = 0
-
-  // Base reward for correctness
-  if (isCorrect) {
-    reward += 1.0
-  } else {
-    reward -= 0.5
+  // 3D Reward Matrix
+  const rewardMatrix: Record<string, Record<number, Record<string, number>>> = {
+    // CORRECT ANSWERS
+    correct: {
+      // High Confidence + Correct
+      3: {
+        memory: 1.5,          // Perfect: recalled from memory with high confidence
+        recognition: 1.2,     // Good: recognized correctly with confidence
+        educated_guess: 0.8,  // Okay: lucky educated guess, overconfident
+        random_guess: 0.3     // Lucky: random guess correct, poor calibration
+      },
+      // Medium Confidence + Correct
+      2: {
+        memory: 1.2,          // Good: recall but underconfident
+        recognition: 1.0,     // Good: appropriate confidence for recognition
+        educated_guess: 0.9,  // Good: reasonable calibration for educated guess
+        random_guess: 0.4     // Lucky: random guess, poor calibration
+      },
+      // Low Confidence + Correct
+      1: {
+        memory: 0.9,          // Underconfident: recall but very uncertain
+        recognition: 0.8,     // Underconfident but appropriate for uncertain recognition
+        educated_guess: 0.7,  // Good calibration: uncertain educated guess that worked
+        random_guess: 0.5     // Best calibration: knew it was random, got lucky
+      }
+    },
+    // INCORRECT ANSWERS
+    incorrect: {
+      // High Confidence + Incorrect
+      3: {
+        memory: -1.5,         // Worst: false memory with high confidence
+        recognition: -1.2,    // Bad: misrecognition with high confidence
+        educated_guess: -0.8, // Bad: overconfident wrong guess
+        random_guess: -0.5    // Odd: why high confidence on random guess?
+      },
+      // Medium Confidence + Incorrect
+      2: {
+        memory: -1.0,         // Bad: false memory with moderate confidence
+        recognition: -0.8,    // Bad: misrecognition
+        educated_guess: -0.6, // Reasonable: moderate confidence on failed logic
+        random_guess: -0.4    // Poor calibration: random with medium confidence
+      },
+      // Low Confidence + Incorrect
+      1: {
+        memory: -0.6,         // Good calibration: uncertain false memory
+        recognition: -0.4,    // Good calibration: uncertain misrecognition
+        educated_guess: -0.3, // Good calibration: knew logic was shaky
+        random_guess: -0.2    // Excellent calibration: knew it was random, was wrong
+      }
+    }
   }
 
-  // Confidence calibration bonus/penalty (1-3 scale)
-  if (isCorrect && confidence === 3) {
-    reward += 0.2  // Well-calibrated: confident and correct
-  } else if (isCorrect && confidence === 1) {
-    reward -= 0.1  // Under-confident but correct
-  } else if (!isCorrect && confidence === 3) {
-    reward -= 0.3  // Over-confident and wrong
-  } else if (!isCorrect && confidence === 1) {
-    reward += 0.1  // Well-calibrated: knew they didn't know
-  }
-  // confidence === 2 (Medium) gets no bonus/penalty
+  const correctnessKey = isCorrect ? 'correct' : 'incorrect'
+  const reward = rewardMatrix[correctnessKey]?.[confidence]?.[recognitionMethod]
 
-  return Math.max(-1, Math.min(1, reward))  // Clamp to [-1, 1]
+  if (reward === undefined) {
+    console.warn(`Invalid reward parameters: ${correctnessKey}, confidence=${confidence}, method=${recognitionMethod}`)
+    return isCorrect ? 0.5 : -0.5  // Fallback
+  }
+
+  return reward  // No clamping needed, matrix already balanced
 }
 
 /**

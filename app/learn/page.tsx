@@ -10,6 +10,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { QuestionCard } from '@/components/quiz/QuestionCard'
 import { ConfidenceSlider } from '@/components/quiz/ConfidenceSlider'
+import { RecognitionMethodSelector, RecognitionMethod } from '@/components/quiz/RecognitionMethodSelector'
 import { AnswerFeedback } from '@/components/quiz/AnswerFeedback'
 import { QuizSession, QuizQuestion, AnswerResult } from '@/lib/types/quiz'
 import { Loader2, Trophy, Clock, Target } from 'lucide-react'
@@ -24,6 +25,7 @@ function LearnPageContent() {
   const [currentQuestion, setCurrentQuestion] = useState<QuizQuestion | null>(null)
   const [userAnswer, setUserAnswer] = useState<string | string[]>('')
   const [confidence, setConfidence] = useState<number>(2)
+  const [recognitionMethod, setRecognitionMethod] = useState<RecognitionMethod>('recognition')
   const [startTime, setStartTime] = useState<Date>(new Date())
   const [showFeedback, setShowFeedback] = useState(false)
   const [answerResult, setAnswerResult] = useState<AnswerResult | null>(null)
@@ -93,6 +95,7 @@ function LearnPageContent() {
           question: currentQuestion,  // Include full question for on-the-fly questions
           answer: userAnswer,
           confidence,
+          recognitionMethod,
           timeTaken,
           topicId: session.topicId  // Include topicId for progress tracking
         })
@@ -135,6 +138,7 @@ function LearnPageContent() {
     setCurrentQuestion(session.questions[nextIndex])
     setUserAnswer('')
     setConfidence(2)
+    setRecognitionMethod('recognition')
     setStartTime(new Date())
     setShowFeedback(false)
     setAnswerResult(null)
@@ -218,6 +222,13 @@ function LearnPageContent() {
               disabled={submitting}
             />
 
+            {/* Recognition Method */}
+            <RecognitionMethodSelector
+              value={recognitionMethod}
+              onChange={setRecognitionMethod}
+              disabled={submitting}
+            />
+
             {/* Submit Button */}
             <button
               onClick={handleSubmit}
@@ -240,6 +251,7 @@ function LearnPageContent() {
               result={answerResult}
               userAnswer={userAnswer}
               confidence={confidence}
+              recognitionMethod={recognitionMethod}
               onContinue={handleNextQuestion}
             />
           )
