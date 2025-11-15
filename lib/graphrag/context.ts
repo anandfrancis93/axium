@@ -48,6 +48,52 @@ export interface GraphRAGContext {
     strength: 'high' | 'medium' | 'low'
     crossDomain: boolean
   }>
+
+  // Semantic relationships (Phase 2)
+  semanticRelationships: {
+    // IS_A: This entity is a type/instance of...
+    isA: Array<{
+      id: string
+      name: string
+      confidence: number
+      reasoning: string
+    }>
+
+    // PART_OF: This entity is part of...
+    partOf: Array<{
+      id: string
+      name: string
+      confidence: number
+      reasoning: string
+    }>
+
+    // Prerequisites: Must understand these first
+    prerequisites: Array<{
+      id: string
+      name: string
+      strategy: string
+      confidence: number
+      reasoning: string
+      difficultyScore?: number
+      learningDepth?: number
+    }>
+
+    // Dependents: These depend on this entity
+    enablesConcepts: Array<{
+      id: string
+      name: string
+      relationshipType: string
+    }>
+  }
+
+  // Learning metadata (Phase 2)
+  learningMetadata: {
+    difficultyScore: number // 1-10
+    learningDepth: number // DAG depth
+    estimatedStudyTime: number // minutes
+    hasPrerequisites: boolean
+    prerequisiteCount: number
+  }
 }
 
 /**
@@ -96,6 +142,13 @@ export async function getContextById(entityId: string): Promise<GraphRAGContext 
       OPTIONAL MATCH (entity)-[:PARENT_OF]->(child)
       OPTIONAL MATCH (entity)-[:PARENT_OF]->(child)-[:PARENT_OF]->(grandchild)
       OPTIONAL MATCH (entity)-[r:RELATED_CONCEPT]-(related)
+
+      // Semantic relationships (Phase 2)
+      OPTIONAL MATCH (entity)-[isa:IS_A]->(isATarget)
+      OPTIONAL MATCH (entity)-[partof:PART_OF]->(partOfTarget)
+      OPTIONAL MATCH (prereq)-[preqRel:PREREQUISITE]->(entity)
+      OPTIONAL MATCH (entity)-[enables:PREREQUISITE]->(dependent)
+
       RETURN
         entity.id AS id,
         entity.name AS name,
@@ -106,6 +159,9 @@ export async function getContextById(entityId: string): Promise<GraphRAGContext 
         entity.domainName AS domain,
         entity.objectiveName AS objective,
         entity.scopeTags AS scopeTags,
+        entity.difficultyScore AS difficultyScore,
+        entity.learningDepth AS learningDepth,
+        entity.estimatedStudyTime AS estimatedStudyTime,
         parent.name AS parentName,
         parent.id AS parentId,
         grandparent.name AS grandparentName,
@@ -128,7 +184,33 @@ export async function getContextById(entityId: string): Promise<GraphRAGContext 
           sharedConcept: r.sharedConcept,
           strength: r.strength,
           crossDomain: r.crossDomain
-        }) AS relatedConcepts
+        }) AS relatedConcepts,
+        collect(DISTINCT {
+          id: isATarget.id,
+          name: isATarget.name,
+          confidence: isa.confidence,
+          reasoning: isa.reasoning
+        }) AS isARelationships,
+        collect(DISTINCT {
+          id: partOfTarget.id,
+          name: partOfTarget.name,
+          confidence: partof.confidence,
+          reasoning: partof.reasoning
+        }) AS partOfRelationships,
+        collect(DISTINCT {
+          id: prereq.id,
+          name: prereq.name,
+          strategy: preqRel.strategy,
+          confidence: preqRel.confidence,
+          reasoning: preqRel.reasoning,
+          difficultyScore: prereq.difficultyScore,
+          learningDepth: prereq.learningDepth
+        }) AS prerequisites,
+        collect(DISTINCT {
+          id: dependent.id,
+          name: dependent.name,
+          relationshipType: type(enables)
+        }) AS enablesConcepts
     `, { entityId })
 
     if (result.records.length === 0) {
@@ -136,6 +218,8 @@ export async function getContextById(entityId: string): Promise<GraphRAGContext 
     }
 
     const record = result.records[0]
+
+    const prerequisites = record.get('prerequisites').filter((p: any) => p.id !== null)
 
     return {
       id: record.get('id'),
@@ -153,7 +237,20 @@ export async function getContextById(entityId: string): Promise<GraphRAGContext 
       grandparentId: record.get('grandparentId'),
       children: record.get('children').filter((c: any) => c.id !== null),
       grandchildren: record.get('grandchildren').filter((gc: any) => gc.id !== null),
-      relatedConcepts: record.get('relatedConcepts').filter((r: any) => r.id !== null)
+      relatedConcepts: record.get('relatedConcepts').filter((r: any) => r.id !== null),
+      semanticRelationships: {
+        isA: record.get('isARelationships').filter((r: any) => r.id !== null),
+        partOf: record.get('partOfRelationships').filter((r: any) => r.id !== null),
+        prerequisites,
+        enablesConcepts: record.get('enablesConcepts').filter((e: any) => e.id !== null)
+      },
+      learningMetadata: {
+        difficultyScore: record.get('difficultyScore') || 1,
+        learningDepth: record.get('learningDepth') || 0,
+        estimatedStudyTime: record.get('estimatedStudyTime') || 15,
+        hasPrerequisites: prerequisites.length > 0,
+        prerequisiteCount: prerequisites.length
+      }
     }
   } finally {
     await session.close()
@@ -179,9 +276,20 @@ export async function findEntitiesByName(name: string): Promise<GraphRAGContext[
       OPTIONAL MATCH (entity)-[:CHILD_OF]->(parent)-[:CHILD_OF]->(grandparent)
       OPTIONAL MATCH (entity)-[:PARENT_OF]->(child)
       OPTIONAL MATCH (entity)-[r:RELATED_CONCEPT]-(related)
+
+      // Semantic relationships (Phase 2)
+      OPTIONAL MATCH (entity)-[isa:IS_A]->(isATarget)
+      OPTIONAL MATCH (entity)-[partof:PART_OF]->(partOfTarget)
+      OPTIONAL MATCH (prereq)-[preqRel:PREREQUISITE]->(entity)
+      OPTIONAL MATCH (entity)-[enables:PREREQUISITE]->(dependent)
+
       WITH entity, parent, grandparent,
            collect(DISTINCT {id: child.id, name: child.name, entityType: child.entityType, summary: child.contextSummary}) AS children,
-           collect(DISTINCT {id: related.id, name: related.name, domain: related.domainName, sharedConcept: r.sharedConcept, strength: r.strength, crossDomain: r.crossDomain}) AS relatedConcepts
+           collect(DISTINCT {id: related.id, name: related.name, domain: related.domainName, sharedConcept: r.sharedConcept, strength: r.strength, crossDomain: r.crossDomain}) AS relatedConcepts,
+           collect(DISTINCT {id: isATarget.id, name: isATarget.name, confidence: isa.confidence, reasoning: isa.reasoning}) AS isARelationships,
+           collect(DISTINCT {id: partOfTarget.id, name: partOfTarget.name, confidence: partof.confidence, reasoning: partof.reasoning}) AS partOfRelationships,
+           collect(DISTINCT {id: prereq.id, name: prereq.name, strategy: preqRel.strategy, confidence: preqRel.confidence, reasoning: preqRel.reasoning, difficultyScore: prereq.difficultyScore, learningDepth: prereq.learningDepth}) AS prerequisites,
+           collect(DISTINCT {id: dependent.id, name: dependent.name, relationshipType: type(enables)}) AS enablesConcepts
       RETURN
         entity.id AS id,
         entity.name AS name,
@@ -192,34 +300,57 @@ export async function findEntitiesByName(name: string): Promise<GraphRAGContext[
         entity.domainName AS domain,
         entity.objectiveName AS objective,
         entity.scopeTags AS scopeTags,
+        entity.difficultyScore AS difficultyScore,
+        entity.learningDepth AS learningDepth,
+        entity.estimatedStudyTime AS estimatedStudyTime,
         parent.name AS parentName,
         parent.id AS parentId,
         grandparent.name AS grandparentName,
         grandparent.id AS grandparentId,
         children,
         [] AS grandchildren,
-        relatedConcepts
+        relatedConcepts,
+        isARelationships,
+        partOfRelationships,
+        prerequisites,
+        enablesConcepts
       ORDER BY entity.fullPath
     `, { name })
 
-    return result.records.map(record => ({
-      id: record.get('id'),
-      name: record.get('name'),
-      entityType: record.get('entityType'),
-      depth: Number(record.get('depth')),
-      summary: record.get('summary'),
-      fullPath: record.get('fullPath'),
-      domain: record.get('domain'),
-      objective: record.get('objective'),
-      scopeTags: record.get('scopeTags') || [],
-      parentName: record.get('parentName'),
-      parentId: record.get('parentId'),
-      grandparentName: record.get('grandparentName'),
-      grandparentId: record.get('grandparentId'),
-      children: record.get('children').filter((c: any) => c.id !== null),
-      grandchildren: [],
-      relatedConcepts: record.get('relatedConcepts').filter((r: any) => r.id !== null)
-    }))
+    return result.records.map(record => {
+      const prerequisites = record.get('prerequisites').filter((p: any) => p.id !== null)
+      return {
+        id: record.get('id'),
+        name: record.get('name'),
+        entityType: record.get('entityType'),
+        depth: Number(record.get('depth')),
+        summary: record.get('summary'),
+        fullPath: record.get('fullPath'),
+        domain: record.get('domain'),
+        objective: record.get('objective'),
+        scopeTags: record.get('scopeTags') || [],
+        parentName: record.get('parentName'),
+        parentId: record.get('parentId'),
+        grandparentName: record.get('grandparentName'),
+        grandparentId: record.get('grandparentId'),
+        children: record.get('children').filter((c: any) => c.id !== null),
+        grandchildren: [],
+        relatedConcepts: record.get('relatedConcepts').filter((r: any) => r.id !== null),
+        semanticRelationships: {
+          isA: record.get('isARelationships').filter((r: any) => r.id !== null),
+          partOf: record.get('partOfRelationships').filter((r: any) => r.id !== null),
+          prerequisites,
+          enablesConcepts: record.get('enablesConcepts').filter((e: any) => e.id !== null)
+        },
+        learningMetadata: {
+          difficultyScore: record.get('difficultyScore') || 1,
+          learningDepth: record.get('learningDepth') || 0,
+          estimatedStudyTime: record.get('estimatedStudyTime') || 15,
+          hasPrerequisites: prerequisites.length > 0,
+          prerequisiteCount: prerequisites.length
+        }
+      }
+    })
   } finally {
     await session.close()
     await driver.close()
@@ -243,6 +374,13 @@ export async function getContextByPath(fullPath: string): Promise<GraphRAGContex
       OPTIONAL MATCH (entity)-[:CHILD_OF]->(parent)-[:CHILD_OF]->(grandparent)
       OPTIONAL MATCH (entity)-[:PARENT_OF]->(child)
       OPTIONAL MATCH (entity)-[r:RELATED_CONCEPT]-(related)
+
+      // Semantic relationships (Phase 2)
+      OPTIONAL MATCH (entity)-[isa:IS_A]->(isATarget)
+      OPTIONAL MATCH (entity)-[partof:PART_OF]->(partOfTarget)
+      OPTIONAL MATCH (prereq)-[preqRel:PREREQUISITE]->(entity)
+      OPTIONAL MATCH (entity)-[enables:PREREQUISITE]->(dependent)
+
       RETURN
         entity.id AS id,
         entity.name AS name,
@@ -253,13 +391,20 @@ export async function getContextByPath(fullPath: string): Promise<GraphRAGContex
         entity.domainName AS domain,
         entity.objectiveName AS objective,
         entity.scopeTags AS scopeTags,
+        entity.difficultyScore AS difficultyScore,
+        entity.learningDepth AS learningDepth,
+        entity.estimatedStudyTime AS estimatedStudyTime,
         parent.name AS parentName,
         parent.id AS parentId,
         grandparent.name AS grandparentName,
         grandparent.id AS grandparentId,
         collect(DISTINCT {id: child.id, name: child.name, entityType: child.entityType, summary: child.contextSummary}) AS children,
         [] AS grandchildren,
-        collect(DISTINCT {id: related.id, name: related.name, domain: related.domainName, sharedConcept: r.sharedConcept, strength: r.strength, crossDomain: r.crossDomain}) AS relatedConcepts
+        collect(DISTINCT {id: related.id, name: related.name, domain: related.domainName, sharedConcept: r.sharedConcept, strength: r.strength, crossDomain: r.crossDomain}) AS relatedConcepts,
+        collect(DISTINCT {id: isATarget.id, name: isATarget.name, confidence: isa.confidence, reasoning: isa.reasoning}) AS isARelationships,
+        collect(DISTINCT {id: partOfTarget.id, name: partOfTarget.name, confidence: partof.confidence, reasoning: partof.reasoning}) AS partOfRelationships,
+        collect(DISTINCT {id: prereq.id, name: prereq.name, strategy: preqRel.strategy, confidence: preqRel.confidence, reasoning: preqRel.reasoning, difficultyScore: prereq.difficultyScore, learningDepth: prereq.learningDepth}) AS prerequisites,
+        collect(DISTINCT {id: dependent.id, name: dependent.name, relationshipType: type(enables)}) AS enablesConcepts
     `, { fullPath })
 
     if (result.records.length === 0) {
@@ -267,6 +412,7 @@ export async function getContextByPath(fullPath: string): Promise<GraphRAGContex
     }
 
     const record = result.records[0]
+    const prerequisites = record.get('prerequisites').filter((p: any) => p.id !== null)
 
     return {
       id: record.get('id'),
@@ -284,7 +430,20 @@ export async function getContextByPath(fullPath: string): Promise<GraphRAGContex
       grandparentId: record.get('grandparentId'),
       children: record.get('children').filter((c: any) => c.id !== null),
       grandchildren: [],
-      relatedConcepts: record.get('relatedConcepts').filter((r: any) => r.id !== null)
+      relatedConcepts: record.get('relatedConcepts').filter((r: any) => r.id !== null),
+      semanticRelationships: {
+        isA: record.get('isARelationships').filter((r: any) => r.id !== null),
+        partOf: record.get('partOfRelationships').filter((r: any) => r.id !== null),
+        prerequisites,
+        enablesConcepts: record.get('enablesConcepts').filter((e: any) => e.id !== null)
+      },
+      learningMetadata: {
+        difficultyScore: record.get('difficultyScore') || 1,
+        learningDepth: record.get('learningDepth') || 0,
+        estimatedStudyTime: record.get('estimatedStudyTime') || 15,
+        hasPrerequisites: prerequisites.length > 0,
+        prerequisiteCount: prerequisites.length
+      }
     }
   } finally {
     await session.close()
@@ -400,6 +559,46 @@ export function formatContextForLLM(context: GraphRAGContext): string {
   }
   parts.push(`Topic: ${context.name}`)
   parts.push(`Topic Summary: ${context.summary || 'No summary available'}`)
+
+  // Learning metadata
+  parts.push(`\nDifficulty Level: ${context.learningMetadata.difficultyScore}/10`)
+  parts.push(`Learning Depth: ${context.learningMetadata.learningDepth} (DAG depth)`)
+  parts.push(`Estimated Study Time: ${context.learningMetadata.estimatedStudyTime} minutes`)
+
+  // Prerequisites (critical for scaffolding questions)
+  if (context.semanticRelationships.prerequisites.length > 0) {
+    parts.push(`\nPrerequisite Knowledge Required:`)
+    context.semanticRelationships.prerequisites.forEach(prereq => {
+      parts.push(`- ${prereq.name} (difficulty: ${prereq.difficultyScore || 'N/A'}/10)`)
+      parts.push(`  Strategy: ${prereq.strategy}`)
+      if (prereq.reasoning) {
+        parts.push(`  Why: ${prereq.reasoning}`)
+      }
+    })
+  }
+
+  // Semantic relationships (IS_A, PART_OF)
+  if (context.semanticRelationships.isA.length > 0) {
+    parts.push(`\nThis topic is a type/instance of:`)
+    context.semanticRelationships.isA.forEach(rel => {
+      parts.push(`- ${rel.name}`)
+    })
+  }
+
+  if (context.semanticRelationships.partOf.length > 0) {
+    parts.push(`\nThis topic is part of:`)
+    context.semanticRelationships.partOf.forEach(rel => {
+      parts.push(`- ${rel.name}`)
+    })
+  }
+
+  // What this enables
+  if (context.semanticRelationships.enablesConcepts.length > 0) {
+    parts.push(`\nMastering this topic enables learning:`)
+    context.semanticRelationships.enablesConcepts.forEach(concept => {
+      parts.push(`- ${concept.name}`)
+    })
+  }
 
   // Hierarchy
   if (context.grandparentName) {
