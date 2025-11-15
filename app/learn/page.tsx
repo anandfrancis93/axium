@@ -61,6 +61,17 @@ function LearnPageContent() {
     if (savedState) {
       try {
         const parsed = JSON.parse(savedState)
+
+        // Validate question ID is a proper UUID (not old "generated-..." format)
+        const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(parsed.currentQuestion?.id || '')
+
+        if (!isValidUUID) {
+          console.log('Cached question has invalid ID format, clearing cache and loading new question')
+          sessionStorage.removeItem(STORAGE_KEY)
+          loadNextQuestion()
+          return
+        }
+
         setCurrentQuestion(parsed.currentQuestion)
         setCurrentStep(parsed.currentStep)
         setUserAnswer(parsed.userAnswer || '')
@@ -73,6 +84,7 @@ function LearnPageContent() {
         setLoading(false)
       } catch (error) {
         console.error('Error restoring quiz state:', error)
+        sessionStorage.removeItem(STORAGE_KEY)
         loadNextQuestion()
       }
     } else {
