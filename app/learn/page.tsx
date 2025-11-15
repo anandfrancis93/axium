@@ -533,9 +533,8 @@ function LearnPageContent() {
                       </>
                     ) : (
                       <>
-                        <TrendingUp size={20} className="text-green-400" />
                         <div>
-                          <div className="font-semibold text-green-400">RL-Driven (80%)</div>
+                          <div className="font-semibold text-blue-400">RL-Driven</div>
                           <div className="text-sm text-gray-500">Optimizing based on your learning patterns</div>
                         </div>
                       </>
