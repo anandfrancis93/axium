@@ -662,97 +662,59 @@ function LearnPageContent() {
                 Topic Details
               </h3>
 
-              <div className="space-y-4">
-                {/* Hierarchical Tree */}
-                {currentQuestion.hierarchy && (
-                  <div className="p-4 neuro-inset rounded-lg">
-                    <div className="text-xs text-gray-500 mb-3">Learning Path</div>
-                    <div className="space-y-3">
-                      {/* Subject Level */}
-                      {currentQuestion.hierarchy.subject && (
-                        <div className="flex items-start gap-3">
-                          <div className="flex flex-col items-center">
-                            <div className="neuro-raised w-8 h-8 rounded-lg flex items-center justify-center">
-                              <span className="text-xs text-blue-400 font-bold">S</span>
-                            </div>
-                            <div className="w-px h-6 bg-gray-700"></div>
-                          </div>
-                          <div className="flex-1 pt-1">
-                            <div className="text-xs text-gray-500">Subject</div>
-                            <div className="font-semibold text-gray-300">{currentQuestion.hierarchy.subject}</div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Chapter Level */}
-                      {currentQuestion.hierarchy.chapter && (
-                        <div className="flex items-start gap-3">
-                          <div className="flex flex-col items-center">
-                            <div className="neuro-raised w-8 h-8 rounded-lg flex items-center justify-center">
-                              <span className="text-xs text-cyan-400 font-bold">C</span>
-                            </div>
-                            <div className="w-px h-6 bg-gray-700"></div>
-                          </div>
-                          <div className="flex-1 pt-1">
-                            <div className="text-xs text-gray-500">Chapter</div>
-                            <div className="font-semibold text-gray-300">{currentQuestion.hierarchy.chapter}</div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Topic Level */}
+              {/* Hierarchical Tree */}
+              {currentQuestion.hierarchy && (
+                <div className="p-4 neuro-inset rounded-lg">
+                  <div className="text-xs text-gray-500 mb-3">Learning Path</div>
+                  <div className="space-y-3">
+                    {/* Subject Level */}
+                    {currentQuestion.hierarchy.subject && (
                       <div className="flex items-start gap-3">
-                        <div className="neuro-raised w-8 h-8 rounded-lg flex items-center justify-center">
-                          <span className="text-xs text-green-400 font-bold">T</span>
+                        <div className="flex flex-col items-center">
+                          <div className="neuro-raised w-8 h-8 rounded-lg flex items-center justify-center">
+                            <span className="text-xs text-blue-400 font-bold">S</span>
+                          </div>
+                          <div className="w-px h-6 bg-gray-700"></div>
                         </div>
                         <div className="flex-1 pt-1">
-                          <div className="text-xs text-gray-500">Topic</div>
-                          <div className="font-semibold text-green-400">{currentQuestion.hierarchy.topic}</div>
-                          {currentQuestion.hierarchy.description && (
-                            <div className="text-xs text-gray-600 mt-1">{currentQuestion.hierarchy.description}</div>
-                          )}
+                          <div className="text-xs text-gray-500">Subject</div>
+                          <div className="font-semibold text-gray-300">{currentQuestion.hierarchy.subject}</div>
                         </div>
+                      </div>
+                    )}
+
+                    {/* Chapter Level */}
+                    {currentQuestion.hierarchy.chapter && (
+                      <div className="flex items-start gap-3">
+                        <div className="flex flex-col items-center">
+                          <div className="neuro-raised w-8 h-8 rounded-lg flex items-center justify-center">
+                            <span className="text-xs text-cyan-400 font-bold">C</span>
+                          </div>
+                          <div className="w-px h-6 bg-gray-700"></div>
+                        </div>
+                        <div className="flex-1 pt-1">
+                          <div className="text-xs text-gray-500">Chapter</div>
+                          <div className="font-semibold text-gray-300">{currentQuestion.hierarchy.chapter}</div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Topic Level */}
+                    <div className="flex items-start gap-3">
+                      <div className="neuro-raised w-8 h-8 rounded-lg flex items-center justify-center">
+                        <span className="text-xs text-green-400 font-bold">T</span>
+                      </div>
+                      <div className="flex-1 pt-1">
+                        <div className="text-xs text-gray-500">Topic</div>
+                        <div className="font-semibold text-green-400">{currentQuestion.hierarchy.topic}</div>
+                        {currentQuestion.hierarchy.description && (
+                          <div className="text-xs text-gray-600 mt-1">{currentQuestion.hierarchy.description}</div>
+                        )}
                       </div>
                     </div>
                   </div>
-                )}
-
-                {/* Bloom Level */}
-                <div className="flex items-start gap-3 p-4 neuro-inset rounded-lg">
-                  <div className="neuro-inset w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <span className="text-blue-400 font-bold">{currentQuestion.bloom_level}</span>
-                  </div>
-                  <div className="flex-1">
-                    <div className="text-xs text-gray-500 mb-1">Bloom Level</div>
-                    <div className="font-semibold text-gray-200">
-                      {currentQuestion.bloom_level === 1 && 'Remember - Recall facts and basic concepts'}
-                      {currentQuestion.bloom_level === 2 && 'Understand - Explain ideas or concepts'}
-                      {currentQuestion.bloom_level === 3 && 'Apply - Use information in new situations'}
-                      {currentQuestion.bloom_level === 4 && 'Analyze - Draw connections among ideas'}
-                      {currentQuestion.bloom_level === 5 && 'Evaluate - Justify a stand or decision'}
-                      {currentQuestion.bloom_level === 6 && 'Create - Produce new or original work'}
-                    </div>
-                  </div>
                 </div>
-
-                {/* Question Format */}
-                <div className="flex items-start gap-3 p-4 neuro-inset rounded-lg">
-                  <div className="neuro-inset w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <span className="text-purple-400 font-bold">Q</span>
-                  </div>
-                  <div className="flex-1">
-                    <div className="text-xs text-gray-500 mb-1">Question Format</div>
-                    <div className="font-semibold text-gray-200">
-                      {currentQuestion.question_format === 'mcq_single' && 'Multiple Choice (Single Answer)'}
-                      {currentQuestion.question_format === 'mcq_multi' && 'Multiple Choice (Multiple Answers)'}
-                      {currentQuestion.question_format === 'true_false' && 'True/False'}
-                      {currentQuestion.question_format === 'fill_blank' && 'Fill in the Blank'}
-                      {currentQuestion.question_format === 'open_ended' && 'Open Ended'}
-                      {currentQuestion.question_format === 'matching' && 'Matching'}
-                    </div>
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
 
             {/* Section 5: Your Performance */}
