@@ -759,7 +759,7 @@ function LearnPageContent() {
                     <div className="flex items-center justify-between">
                       <span className="text-white text-sm">Method:</span>
                       <span className={`font-semibold ${
-                        recognitionMethod === 'memory' ? 'text-purple-400' :
+                        recognitionMethod === 'memory' ? 'text-green-400' :
                         recognitionMethod === 'recognition' ? 'text-blue-400' :
                         recognitionMethod === 'educated_guess' ? 'text-yellow-400' :
                         'text-red-400'
