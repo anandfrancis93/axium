@@ -33,9 +33,51 @@ function LearnPageContent() {
   const [correctCount, setCorrectCount] = useState(0)
   const [error, setError] = useState<{ message: string; details?: string; action?: string } | null>(null)
 
-  // Load first question on mount
+  // Session storage key
+  const STORAGE_KEY = 'axium_quiz_state'
+
+  // Save state to sessionStorage whenever it changes
   useEffect(() => {
-    loadNextQuestion()
+    if (currentQuestion) {
+      const stateToSave = {
+        currentQuestion,
+        currentStep,
+        userAnswer,
+        confidence,
+        recognitionMethod,
+        startTime: startTime.toISOString(),
+        answerResult,
+        questionCount,
+        correctCount
+      }
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave))
+    }
+  }, [currentQuestion, currentStep, userAnswer, confidence, recognitionMethod, answerResult, questionCount, correctCount])
+
+  // Load state from sessionStorage or fetch new question on mount
+  useEffect(() => {
+    const savedState = sessionStorage.getItem(STORAGE_KEY)
+
+    if (savedState) {
+      try {
+        const parsed = JSON.parse(savedState)
+        setCurrentQuestion(parsed.currentQuestion)
+        setCurrentStep(parsed.currentStep)
+        setUserAnswer(parsed.userAnswer || '')
+        setConfidence(parsed.confidence)
+        setRecognitionMethod(parsed.recognitionMethod)
+        setStartTime(new Date(parsed.startTime))
+        setAnswerResult(parsed.answerResult)
+        setQuestionCount(parsed.questionCount || 0)
+        setCorrectCount(parsed.correctCount || 0)
+        setLoading(false)
+      } catch (error) {
+        console.error('Error restoring quiz state:', error)
+        loadNextQuestion()
+      }
+    } else {
+      loadNextQuestion()
+    }
   }, [])
 
   async function loadNextQuestion() {
@@ -136,6 +178,8 @@ function LearnPageContent() {
   }
 
   function handleNextQuestion() {
+    // Clear saved state before loading next question
+    sessionStorage.removeItem(STORAGE_KEY)
     // Load next RL-selected question
     loadNextQuestion()
   }
