@@ -381,46 +381,28 @@ function LearnPageContent() {
                             : 'bg-gray-800/30 border-gray-700/30'
                         }`}
                       >
-                        <div className="flex items-center gap-3">
-                          {isUserAnswer && isCorrectAnswer && (
-                            <span className="text-green-400 text-xl">✓</span>
-                          )}
-                          {isUserAnswer && !isCorrectAnswer && (
-                            <span className="text-red-400 text-xl">✗</span>
+                        <div className="flex-1">
+                          <div className={`${
+                            isUserAnswer || isCorrectAnswer ? 'font-semibold' : ''
+                          } ${
+                            isCorrectAnswer ? 'text-green-400' :
+                            isUserAnswer ? 'text-red-400' :
+                            'text-gray-300'
+                          }`}>
+                            {option}
+                          </div>
+                          {isUserAnswer && (
+                            <div className="text-xs text-gray-500 mt-1">Your answer</div>
                           )}
                           {!isUserAnswer && isCorrectAnswer && (
-                            <span className="text-green-400 text-xl">✓</span>
+                            <div className="text-xs text-gray-500 mt-1">Correct answer</div>
                           )}
-                          <div className="flex-1">
-                            <div className={`${
-                              isUserAnswer || isCorrectAnswer ? 'font-semibold' : ''
-                            } ${
-                              isCorrectAnswer ? 'text-green-400' :
-                              isUserAnswer ? 'text-red-400' :
-                              'text-gray-300'
-                            }`}>
-                              {option}
-                            </div>
-                            {isUserAnswer && (
-                              <div className="text-xs text-gray-500 mt-1">Your answer</div>
-                            )}
-                            {!isUserAnswer && isCorrectAnswer && (
-                              <div className="text-xs text-gray-500 mt-1">Correct answer</div>
-                            )}
-                          </div>
                         </div>
                       </div>
                     )
                   })}
                 </div>
               )}
-
-              {/* Result Indicator */}
-              <div className={`p-4 rounded-lg text-center ${answerResult.isCorrect ? 'bg-green-400/10 border border-green-400' : 'bg-red-400/10 border border-red-400'}`}>
-                <div className={`text-2xl font-bold ${answerResult.isCorrect ? 'text-green-400' : 'text-red-400'}`}>
-                  {answerResult.isCorrect ? '✓ Correct!' : '✗ Incorrect'}
-                </div>
-              </div>
             </div>
 
             {/* Recognition Method Selection */}
