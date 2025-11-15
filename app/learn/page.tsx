@@ -429,7 +429,7 @@ function LearnPageContent() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <button
                   onClick={() => handleRecognitionSelect('memory')}
-                  className="neuro-btn text-purple-400 p-6 text-left"
+                  className="neuro-btn text-green-400 p-6 text-left"
                 >
                   <div className="text-lg font-bold mb-1">Recalled from Memory</div>
                   <div className="text-sm text-gray-400">I remembered this from studying</div>
