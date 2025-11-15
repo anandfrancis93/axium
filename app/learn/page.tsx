@@ -455,28 +455,8 @@ function LearnPageContent() {
                 Answer Explanation
               </h3>
 
-              {/* Correct Answer */}
-              <div className="mb-6 p-4 bg-green-400/10 border border-green-400 rounded-lg">
-                <div className="text-sm text-gray-400 mb-1">Correct Answer:</div>
-                <div className="text-lg font-semibold text-green-400">
-                  {Array.isArray(answerResult.correctAnswer)
-                    ? answerResult.correctAnswer.join(', ')
-                    : answerResult.correctAnswer}
-                </div>
-              </div>
-
-              {/* Your Answer (if incorrect) */}
-              {!answerResult.isCorrect && (
-                <div className="mb-6 p-4 bg-red-400/10 border border-red-400 rounded-lg">
-                  <div className="text-sm text-gray-400 mb-1">Your Answer:</div>
-                  <div className="text-lg font-semibold text-red-400">
-                    {Array.isArray(userAnswer) ? userAnswer.join(', ') : userAnswer}
-                  </div>
-                </div>
-              )}
-
               {/* Explanation */}
-              <div className="prose prose-invert max-w-none">
+              <div className="prose prose-invert max-w-none mb-6">
                 <p className="text-gray-300 leading-relaxed">{answerResult.explanation}</p>
               </div>
 
