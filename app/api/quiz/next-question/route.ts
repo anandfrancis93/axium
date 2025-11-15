@@ -32,7 +32,20 @@ export async function POST(request: NextRequest) {
     }
 
     // RL selects the optimal topic and Bloom level
-    const selection = await selectNextTopic(user.id)
+    let selection
+    try {
+      selection = await selectNextTopic(user.id)
+    } catch (selectionError) {
+      console.error('Error in RL selection:', selectionError)
+      return NextResponse.json(
+        {
+          error: 'No topics available',
+          details: selectionError instanceof Error ? selectionError.message : 'Please upload learning materials first.',
+          action: 'Please go to Admin > GraphRAG to upload learning content for topics.'
+        },
+        { status: 400 }
+      )
+    }
 
     console.log('[RL Selection]', {
       topic: selection.topicName,
@@ -43,6 +56,19 @@ export async function POST(request: NextRequest) {
 
     // Fetch knowledge graph context for the selected topic
     const context = await fetchKnowledgeContext(supabase, selection.topicId)
+
+    // Verify context was found
+    if (!context || context.includes('No specific context available')) {
+      console.error(`No content found for topic: ${selection.topicName}`)
+      return NextResponse.json(
+        {
+          error: 'No content available',
+          details: `No learning materials found for topic "${selection.topicName}". Please upload content first.`,
+          action: 'Go to Admin > GraphRAG to upload learning content.'
+        },
+        { status: 400 }
+      )
+    }
 
     // Analyze format performance to recommend format
     const recommendedFormat = await analyzeFormatPerformance(

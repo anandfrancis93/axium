@@ -52,6 +52,25 @@ interface TopicPriority {
 export async function selectNextTopic(userId: string): Promise<TopicSelection> {
   const supabase = await createClient()
 
+  // First, get all topics that have knowledge chunks (content available)
+  const { data: topicsWithContent, error: contentError } = await supabase
+    .from('knowledge_chunks')
+    .select('topic_id')
+    .not('topic_id', 'is', null)
+
+  if (contentError) {
+    console.error('Error fetching topics with content:', contentError)
+    throw new Error('Failed to fetch available topics')
+  }
+
+  const availableTopicIds = new Set(
+    topicsWithContent?.map((chunk: any) => chunk.topic_id) || []
+  )
+
+  if (availableTopicIds.size === 0) {
+    throw new Error('No learning materials uploaded. Please upload content first.')
+  }
+
   // Fetch all user progress
   const { data: progressData, error } = await supabase
     .from('user_progress')
@@ -80,17 +99,25 @@ export async function selectNextTopic(userId: string): Promise<TopicSelection> {
 
   const progress = progressData as unknown as UserProgressRow[]
 
+  // Filter to only topics with available content
+  const progressWithContent = progress.filter(p => availableTopicIds.has(p.topic_id))
+
   // Determine total attempts across all topics to establish global phase
-  const totalAttempts = progress.reduce((sum, p) => sum + p.total_attempts, 0)
+  const totalAttempts = progressWithContent.reduce((sum, p) => sum + p.total_attempts, 0)
   const globalPhase = determineGlobalPhase(totalAttempts)
 
-  // Cold start: Pure random from available topics
-  if (globalPhase === 'cold_start') {
-    return handleColdStart(supabase, userId, progress)
+  // Cold start: Pure random from available topics with content
+  if (globalPhase === 'cold_start' || progressWithContent.length === 0) {
+    return handleColdStart(supabase, userId, availableTopicIds)
   }
 
-  // Calculate priority for each topic
-  const priorities = calculateTopicPriorities(progress, globalPhase)
+  // Calculate priority for each topic (only those with content)
+  const priorities = calculateTopicPriorities(progressWithContent, globalPhase)
+
+  if (priorities.length === 0) {
+    // Fallback to cold start if no priorities calculated
+    return handleColdStart(supabase, userId, availableTopicIds)
+  }
 
   // Apply epsilon-greedy selection
   const epsilonRate = getEpsilonRate(globalPhase)
@@ -116,30 +143,27 @@ function determineGlobalPhase(totalAttempts: number): string {
 }
 
 /**
- * Handle cold start: Random selection from available topics
+ * Handle cold start: Random selection from available topics with content
  */
 async function handleColdStart(
   supabase: any,
   userId: string,
-  existingProgress: UserProgressRow[]
+  availableTopicIds: Set<string>
 ): Promise<TopicSelection> {
-  // Get all available topics
+  // Get all topics that have content
   const { data: allTopics, error } = await supabase
     .from('topics')
     .select('id, name, subject_id')
+    .in('id', Array.from(availableTopicIds))
     .order('name')
 
   if (error || !allTopics || allTopics.length === 0) {
-    throw new Error('No topics available')
+    throw new Error('No topics with learning materials available. Please upload content first.')
   }
 
-  // Filter to topics with prerequisites met or no prerequisites
-  // For now, simple approach: all topics are available in cold start
-  const availableTopics = allTopics
-
-  // Random selection
-  const randomIndex = Math.floor(Math.random() * availableTopics.length)
-  const selectedTopic = availableTopics[randomIndex]
+  // Random selection from topics with content
+  const randomIndex = Math.floor(Math.random() * allTopics.length)
+  const selectedTopic = allTopics[randomIndex]
 
   // Start at Bloom level 1
   return {

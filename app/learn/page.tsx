@@ -29,6 +29,7 @@ function LearnPageContent() {
   const [submitting, setSubmitting] = useState(false)
   const [questionCount, setQuestionCount] = useState(0)
   const [correctCount, setCorrectCount] = useState(0)
+  const [error, setError] = useState<{ message: string; details?: string; action?: string } | null>(null)
 
   // Load first question on mount
   useEffect(() => {
@@ -38,6 +39,7 @@ function LearnPageContent() {
   async function loadNextQuestion() {
     try {
       setLoading(true)
+      setError(null)
 
       const response = await fetch('/api/quiz/next-question', {
         method: 'POST',
@@ -46,7 +48,12 @@ function LearnPageContent() {
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to load question')
+        setError({
+          message: errorData.error || 'Failed to load question',
+          details: errorData.details,
+          action: errorData.action
+        })
+        return
       }
 
       const data = await response.json()
@@ -59,7 +66,11 @@ function LearnPageContent() {
       setRecognitionMethod('recognition')
     } catch (error) {
       console.error('Error loading question:', error)
-      alert('Failed to load question. Please try again.')
+      setError({
+        message: 'Failed to load question',
+        details: error instanceof Error ? error.message : 'Unknown error',
+        action: 'Please try again or contact support.'
+      })
     } finally {
       setLoading(false)
     }
@@ -131,13 +142,68 @@ function LearnPageContent() {
     )
   }
 
+  // Show error state
+  if (error) {
+    return (
+      <div className="min-h-screen neuro-container flex items-center justify-center">
+        <div className="max-w-2xl w-full mx-auto">
+          <div className="neuro-card p-8 border-l-4 border-red-400">
+            <div className="flex items-start gap-4">
+              <div className="neuro-inset w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0">
+                <span className="text-3xl">⚠️</span>
+              </div>
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold text-red-400 mb-2">{error.message}</h2>
+                {error.details && (
+                  <p className="text-gray-400 mb-4">{error.details}</p>
+                )}
+                {error.action && (
+                  <div className="neuro-inset p-4 rounded-lg mb-4 bg-blue-400/5">
+                    <p className="text-sm text-blue-400">
+                      <strong>Next steps:</strong> {error.action}
+                    </p>
+                  </div>
+                )}
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setError(null)
+                      loadNextQuestion()
+                    }}
+                    className="neuro-btn text-blue-400"
+                  >
+                    Try Again
+                  </button>
+                  <button
+                    onClick={() => router.push('/subjects')}
+                    className="neuro-btn text-gray-300"
+                  >
+                    Return to Dashboard
+                  </button>
+                  {error.action?.includes('Admin') && (
+                    <button
+                      onClick={() => router.push('/admin/graphrag')}
+                      className="neuro-btn text-green-400"
+                    >
+                      Go to Admin
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   if (!currentQuestion) {
     return (
       <div className="min-h-screen neuro-container flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-400 mb-4">Failed to load quiz</p>
+          <p className="text-gray-400 mb-4">No question loaded</p>
           <button
-            onClick={() => router.push('/dashboard')}
+            onClick={() => router.push('/subjects')}
             className="neuro-btn text-blue-400"
           >
             Return to Dashboard
