@@ -789,7 +789,7 @@ function LearnPageContent() {
                 onClick={handleNextQuestion}
                 className="neuro-btn text-blue-400 flex-1 py-4 text-lg font-semibold"
               >
-                Next Question →
+                Next Question
               </button>
             </div>
           </>
