@@ -13,7 +13,7 @@ import { ConfidenceSlider } from '@/components/quiz/ConfidenceSlider'
 import { RecognitionMethodSelector } from '@/components/quiz/RecognitionMethodSelector'
 import { AnswerFeedback } from '@/components/quiz/AnswerFeedback'
 import { QuizSession, QuizQuestion, AnswerResult, RecognitionMethod } from '@/lib/types/quiz'
-import { Loader2, Clock } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 
 type QuizStep = 'confidence' | 'answer' | 'recognition' | 'results'
 
@@ -542,44 +542,21 @@ function LearnPageContent() {
                 {/* Selection Method */}
                 <div className="p-4 neuro-inset rounded-lg">
                   <div className="text-sm text-gray-400 mb-2">Selection Method</div>
-                  <div className="flex items-center gap-3">
-                    {(currentQuestion as any).selection_method === 'spaced_repetition' ? (
-                      <>
-                        <Clock size={20} className="text-blue-400" />
-                        <div>
-                          <div className="font-semibold text-blue-400">Spaced Repetition (20%)</div>
-                          <div className="text-sm text-gray-500">Reviewing this topic to prevent forgetting</div>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div>
-                          <div className="font-semibold text-blue-400">RL-Driven</div>
-                          <div className="text-sm text-gray-500">Optimizing based on your learning patterns</div>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                {/* Selection Reason */}
-                <div className="p-4 neuro-inset rounded-lg">
-                  <div className="text-sm text-gray-400 mb-2">Why This Topic?</div>
-                  <div className="text-gray-300">
+                  <div className="font-semibold text-blue-400">
                     {(() => {
-                      const reason = (currentQuestion as any).selection_reason || 'Selected to optimize your learning progress'
-                      const colonIndex = reason.indexOf(':')
-                      if (colonIndex > 0) {
-                        const phaseName = reason.substring(0, colonIndex)
-                        const description = reason.substring(colonIndex + 1)
-                        return (
-                          <>
-                            <span className="text-blue-400 font-semibold">{phaseName}</span>
-                            <span>:{description}</span>
-                          </>
-                        )
+                      const reason = (currentQuestion as any).selection_reason || ''
+
+                      if ((currentQuestion as any).selection_method === 'spaced_repetition') {
+                        return 'Spaced Repetition'
+                      } else {
+                        // RL-Driven: Extract phase name from selection_reason
+                        const colonIndex = reason.indexOf(':')
+                        if (colonIndex > 0) {
+                          const phaseName = reason.substring(0, colonIndex).trim()
+                          return `RL - ${phaseName} phase`
+                        }
+                        return 'RL-Driven'
                       }
-                      return reason
                     })()}
                   </div>
                 </div>
