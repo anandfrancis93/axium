@@ -8,7 +8,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { TrendingUp, TrendingDown, Activity, Target, Zap, BarChart3, Brain, Eye, Search, RefreshCw } from 'lucide-react'
+import { TrendingUp, TrendingDown, Activity, Target, Zap, BarChart3, Brain, Eye, Search } from 'lucide-react'
 import Link from 'next/link'
 import { CalibrationLineChart } from '@/components/analytics/CalibrationLineChart'
 import { CalibrationScatterPlot } from '@/components/analytics/CalibrationScatterPlot'
@@ -62,9 +62,6 @@ export default function AnalyticsPage() {
   const [individualResponses, setIndividualResponses] = useState<IndividualResponse[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [recalculating, setRecalculating] = useState(false)
-  const [showDebug, setShowDebug] = useState(false)
-  const [debugInfo, setDebugInfo] = useState<any>(null)
 
   useEffect(() => {
     fetchAnalytics()
@@ -168,79 +165,6 @@ export default function AnalyticsPage() {
     }
   }
 
-  async function recalculateStatistics() {
-    try {
-      setRecalculating(true)
-
-      const response = await fetch('/api/analytics/recalculate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to recalculate statistics')
-      }
-
-      const data = await response.json()
-      console.log('Recalculation result:', data)
-
-      // Refresh analytics data
-      await fetchAnalytics()
-
-      alert(`Successfully recalculated statistics for ${data.updated} topics!`)
-
-    } catch (error) {
-      console.error('Error recalculating statistics:', error)
-      alert('Failed to recalculate statistics. Please try again.')
-    } finally {
-      setRecalculating(false)
-    }
-  }
-
-  async function fetchDebugInfo() {
-    try {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-
-      // Get all responses
-      const { data: responses } = await supabase
-        .from('user_responses')
-        .select('topic_id, calibration_score, created_at')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-
-      // Count by topic
-      const topicCounts: Record<string, number> = {}
-      const topicsWithCalibration: Record<string, number> = {}
-
-      responses?.forEach(r => {
-        const topicId = r.topic_id || 'NULL'
-        topicCounts[topicId] = (topicCounts[topicId] || 0) + 1
-        if (r.calibration_score !== null) {
-          topicsWithCalibration[topicId] = (topicsWithCalibration[topicId] || 0) + 1
-        }
-      })
-
-      // Get unique topic IDs with calibration scores
-      const uniqueTopicIds = responses
-        ? [...new Set(responses.map(r => r.topic_id).filter(id => id !== null && responses.find(res => res.topic_id === id && res.calibration_score !== null)))]
-        : []
-
-      setDebugInfo({
-        totalResponses: responses?.length || 0,
-        responsesByTopic: topicCounts,
-        responsesWithCalibrationByTopic: topicsWithCalibration,
-        uniqueTopicCount: uniqueTopicIds.length,
-        uniqueTopicIds: uniqueTopicIds,
-        sampleResponses: responses?.slice(0, 10)
-      })
-
-      setShowDebug(true)
-    } catch (error) {
-      console.error('Error fetching debug info:', error)
-    }
-  }
 
   // Filter topics based on search query
   const filteredProgress = userProgress.filter(progress =>
@@ -290,101 +214,11 @@ export default function AnalyticsPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-gray-200">Learning Analytics</h1>
-          <div className="flex gap-3">
-            <button
-              onClick={fetchDebugInfo}
-              className="neuro-btn text-yellow-400 flex items-center gap-2"
-            >
-              <Activity size={18} />
-              Debug Info
-            </button>
-            <button
-              onClick={recalculateStatistics}
-              disabled={recalculating}
-              className="neuro-btn text-blue-400 flex items-center gap-2"
-            >
-              <RefreshCw size={18} className={recalculating ? 'animate-spin' : ''} />
-              {recalculating ? 'Recalculating...' : 'Recalculate Stats'}
-            </button>
-            <Link href="/dashboard" className="neuro-btn text-gray-300">
-              ← Back to Dashboard
-            </Link>
-          </div>
+          <Link href="/dashboard" className="neuro-btn text-gray-300">
+            ← Back to Dashboard
+          </Link>
         </div>
 
-        {/* Debug Info Section */}
-        {showDebug && debugInfo && (
-          <div className="neuro-card p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-yellow-400">Debug Information</h2>
-              <button
-                onClick={() => setShowDebug(false)}
-                className="neuro-btn text-gray-400 text-sm px-3 py-1"
-              >
-                Close
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div className="neuro-inset rounded-lg p-4">
-                <h3 className="text-sm font-semibold text-gray-400 mb-2">Summary</h3>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-gray-500">Total Responses:</span>
-                    <span className="text-white ml-2 font-bold">{debugInfo.totalResponses}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Unique Topics with Data:</span>
-                    <span className="text-white ml-2 font-bold">{debugInfo.uniqueTopicCount}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="neuro-inset rounded-lg p-4">
-                <h3 className="text-sm font-semibold text-gray-400 mb-2">Responses by Topic ID</h3>
-                <div className="space-y-2 text-xs max-h-60 overflow-y-auto">
-                  {Object.entries(debugInfo.responsesByTopic).map(([topicId, count]) => (
-                    <div key={topicId} className="flex items-center justify-between">
-                      <span className="text-gray-400 font-mono">
-                        {topicId === 'NULL' ? <span className="text-red-400">NULL</span> : topicId}
-                      </span>
-                      <div className="flex gap-4">
-                        <span className="text-gray-500">
-                          Total: <span className="text-white">{count as number}</span>
-                        </span>
-                        <span className="text-gray-500">
-                          With Calibration: <span className="text-green-400">
-                            {debugInfo.responsesWithCalibrationByTopic[topicId] || 0}
-                          </span>
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="neuro-inset rounded-lg p-4">
-                <h3 className="text-sm font-semibold text-gray-400 mb-2">Sample Recent Responses (Last 10)</h3>
-                <div className="space-y-2 text-xs">
-                  {debugInfo.sampleResponses?.map((r: any, i: number) => (
-                    <div key={i} className="flex items-center justify-between text-gray-400">
-                      <span className="font-mono">
-                        {r.topic_id === null ? <span className="text-red-400">NULL</span> : r.topic_id}
-                      </span>
-                      <span>
-                        Cal: {r.calibration_score !== null
-                          ? <span className="text-green-400">{r.calibration_score.toFixed(2)}</span>
-                          : <span className="text-red-400">NULL</span>
-                        }
-                      </span>
-                      <span className="text-gray-600">{new Date(r.created_at).toLocaleString()}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Topic Selector */}
         <div className="neuro-card p-6">
