@@ -8,7 +8,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { TrendingUp, TrendingDown, Activity, Target, Zap, BarChart3, Brain, Eye } from 'lucide-react'
+import { TrendingUp, TrendingDown, Activity, Target, Zap, BarChart3, Brain, Eye, Search } from 'lucide-react'
 import Link from 'next/link'
 import { CalibrationLineChart } from '@/components/analytics/CalibrationLineChart'
 import { CalibrationScatterPlot } from '@/components/analytics/CalibrationScatterPlot'
@@ -61,6 +61,7 @@ export default function AnalyticsPage() {
   const [formatPerformance, setFormatPerformance] = useState<FormatPerformance[]>([])
   const [individualResponses, setIndividualResponses] = useState<IndividualResponse[]>([])
   const [loading, setLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     fetchAnalytics()
@@ -164,6 +165,11 @@ export default function AnalyticsPage() {
     }
   }
 
+  // Filter topics based on search query
+  const filteredProgress = userProgress.filter(progress =>
+    progress.topic_name.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
   if (loading) {
     return (
       <div className="min-h-screen neuro-container flex items-center justify-center">
@@ -215,6 +221,19 @@ export default function AnalyticsPage() {
         {/* Topic Selector */}
         <div className="neuro-card p-6">
           <h2 className="text-sm font-semibold text-gray-400 mb-3">Select Topic</h2>
+
+          {/* Search Box */}
+          <div className="mb-4 relative">
+            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search topics..."
+              className="neuro-input w-full pl-12"
+            />
+          </div>
+
           <div className="neuro-inset rounded-lg overflow-hidden">
             <div className="max-h-80 overflow-y-auto scrollbar-custom">
               <table className="w-full">
@@ -227,7 +246,14 @@ export default function AnalyticsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {userProgress.map(progress => (
+                  {filteredProgress.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="px-4 py-8 text-center text-gray-500 text-sm">
+                        No topics found matching "{searchQuery}"
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredProgress.map(progress => (
                     <tr
                       key={progress.id}
                       onClick={() => setSelectedTopic(progress)}
@@ -262,7 +288,7 @@ export default function AnalyticsPage() {
                         </span>
                       </td>
                     </tr>
-                  ))}
+                  )))}
                 </tbody>
               </table>
             </div>
