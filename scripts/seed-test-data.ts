@@ -50,8 +50,7 @@ async function seedTestData() {
     .upsert({
       subject_id: subject.id,
       name: 'General Security Concepts',
-      slug: 'general-security-concepts',
-      chapter_order: 1
+      slug: 'general-security-concepts'
     }, {
       onConflict: 'subject_id,slug'
     })
@@ -78,13 +77,9 @@ async function seedTestData() {
   for (const topic of topics) {
     const { data, error } = await supabase
       .from('topics')
-      .upsert({
+      .insert({
         chapter_id: chapter.id,
-        name: topic.name,
-        slug: topic.name.toLowerCase().replace(/\s+/g, '-'),
-        topic_order: topic.order
-      }, {
-        onConflict: 'chapter_id,slug'
+        name: topic.name
       })
       .select()
       .single()
