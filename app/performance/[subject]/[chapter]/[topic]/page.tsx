@@ -13,6 +13,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsToolti
 import { ChapterMasteryOverview } from '@/components/ChapterMasteryOverview'
 import Modal from '@/components/Modal'
 import { PrerequisitePathView } from '@/components/PrerequisitePathView'
+import { InteractiveKnowledgeGraph } from '@/components/InteractiveKnowledgeGraph'
 
 const BLOOM_LEVELS = [
   { num: 1, name: 'Remember' },
@@ -57,7 +58,7 @@ export default function TopicMasteryPage() {
   const [bloomLevelTopicDimensions, setBloomLevelTopicDimensions] = useState<Record<number, any[]>>({})
   const [masteryTrendData, setMasteryTrendData] = useState<any[]>([])
   const [uniqueQuestions, setUniqueQuestions] = useState<any[]>([])
-  const [activeTab, setActiveTab] = useState<'all-levels' | 'trend' | 'history'>('all-levels')
+  const [activeTab, setActiveTab] = useState<'all-levels' | 'trend' | 'history' | 'graph'>('all-levels')
   const [selectedBloomLevel, setSelectedBloomLevel] = useState<number | null>(null)
   const [isResetting, setIsResetting] = useState(false)
   const [showResetModal, setShowResetModal] = useState(false)
@@ -619,6 +620,13 @@ export default function TopicMasteryPage() {
               Question History ({uniqueQuestions.length})
             </button>
           )}
+          <button
+            type="button"
+            onClick={() => setActiveTab('graph')}
+            className={`neuro-btn ${activeTab === 'graph' ? 'text-blue-400' : 'text-gray-300'}`}
+          >
+            Knowledge Graph
+          </button>
         </div>
 
         {/* Tab Content */}
@@ -1142,6 +1150,35 @@ export default function TopicMasteryPage() {
                   </tbody>
                 </table>
               </div>
+            </div>
+          )}
+
+          {/* Knowledge Graph */}
+          {activeTab === 'graph' && topicId && (
+            <div className="neuro-raised">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="neuro-inset w-10 h-10 rounded-lg flex items-center justify-center">
+                  <TrendingUpIcon size={20} className="text-purple-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-200">
+                  Knowledge Graph
+                </h3>
+              </div>
+
+              <p className="text-gray-400 mb-6">
+                Explore how <span className="text-gray-200 font-medium">{topic}</span> connects to other concepts in the knowledge graph. Click nodes to navigate between topics.
+              </p>
+
+              <InteractiveKnowledgeGraph
+                scope={chapterData?.subjects?.name || 'CompTIA Security+'}
+                focusNodeId={topicId}
+                height={600}
+                onNodeClick={(nodeId, nodeName) => {
+                  // Navigate to the clicked topic
+                  // For now, just log - could implement navigation later
+                  console.log('Navigate to topic:', nodeId, nodeName)
+                }}
+              />
             </div>
           )}
         </div>
