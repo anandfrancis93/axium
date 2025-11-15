@@ -27,6 +27,7 @@ interface UserProgress {
   correct_answers: number
   mastery_scores: any
   current_bloom_level: number
+  last_practiced_at: string
 }
 
 interface CalibrationTrend {
