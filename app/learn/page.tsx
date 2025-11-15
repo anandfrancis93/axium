@@ -279,8 +279,7 @@ function LearnPageContent() {
         <div className="neuro-card p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-200">RL-Driven Quiz</h1>
-              <p className="text-sm text-gray-500">Topic selected by AI · Answer to reveal</p>
+              <h1 className="text-2xl font-bold text-gray-200">Quiz</h1>
             </div>
             <div className="flex items-center gap-4">
               <div className="text-center">
