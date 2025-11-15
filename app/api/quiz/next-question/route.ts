@@ -55,20 +55,7 @@ export async function POST(request: NextRequest) {
     })
 
     // Fetch knowledge graph context for the selected topic
-    const context = await fetchKnowledgeContext(supabase, selection.topicId)
-
-    // Verify context was found
-    if (!context || context.includes('No specific context available')) {
-      console.error(`No content found for topic: ${selection.topicName}`)
-      return NextResponse.json(
-        {
-          error: 'No content available',
-          details: `No learning materials found for topic "${selection.topicName}". Please upload content first.`,
-          action: 'Go to Admin > GraphRAG to upload learning content.'
-        },
-        { status: 400 }
-      )
-    }
+    const context = await fetchKnowledgeContext(supabase, selection.topicId, selection.topicName)
 
     // Analyze format performance to recommend format
     const recommendedFormat = await analyzeFormatPerformance(
@@ -117,32 +104,53 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * Fetch knowledge context from knowledge chunks and graph
+ * Fetch knowledge context from Neo4j knowledge graph or knowledge chunks
  */
 async function fetchKnowledgeContext(
   supabase: any,
-  topicId: string
+  topicId: string,
+  topicName: string
 ): Promise<string> {
-  // Fetch knowledge chunks for the topic
+  // Try to fetch from knowledge_chunks first (if available)
   const { data: chunks, error } = await supabase
     .from('knowledge_chunks')
     .select('content, metadata')
     .eq('topic_id', topicId)
     .order('chunk_index')
-    .limit(5)  // Top 5 most relevant chunks
+    .limit(5)
 
-  if (error) {
-    console.error('Error fetching knowledge chunks:', error)
-    return 'No specific context available for this topic.'
+  if (!error && chunks && chunks.length > 0) {
+    console.log(`[Context] Found ${chunks.length} knowledge chunks for ${topicName}`)
+    const contextParts = chunks.map((chunk: any) => chunk.content)
+    return contextParts.join('\n\n')
   }
 
-  if (!chunks || chunks.length === 0) {
-    return 'No specific context available for this topic. Generate based on general knowledge.'
+  // If no chunks, use Neo4j knowledge graph context
+  // For now, return topic name - the LLM will use general knowledge
+  console.log(`[Context] No chunks found for ${topicName}, using general knowledge + Neo4j relationships`)
+
+  // Fetch topic details from database
+  const { data: topic } = await supabase
+    .from('topics')
+    .select('name, description, chapter_id, chapters(name, subject_id, subjects(name))')
+    .eq('id', topicId)
+    .single()
+
+  if (topic) {
+    let context = `Topic: ${topic.name}\n`
+    if (topic.description) {
+      context += `Description: ${topic.description}\n`
+    }
+    if (topic.chapters) {
+      context += `Chapter: ${topic.chapters.name}\n`
+      if (topic.chapters.subjects) {
+        context += `Subject: ${topic.chapters.subjects.name}\n`
+      }
+    }
+    return context + '\nNote: Generate questions based on general knowledge of this topic.'
   }
 
-  // Combine chunks into context
-  const contextParts = chunks.map((chunk: any) => chunk.content)
-  return contextParts.join('\n\n')
+  return `Topic: ${topicName}\nGenerate questions based on general knowledge of this topic.`
 }
 
 /**

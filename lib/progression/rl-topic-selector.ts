@@ -52,25 +52,25 @@ interface TopicPriority {
 export async function selectNextTopic(userId: string): Promise<TopicSelection> {
   const supabase = await createClient()
 
-  // First, get all topics that have knowledge chunks (content available)
-  const { data: topicsWithContent, error: contentError } = await supabase
-    .from('knowledge_chunks')
-    .select('topic_id')
-    .not('topic_id', 'is', null)
+  // Get all available topics from the topics table
+  // Content comes from Neo4j knowledge graph, not knowledge_chunks
+  const { data: allTopics, error: topicsError } = await supabase
+    .from('topics')
+    .select('id')
 
-  if (contentError) {
-    console.error('[RL] Error fetching topics with content:', contentError)
+  if (topicsError) {
+    console.error('[RL] Error fetching topics:', topicsError)
     throw new Error('Failed to fetch available topics')
   }
 
   const availableTopicIds = new Set(
-    topicsWithContent?.map((chunk: any) => chunk.topic_id) || []
+    allTopics?.map((topic: any) => topic.id) || []
   )
 
-  console.log(`[RL] Found ${availableTopicIds.size} topics with learning content`)
+  console.log(`[RL] Found ${availableTopicIds.size} topics available for selection`)
 
   if (availableTopicIds.size === 0) {
-    throw new Error('No learning materials uploaded. Please upload content first.')
+    throw new Error('No topics found in database. Please add topics first.')
   }
 
   // Fetch all user progress (may be empty for new users)
