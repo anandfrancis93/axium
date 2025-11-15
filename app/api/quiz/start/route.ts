@@ -245,7 +245,7 @@ Return ONLY valid JSON array with no markdown formatting:
 
   try {
     const completion = await grok.chat.completions.create({
-      model: 'grok-beta',
+      model: 'grok-3',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: `Generate ${count} diverse questions for "${topicName}".` }
