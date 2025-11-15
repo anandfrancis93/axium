@@ -46,6 +46,14 @@ export async function POST(request: NextRequest) {
       question = dbQuestion
     }
 
+    // TypeScript guard - should never happen due to check above
+    if (!question) {
+      return NextResponse.json(
+        { error: 'Question data is missing' },
+        { status: 400 }
+      )
+    }
+
     // Check if answer is correct
     const isCorrect = checkAnswer(answer, question.correct_answer, question.question_format)
 
