@@ -133,6 +133,15 @@ function LearnPageContent() {
       return
     }
 
+    // Move to recognition step (don't submit yet)
+    setCurrentStep('recognition')
+  }
+
+  async function handleRecognitionSelect(method: RecognitionMethod) {
+    if (!currentQuestion || !confidence) return
+
+    setRecognitionMethod(method)
+
     try {
       setSubmitting(true)
 
@@ -146,7 +155,7 @@ function LearnPageContent() {
           question: currentQuestion,
           answer: userAnswer,
           confidence,
-          recognitionMethod: 'pending', // Will be updated after recognition selection
+          recognitionMethod: method, // Now we have the actual recognition method!
           timeTaken,
           topicId: currentQuestion.topic_id
         })
@@ -158,23 +167,20 @@ function LearnPageContent() {
 
       const data = await response.json()
       setAnswerResult(data.result)
-      setCurrentStep('recognition')
+
+      // Update counts
+      setQuestionCount(prev => prev + 1)
+      if (data.result.isCorrect) {
+        setCorrectCount(prev => prev + 1)
+      }
+
+      setCurrentStep('results')
     } catch (error) {
       console.error('Error submitting answer:', error)
       alert('Failed to submit answer. Please try again.')
     } finally {
       setSubmitting(false)
     }
-  }
-
-  function handleRecognitionSelect(method: RecognitionMethod) {
-    setRecognitionMethod(method)
-    // Update counts
-    setQuestionCount(prev => prev + 1)
-    if (answerResult?.isCorrect) {
-      setCorrectCount(prev => prev + 1)
-    }
-    setCurrentStep('results')
   }
 
   function handleNextQuestion() {
@@ -370,118 +376,51 @@ function LearnPageContent() {
         )}
 
         {/* Step 3: Recognition Method Selection */}
-        {currentStep === 'recognition' && answerResult && (
+        {currentStep === 'recognition' && (
           <>
-            {/* Question with Result */}
-            <div className="neuro-card p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-xs font-medium text-blue-400 bg-blue-400/10 px-3 py-1 rounded-full">
-                  Bloom Level {currentQuestion.bloom_level}
-                </span>
-                <span className="text-xs font-medium text-gray-500 bg-gray-500/10 px-3 py-1 rounded-full">
-                  {currentQuestion.question_format === 'mcq_single' ? 'Multiple Choice' :
-                   currentQuestion.question_format === 'mcq_multi' ? 'Multiple Select' :
-                   currentQuestion.question_format === 'true_false' ? 'True/False' :
-                   currentQuestion.question_format === 'fill_blank' ? 'Fill in the Blank' :
-                   currentQuestion.question_format === 'open_ended' ? 'Open Ended' : 'Question'}
-                </span>
-              </div>
-              <h2 className="text-xl font-semibold text-gray-200 mb-6">
-                {currentQuestion.question_text}
-              </h2>
-
-              {/* Answer Options with Result */}
-              {(currentQuestion.question_format === 'mcq_single' || currentQuestion.question_format === 'mcq_multi') && currentQuestion.options && (
-                <div className="space-y-3 mb-6">
-                  {currentQuestion.options.map((option, idx) => {
-                    const isUserAnswer = Array.isArray(userAnswer)
-                      ? userAnswer.includes(option)
-                      : userAnswer === option
-
-                    // Handle different correct answer formats (with/without letter prefix)
-                    const normalizeAnswer = (ans: string) => {
-                      // Remove letter prefix like "A. ", "B. ", etc.
-                      return ans.replace(/^[A-Z]\.\s*/, '').trim()
-                    }
-
-                    const normalizedOption = normalizeAnswer(option)
-                    const isCorrectAnswer = Array.isArray(answerResult.correctAnswer)
-                      ? answerResult.correctAnswer.some((ca: string) =>
-                          ca === option || normalizeAnswer(ca) === normalizedOption
-                        )
-                      : answerResult.correctAnswer === option ||
-                        normalizeAnswer(String(answerResult.correctAnswer)) === normalizedOption
-
-                    return (
-                      <div
-                        key={idx}
-                        className={`p-4 rounded-lg border-2 ${
-                          isUserAnswer && isCorrectAnswer
-                            ? 'bg-green-400/10 border-green-400'
-                            : isUserAnswer && !isCorrectAnswer
-                            ? 'bg-red-400/10 border-red-400'
-                            : isCorrectAnswer
-                            ? 'bg-green-400/5 border-green-400/50'
-                            : 'bg-gray-800/30 border-gray-700/30'
-                        }`}
-                      >
-                        <div className="flex-1">
-                          <div className={`${
-                            isUserAnswer || isCorrectAnswer ? 'font-semibold' : ''
-                          } ${
-                            isCorrectAnswer ? 'text-green-400' :
-                            isUserAnswer ? 'text-red-400' :
-                            'text-gray-300'
-                          }`}>
-                            {option}
-                          </div>
-                          {isUserAnswer && (
-                            <div className="text-xs text-gray-500 mt-1">Your answer</div>
-                          )}
-                          {!isUserAnswer && isCorrectAnswer && (
-                            <div className="text-xs text-gray-500 mt-1">Correct answer</div>
-                          )}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-
             {/* Recognition Method Selection */}
             <div className="neuro-card p-6">
               <h3 className="text-lg font-semibold text-gray-200 mb-4">How did you arrive at your answer?</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <button
                   onClick={() => handleRecognitionSelect('memory')}
-                  className="neuro-btn text-green-400 p-6 text-left"
+                  disabled={submitting}
+                  className="neuro-btn text-green-400 p-6 text-left disabled:opacity-50"
                 >
                   <div className="text-lg font-bold mb-1">Recalled from Memory</div>
                   <div className="text-sm text-gray-400">I remembered this from studying</div>
                 </button>
                 <button
                   onClick={() => handleRecognitionSelect('recognition')}
-                  className="neuro-btn text-blue-400 p-6 text-left"
+                  disabled={submitting}
+                  className="neuro-btn text-blue-400 p-6 text-left disabled:opacity-50"
                 >
                   <div className="text-lg font-bold mb-1">Recognized from Options</div>
                   <div className="text-sm text-gray-400">I recognized the correct answer when I saw it</div>
                 </button>
                 <button
                   onClick={() => handleRecognitionSelect('educated_guess')}
-                  className="neuro-btn text-yellow-400 p-6 text-left"
+                  disabled={submitting}
+                  className="neuro-btn text-yellow-400 p-6 text-left disabled:opacity-50"
                 >
                   <div className="text-lg font-bold mb-1">Made an Educated Guess</div>
                   <div className="text-sm text-gray-400">I used logic/reasoning to narrow it down</div>
                 </button>
                 <button
                   onClick={() => handleRecognitionSelect('random_guess')}
-                  className="neuro-btn text-red-400 p-6 text-left"
+                  disabled={submitting}
+                  className="neuro-btn text-red-400 p-6 text-left disabled:opacity-50"
                 >
                   <div className="text-lg font-bold mb-1">Made a Random Guess</div>
                   <div className="text-sm text-gray-400">I had no idea and guessed randomly</div>
                 </button>
               </div>
+              {submitting && (
+                <div className="mt-4 text-center">
+                  <Loader2 className="animate-spin text-blue-400 mx-auto" size={24} />
+                  <p className="text-gray-400 text-sm mt-2">Submitting your answer...</p>
+                </div>
+              )}
             </div>
           </>
         )}
