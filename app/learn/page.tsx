@@ -712,8 +712,8 @@ function LearnPageContent() {
                       <span className="text-gray-500 text-sm">Confidence:</span>
                       <span className={`font-semibold ${
                         confidence === 3 ? 'text-green-400' :
-                        confidence === 2 ? 'text-blue-400' :
-                        'text-yellow-400'
+                        confidence === 2 ? 'text-yellow-400' :
+                        'text-red-400'
                       }`}>
                         {confidence === 3 ? 'High' : confidence === 2 ? 'Medium' : 'Low'}
                       </span>
