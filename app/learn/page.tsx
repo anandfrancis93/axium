@@ -15,15 +15,17 @@ import { AnswerFeedback } from '@/components/quiz/AnswerFeedback'
 import { QuizSession, QuizQuestion, AnswerResult, RecognitionMethod } from '@/lib/types/quiz'
 import { Loader2, Trophy, Clock, Target } from 'lucide-react'
 
+type QuizStep = 'confidence' | 'answer' | 'recognition' | 'results'
+
 function LearnPageContent() {
   const router = useRouter()
 
   const [currentQuestion, setCurrentQuestion] = useState<QuizQuestion | null>(null)
+  const [currentStep, setCurrentStep] = useState<QuizStep>('confidence')
   const [userAnswer, setUserAnswer] = useState<string | string[]>('')
-  const [confidence, setConfidence] = useState<number>(2)
-  const [recognitionMethod, setRecognitionMethod] = useState<RecognitionMethod>('recognition')
+  const [confidence, setConfidence] = useState<number | null>(null)
+  const [recognitionMethod, setRecognitionMethod] = useState<RecognitionMethod | null>(null)
   const [startTime, setStartTime] = useState<Date>(new Date())
-  const [showFeedback, setShowFeedback] = useState(false)
   const [answerResult, setAnswerResult] = useState<AnswerResult | null>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -59,11 +61,11 @@ function LearnPageContent() {
       const data = await response.json()
       setCurrentQuestion(data.question)
       setStartTime(new Date())
-      setShowFeedback(false)
+      setCurrentStep('confidence')
       setAnswerResult(null)
       setUserAnswer('')
-      setConfidence(2)
-      setRecognitionMethod('recognition')
+      setConfidence(null)
+      setRecognitionMethod(null)
     } catch (error) {
       console.error('Error loading question:', error)
       setError({
@@ -76,8 +78,13 @@ function LearnPageContent() {
     }
   }
 
-  async function handleSubmit() {
-    if (!currentQuestion) return
+  function handleConfidenceSelect(level: number) {
+    setConfidence(level)
+    setCurrentStep('answer')
+  }
+
+  async function handleAnswerSubmit() {
+    if (!currentQuestion || !confidence) return
 
     if (!userAnswer || (Array.isArray(userAnswer) && userAnswer.length === 0)) {
       alert('Please provide an answer before submitting.')
@@ -94,12 +101,12 @@ function LearnPageContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           questionId: currentQuestion.id,
-          question: currentQuestion,  // Include full question for on-the-fly questions
+          question: currentQuestion,
           answer: userAnswer,
           confidence,
-          recognitionMethod,
+          recognitionMethod: 'pending', // Will be updated after recognition selection
           timeTaken,
-          topicId: currentQuestion.topic_id  // Include topicId for progress tracking
+          topicId: currentQuestion.topic_id
         })
       })
 
@@ -108,22 +115,24 @@ function LearnPageContent() {
       }
 
       const data = await response.json()
-
-      // Update counts
-      setQuestionCount(prev => prev + 1)
-      if (data.result.isCorrect) {
-        setCorrectCount(prev => prev + 1)
-      }
-
-      // Show feedback
       setAnswerResult(data.result)
-      setShowFeedback(true)
+      setCurrentStep('recognition')
     } catch (error) {
       console.error('Error submitting answer:', error)
       alert('Failed to submit answer. Please try again.')
     } finally {
       setSubmitting(false)
     }
+  }
+
+  function handleRecognitionSelect(method: RecognitionMethod) {
+    setRecognitionMethod(method)
+    // Update counts
+    setQuestionCount(prev => prev + 1)
+    if (answerResult?.isCorrect) {
+      setCorrectCount(prev => prev + 1)
+    }
+    setCurrentStep('results')
   }
 
   function handleNextQuestion() {
@@ -236,59 +245,144 @@ function LearnPageContent() {
           </div>
         </div>
 
-        {!showFeedback ? (
+        {/* Question Text */}
+        <div className="neuro-card p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-xs font-medium text-blue-400 bg-blue-400/10 px-3 py-1 rounded-full">
+              Bloom Level {currentQuestion.bloom_level}
+            </span>
+            <span className="text-xs font-medium text-gray-500 bg-gray-500/10 px-3 py-1 rounded-full">
+              {currentQuestion.question_format === 'mcq_single' ? 'Multiple Choice' :
+               currentQuestion.question_format === 'mcq_multi' ? 'Multiple Select' :
+               currentQuestion.question_format === 'true_false' ? 'True/False' :
+               currentQuestion.question_format === 'fill_blank' ? 'Fill in the Blank' :
+               currentQuestion.question_format === 'open_ended' ? 'Open Ended' : 'Question'}
+            </span>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-200">
+            {currentQuestion.question_text}
+          </h2>
+        </div>
+
+        {/* Step 1: Confidence Selection */}
+        {currentStep === 'confidence' && (
+          <div className="neuro-card p-6">
+            <h3 className="text-lg font-semibold text-gray-200 mb-4">How confident are you?</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <button
+                onClick={() => handleConfidenceSelect(1)}
+                className="neuro-btn text-yellow-400 p-6 text-center"
+              >
+                <div className="text-2xl font-bold mb-2">Low</div>
+                <div className="text-sm text-gray-400">Not very confident</div>
+              </button>
+              <button
+                onClick={() => handleConfidenceSelect(2)}
+                className="neuro-btn text-blue-400 p-6 text-center"
+              >
+                <div className="text-2xl font-bold mb-2">Medium</div>
+                <div className="text-sm text-gray-400">Somewhat confident</div>
+              </button>
+              <button
+                onClick={() => handleConfidenceSelect(3)}
+                className="neuro-btn text-green-400 p-6 text-center"
+              >
+                <div className="text-2xl font-bold mb-2">High</div>
+                <div className="text-sm text-gray-400">Very confident</div>
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mt-4 text-center">
+              💡 Tip: Being honest about your confidence helps the system personalize your learning
+            </p>
+          </div>
+        )}
+
+        {/* Step 2: Answer Selection */}
+        {currentStep === 'answer' && (
           <>
-            {/* Question */}
             <QuestionCard
               question={currentQuestion}
               onAnswerChange={setUserAnswer}
               disabled={submitting}
             />
-
-            {/* Confidence */}
-            <ConfidenceSlider
-              value={confidence}
-              onChange={setConfidence}
-              disabled={submitting}
-            />
-
-            {/* Recognition Method */}
-            <RecognitionMethodSelector
-              value={recognitionMethod}
-              onChange={setRecognitionMethod}
-              questionFormat={currentQuestion.question_format}
-              disabled={submitting}
-            />
-
-            {/* Submit Button */}
             <button
-              onClick={handleSubmit}
-              disabled={submitting || !userAnswer}
+              onClick={handleAnswerSubmit}
+              disabled={submitting || !userAnswer || (Array.isArray(userAnswer) && userAnswer.length === 0)}
               className="neuro-btn text-blue-400 w-full py-4 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitting ? (
                 <span className="flex items-center justify-center gap-2">
                   <Loader2 className="animate-spin" size={20} />
-                  Submitting...
+                  Checking...
                 </span>
               ) : (
                 'Submit Answer'
               )}
             </button>
           </>
-        ) : (
-          answerResult && currentQuestion && (
-            <AnswerFeedback
-              result={answerResult}
-              userAnswer={userAnswer}
-              confidence={confidence}
-              recognitionMethod={recognitionMethod}
-              onContinue={handleNextQuestion}
-              topicName={(currentQuestion as any).topic_name}
-              bloomLevel={(currentQuestion as any).bloom_level}
-              selectionReason={(currentQuestion as any).selection_reason}
-            />
-          )
+        )}
+
+        {/* Step 3: Recognition Method Selection */}
+        {currentStep === 'recognition' && answerResult && (
+          <div className="neuro-card p-6">
+            {/* Correct/Incorrect Indicator */}
+            <div className={`p-4 rounded-lg mb-6 text-center ${answerResult.isCorrect ? 'bg-green-400/10 border border-green-400' : 'bg-red-400/10 border border-red-400'}`}>
+              <div className={`text-3xl font-bold ${answerResult.isCorrect ? 'text-green-400' : 'text-red-400'}`}>
+                {answerResult.isCorrect ? '✓ Correct!' : '✗ Incorrect'}
+              </div>
+            </div>
+
+            <h3 className="text-lg font-semibold text-gray-200 mb-4">How did you arrive at your answer?</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <button
+                onClick={() => handleRecognitionSelect('memory')}
+                className="neuro-btn text-purple-400 p-6 text-left"
+              >
+                <div className="text-lg font-bold mb-1">Recalled from Memory</div>
+                <div className="text-sm text-gray-400">I remembered this from studying</div>
+              </button>
+              <button
+                onClick={() => handleRecognitionSelect('recognition')}
+                className="neuro-btn text-blue-400 p-6 text-left"
+              >
+                <div className="text-lg font-bold mb-1">Recognized from Options</div>
+                <div className="text-sm text-gray-400">I recognized the correct answer when I saw it</div>
+              </button>
+              <button
+                onClick={() => handleRecognitionSelect('educated_guess')}
+                className="neuro-btn text-yellow-400 p-6 text-left"
+              >
+                <div className="text-lg font-bold mb-1">Made an Educated Guess</div>
+                <div className="text-sm text-gray-400">I used logic/reasoning to narrow it down</div>
+              </button>
+              <button
+                onClick={() => handleRecognitionSelect('random_guess')}
+                className="neuro-btn text-red-400 p-6 text-left"
+              >
+                <div className="text-lg font-bold mb-1">Made a Random Guess</div>
+                <div className="text-sm text-gray-400">I had no idea and guessed randomly</div>
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mt-4 text-center">
+              💡 Why we ask: This helps us understand your learning process and provide better recommendations
+            </p>
+          </div>
+        )}
+
+        {/* Step 4: Results with all sections */}
+        {currentStep === 'results' && answerResult && recognitionMethod && currentQuestion && (
+          <>
+            {/* TODO: Implement results sections */}
+            <div className="neuro-card p-6">
+              <h3 className="text-lg font-semibold text-gray-200">Results coming next...</h3>
+              <button
+                onClick={handleNextQuestion}
+                className="neuro-btn text-blue-400 w-full py-4 text-lg font-semibold mt-4"
+              >
+                Next Question →
+              </button>
+            </div>
+          </>
         )}
       </div>
     </div>
