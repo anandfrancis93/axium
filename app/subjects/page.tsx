@@ -68,13 +68,13 @@ export default async function DashboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-semibold text-gray-200 mb-1">Ready to Practice?</h2>
-              <p className="text-sm text-gray-500">Start a quiz session to test your knowledge</p>
+              <p className="text-sm text-gray-500">AI will select the best topic for you based on your learning progress</p>
             </div>
             <Link
-              href="/learn/select"
+              href="/learn"
               className="neuro-btn text-blue-400 px-6 py-3 font-semibold"
             >
-              Start Quiz →
+              Start RL Quiz →
             </Link>
           </div>
         </div>

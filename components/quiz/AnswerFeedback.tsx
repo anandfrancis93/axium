@@ -16,6 +16,9 @@ interface AnswerFeedbackProps {
   recognitionMethod: RecognitionMethod
   onContinue: () => void
   showNextButton?: boolean
+  topicName?: string
+  bloomLevel?: number
+  selectionReason?: string
 }
 
 const recognitionMethodInfo = {
@@ -31,7 +34,10 @@ export function AnswerFeedback({
   confidence,
   recognitionMethod,
   onContinue,
-  showNextButton = true
+  showNextButton = true,
+  topicName,
+  bloomLevel,
+  selectionReason
 }: AnswerFeedbackProps) {
   const confidenceLabel = ['Low', 'Medium', 'High'][confidence - 1]
   const isWellCalibrated = (result.isCorrect && confidence === 3) || (!result.isCorrect && confidence === 1)
@@ -39,8 +45,46 @@ export function AnswerFeedback({
   const methodInfo = recognitionMethodInfo[recognitionMethod]
   const MethodIcon = methodInfo.icon
 
+  const bloomLevelNames: Record<number, string> = {
+    1: 'Remember',
+    2: 'Understand',
+    3: 'Apply',
+    4: 'Analyze',
+    5: 'Evaluate',
+    6: 'Create'
+  }
+
   return (
     <div className="space-y-4">
+      {/* Topic Reveal (if RL-driven) */}
+      {topicName && bloomLevel && (
+        <div className="neuro-card p-6 border-l-4 border-purple-400">
+          <div className="flex items-start gap-3">
+            <BookOpen size={20} className="text-purple-400 flex-shrink-0 mt-1" />
+            <div className="flex-1">
+              <h4 className="text-lg font-semibold text-purple-400 mb-2">Question Topic Revealed</h4>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-500 text-sm">Topic:</span>
+                  <span className="font-medium text-gray-200">{topicName}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-500 text-sm">Bloom Level:</span>
+                  <span className="font-medium text-gray-200">
+                    {bloomLevel} - {bloomLevelNames[bloomLevel]}
+                  </span>
+                </div>
+                {selectionReason && (
+                  <div className="mt-2 text-xs text-gray-500 bg-gray-800/50 rounded p-2">
+                    <strong className="text-blue-400">Why this topic?</strong> {selectionReason}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Result Banner */}
       <div className={`
         neuro-card p-6 border-2
