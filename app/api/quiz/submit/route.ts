@@ -24,20 +24,26 @@ export async function POST(request: NextRequest) {
     }
 
     const submission: AnswerSubmission = await request.json()
-    const { questionId, answer, confidence, timeTaken } = submission
+    const { questionId, question: submittedQuestion, answer, confidence, timeTaken, topicId } = submission
 
-    // Fetch the question
-    const { data: question, error: questionError } = await supabase
-      .from('questions')
-      .select('*')
-      .eq('id', questionId)
-      .single()
+    // Use submitted question (for on-the-fly) or fetch from database
+    let question = submittedQuestion
 
-    if (questionError || !question) {
-      return NextResponse.json(
-        { error: 'Question not found' },
-        { status: 404 }
-      )
+    if (!question) {
+      // Try to fetch from database (legacy/stored questions)
+      const { data: dbQuestion, error: questionError } = await supabase
+        .from('questions')
+        .select('*')
+        .eq('id', questionId)
+        .single()
+
+      if (questionError || !dbQuestion) {
+        return NextResponse.json(
+          { error: 'Question not found and not provided in submission' },
+          { status: 404 }
+        )
+      }
+      question = dbQuestion
     }
 
     // Check if answer is correct
@@ -46,13 +52,15 @@ export async function POST(request: NextRequest) {
     // Calculate reward (simplified RL reward)
     const reward = calculateReward(isCorrect, confidence, timeTaken)
 
-    // Store the response
+    // Store the response (use topicId from submission for on-the-fly questions)
+    const responseTopicId = topicId || question.topic_id
+
     const { error: insertError } = await supabase
       .from('user_responses')
       .insert({
         user_id: user.id,
-        question_id: questionId,
-        topic_id: question.topic_id,
+        question_id: questionId.startsWith('generated-') ? null : questionId, // null for on-the-fly
+        topic_id: responseTopicId,
         bloom_level: question.bloom_level,
         user_answer: Array.isArray(answer) ? answer : [answer],
         is_correct: isCorrect,
@@ -71,7 +79,7 @@ export async function POST(request: NextRequest) {
     await updateUserProgress(
       supabase,
       user.id,
-      question.topic_id,
+      responseTopicId,
       question.bloom_level,
       isCorrect,
       confidence,

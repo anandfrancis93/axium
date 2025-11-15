@@ -63,9 +63,11 @@ export interface QuizStartParams {
 export interface AnswerSubmission {
   sessionId: string
   questionId: string
+  question?: QuizQuestion  // Include full question for on-the-fly generated questions
   answer: string | string[]
   confidence: number  // 1-5
   timeTaken: number  // seconds
+  topicId: string  // Needed for progress tracking
 }
 
 export interface AnswerResult {

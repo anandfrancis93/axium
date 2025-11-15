@@ -90,9 +90,11 @@ function LearnPageContent() {
         body: JSON.stringify({
           sessionId: session.id,
           questionId: currentQuestion.id,
+          question: currentQuestion,  // Include full question for on-the-fly questions
           answer: userAnswer,
           confidence,
-          timeTaken
+          timeTaken,
+          topicId: session.topicId  // Include topicId for progress tracking
         })
       })
 

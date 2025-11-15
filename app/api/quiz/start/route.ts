@@ -3,12 +3,19 @@
  *
  * POST /api/quiz/start
  *
- * Starts a new quiz session with questions for a specific topic/Bloom level
+ * Generates questions on-the-fly using GraphRAG context and xAI Grok
  */
 
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { QuizStartParams, QuizQuestion } from '@/lib/types/quiz'
+import OpenAI from 'openai'
+
+// Initialize xAI Grok client
+const grok = new OpenAI({
+  apiKey: process.env.XAI_API_KEY,
+  baseURL: 'https://api.x.ai/v1'
+})
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,7 +34,7 @@ export async function POST(request: NextRequest) {
     const {
       topicId,
       bloomLevel = 1,
-      questionCount = 10,
+      questionCount = 5, // Reduced default since we're generating on-the-fly
       useRecommendations = false
     } = body
 
@@ -55,55 +62,57 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Fetch questions for the topic and Bloom level
-    const { data: questions, error: questionsError } = await supabase
-      .from('questions')
-      .select('*')
-      .eq('topic_id', selectedTopicId)
-      .eq('bloom_level', bloomLevel)
-      .limit(questionCount)
+    // Get topic info with full path for context
+    const { data: topic } = await supabase
+      .from('topics')
+      .select(`
+        id,
+        name,
+        chapters (
+          name,
+          subjects (
+            name
+          )
+        )
+      `)
+      .eq('id', selectedTopicId)
+      .single()
 
-    if (questionsError) {
-      console.error('Error fetching questions:', questionsError)
+    if (!topic) {
       return NextResponse.json(
-        { error: 'Failed to fetch questions' },
-        { status: 500 }
-      )
-    }
-
-    if (!questions || questions.length === 0) {
-      return NextResponse.json(
-        { error: 'No questions found for this topic and Bloom level' },
+        { error: 'Topic not found' },
         { status: 404 }
       )
     }
 
-    // Get topic info
-    const { data: topic } = await supabase
-      .from('topics')
-      .select('name')
-      .eq('id', selectedTopicId)
-      .single()
+    const topicName = topic.name
+    const chapterName = topic.chapters?.name || ''
+    const subjectName = topic.chapters?.subjects?.name || ''
 
-    // Create session (simplified - stored in memory for now)
+    // Retrieve GraphRAG context from knowledge graph
+    const graphContext = await getGraphRAGContext(supabase, selectedTopicId, topicName)
+
+    // Generate questions on-the-fly using Grok
+    console.log(`Generating ${questionCount} questions for ${topicName} at Bloom level ${bloomLevel}`)
+    const questions = await generateQuestions(
+      topicName,
+      chapterName,
+      subjectName,
+      bloomLevel,
+      questionCount,
+      graphContext
+    )
+
+    // Create session
     const session = {
       id: crypto.randomUUID(),
       userId: user.id,
       topicId: selectedTopicId,
-      topicName: topic?.name || 'Unknown Topic',
+      topicName: topicName,
       bloomLevel,
       startedAt: new Date().toISOString(),
-      questions: questions.map((q: any) => ({
-        id: q.id,
-        topic_id: q.topic_id,
-        bloom_level: q.bloom_level,
-        question_format: q.question_format,
-        question_text: q.question_text,
-        options: q.options,
-        correct_answer: q.correct_answer,
-        explanation: q.explanation,
-        difficulty_score: q.difficulty_score,
-        metadata: q.metadata,
+      questions: questions.map(q => ({
+        ...q,
         startedAt: new Date()
       })),
       currentQuestionIndex: 0,
@@ -115,14 +124,162 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       session,
-      firstQuestion: session.questions[0]
+      firstQuestion: session.questions[0],
+      contextUsed: graphContext.length > 0
     })
 
   } catch (error) {
     console.error('Error in quiz start:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }
     )
+  }
+}
+
+/**
+ * Retrieve GraphRAG context for a topic using the knowledge graph
+ */
+async function getGraphRAGContext(
+  supabase: any,
+  topicId: string,
+  topicName: string
+): Promise<string> {
+  try {
+    // Option 1: Get from graphrag_entities (if topic exists in knowledge graph)
+    const { data: entity } = await supabase
+      .from('graphrag_entities')
+      .select('name, type, description, summary, full_path')
+      .eq('name', topicName)
+      .limit(1)
+      .single()
+
+    if (entity && entity.summary) {
+      console.log('Using GraphRAG entity summary for context')
+      return entity.summary
+    }
+
+    // Option 2: Get from prerequisite paths (related topics)
+    const { data: prerequisites } = await supabase
+      .from('graphrag_prerequisite_paths')
+      .select('path_names, path_summaries')
+      .eq('target_entity_id', topicId)
+      .limit(3)
+
+    if (prerequisites && prerequisites.length > 0) {
+      console.log('Using prerequisite paths for context')
+      const context = prerequisites
+        .map((p: any) => p.path_summaries?.join(' → '))
+        .filter(Boolean)
+        .join('\n\n')
+      if (context) return context
+    }
+
+    // Option 3: Get from knowledge_chunks (vector similarity - fallback)
+    const { data: chunks } = await supabase
+      .from('knowledge_chunks')
+      .select('content')
+      .ilike('content', `%${topicName}%`)
+      .limit(3)
+
+    if (chunks && chunks.length > 0) {
+      console.log('Using knowledge chunks for context')
+      return chunks.map((c: any) => c.content).join('\n\n')
+    }
+
+    console.log('No GraphRAG context found, using topic name only')
+    return ''
+  } catch (error) {
+    console.error('Error retrieving GraphRAG context:', error)
+    return ''
+  }
+}
+
+/**
+ * Generate questions using xAI Grok with GraphRAG context
+ */
+async function generateQuestions(
+  topicName: string,
+  chapterName: string,
+  subjectName: string,
+  bloomLevel: number,
+  count: number,
+  graphContext: string
+): Promise<QuizQuestion[]> {
+  const bloomLevels = ['Remember', 'Understand', 'Apply', 'Analyze', 'Evaluate', 'Create']
+  const bloomName = bloomLevels[bloomLevel - 1]
+
+  const contextSection = graphContext
+    ? `\n\nContext from knowledge graph:\n${graphContext}\n\nUse this context to create relevant, specific questions.`
+    : '\n\nNo additional context available. Use your knowledge of the topic.'
+
+  const systemPrompt = `You are an expert educator creating quiz questions based on Bloom's Taxonomy.
+
+Subject: ${subjectName}
+Chapter: ${chapterName}
+Topic: ${topicName}
+Bloom Level: ${bloomLevel} - ${bloomName}${contextSection}
+
+Generate ${count} questions at Bloom level ${bloomLevel} (${bloomName}).
+
+For each question, provide:
+1. question_format: One of [mcq_single, mcq_multi, true_false, fill_blank, open_ended]
+2. question_text: The question itself
+3. options: Array of 4 options (for MCQ), or empty array for other formats
+4. correct_answer: String or array of strings (for mcq_multi)
+5. explanation: Why the answer is correct (2-3 sentences)
+
+Return ONLY valid JSON array with no markdown formatting:
+[
+  {
+    "question_format": "mcq_single",
+    "question_text": "...",
+    "options": ["A", "B", "C", "D"],
+    "correct_answer": "A",
+    "explanation": "..."
+  }
+]`
+
+  try {
+    const completion = await grok.chat.completions.create({
+      model: 'grok-beta',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: `Generate ${count} diverse questions for "${topicName}".` }
+      ],
+      temperature: 0.7,
+      max_tokens: 2000
+    })
+
+    const responseText = completion.choices[0]?.message?.content || '[]'
+
+    // Parse JSON response
+    const cleanedResponse = responseText
+      .replace(/```json\n?/g, '')
+      .replace(/```\n?/g, '')
+      .trim()
+
+    const generatedQuestions = JSON.parse(cleanedResponse)
+
+    // Transform to QuizQuestion format
+    return generatedQuestions.map((q: any, idx: number) => ({
+      id: `generated-${Date.now()}-${idx}`,
+      topic_id: '', // Will be set by session
+      bloom_level: bloomLevel,
+      question_format: q.question_format,
+      question_text: q.question_text,
+      options: q.options || [],
+      correct_answer: q.correct_answer,
+      explanation: q.explanation,
+      metadata: {
+        generated_at: new Date().toISOString(),
+        source: 'grok-on-the-fly',
+        context_used: graphContext.length > 0
+      }
+    }))
+
+  } catch (error) {
+    console.error('Error generating questions with Grok:', error)
+    throw new Error(`Question generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }
