@@ -57,8 +57,8 @@ export async function POST(request: NextRequest) {
     // Check if answer is correct
     const isCorrect = checkAnswer(answer, question.correct_answer, question.question_format)
 
-    // Calculate reward (simplified RL reward)
-    const reward = calculateReward(isCorrect, confidence, timeTaken)
+    // Calculate reward based on correctness and confidence calibration
+    const reward = calculateReward(isCorrect, confidence)
 
     // Store the response (use topicId from submission for on-the-fly questions)
     const responseTopicId = topicId || question.topic_id
@@ -154,12 +154,11 @@ function checkAnswer(
 }
 
 /**
- * Calculate RL reward based on correctness, confidence, and time
+ * Calculate RL reward based on correctness and confidence calibration
  */
 function calculateReward(
   isCorrect: boolean,
-  confidence: number,
-  timeTaken: number
+  confidence: number
 ): number {
   let reward = 0
 
@@ -179,16 +178,6 @@ function calculateReward(
     reward -= 0.3  // Over-confident and wrong
   } else if (!isCorrect && confidence <= 2) {
     reward += 0.1  // Well-calibrated, knew they didn't know
-  }
-
-  // Time penalty for extremely slow responses (>3 minutes)
-  if (timeTaken > 180) {
-    reward -= 0.1
-  }
-
-  // Time bonus for quick correct responses (<30 seconds)
-  if (isCorrect && timeTaken < 30) {
-    reward += 0.1
   }
 
   return Math.max(-1, Math.min(1, reward))  // Clamp to [-1, 1]
