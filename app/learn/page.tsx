@@ -524,7 +524,7 @@ function LearnPageContent() {
               <div className="space-y-4">
                 {/* Selection Method */}
                 <div className="p-4 neuro-inset rounded-lg">
-                  <div className="text-sm text-gray-400 mb-2">Selection Method</div>
+                  <div className="text-sm text-white mb-2">Selection Method</div>
                   <div className="font-semibold text-blue-400">
                     {(() => {
                       const reason = (currentQuestion as any).selection_reason || ''
@@ -546,7 +546,7 @@ function LearnPageContent() {
                       }
                     })()}
                   </div>
-                  <div className="text-sm text-gray-400 mt-2">
+                  <div className="text-sm text-white mt-2">
                     {(() => {
                       const reason = (currentQuestion as any).selection_reason || ''
 
@@ -657,7 +657,7 @@ function LearnPageContent() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Calibration Score */}
                 <div className="p-4 neuro-inset rounded-lg">
-                  <div className="text-sm text-gray-400 mb-2">Calibration Score</div>
+                  <div className="text-sm text-white mb-2">Calibration Score</div>
                   <div className="flex items-center gap-3">
                     <div className={`text-3xl font-bold ${
                       answerResult.calibrationScore > 0 ? 'text-green-400' :
@@ -686,7 +686,7 @@ function LearnPageContent() {
                       </div>
                     </div>
                   </div>
-                  <div className="text-xs text-gray-500 mt-2">
+                  <div className="text-xs text-white mt-2">
                     {(() => {
                       // Get calibration feedback based on all 24 scenarios
                       const isCorrect = answerResult.isCorrect
@@ -744,10 +744,10 @@ function LearnPageContent() {
 
                 {/* Your Choices Summary */}
                 <div className="p-4 neuro-inset rounded-lg">
-                  <div className="text-sm text-gray-400 mb-3">Your Choices</div>
+                  <div className="text-sm text-white mb-3">Your Choices</div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-500 text-sm">Confidence:</span>
+                      <span className="text-white text-sm">Confidence:</span>
                       <span className={`font-semibold ${
                         confidence === 3 ? 'text-green-400' :
                         confidence === 2 ? 'text-yellow-400' :
@@ -757,7 +757,7 @@ function LearnPageContent() {
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-500 text-sm">Method:</span>
+                      <span className="text-white text-sm">Method:</span>
                       <span className={`font-semibold ${
                         recognitionMethod === 'memory' ? 'text-purple-400' :
                         recognitionMethod === 'recognition' ? 'text-blue-400' :
@@ -771,7 +771,7 @@ function LearnPageContent() {
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-500 text-sm">Result:</span>
+                      <span className="text-white text-sm">Result:</span>
                       <span className={`font-semibold ${answerResult.isCorrect ? 'text-green-400' : 'text-red-400'}`}>
                         {answerResult.isCorrect ? 'Correct' : 'Incorrect'}
                       </span>
