@@ -598,7 +598,7 @@ function LearnPageContent() {
                         if (colonIndex > 0) {
                           const phaseName = reason.substring(0, colonIndex).trim()
                           // Capitalize first letter of each word
-                          const capitalizedPhase = phaseName.split(' ').map(word =>
+                          const capitalizedPhase = phaseName.split(' ').map((word: string) =>
                             word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
                           ).join(' ')
                           return `RL - ${capitalizedPhase}`
