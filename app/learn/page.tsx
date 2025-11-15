@@ -687,12 +687,12 @@ function LearnPageContent() {
                     </div>
                   </div>
                   <div className="text-xs text-gray-500 mt-2">
-                    {answerResult.calibrationScore > 1.0 && '🎯 Excellent! Your confidence matched your performance perfectly'}
-                    {answerResult.calibrationScore > 0.5 && answerResult.calibrationScore <= 1.0 && '👍 Good calibration! You assessed yourself well'}
-                    {answerResult.calibrationScore > 0 && answerResult.calibrationScore <= 0.5 && '✓ Fair calibration'}
+                    {answerResult.calibrationScore > 1.0 && 'Excellent! Your confidence matched your performance perfectly'}
+                    {answerResult.calibrationScore > 0.5 && answerResult.calibrationScore <= 1.0 && 'Good calibration! You assessed yourself well'}
+                    {answerResult.calibrationScore > 0 && answerResult.calibrationScore <= 0.5 && 'Fair calibration'}
                     {answerResult.calibrationScore === 0 && 'Neutral calibration'}
-                    {answerResult.calibrationScore < 0 && answerResult.calibrationScore >= -0.5 && '⚠️ Slight miscalibration'}
-                    {answerResult.calibrationScore < -0.5 && '⚠️ Poor calibration - try to be more honest about your confidence'}
+                    {answerResult.calibrationScore < 0 && answerResult.calibrationScore >= -0.5 && 'Slight miscalibration'}
+                    {answerResult.calibrationScore < -0.5 && 'Poor calibration - try to be more honest about your confidence'}
                   </div>
                 </div>
 
@@ -727,7 +727,7 @@ function LearnPageContent() {
                     <div className="flex items-center justify-between">
                       <span className="text-gray-500 text-sm">Result:</span>
                       <span className={`font-semibold ${answerResult.isCorrect ? 'text-green-400' : 'text-red-400'}`}>
-                        {answerResult.isCorrect ? 'Correct ✓' : 'Incorrect ✗'}
+                        {answerResult.isCorrect ? 'Correct' : 'Incorrect'}
                       </span>
                     </div>
                   </div>
