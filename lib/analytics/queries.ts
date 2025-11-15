@@ -29,7 +29,7 @@ export async function getUserStats(userId: string): Promise<UserStats> {
   // Fetch user responses for additional stats
   const { data: responses } = await supabase
     .from('user_responses')
-    .select('is_correct, confidence_level, created_at')
+    .select('is_correct, confidence, created_at')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
 
@@ -40,7 +40,7 @@ export async function getUserStats(userId: string): Promise<UserStats> {
   const overallAccuracy = totalAttempts > 0 ? correctAnswers / totalAttempts : 0
 
   const averageConfidence = responses && responses.length > 0
-    ? responses.reduce((sum: number, r) => sum + (r.confidence_level || 0) / 5, 0) / responses.length
+    ? responses.reduce((sum: number, r) => sum + (r.confidence || 0) / 5, 0) / responses.length
     : 0.5
 
   const masteryScores = progressData?.map(p => {

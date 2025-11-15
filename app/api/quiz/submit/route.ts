@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
         bloom_level: question.bloom_level,
         user_answer: Array.isArray(answer) ? answer : [answer],
         is_correct: isCorrect,
-        confidence_level: confidence,
+        confidence: confidence,
         response_time_seconds: timeTaken,
         question_format: question.question_format,
         reward: reward

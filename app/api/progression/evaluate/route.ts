@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     // Fetch recent responses for this topic
     let responsesQuery = supabase
       .from('user_responses')
-      .select('is_correct, confidence_level, created_at, bloom_level')
+      .select('is_correct, confidence, created_at, bloom_level')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(20)
@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
 
     // Confidence calibration analysis
     const confidenceResponses = recentResponses.map((r: any) => ({
-      confidenceLevel: r.confidence_level || 3,
+      confidenceLevel: r.confidence || 3,
       wasCorrect: r.is_correct
     }))
 
