@@ -184,7 +184,7 @@ function formatContext(context: GraphRAGContext): string {
 function generateMCQSinglePrompt(context: GraphRAGContext, bloomLevel: number): string {
   const bloomInfo = BLOOM_LEVELS[bloomLevel]
 
-  return `You are an expert cybersecurity educator creating a multiple-choice question for the CompTIA Security+ SY0-701 exam.
+  return `You are an expert cybersecurity educator creating a multiple-choice question.
 
 CONTEXT:
 ${formatContext(context)}
@@ -217,7 +217,7 @@ Return ONLY valid JSON in this exact format (no markdown, no code blocks):
 function generateMCQMultiPrompt(context: GraphRAGContext, bloomLevel: number): string {
   const bloomInfo = BLOOM_LEVELS[bloomLevel]
 
-  return `You are an expert cybersecurity educator creating a multiple-choice question for the CompTIA Security+ SY0-701 exam.
+  return `You are an expert cybersecurity educator creating a multiple-choice question.
 
 CONTEXT:
 ${formatContext(context)}
@@ -250,7 +250,7 @@ Return ONLY valid JSON in this exact format (no markdown, no code blocks):
 function generateTrueFalsePrompt(context: GraphRAGContext, bloomLevel: number): string {
   const bloomInfo = BLOOM_LEVELS[bloomLevel]
 
-  return `You are an expert cybersecurity educator creating a true/false question for the CompTIA Security+ SY0-701 exam.
+  return `You are an expert cybersecurity educator creating a true/false question.
 
 CONTEXT:
 ${formatContext(context)}
@@ -280,7 +280,7 @@ Return ONLY valid JSON in this exact format (no markdown, no code blocks):
 function generateFillBlankPrompt(context: GraphRAGContext, bloomLevel: number): string {
   const bloomInfo = BLOOM_LEVELS[bloomLevel]
 
-  return `You are an expert cybersecurity educator creating a fill-in-the-blank question for the CompTIA Security+ SY0-701 exam.
+  return `You are an expert cybersecurity educator creating a fill-in-the-blank question.
 
 CONTEXT:
 ${formatContext(context)}
@@ -311,7 +311,7 @@ Return ONLY valid JSON in this exact format (no markdown, no code blocks):
 function generateOpenEndedPrompt(context: GraphRAGContext, bloomLevel: number): string {
   const bloomInfo = BLOOM_LEVELS[bloomLevel]
 
-  return `You are an expert cybersecurity educator creating an open-ended question for the CompTIA Security+ SY0-701 exam.
+  return `You are an expert cybersecurity educator creating an open-ended question.
 
 CONTEXT:
 ${formatContext(context)}
