@@ -43,8 +43,8 @@ export async function extractEntitiesAndRelationships(
 
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5-20250929',
-      max_tokens: 3000, // Increased to prevent JSON truncation
+      model: 'claude-3-5-haiku-20241022', // 10x cheaper than Sonnet 4.5
+      max_tokens: 2000, // Reduced to limit output costs
       temperature: 0.1, // Very low temperature for consistent, structured output
       messages: [
         {
