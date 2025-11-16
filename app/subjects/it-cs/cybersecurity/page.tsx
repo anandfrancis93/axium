@@ -51,19 +51,6 @@ export default async function CybersecurityPage() {
           <span>Back to IT/CS</span>
         </Link>
 
-        {/* Topic Info */}
-        <div className="neuro-card p-6">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="neuro-inset w-16 h-16 rounded-xl flex items-center justify-center">
-              <ShieldIcon size={32} className="text-red-400" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-200">Cybersecurity</h2>
-              <p className="text-sm text-gray-500 mt-1">Master the principles of protecting systems, networks, and data</p>
-            </div>
-          </div>
-        </div>
-
         {/* Quick Action - Start Practice */}
         <div className="neuro-card p-6">
           <div className="flex items-center justify-between">
