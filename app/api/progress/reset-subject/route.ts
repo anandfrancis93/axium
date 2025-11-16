@@ -34,15 +34,48 @@ export async function POST(request: NextRequest) {
     }
 
     // Get all topics for the specified subject
+    // First get the subject ID
+    const { data: subjects, error: subjectError } = await supabase
+      .from('subjects')
+      .select('id')
+      .eq('name', subject)
+      .single()
+
+    if (subjectError || !subjects) {
+      console.error('Error fetching subject:', subjectError)
+      return NextResponse.json(
+        { error: `Subject not found: ${subject}` },
+        { status: 404 }
+      )
+    }
+
+    // Then get chapters for this subject
+    const { data: chapters, error: chaptersError } = await supabase
+      .from('chapters')
+      .select('id')
+      .eq('subject_id', subjects.id)
+
+    if (chaptersError || !chapters || chapters.length === 0) {
+      console.error('Error fetching chapters:', chaptersError)
+      return NextResponse.json({
+        success: true,
+        deletedCount: 0,
+        message: `No chapters found for subject: ${subject}`
+      })
+    }
+
+    const chapterIds = chapters.map(c => c.id)
+
+    // Get all topics for these chapters
     const { data: topics, error: topicsError } = await supabase
       .from('topics')
-      .select('id, chapters!inner(subjects!inner(name))')
-      .eq('chapters.subjects.name', subject)
+      .select('id')
+      .in('chapter_id', chapterIds)
 
     if (topicsError) {
       console.error('Error fetching topics:', topicsError)
       return NextResponse.json(
-        { error: 'Failed to fetch topics' },
+        { error: 'Failed to fetch topics', details: topicsError.message },
         { status: 500 }
       )
     }
@@ -57,19 +90,38 @@ export async function POST(request: NextRequest) {
 
     // Extract topic IDs
     const topicIds = topics.map(t => t.id)
+    console.log(`Found ${topicIds.length} topics for subject: ${subject}`)
+
+    if (topicIds.length === 0) {
+      return NextResponse.json({
+        success: true,
+        deletedCount: 0,
+        message: `No topics found for subject: ${subject}`
+      })
+    }
 
     // Count records before deletion
-    const { count: progressCount } = await supabase
+    const { count: progressCount, error: countProgressError } = await supabase
       .from('user_progress')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', user.id)
       .in('topic_id', topicIds)
 
-    const { count: responsesCount } = await supabase
+    if (countProgressError) {
+      console.error('Error counting user_progress:', countProgressError)
+    }
+
+    const { count: responsesCount, error: countResponsesError } = await supabase
       .from('user_responses')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', user.id)
       .in('topic_id', topicIds)
+
+    if (countResponsesError) {
+      console.error('Error counting user_responses:', countResponsesError)
+    }
+
+    console.log(`Found ${progressCount || 0} progress records and ${responsesCount || 0} response records to delete`)
 
     // Delete all user_progress entries for these topics
     const { error: deleteProgressError } = await supabase
@@ -80,11 +132,19 @@ export async function POST(request: NextRequest) {
 
     if (deleteProgressError) {
       console.error('Error deleting user_progress:', deleteProgressError)
+      console.error('Delete query params:', { user_id: user.id, topic_ids: topicIds })
       return NextResponse.json(
-        { error: 'Failed to delete progress records', details: deleteProgressError.message },
+        {
+          error: 'Failed to delete progress records',
+          details: deleteProgressError.message,
+          code: deleteProgressError.code,
+          hint: deleteProgressError.hint
+        },
         { status: 500 }
       )
     }
+
+    console.log('Successfully deleted user_progress records')
 
     // Delete all user_responses for these topics
     const { error: deleteResponsesError } = await supabase
@@ -96,6 +156,8 @@ export async function POST(request: NextRequest) {
     if (deleteResponsesError) {
       console.error('Error deleting user_responses:', deleteResponsesError)
       // Continue anyway - progress deletion is more important
+    } else {
+      console.log('Successfully deleted user_responses records')
     }
 
     const totalDeleted = (progressCount || 0) + (responsesCount || 0)
