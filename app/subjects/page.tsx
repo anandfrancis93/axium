@@ -54,7 +54,7 @@ export default async function DashboardPage() {
               href="/learn"
               className="neuro-btn text-blue-400 px-6 py-3 font-semibold"
             >
-              Start RL Quiz →
+              Start Quiz →
             </Link>
           </div>
         </div>
