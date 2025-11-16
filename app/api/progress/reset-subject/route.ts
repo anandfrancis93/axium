@@ -58,25 +58,38 @@ export async function POST(request: NextRequest) {
     // Extract topic IDs
     const topicIds = topics.map(t => t.id)
 
-    // Delete all user_progress entries for these topics
-    const { error: deleteProgressError, count: progressCount } = await supabase
+    // Count records before deletion
+    const { count: progressCount } = await supabase
       .from('user_progress')
-      .delete({ count: 'exact' })
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .in('topic_id', topicIds)
+
+    const { count: responsesCount } = await supabase
+      .from('user_responses')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .in('topic_id', topicIds)
+
+    // Delete all user_progress entries for these topics
+    const { error: deleteProgressError } = await supabase
+      .from('user_progress')
+      .delete()
       .eq('user_id', user.id)
       .in('topic_id', topicIds)
 
     if (deleteProgressError) {
       console.error('Error deleting user_progress:', deleteProgressError)
       return NextResponse.json(
-        { error: 'Failed to delete progress records' },
+        { error: 'Failed to delete progress records', details: deleteProgressError.message },
         { status: 500 }
       )
     }
 
     // Delete all user_responses for these topics
-    const { error: deleteResponsesError, count: responsesCount } = await supabase
+    const { error: deleteResponsesError } = await supabase
       .from('user_responses')
-      .delete({ count: 'exact' })
+      .delete()
       .eq('user_id', user.id)
       .in('topic_id', topicIds)
 
