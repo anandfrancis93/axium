@@ -15,7 +15,6 @@ export default async function SubjectPage({
 
   let subject: any = null
   let chapters: any[] = []
-  let subjectMastery: any = null
   let user: any = null
 
   try {
@@ -55,16 +54,6 @@ export default async function SubjectPage({
       .order('created_at', { ascending: true })
 
     chapters = chaptersData || []
-
-    // Get user's progress summary for this subject
-    const { data: masteryData } = await supabase
-      .from('user_progress_summary')
-      .select('*')
-      .eq('user_id', user.id)
-      .limit(1)
-      .single()
-
-    subjectMastery = masteryData
 
   } catch (error) {
     console.error('Error loading subject:', error)

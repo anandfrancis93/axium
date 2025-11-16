@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { logAPICall } from '@/lib/utils/api-logger'
 import OpenAI from 'openai'
 import Anthropic from '@anthropic-ai/sdk'
 
@@ -233,19 +232,6 @@ export async function POST(request: NextRequest) {
       })
       const topicEmbedding = embeddingResponse.data[0].embedding
 
-      // Log embedding API call
-      await logAPICall({
-        userId: user.id,
-        provider: 'openai',
-        model: 'text-embedding-3-small',
-        endpoint: '/api/questions/generate',
-        inputTokens: embeddingResponse.usage?.prompt_tokens || 0,
-        outputTokens: 0,
-        latencyMs: Date.now() - embeddingStartTime,
-        purpose: 'rag_embedding',
-        metadata: { topic_id, topic, bloom_level: bloomLevelNum, dimension, question_format }
-      })
-
       console.log('Searching for relevant chunks...')
       const embeddingString = `[${topicEmbedding.join(',')}]`
 
@@ -383,19 +369,6 @@ Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other 
           content: prompt,
         },
       ],
-    })
-
-    // Log Claude API call
-    await logAPICall({
-      userId: user.id,
-      provider: 'anthropic',
-      model: 'claude-sonnet-4-5-20250929',
-      endpoint: '/api/questions/generate',
-      inputTokens: completion.usage.input_tokens,
-      outputTokens: completion.usage.output_tokens,
-      latencyMs: Date.now() - claudeStartTime,
-      purpose: 'question_generation',
-      metadata: { topic_id, topic, bloom_level: bloomLevelNum, dimension, question_format, num_questions }
     })
 
     // Extract JSON from Claude's response
