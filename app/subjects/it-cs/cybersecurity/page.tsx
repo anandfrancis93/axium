@@ -95,13 +95,23 @@ export default function CybersecurityPage() {
   const formatDateTime = (dateString: string) => {
     const date = new Date(dateString)
     const now = new Date()
-    const diffMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
+    const diffMs = now.getTime() - date.getTime()
+    const diffMinutes = Math.floor(diffMs / (1000 * 60))
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
 
-    // If less than 1 hour ago, show relative time
+    // If less than 1 minute ago
+    if (diffMinutes < 1) return 'Just now'
+
+    // If less than 1 hour ago, show minutes
     if (diffMinutes < 60) {
-      if (diffMinutes < 1) return 'Just now'
       if (diffMinutes === 1) return '1 minute ago'
       return `${diffMinutes} minutes ago`
+    }
+
+    // If less than 24 hours ago, show hours
+    if (diffHours < 24) {
+      if (diffHours === 1) return '1 hour ago'
+      return `${diffHours} hours ago`
     }
 
     // Otherwise show full date and time
