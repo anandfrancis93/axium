@@ -123,42 +123,50 @@ export async function POST(request: NextRequest) {
 
     console.log(`Found ${progressCount || 0} progress records and ${responsesCount || 0} response records to delete`)
 
-    // Delete all user_progress entries for these topics
-    const { error: deleteProgressError } = await supabase
-      .from('user_progress')
-      .delete()
-      .eq('user_id', user.id)
-      .in('topic_id', topicIds)
+    // Batch delete to avoid parameter limit (max 100 IDs per batch)
+    const BATCH_SIZE = 100
+    let totalProgressDeleted = 0
+    let totalResponsesDeleted = 0
 
-    if (deleteProgressError) {
-      console.error('Error deleting user_progress:', deleteProgressError)
-      console.error('Delete query params:', { user_id: user.id, topic_ids: topicIds })
-      return NextResponse.json(
-        {
-          error: 'Failed to delete progress records',
-          details: deleteProgressError.message,
-          code: deleteProgressError.code,
-          hint: deleteProgressError.hint
-        },
-        { status: 500 }
-      )
+    for (let i = 0; i < topicIds.length; i += BATCH_SIZE) {
+      const batch = topicIds.slice(i, i + BATCH_SIZE)
+      console.log(`Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(topicIds.length / BATCH_SIZE)} (${batch.length} topics)`)
+
+      // Delete user_progress for this batch
+      const { error: deleteProgressError } = await supabase
+        .from('user_progress')
+        .delete()
+        .eq('user_id', user.id)
+        .in('topic_id', batch)
+
+      if (deleteProgressError) {
+        console.error(`Error deleting user_progress batch ${i}-${i + batch.length}:`, deleteProgressError)
+        return NextResponse.json(
+          {
+            error: 'Failed to delete progress records',
+            details: deleteProgressError.message,
+            code: deleteProgressError.code,
+            hint: deleteProgressError.hint,
+            batch: `${i}-${i + batch.length}`
+          },
+          { status: 500 }
+        )
+      }
+
+      // Delete user_responses for this batch
+      const { error: deleteResponsesError } = await supabase
+        .from('user_responses')
+        .delete()
+        .eq('user_id', user.id)
+        .in('topic_id', batch)
+
+      if (deleteResponsesError) {
+        console.error(`Error deleting user_responses batch ${i}-${i + batch.length}:`, deleteResponsesError)
+        // Continue anyway - progress deletion is more important
+      }
     }
 
-    console.log('Successfully deleted user_progress records')
-
-    // Delete all user_responses for these topics
-    const { error: deleteResponsesError } = await supabase
-      .from('user_responses')
-      .delete()
-      .eq('user_id', user.id)
-      .in('topic_id', topicIds)
-
-    if (deleteResponsesError) {
-      console.error('Error deleting user_responses:', deleteResponsesError)
-      // Continue anyway - progress deletion is more important
-    } else {
-      console.log('Successfully deleted user_responses records')
-    }
+    console.log(`Successfully deleted all records in ${Math.ceil(topicIds.length / BATCH_SIZE)} batches`)
 
     const totalDeleted = (progressCount || 0) + (responsesCount || 0)
 
