@@ -674,14 +674,25 @@ function LearnPageContent() {
                       </div>
                     )}
 
-                    {/* Topic Level */}
+                    {/* Learning Objective (## level) - if exists */}
+                    {(currentQuestion.hierarchy as any).learningObjective && (
+                      <div className="flex items-start gap-3">
+                        <div className="flex flex-col items-center">
+                          <div className="neuro-raised w-8 h-8 rounded-lg flex items-center justify-center">
+                            <span className="text-xs text-yellow-400 font-bold">LO</span>
+                          </div>
+                          <div className="w-px h-6 bg-gray-700"></div>
+                        </div>
+                        <div className="flex-1 pt-1">
+                          <div className="text-xs text-gray-500">Learning Objective</div>
+                          <div className="text-sm text-gray-400">{(currentQuestion.hierarchy as any).learningObjective}</div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Topic Level (### level) */}
                     <div className="pt-1">
                       <div className="font-semibold text-green-400">{currentQuestion.hierarchy.topic}</div>
-                      {(currentQuestion.hierarchy as any).topicFull && (currentQuestion.hierarchy as any).topicFull !== currentQuestion.hierarchy.topic && (
-                        <div className="text-xs text-gray-500 mt-1 italic">
-                          Learning Objective: {(currentQuestion.hierarchy as any).topicFull}
-                        </div>
-                      )}
                       {currentQuestion.hierarchy.description && (
                         <div className="text-xs text-gray-600 mt-1">{currentQuestion.hierarchy.description}</div>
                       )}

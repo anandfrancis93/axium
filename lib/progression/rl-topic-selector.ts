@@ -86,9 +86,11 @@ export async function selectNextTopic(
   console.log(`[RL] Question ${questionCount + 1}: ${isSpacedRepetition ? 'SPACED REPETITION (20%)' : 'RL-DRIVEN (80%)'}`)
 
   // Get all available topics with hierarchy information
+  // Only select actual topics (hierarchy_level >= 3), not learning objectives (level 2)
   const { data: allTopics, error: topicsError } = await supabase
     .from('topics')
-    .select('id, name, prerequisites, chapter_id, chapters(id, name, slug, subject_id, subjects(id, name, slug))')
+    .select('id, name, prerequisites, chapter_id, hierarchy_level, parent_topic_id, chapters(id, name, slug, subject_id, subjects(id, name, slug))')
+    .gte('hierarchy_level', 3)
 
   if (topicsError || !allTopics || allTopics.length === 0) {
     throw new Error('No topics found in database')

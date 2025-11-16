@@ -64,9 +64,23 @@ export async function POST(request: NextRequest) {
     // Fetch topic hierarchy for display
     const { data: topicHierarchy } = await supabase
       .from('topics')
-      .select('name, description, chapter_id, chapters(name, subject_id, subjects(name))')
+      .select('name, description, hierarchy_level, parent_topic_id, chapter_id, chapters(name, subject_id, subjects(name))')
       .eq('id', selection.topicId)
       .single()
+
+    // Fetch parent learning objective if this is a topic (level 3+)
+    let learningObjective = null
+    if (topicHierarchy?.parent_topic_id) {
+      const { data: parentData } = await supabase
+        .from('topics')
+        .select('name, hierarchy_level')
+        .eq('id', topicHierarchy.parent_topic_id)
+        .single()
+
+      if (parentData && parentData.hierarchy_level === 2) {
+        learningObjective = parentData.name
+      }
+    }
 
     // Fetch knowledge graph context for the selected topic
     const context = await fetchKnowledgeContext(supabase, selection.topicId, selection.topicName)
@@ -99,8 +113,9 @@ export async function POST(request: NextRequest) {
       hierarchy: topicHierarchy ? {
         subject: (topicHierarchy.chapters as any)?.[0]?.subjects?.name || null,
         chapter: (topicHierarchy.chapters as any)?.[0]?.name || null,
-        topic: extractShortTopicName(topicHierarchy.name), // Extract clean name from learning objective
-        topicFull: topicHierarchy.name, // Keep full objective for reference
+        topic: topicHierarchy.name, // Actual topic name (no cleaning needed - it's a real topic now)
+        learningObjective: learningObjective, // Parent learning objective (## level)
+        hierarchyLevel: topicHierarchy.hierarchy_level,
         description: topicHierarchy.description || null
       } : null
     }
@@ -136,45 +151,6 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-}
-
-/**
- * Extract short topic name from verbose learning objective
- *
- * Examples:
- * "Given a scenario, apply security principles to secure enterprise infrastructure"
- *   → "Security Principles for Enterprise Infrastructure"
- *
- * "Explain the processes associated with third-party risk assessment and management"
- *   → "Third-Party Risk Assessment and Management"
- */
-function extractShortTopicName(fullName: string): string {
-  if (!fullName) return 'Unknown Topic'
-
-  // Remove common prefixes
-  let cleaned = fullName
-    .replace(/^Given a scenario,?\s*/i, '')
-    .replace(/^Explain\s+(the\s+)?(processes|importance|purpose|differences?|concept)\s+(of|associated with|related to)\s*/i, '')
-    .replace(/^Compare and contrast\s+/i, '')
-    .replace(/^Summarize\s+/i, '')
-    .replace(/^Implement\s+/i, '')
-    .replace(/^Apply\s+/i, '')
-    .replace(/^Analyze\s+/i, '')
-    .replace(/^Evaluate\s+/i, '')
-    .replace(/^Given\s+/i, '')
-    .trim()
-
-  // Capitalize first letter if needed
-  if (cleaned.length > 0) {
-    cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1)
-  }
-
-  // Limit length (truncate at 60 chars with ellipsis)
-  if (cleaned.length > 60) {
-    cleaned = cleaned.substring(0, 57) + '...'
-  }
-
-  return cleaned || fullName
 }
 
 /**
