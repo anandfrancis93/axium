@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { CodeIcon, ArrowLeftIcon, BookIcon } from '@/components/icons'
+import { CodeIcon, ArrowLeftIcon, ShieldIcon, NetworkIcon, DatabaseIcon, TerminalIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 
 // Force dynamic rendering to access runtime environment variables
@@ -64,18 +64,68 @@ export default async function ITCSPage() {
           </div>
         </div>
 
-        {/* Placeholder: Chapters */}
+        {/* Topics */}
         <div>
-          <h3 className="text-xl font-semibold text-gray-200 mb-4">Chapters</h3>
-          <div className="neuro-inset p-8 rounded-lg text-center">
-            <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <BookIcon size={40} className="text-gray-600" />
+          <h3 className="text-xl font-semibold text-gray-200 mb-4">Topics</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Cybersecurity */}
+            <div className="neuro-card p-6 opacity-50 cursor-not-allowed">
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="neuro-inset w-16 h-16 rounded-xl flex items-center justify-center">
+                  <ShieldIcon size={32} className="text-red-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-200">Cybersecurity</h3>
+                  <span className="inline-block mt-2 text-xs text-gray-500 bg-gray-500/10 px-3 py-1 rounded-full">
+                    Coming Soon
+                  </span>
+                </div>
+              </div>
             </div>
-            <div className="text-gray-400 text-lg font-semibold mb-2">
-              No chapters yet
+
+            {/* Networking */}
+            <div className="neuro-card p-6 opacity-50 cursor-not-allowed">
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="neuro-inset w-16 h-16 rounded-xl flex items-center justify-center">
+                  <NetworkIcon size={32} className="text-green-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-200">Networking</h3>
+                  <span className="inline-block mt-2 text-xs text-gray-500 bg-gray-500/10 px-3 py-1 rounded-full">
+                    Coming Soon
+                  </span>
+                </div>
+              </div>
             </div>
-            <div className="text-sm text-gray-600 mb-6">
-              Chapters and topics will be displayed here once content is added
+
+            {/* Database */}
+            <div className="neuro-card p-6 opacity-50 cursor-not-allowed">
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="neuro-inset w-16 h-16 rounded-xl flex items-center justify-center">
+                  <DatabaseIcon size={32} className="text-purple-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-200">Database</h3>
+                  <span className="inline-block mt-2 text-xs text-gray-500 bg-gray-500/10 px-3 py-1 rounded-full">
+                    Coming Soon
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Programming */}
+            <div className="neuro-card p-6 opacity-50 cursor-not-allowed">
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="neuro-inset w-16 h-16 rounded-xl flex items-center justify-center">
+                  <TerminalIcon size={32} className="text-cyan-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-200">Programming</h3>
+                  <span className="inline-block mt-2 text-xs text-gray-500 bg-gray-500/10 px-3 py-1 rounded-full">
+                    Coming Soon
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
