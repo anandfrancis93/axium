@@ -271,7 +271,7 @@ Generate the question now:`
 
   try {
     const completion = await xai.chat.completions.create({
-      model: 'grok-2-1212',
+      model: 'grok-4-fast-reasoning', // Use Grok 4 Fast reasoning model for better quality
       messages: [
         {
           role: 'system',
@@ -283,7 +283,8 @@ Generate the question now:`
         }
       ],
       temperature: 0.7,
-      max_tokens: 1000
+      max_tokens: 2000,
+      stream: false
     })
 
     const responseText = completion.choices[0]?.message?.content?.trim()
