@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
       .eq('user_id', user.id)
       .in('topic_id', topicIds)
 
-    if (countProgressError) {
+    if (countProgressError && countProgressError.message) {
       console.error('Error counting user_progress:', countProgressError)
     }
 
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
       .eq('user_id', user.id)
       .in('topic_id', topicIds)
 
-    if (countResponsesError) {
+    if (countResponsesError && countResponsesError.message) {
       console.error('Error counting user_responses:', countResponsesError)
     }
 
