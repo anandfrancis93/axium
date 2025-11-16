@@ -345,12 +345,12 @@ function calculateCalibrationScore(
 }
 
 /**
- * Update TRACK 2: Format-specific correctness scores
+ * Update TRACK 2: Mastery scores per Bloom level
  *
- * Updates mastery_scores with format-specific performance.
- * Structure: {"bloom_level": {"format": score, ...}, ...}
+ * Updates mastery_scores with overall performance per Bloom level.
+ * Structure: {"1": 85, "2": 70, ...}
  *
- * Note: TRACK 1 (calibration statistics) are automatically updated by database trigger
+ * Format-specific performance tracked separately via v_format_performance view.
  */
 async function updateUserProgress(
   supabase: any,
@@ -371,9 +371,7 @@ async function updateUserProgress(
   if (!progress) {
     // Create initial progress record
     const initialMasteryScores = {
-      [bloomLevel]: {
-        [questionFormat]: isCorrect ? 100 : 0
-      }
+      [bloomLevel]: isCorrect ? 100 : 0
     }
 
     await supabase
@@ -392,37 +390,26 @@ async function updateUserProgress(
     const newCorrect = progress.correct_answers + (isCorrect ? 1 : 0)
     const newTotal = progress.total_attempts + 1
 
-    // Update format-specific mastery scores
+    // Update mastery scores (overall per Bloom level, not per format)
     const updatedMasteryScores = { ...progress.mastery_scores }
 
-    // Get or initialize Bloom level object
-    if (!updatedMasteryScores[bloomLevel]) {
-      updatedMasteryScores[bloomLevel] = {}
-    } else if (typeof updatedMasteryScores[bloomLevel] === 'number') {
-      // Migrate legacy format: {"1": 85} → {"1": {"overall": 85}}
-      const legacyScore = updatedMasteryScores[bloomLevel]
-      updatedMasteryScores[bloomLevel] = { overall: legacyScore }
-    }
-
-    // Calculate format-specific mastery for this Bloom level
-    // Get all responses for this user/topic/bloom/format
-    const { data: formatResponses } = await supabase
+    // Get all responses for this user/topic/bloom (all formats combined)
+    const { data: bloomResponses } = await supabase
       .from('user_responses')
       .select('is_correct')
       .eq('user_id', userId)
       .eq('topic_id', topicId)
       .eq('bloom_level', bloomLevel)
-      .eq('question_format', questionFormat)
 
-    if (formatResponses && formatResponses.length > 0) {
-      const formatCorrect = formatResponses.filter((r: { is_correct: boolean }) => r.is_correct).length
-      const formatTotal = formatResponses.length
-      const formatMastery = Math.round((formatCorrect / formatTotal) * 100)
+    if (bloomResponses && bloomResponses.length > 0) {
+      const bloomCorrect = bloomResponses.filter((r: { is_correct: boolean }) => r.is_correct).length
+      const bloomTotal = bloomResponses.length
+      const bloomMastery = Math.round((bloomCorrect / bloomTotal) * 100)
 
-      updatedMasteryScores[bloomLevel][questionFormat] = formatMastery
+      updatedMasteryScores[bloomLevel] = bloomMastery
     } else {
-      // First response for this format
-      updatedMasteryScores[bloomLevel][questionFormat] = isCorrect ? 100 : 0
+      // First response for this Bloom level
+      updatedMasteryScores[bloomLevel] = isCorrect ? 100 : 0
     }
 
     await supabase

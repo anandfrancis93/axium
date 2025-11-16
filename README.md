@@ -185,13 +185,16 @@ Simple percentage per format per Bloom level:
 mastery = (questions_correct / questions_attempted) × 100
 ```
 
-Stored as nested JSON in `user_progress.mastery_scores`:
+Stored as JSON in `user_progress.mastery_scores`:
 ```json
 {
-  "1": {"mcq_single": 85, "true_false": 90},
-  "2": {"mcq_single": 70, "mcq_multi": 65}
+  "1": 85,
+  "2": 70,
+  "3": 65
 }
 ```
+
+Format-specific performance is tracked separately in analytics via `v_format_performance` database view.
 
 ## Question Formats
 
