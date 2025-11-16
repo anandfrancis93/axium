@@ -108,9 +108,6 @@ export interface Database {
           mastery_scores: Json
           total_attempts: number
           correct_answers: number
-          avg_confidence: number
-          confidence_calibration_error: number
-          avg_response_time_seconds: number
           last_practiced_at: string | null
           created_at: string
           updated_at: string
@@ -123,9 +120,6 @@ export interface Database {
           mastery_scores?: Json
           total_attempts?: number
           correct_answers?: number
-          avg_confidence?: number
-          confidence_calibration_error?: number
-          avg_response_time_seconds?: number
           last_practiced_at?: string | null
           created_at?: string
           updated_at?: string
@@ -138,9 +132,6 @@ export interface Database {
           mastery_scores?: Json
           total_attempts?: number
           correct_answers?: number
-          avg_confidence?: number
-          confidence_calibration_error?: number
-          avg_response_time_seconds?: number
           last_practiced_at?: string | null
           created_at?: string
           updated_at?: string
