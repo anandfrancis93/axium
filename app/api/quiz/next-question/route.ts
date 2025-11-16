@@ -12,6 +12,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { selectNextTopic } from '@/lib/progression/rl-topic-selector'
 import OpenAI from 'openai'
 import { saveQuestion } from '@/lib/db/questions'
+import { getRecommendedFormats } from '@/lib/graphrag/prompts'
 
 // Initialize xAI client
 const xai = new OpenAI({
@@ -182,12 +183,15 @@ async function fetchKnowledgeContext(
 }
 
 /**
- * Get format based on Bloom level
+ * Get format based on Bloom level (randomly selected from recommended formats)
  */
 function getDefaultFormatForBloomLevel(bloomLevel: number): string {
-  if (bloomLevel <= 2) return 'mcq_single'
-  if (bloomLevel <= 4) return 'mcq_multi'
-  return 'open_ended'
+  // Get recommended formats for this Bloom level
+  const recommendedFormats = getRecommendedFormats(bloomLevel)
+
+  // Randomly select one format from the recommended list
+  const randomIndex = Math.floor(Math.random() * recommendedFormats.length)
+  return recommendedFormats[randomIndex]
 }
 
 /**
