@@ -108,15 +108,32 @@ INSTRUCTIONS:
 3. Extract ONLY the MOST IMPORTANT relationships (max 15 total):
    - source: Entity name (must match an extracted entity)
    - target: Entity name (must match an extracted entity)
-   - type: Choose ONE: IS_A, PART_OF, DEPENDS_ON, CAUSES, SIMILAR_TO, CONTRASTS_WITH, IMPLEMENTS, SOLVES, PREVENTS, USED_FOR
+   - type: Choose the MOST SPECIFIC type from:
+
+     TAXONOMY: IS_A, PART_OF, CATEGORY_OF, EXAMPLE_OF, VARIANT_OF
+
+     SECURITY: PROTECTS_AGAINST, EXPLOITS, ATTACKS, DEFENDS, MITIGATES, DETECTS, PREVENTS, VULNERABILE_TO
+
+     TECHNICAL: IMPLEMENTS, USES, REQUIRES, ENABLES, CONFIGURES, ENCRYPTS, DECRYPTS, AUTHENTICATES, AUTHORIZES, VALIDATES
+
+     FUNCTIONAL: MONITORS, LOGS, ALERTS, FILTERS, BLOCKS, ALLOWS, SCANS
+
+     EDUCATIONAL: DEPENDS_ON, PREREQUISITE_FOR, SIMILAR_TO, CONTRASTS_WITH, COMPARED_TO, SUPERSEDES
+
+     LOGICAL: CAUSES, SOLVES, LEADS_TO, RESULTS_IN, TRIGGERS
+
    - description: Brief explanation (max 60 chars, NO quotes, simple language)
    - strength: 0-1 (optional)
 
 RULES:
-- Focus on educational/learning relationships
-- Extract prerequisite relationships (DEPENDS_ON) when mentioned
-- Capture common mistakes/pitfalls as entities with CAUSES/PREVENTS relationships
-- Include comparisons and analogies
+- **Always choose the MOST SPECIFIC relationship type** (e.g., prefer PROTECTS_AGAINST over PREVENTS when discussing security controls)
+- Use SECURITY types for attack/defense scenarios (EXPLOITS, PROTECTS_AGAINST, MITIGATES, etc.)
+- Use TECHNICAL types for implementation details (IMPLEMENTS, REQUIRES, ENCRYPTS, etc.)
+- Use EDUCATIONAL types for learning paths (DEPENDS_ON, PREREQUISITE_FOR, etc.)
+- Extract prerequisite relationships when concepts must be learned in order
+- Capture attack relationships (X EXPLOITS Y, A ATTACKS B)
+- Capture defense relationships (X PROTECTS_AGAINST Y, A MITIGATES B)
+- Include comparisons using COMPARED_TO or CONTRASTS_WITH
 - Be conservative: only extract clear, unambiguous relationships
 - Ensure all relationship sources/targets refer to extracted entities
 - Keep descriptions VERY concise (max 80 chars for entities, 60 for relationships)
@@ -128,19 +145,26 @@ OUTPUT FORMAT (valid JSON only, properly escaped):
 {
   "entities": [
     {
-      "name": "Entity Name",
-      "type": "concept",
-      "description": "Brief description",
-      "aliases": ["Alternative Name"]
+      "name": "Firewall",
+      "type": "tool",
+      "description": "Network security device that monitors and controls traffic",
+      "aliases": ["Network Firewall"]
     }
   ],
   "relationships": [
     {
-      "source": "Entity A",
-      "target": "Entity B",
-      "type": "DEPENDS_ON",
-      "description": "Why A depends on B",
+      "source": "Firewall",
+      "target": "DDoS Attack",
+      "type": "PROTECTS_AGAINST",
+      "description": "Filters malicious traffic to prevent DDoS",
       "strength": 0.9
+    },
+    {
+      "source": "SSL/TLS",
+      "target": "Data",
+      "type": "ENCRYPTS",
+      "description": "Secures data transmission over network",
+      "strength": 1.0
     }
   ]
 }
