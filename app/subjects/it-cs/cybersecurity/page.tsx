@@ -304,9 +304,7 @@ export default function CybersecurityPage() {
                         })()}
                       </td>
                       <td className="p-4 text-right">
-                        <span className="text-sm text-gray-500 italic">
-                          Most recent
-                        </span>
+                        {/* Empty - no date for summary row */}
                       </td>
                     </tr>
                   </tfoot>
