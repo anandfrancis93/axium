@@ -51,7 +51,7 @@ export default async function CybersecurityPage() {
               <p className="text-sm text-gray-500">AI will select the best topic for you based on your learning progress</p>
             </div>
             <Link
-              href="/learn"
+              href="/subjects/it-cs/cybersecurity/learn"
               className="neuro-btn text-blue-400 px-6 py-3 font-semibold"
             >
               Start Quiz →
