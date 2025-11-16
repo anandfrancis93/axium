@@ -132,7 +132,6 @@ axium/
    - Feedback with explanation
 6. **Calibration Scoring**: 3D matrix (correctness × confidence × recognition) = -1.5 to +1.5
 7. **Mastery Update**: Simple percentage calculation per format per Bloom level
-8. **Statistics Update**: Auto-update calibration mean, stddev, slope via database trigger
 
 ## Key Algorithms
 
