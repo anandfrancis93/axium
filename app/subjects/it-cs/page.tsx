@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { CodeIcon, ArrowLeftIcon, ShieldIcon, NetworkIcon, DatabaseIcon, TerminalIcon } from '@/components/icons'
+import { CodeIcon, ShieldIcon, NetworkIcon, DatabaseIcon, TerminalIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 
 // Force dynamic rendering to access runtime environment variables
@@ -42,27 +42,6 @@ export default async function ITCSPage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-6">
-        {/* Back Button */}
-        <Link
-          href="/subjects"
-          className="neuro-btn text-gray-300 inline-flex items-center gap-2 px-4 py-2"
-        >
-          <ArrowLeftIcon size={18} />
-          <span>Back to Subjects</span>
-        </Link>
-
-        {/* Subject Info */}
-        <div className="neuro-card p-6">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="neuro-inset w-16 h-16 rounded-xl flex items-center justify-center">
-              <CodeIcon size={32} className="text-blue-400" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-200">Information Technology & Computer Science</h2>
-              <p className="text-sm text-gray-500 mt-1">Explore cybersecurity, programming, and computing fundamentals</p>
-            </div>
-          </div>
-        </div>
 
         {/* Topics */}
         <div>
