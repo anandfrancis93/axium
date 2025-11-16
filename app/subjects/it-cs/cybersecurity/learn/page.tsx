@@ -677,6 +677,11 @@ function LearnPageContent() {
                     {/* Topic Level */}
                     <div className="pt-1">
                       <div className="font-semibold text-green-400">{currentQuestion.hierarchy.topic}</div>
+                      {(currentQuestion.hierarchy as any).topicFull && (currentQuestion.hierarchy as any).topicFull !== currentQuestion.hierarchy.topic && (
+                        <div className="text-xs text-gray-500 mt-1 italic">
+                          Learning Objective: {(currentQuestion.hierarchy as any).topicFull}
+                        </div>
+                      )}
                       {currentQuestion.hierarchy.description && (
                         <div className="text-xs text-gray-600 mt-1">{currentQuestion.hierarchy.description}</div>
                       )}

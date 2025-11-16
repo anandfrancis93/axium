@@ -99,7 +99,8 @@ export async function POST(request: NextRequest) {
       hierarchy: topicHierarchy ? {
         subject: (topicHierarchy.chapters as any)?.[0]?.subjects?.name || null,
         chapter: (topicHierarchy.chapters as any)?.[0]?.name || null,
-        topic: topicHierarchy.name,
+        topic: extractShortTopicName(topicHierarchy.name), // Extract clean name from learning objective
+        topicFull: topicHierarchy.name, // Keep full objective for reference
         description: topicHierarchy.description || null
       } : null
     }
@@ -135,6 +136,45 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
+}
+
+/**
+ * Extract short topic name from verbose learning objective
+ *
+ * Examples:
+ * "Given a scenario, apply security principles to secure enterprise infrastructure"
+ *   → "Security Principles for Enterprise Infrastructure"
+ *
+ * "Explain the processes associated with third-party risk assessment and management"
+ *   → "Third-Party Risk Assessment and Management"
+ */
+function extractShortTopicName(fullName: string): string {
+  if (!fullName) return 'Unknown Topic'
+
+  // Remove common prefixes
+  let cleaned = fullName
+    .replace(/^Given a scenario,?\s*/i, '')
+    .replace(/^Explain\s+(the\s+)?(processes|importance|purpose|differences?|concept)\s+(of|associated with|related to)\s*/i, '')
+    .replace(/^Compare and contrast\s+/i, '')
+    .replace(/^Summarize\s+/i, '')
+    .replace(/^Implement\s+/i, '')
+    .replace(/^Apply\s+/i, '')
+    .replace(/^Analyze\s+/i, '')
+    .replace(/^Evaluate\s+/i, '')
+    .replace(/^Given\s+/i, '')
+    .trim()
+
+  // Capitalize first letter if needed
+  if (cleaned.length > 0) {
+    cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1)
+  }
+
+  // Limit length (truncate at 60 chars with ellipsis)
+  if (cleaned.length > 60) {
+    cleaned = cleaned.substring(0, 57) + '...'
+  }
+
+  return cleaned || fullName
 }
 
 /**
