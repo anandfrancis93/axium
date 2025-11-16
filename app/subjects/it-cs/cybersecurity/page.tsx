@@ -1,28 +1,9 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
-import Link from 'next/link'
+'use client'
+
 import { ShieldIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 
-// Force dynamic rendering to access runtime environment variables
-export const dynamic = 'force-dynamic'
-
-export default async function CybersecurityPage() {
-  try {
-    const supabase = await createClient()
-    const { data } = await supabase.auth.getUser()
-    const user = data.user
-
-    if (!user) {
-      redirect('/login')
-    }
-
-  } catch (error) {
-    console.error('Error loading Cybersecurity page:', error)
-    redirect('/login')
-    return null
-  }
-
+export default function CybersecurityPage() {
   return (
     <div className="min-h-screen" style={{ background: '#0a0a0a' }}>
       {/* Header */}
@@ -50,12 +31,16 @@ export default async function CybersecurityPage() {
               <h2 className="text-xl font-semibold text-gray-200 mb-1">Ready to Practice?</h2>
               <p className="text-sm text-gray-500">AI will select the best topic for you based on your learning progress</p>
             </div>
-            <Link
-              href="/subjects/it-cs/cybersecurity/learn"
+            <button
+              onClick={() => {
+                // Set authorization flag for quiz access
+                sessionStorage.setItem('quiz_authorized', 'true')
+                window.location.href = '/subjects/it-cs/cybersecurity/learn'
+              }}
               className="neuro-btn text-blue-400 px-6 py-3 font-semibold"
             >
               Start Quiz →
-            </Link>
+            </button>
           </div>
         </div>
       </main>

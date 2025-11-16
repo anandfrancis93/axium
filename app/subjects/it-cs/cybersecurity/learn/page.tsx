@@ -38,6 +38,34 @@ function LearnPageContent() {
   // Session storage key
   const STORAGE_KEY = 'axium_quiz_state'
 
+  // Guard: Check if user is authorized to access quiz page
+  useEffect(() => {
+    const authorized = sessionStorage.getItem('quiz_authorized')
+
+    if (!authorized) {
+      // User accessed page without clicking "Start Quiz" - redirect
+      router.push('/subjects/it-cs/cybersecurity')
+      return
+    }
+
+    // Clear authorization flag immediately (prevents back button access)
+    sessionStorage.removeItem('quiz_authorized')
+
+    // Prevent browser back button by replacing history entry
+    window.history.pushState(null, '', window.location.href)
+
+    const handlePopState = () => {
+      // If user tries to go back, redirect them away
+      router.push('/subjects/it-cs/cybersecurity')
+    }
+
+    window.addEventListener('popstate', handlePopState)
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState)
+    }
+  }, [router])
+
   // Save state to sessionStorage whenever it changes
   useEffect(() => {
     if (currentQuestion) {
