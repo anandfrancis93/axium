@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { ShieldIcon, ArrowLeftIcon } from '@/components/icons'
+import { ShieldIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 
 // Force dynamic rendering to access runtime environment variables
@@ -42,14 +42,6 @@ export default async function CybersecurityPage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-6">
-        {/* Back Button */}
-        <Link
-          href="/subjects/it-cs"
-          className="neuro-btn text-gray-300 inline-flex items-center gap-2 px-4 py-2"
-        >
-          <ArrowLeftIcon size={18} />
-          <span>Back to IT/CS</span>
-        </Link>
 
         {/* Quick Action - Start Practice */}
         <div className="neuro-card p-6">
