@@ -229,6 +229,14 @@ QUALITY CONTROLS - ANTI-TELL-TALE RULES:
 - Distractors must be based on common misconceptions or related concepts (not random)
 - No option should contain hints about other options being correct/incorrect
 
+✅ DISTRACTOR QUALITY (critically important):
+- ALL options must be from the SAME DOMAIN/TOPIC AREA as the question
+- Distractors should be plausible alternative answers that test understanding
+- DO NOT use options from unrelated domains (e.g., HR answers for security questions)
+- Each distractor should represent a common mistake or partial understanding
+- A knowledgeable person should need to think carefully to eliminate distractors
+- Example for "purpose of security report": All options should be security-related purposes, not HR/finance/etc.
+
 VALIDATION CHECKLIST (review before submitting):
 1. Read each option aloud - does one sound obviously different?
 2. Check length: Are all options within 30% of each other in character count?
@@ -236,6 +244,7 @@ VALIDATION CHECKLIST (review before submitting):
 4. Check plausibility: Could a student who studied incorrectly believe each distractor?
 5. Check keywords: Are technical terms distributed evenly across options?
 6. Check structure: Do all options follow the same format (e.g., all start with verbs)?
+7. Check domain relevance: Are ALL options from the same topic domain? (e.g., all security-related, not mixing HR/finance/etc.)
 
 Return ONLY valid JSON in this exact format (no markdown, no code blocks):
 {
@@ -298,6 +307,14 @@ QUALITY CONTROLS - ANTI-TELL-TALE RULES:
 - Balance positive and negative statements across both correct and incorrect options
 - Technical complexity should be evenly distributed across all options
 
+✅ DISTRACTOR QUALITY (critically important):
+- ALL options must be from the SAME DOMAIN/TOPIC AREA as the question
+- Distractors should be plausible alternative answers that test understanding
+- DO NOT use options from unrelated domains (e.g., HR answers for security questions)
+- Each distractor should represent a common mistake or partial understanding
+- A knowledgeable person should need to think carefully to eliminate distractors
+- For "select all that apply" questions, incorrect options should be things that SOUND related but aren't actually correct
+
 VALIDATION CHECKLIST (review before submitting):
 1. Shuffle mental order - do correct answers cluster together?
 2. Check length: Are all options within 30% of each other in character count?
@@ -306,6 +323,7 @@ VALIDATION CHECKLIST (review before submitting):
 5. Check balance: Are absolutes ("always"/"never") used equally in correct/incorrect options?
 6. Check wording: Are correct answers using noticeably different language than distractors?
 7. Independent verification: Can each option be evaluated independently without comparing to others?
+8. Check domain relevance: Are ALL options from the same topic domain? (e.g., all security-related, not mixing HR/finance/etc.)
 
 Return ONLY valid JSON in this exact format (no markdown, no code blocks):
 {
@@ -422,11 +440,18 @@ QUALITY CONTROLS - ANTI-TELL-TALE RULES:
 - Distractors should be related terms that could confuse someone who hasn't mastered the concept
 - All options should have similar technical complexity
 
+✅ DISTRACTOR QUALITY (critically important):
+- ALL options must be from the SAME DOMAIN/TOPIC AREA as the question
+- For fill-in-blank, all options should be terms/concepts from the same category
+- DO NOT use options from unrelated domains (e.g., HR terms for security blanks)
+- Each distractor should be a plausible term that someone might confuse with the correct answer
+- Example for "_____ is a type of firewall": All options should be firewall-related terms, not random security concepts
+
 VALIDATION CHECKLIST (review before submitting):
 1. Read sentence aloud with each option - does each fit grammatically?
 2. Check length: Are all options within 30% of each other?
 3. Check plausibility: Could each option seem correct to a struggling student?
-4. Check context: Are all options from the same conceptual domain?
+4. Check domain relevance: Are ALL options from the same topic domain? (e.g., all firewall types, not mixing unrelated security terms)
 
 Return ONLY valid JSON in this exact format (no markdown, no code blocks):
 {
