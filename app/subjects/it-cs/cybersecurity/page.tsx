@@ -263,6 +263,53 @@ export default function CybersecurityPage() {
                       )
                     })}
                   </tbody>
+                  <tfoot>
+                    <tr className="border-t-2 border-gray-700 bg-gray-800/30">
+                      <td className="p-4">
+                        <div className="font-semibold text-gray-200">
+                          Total ({filteredTopics.length} {filteredTopics.length === 1 ? 'topic' : 'topics'})
+                        </div>
+                      </td>
+                      <td className="p-4 text-center">
+                        <span className="font-semibold text-gray-200">
+                          {filteredTopics.reduce((sum, topic) => sum + topic.total_attempts, 0)}
+                        </span>
+                      </td>
+                      <td className="p-4 text-center">
+                        <span className="font-semibold text-gray-200">
+                          {filteredTopics.reduce((sum, topic) => sum + topic.correct_answers, 0)}
+                          <span className="text-gray-600 ml-1">
+                            ({filteredTopics.reduce((sum, topic) => sum + topic.total_attempts, 0) > 0
+                              ? Math.round((filteredTopics.reduce((sum, topic) => sum + topic.correct_answers, 0) /
+                                           filteredTopics.reduce((sum, topic) => sum + topic.total_attempts, 0)) * 100)
+                              : 0}%)
+                          </span>
+                        </span>
+                      </td>
+                      <td className="p-4 text-center">
+                        {(() => {
+                          const avgMastery = Math.round(
+                            filteredTopics.reduce((sum, topic) => sum + calculateOverallMastery(topic.mastery_scores), 0) /
+                            filteredTopics.length
+                          )
+                          return (
+                            <div className={`text-lg font-bold ${
+                              avgMastery >= 80 ? 'text-green-400' :
+                              avgMastery >= 60 ? 'text-yellow-400' :
+                              'text-red-400'
+                            }`}>
+                              {avgMastery}%
+                            </div>
+                          )
+                        })()}
+                      </td>
+                      <td className="p-4 text-right">
+                        <span className="text-sm text-gray-500 italic">
+                          Most recent
+                        </span>
+                      </td>
+                    </tr>
+                  </tfoot>
                 </table>
               </div>
             </div>
