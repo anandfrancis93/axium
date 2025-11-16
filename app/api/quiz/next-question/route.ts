@@ -111,8 +111,8 @@ export async function POST(request: NextRequest) {
       question_text: question.question || question.question_text,
       // Add hierarchy for display
       hierarchy: topicHierarchy ? {
-        subject: (topicHierarchy.chapters as any)?.[0]?.subjects?.name || null,
-        chapter: (topicHierarchy.chapters as any)?.[0]?.name || null,
+        subject: (topicHierarchy.chapters as any)?.subjects?.name || null,
+        chapter: (topicHierarchy.chapters as any)?.name || null,
         topic: topicHierarchy.name, // Actual topic name (no cleaning needed - it's a real topic now)
         learningObjective: learningObjective, // Parent learning objective (## level)
         hierarchyLevel: topicHierarchy.hierarchy_level,

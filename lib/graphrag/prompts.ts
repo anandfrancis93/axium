@@ -213,12 +213,19 @@ QUALITY CONTROLS - ANTI-TELL-TALE RULES:
 - Obvious alphabetical or numerical ordering that correlates with correctness
 - Technical jargon ONLY in the correct answer (all options must match complexity level)
 
-❌ NEVER reference source materials in questions:
+❌ NEVER reference source materials in questions OR explanations:
 - Do NOT include "in the context of [source]" (e.g., "CompTIA Security+ SY0-701")
 - Do NOT mention textbook names, certification exams, or course codes
 - Do NOT reference learning objectives or domains by name
-- Write questions as if they are standalone assessments
+- Do NOT say "as defined in the [curriculum]" or "according to [certification]"
+- Write questions AND explanations as if they are standalone educational content
 - Focus on the TOPIC and CONCEPTS, not the source they came from
+
+✅ EXPLANATION QUALITY:
+- Explain WHY the correct answer is right using clear reasoning
+- Do NOT cite external sources, curriculums, or certifications
+- Use phrases like "This is correct because..." not "According to [source]..."
+- Focus on conceptual understanding, not memorization of source material
 
 ✅ REQUIRED quality standards:
 - All 4 options must be similar length (within ±30% of each other)
@@ -290,12 +297,19 @@ QUALITY CONTROLS - ANTI-TELL-TALE RULES:
 - Hints that certain options go together or contradict each other
 - Making all correct answers positive statements and all distractors negative (or vice versa)
 
-❌ NEVER reference source materials in questions:
+❌ NEVER reference source materials in questions OR explanations:
 - Do NOT include "in the context of [source]" (e.g., "CompTIA Security+ SY0-701")
 - Do NOT mention textbook names, certification exams, or course codes
 - Do NOT reference learning objectives or domains by name
-- Write questions as if they are standalone assessments
+- Do NOT say "as defined in the [curriculum]" or "according to [certification]"
+- Write questions AND explanations as if they are standalone educational content
 - Focus on the TOPIC and CONCEPTS, not the source they came from
+
+✅ EXPLANATION QUALITY:
+- Explain WHY the correct answer is right using clear reasoning
+- Do NOT cite external sources, curriculums, or certifications
+- Use phrases like "This is correct because..." not "According to [source]..."
+- Focus on conceptual understanding, not memorization of source material
 
 ✅ REQUIRED quality standards:
 - All 5-6 options must be similar length (within ±30% of each other)
@@ -365,12 +379,19 @@ QUALITY CONTROLS - ANTI-TELL-TALE RULES:
 - Double negatives that confuse rather than test understanding
 - Statements with multiple conditions joined by "and" (easier to make false)
 
-❌ NEVER reference source materials in questions:
+❌ NEVER reference source materials in questions OR explanations:
 - Do NOT include "in the context of [source]" (e.g., "CompTIA Security+ SY0-701")
 - Do NOT mention textbook names, certification exams, or course codes
 - Do NOT reference learning objectives or domains by name
-- Write questions as if they are standalone assessments
+- Do NOT say "as defined in the [curriculum]" or "according to [certification]"
+- Write questions AND explanations as if they are standalone educational content
 - Focus on the TOPIC and CONCEPTS, not the source they came from
+
+✅ EXPLANATION QUALITY:
+- Explain WHY the correct answer is right using clear reasoning
+- Do NOT cite external sources, curriculums, or certifications
+- Use phrases like "This is correct because..." not "According to [source]..."
+- Focus on conceptual understanding, not memorization of source material
 
 ✅ REQUIRED quality standards:
 - Statement must be unambiguously true or false (no edge cases)
@@ -426,12 +447,19 @@ QUALITY CONTROLS - ANTI-TELL-TALE RULES:
 - Repeating exact keywords from the sentence stem in only the correct option
 - Options in alphabetical order where correct answer is always first/last
 
-❌ NEVER reference source materials in questions:
+❌ NEVER reference source materials in questions OR explanations:
 - Do NOT include "in the context of [source]" (e.g., "CompTIA Security+ SY0-701")
 - Do NOT mention textbook names, certification exams, or course codes
 - Do NOT reference learning objectives or domains by name
-- Write questions as if they are standalone assessments
+- Do NOT say "as defined in the [curriculum]" or "according to [certification]"
+- Write questions AND explanations as if they are standalone educational content
 - Focus on the TOPIC and CONCEPTS, not the source they came from
+
+✅ EXPLANATION QUALITY:
+- Explain WHY the correct answer is right using clear reasoning
+- Do NOT cite external sources, curriculums, or certifications
+- Use phrases like "This is correct because..." not "According to [source]..."
+- Focus on conceptual understanding, not memorization of source material
 
 ✅ REQUIRED quality standards:
 - All 4 options must be similar length (within ±30% of each other)
@@ -494,12 +522,19 @@ QUALITY CONTROLS:
 - Questions requiring outside knowledge not in the context
 - Leading questions that reveal the expected answer
 
-❌ NEVER reference source materials in questions:
+❌ NEVER reference source materials in questions OR explanations:
 - Do NOT include "in the context of [source]" (e.g., "CompTIA Security+ SY0-701")
 - Do NOT mention textbook names, certification exams, or course codes
 - Do NOT reference learning objectives or domains by name
-- Write questions as if they are standalone assessments
+- Do NOT say "as defined in the [curriculum]" or "according to [certification]"
+- Write questions AND explanations as if they are standalone educational content
 - Focus on the TOPIC and CONCEPTS, not the source they came from
+
+✅ EXPLANATION QUALITY:
+- Explain WHY the correct answer is right using clear reasoning
+- Do NOT cite external sources, curriculums, or certifications
+- Use phrases like "This is correct because..." not "According to [source]..."
+- Focus on conceptual understanding, not memorization of source material
 
 ✅ REQUIRED quality standards:
 - Question must have clear action verb aligned with Bloom level (${bloomInfo.actionVerbs.slice(0, 3).join(', ')})
