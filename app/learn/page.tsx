@@ -520,6 +520,65 @@ function LearnPageContent() {
                   })}
                 </div>
               )}
+
+              {/* True/False Answer Options with Result */}
+              {currentQuestion.question_format === 'true_false' && (
+                <div className="flex gap-4">
+                  {['True', 'False'].map((option) => {
+                    const isUserAnswer = userAnswer === option
+                    const isCorrectAnswer = answerResult.correctAnswer === option
+
+                    return (
+                      <div
+                        key={option}
+                        className={`flex-1 transition-all ${
+                          isUserAnswer
+                            ? 'neuro-raised'
+                            : 'neuro-inset'
+                        }`}
+                      >
+                        <div className={`text-center ${
+                          isUserAnswer || isCorrectAnswer ? 'font-semibold' : ''
+                        } ${
+                          isCorrectAnswer ? 'text-green-400' :
+                          isUserAnswer && !isCorrectAnswer ? 'text-red-400' :
+                          'text-gray-300'
+                        }`}>
+                          {option}
+                        </div>
+                        {isUserAnswer && (
+                          <div className="text-xs text-gray-500 mt-1 text-center">Your answer</div>
+                        )}
+                        {!isUserAnswer && isCorrectAnswer && (
+                          <div className="text-xs text-gray-500 mt-1 text-center">Correct answer</div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+
+              {/* Fill in the Blank / Open Ended Answer with Result */}
+              {(currentQuestion.question_format === 'fill_blank' || currentQuestion.question_format === 'open_ended') && (
+                <div className="space-y-4">
+                  <div className="neuro-inset p-4 rounded-lg">
+                    <div className="text-sm text-gray-500 mb-2">Your answer:</div>
+                    <div className={`font-medium ${
+                      answerResult.isCorrect ? 'text-green-400' : 'text-red-400'
+                    }`}>
+                      {userAnswer || '(No answer provided)'}
+                    </div>
+                  </div>
+                  {!answerResult.isCorrect && (
+                    <div className="neuro-inset p-4 rounded-lg">
+                      <div className="text-sm text-gray-500 mb-2">Correct answer:</div>
+                      <div className="text-green-400 font-medium">
+                        {answerResult.correctAnswer}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Section 2: Answer Explanation */}
