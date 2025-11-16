@@ -393,9 +393,37 @@ export async function buildContextFromCache(entityId: string): Promise<GraphRAGC
     grandchildren: [],
     relatedConcepts: [], // TODO: Fetch cross-references
     semanticRelationships: {
+      // Taxonomy
       isA: isATargets.filter(t => t !== null) as any[],
       partOf: partOfTargets.filter(t => t !== null) as any[],
+      categoryOf: [],
+      variantOf: [],
+
+      // Educational
       prerequisites: prereqEntities.filter(e => e !== null) as any[],
+      prerequisiteFor: [],
+      dependsOn: [],
+      contrastsWith: [],
+
+      // Security
+      protectsAgainst: [],
+      attacks: [],
+
+      // Technical
+      implements: [],
+      configures: [],
+      requires: [],
+
+      // Functional
+      logs: [],
+      monitors: [],
+      scans: [],
+
+      // Logical
+      leadsTo: [],
+      enables: [],
+
+      // Backward compatibility
       enablesConcepts: enabledEntities.filter(e => e !== null) as any[]
     },
     learningMetadata: {
