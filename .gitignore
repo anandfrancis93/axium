@@ -60,3 +60,6 @@ next-env.d.ts
 supabase/.temp/
 *.log
 topic-embeddings-cache.json
+
+# Temporary files
+temp_*
