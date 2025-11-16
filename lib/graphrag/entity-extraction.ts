@@ -1,14 +1,16 @@
 /**
  * Entity and Relationship Extraction for GraphRAG
  *
- * Uses Claude to extract entities and relationships from knowledge chunks.
+ * Uses xAI Grok 4 Fast to extract entities and relationships from knowledge chunks.
  * This is the first step in building the knowledge graph.
  */
 
-import Anthropic from '@anthropic-ai/sdk'
+import OpenAI from 'openai'
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+// xAI client (OpenAI-compatible API)
+const xai = new OpenAI({
+  apiKey: process.env.XAI_API_KEY,
+  baseURL: 'https://api.x.ai/v1'
 })
 
 export interface ExtractedEntity {
@@ -32,7 +34,7 @@ export interface ExtractionResult {
 }
 
 /**
- * Extract entities and relationships from a text chunk using Claude
+ * Extract entities and relationships from a text chunk using Grok 4 Fast
  */
 export async function extractEntitiesAndRelationships(
   chunkContent: string,
@@ -42,11 +44,15 @@ export async function extractEntitiesAndRelationships(
   const prompt = buildExtractionPrompt(chunkContent, topicContext)
 
   try {
-    const response = await anthropic.messages.create({
-      model: 'claude-3-5-haiku-20241022', // 10x cheaper than Sonnet 4.5
-      max_tokens: 2000, // Reduced to limit output costs
+    const response = await xai.chat.completions.create({
+      model: 'grok-4-fast', // Non-reasoning variant, 96% cheaper than Sonnet 4.5
+      max_tokens: 2000,
       temperature: 0.1, // Very low temperature for consistent, structured output
       messages: [
+        {
+          role: 'system',
+          content: 'You are a knowledge graph extraction expert. Always respond with valid JSON only, no additional text or markdown.'
+        },
         {
           role: 'user',
           content: prompt
@@ -54,13 +60,13 @@ export async function extractEntitiesAndRelationships(
       ]
     })
 
-    const content = response.content[0]
-    if (content.type !== 'text') {
-      throw new Error('Unexpected response type from Claude')
+    const content = response.choices[0]?.message?.content
+    if (!content) {
+      throw new Error('Empty response from Grok')
     }
 
     // Strip markdown code fences if present
-    let jsonText = content.text.trim()
+    let jsonText = content.trim()
     if (jsonText.startsWith('```')) {
       // Remove opening fence (```json or ```)
       jsonText = jsonText.replace(/^```(?:json)?\n?/, '')
@@ -77,7 +83,7 @@ export async function extractEntitiesAndRelationships(
       console.error('JSON parsing failed. First 500 chars:', jsonText.substring(0, 500))
       console.error('Last 500 chars:', jsonText.substring(Math.max(0, jsonText.length - 500)))
       console.error('Parse error:', parseError)
-      throw new Error('Failed to parse Claude response as JSON')
+      throw new Error('Failed to parse Grok response as JSON')
     }
 
     // Validate and clean
@@ -89,7 +95,7 @@ export async function extractEntitiesAndRelationships(
 }
 
 /**
- * Build extraction prompt for Claude
+ * Build extraction prompt for Grok 4 Fast
  */
 function buildExtractionPrompt(content: string, topicContext?: string): string {
   return `You are a knowledge graph extraction expert. Extract entities and relationships from the following educational content.
@@ -242,9 +248,9 @@ export async function batchExtractEntities(
       }
     })
 
-    // Rate limiting (Anthropic: 50 requests/minute)
+    // Rate limiting (xAI: adjust as needed based on your tier)
     if (i + batchSize < chunks.length) {
-      await sleep(6000) // 6 seconds between batches (10 batches/min = ~50 chunks/min)
+      await sleep(2000) // 2 seconds between batches for conservative rate limiting
     }
   }
 
