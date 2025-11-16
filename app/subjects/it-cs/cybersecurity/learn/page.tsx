@@ -49,15 +49,22 @@ function LearnPageContent() {
   // Guard: Check if user is authorized to access quiz page
   useEffect(() => {
     const authorized = sessionStorage.getItem('quiz_authorized')
+    const savedQuizState = sessionStorage.getItem(STORAGE_KEY)
 
-    if (!authorized) {
-      // User accessed page without clicking "Start Quiz" - redirect
+    // Allow access if either:
+    // 1. User has authorization flag (just clicked "Start Quiz")
+    // 2. User has saved quiz state (refreshed during active quiz)
+    if (!authorized && !savedQuizState) {
+      // User accessed page directly without authorization or saved state - redirect
       router.push(chapterPageUrl)
       return
     }
 
-    // Clear authorization flag immediately (prevents back button access)
-    sessionStorage.removeItem('quiz_authorized')
+    // Clear authorization flag on first load (prevents back button access)
+    // But keep it if there's a saved state (allows refresh)
+    if (authorized && !savedQuizState) {
+      sessionStorage.removeItem('quiz_authorized')
+    }
 
     // Prevent browser back button by replacing history entry
     window.history.pushState(null, '', window.location.href)
@@ -871,8 +878,9 @@ function LearnPageContent() {
           {
             label: 'OK',
             onClick: () => {
-              // Clear quiz state from sessionStorage
+              // Clear quiz state and authorization from sessionStorage
               sessionStorage.removeItem(STORAGE_KEY)
+              sessionStorage.removeItem('quiz_authorized')
               // Navigate back to chapter page
               router.push(chapterPageUrl)
             },
