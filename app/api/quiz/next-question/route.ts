@@ -65,13 +65,8 @@ export async function POST(request: NextRequest) {
     // Fetch knowledge graph context for the selected topic
     const context = await fetchKnowledgeContext(supabase, selection.topicId, selection.topicName)
 
-    // Analyze format performance to recommend format
-    const recommendedFormat = await analyzeFormatPerformance(
-      supabase,
-      user.id,
-      selection.topicId,
-      selection.bloomLevel
-    )
+    // Select format based on Bloom level
+    const recommendedFormat = getDefaultFormatForBloomLevel(selection.bloomLevel)
 
     // Generate question using xAI Grok
     const question = await generateQuestion(
@@ -187,92 +182,7 @@ async function fetchKnowledgeContext(
 }
 
 /**
- * Analyze format performance to recommend best format
- */
-async function analyzeFormatPerformance(
-  supabase: any,
-  userId: string,
-  topicId: string,
-  bloomLevel: number
-): Promise<string> {
-  // Fetch user responses for this topic/Bloom level
-  const { data: responses, error } = await supabase
-    .from('user_responses')
-    .select('question_format, is_correct, calibration_score, confidence')
-    .eq('user_id', userId)
-    .eq('topic_id', topicId)
-    .eq('bloom_level', bloomLevel)
-
-  if (error || !responses || responses.length === 0) {
-    // No history: Use default format based on Bloom level
-    return getDefaultFormatForBloomLevel(bloomLevel)
-  }
-
-  // Calculate effectiveness for each format
-  interface FormatStats {
-    attempts: number
-    correct: number
-    avgCalibration: number
-    avgConfidence: number
-    effectiveness: number
-  }
-
-  const formatStats: Record<string, FormatStats> = {}
-
-  for (const response of responses) {
-    const format = response.question_format
-    if (!format) continue
-
-    if (!formatStats[format]) {
-      formatStats[format] = {
-        attempts: 0,
-        correct: 0,
-        avgCalibration: 0,
-        avgConfidence: 0,
-        effectiveness: 0
-      }
-    }
-
-    formatStats[format].attempts++
-    if (response.is_correct) formatStats[format].correct++
-    formatStats[format].avgCalibration += response.calibration_score || 0
-    formatStats[format].avgConfidence += response.confidence || 0
-  }
-
-  // Calculate effectiveness score
-  for (const format in formatStats) {
-    const stats = formatStats[format]
-    stats.avgCalibration /= stats.attempts
-    stats.avgConfidence /= stats.attempts
-
-    const accuracy = stats.correct / stats.attempts
-    const calibrationQuality = (stats.avgCalibration + 1.5) / 3  // Normalize -1.5 to +1.5 → 0 to 1
-
-    // Effectiveness: 70% accuracy + 30% calibration quality
-    stats.effectiveness = (accuracy * 0.7) + (calibrationQuality * 0.3)
-  }
-
-  // Select format with highest effectiveness
-  const sortedFormats = Object.entries(formatStats).sort(
-    (a, b) => b[1].effectiveness - a[1].effectiveness
-  )
-
-  if (sortedFormats.length > 0) {
-    const bestFormat = sortedFormats[0][0]
-    console.log('[Format Analysis]', {
-      bloomLevel,
-      bestFormat,
-      effectiveness: sortedFormats[0][1].effectiveness,
-      allFormats: formatStats
-    })
-    return bestFormat
-  }
-
-  return getDefaultFormatForBloomLevel(bloomLevel)
-}
-
-/**
- * Get default format based on Bloom level
+ * Get format based on Bloom level
  */
 function getDefaultFormatForBloomLevel(bloomLevel: number): string {
   if (bloomLevel <= 2) return 'mcq_single'

@@ -22,8 +22,8 @@ Axium uses a sophisticated RL (Reinforcement Learning) system to select optimal 
 
 ### AI-Powered Questions
 - **xAI Grok Integration**: Fast, high-quality question generation with reasoning capabilities
-- **10 Question Formats**: MCQ single/multi, true/false, fill-in-blank, matching, open-ended, and more
-- **Format Personalization**: System tracks effectiveness of each format and adapts to learner preferences
+- **6 Question Formats**: MCQ single/multi, true/false, fill-in-blank, matching, open-ended
+- **Format Selection**: Default format selected based on Bloom level (MCQ for lower levels, open-ended for higher)
 - **Question Persistence**: All questions saved to database for spaced repetition and analytics
 
 ### Performance Analytics
@@ -196,19 +196,18 @@ Stored as nested JSON in `user_progress.mastery_scores`:
 
 ## Question Formats
 
-10 formats tracked for personalization:
-1. **True/False** (Bloom 1-2)
-2. **MCQ Single** - One correct answer (Bloom 1-2)
-3. **MCQ Multi** - Multiple correct (Bloom 2-4)
-4. **Fill in Blank** (Bloom 1-3)
-5. **Matching** (Bloom 2-3)
-6. **Open Ended** (Bloom 4-6)
-7. **Code Trace** (Bloom 3-4)
-8. **Code Complete** (Bloom 3-4)
-9. **Ordering** (Bloom 2-3)
-10. **Diagram Label** (Bloom 1-2)
+6 formats available:
+1. **MCQ Single** - One correct answer (Bloom 1-2)
+2. **MCQ Multi** - Multiple correct answers (Bloom 2-4)
+3. **True/False** - Binary choice (Bloom 1-2)
+4. **Fill in Blank** - Complete the statement (Bloom 1-3)
+5. **Matching** - Match related concepts (Bloom 2-3)
+6. **Open Ended** - Essay/explanation (Bloom 4-6)
 
-System tracks effectiveness and recommends optimal formats per Bloom level.
+Format is automatically selected based on Bloom level:
+- Bloom 1-2: MCQ Single
+- Bloom 3-4: MCQ Multi
+- Bloom 5-6: Open Ended
 
 ## Setup
 
