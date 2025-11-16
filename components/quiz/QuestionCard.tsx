@@ -68,6 +68,12 @@ export function QuestionCard({
     return question.correct_answer === option
   }
 
+  // Capitalize first letter for better readability
+  const capitalizeFirst = (str: string) => {
+    if (!str) return str
+    return str.charAt(0).toUpperCase() + str.slice(1)
+  }
+
   return (
     <div className="neuro-card p-6 space-y-6">
       {/* Question Header */}
@@ -131,7 +137,7 @@ export function QuestionCard({
                       className={isOptionSelected(option) ? 'fill-current' : ''}
                     />
                   )}
-                  <span>{option}</span>
+                  <span>{capitalizeFirst(option)}</span>
                   {showCorrectAnswer && isCorrectOption(option) && (
                     <CheckCircle2 size={20} className="ml-auto text-green-400" />
                   )}
@@ -179,7 +185,9 @@ export function QuestionCard({
             {showCorrectAnswer && (
               <div className="mt-3 p-3 neuro-inset rounded-lg">
                 <span className="text-sm text-gray-500">Correct answer: </span>
-                <span className="text-green-400 font-medium">{question.correct_answer}</span>
+                <span className="text-green-400 font-medium">
+                  {capitalizeFirst(question.correct_answer as string)}
+                </span>
               </div>
             )}
           </div>
