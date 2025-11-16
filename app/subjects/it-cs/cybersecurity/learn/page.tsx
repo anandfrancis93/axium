@@ -643,60 +643,62 @@ function LearnPageContent() {
               {currentQuestion.hierarchy && (
                 <div className="p-4 neuro-inset rounded-lg">
                   <div className="space-y-3">
-                    {/* Subject Level */}
+                    {/* Domain Level (# level) */}
                     {currentQuestion.hierarchy.subject && (
                       <div className="flex items-start gap-3">
                         <div className="flex flex-col items-center">
                           <div className="neuro-raised w-8 h-8 rounded-lg flex items-center justify-center">
-                            <span className="text-xs text-blue-400 font-bold">S</span>
+                            <span className="text-xs text-blue-400 font-bold">#</span>
                           </div>
                           <div className="w-px h-6 bg-gray-700"></div>
                         </div>
                         <div className="flex-1 pt-1">
-                          <div className="text-xs text-gray-500">Subject</div>
-                          <div className="font-semibold text-gray-300">{currentQuestion.hierarchy.subject}</div>
+                          <div className="text-xs text-gray-500">Domain</div>
+                          <div className="font-semibold text-blue-400">{currentQuestion.hierarchy.subject}</div>
                         </div>
                       </div>
                     )}
 
-                    {/* Chapter Level */}
-                    {currentQuestion.hierarchy.chapter && (
-                      <div className="flex items-start gap-3">
-                        <div className="flex flex-col items-center">
-                          <div className="neuro-raised w-8 h-8 rounded-lg flex items-center justify-center">
-                            <span className="text-xs text-cyan-400 font-bold">C</span>
-                          </div>
-                        </div>
-                        <div className="flex-1 pt-1">
-                          <div className="text-xs text-gray-500">Chapter</div>
-                          <div className="font-semibold text-gray-300">{currentQuestion.hierarchy.chapter}</div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Learning Objective (## level) - if exists */}
+                    {/* Learning Objective (## level) */}
                     {(currentQuestion.hierarchy as any).learningObjective && (
                       <div className="flex items-start gap-3">
                         <div className="flex flex-col items-center">
                           <div className="neuro-raised w-8 h-8 rounded-lg flex items-center justify-center">
-                            <span className="text-xs text-yellow-400 font-bold">LO</span>
+                            <span className="text-xs text-yellow-400 font-bold">##</span>
                           </div>
                           <div className="w-px h-6 bg-gray-700"></div>
                         </div>
                         <div className="flex-1 pt-1">
                           <div className="text-xs text-gray-500">Learning Objective</div>
-                          <div className="text-sm text-gray-400">{(currentQuestion.hierarchy as any).learningObjective}</div>
+                          <div className="text-sm text-yellow-400">{(currentQuestion.hierarchy as any).learningObjective}</div>
                         </div>
                       </div>
                     )}
 
                     {/* Topic Level (### level) */}
-                    <div className="pt-1">
-                      <div className="font-semibold text-green-400">{currentQuestion.hierarchy.topic}</div>
-                      {currentQuestion.hierarchy.description && (
-                        <div className="text-xs text-gray-600 mt-1">{currentQuestion.hierarchy.description}</div>
-                      )}
+                    <div className="flex items-start gap-3">
+                      <div className="flex flex-col items-center">
+                        <div className="neuro-raised w-8 h-8 rounded-lg flex items-center justify-center">
+                          <span className="text-xs text-green-400 font-bold">###</span>
+                        </div>
+                      </div>
+                      <div className="flex-1 pt-1">
+                        <div className="text-xs text-gray-500">Topic</div>
+                        <div className="font-semibold text-green-400">{currentQuestion.hierarchy.topic}</div>
+                        {currentQuestion.hierarchy.description && (
+                          <div className="text-xs text-gray-600 mt-1">{currentQuestion.hierarchy.description}</div>
+                        )}
+                      </div>
                     </div>
+
+                    {/* Certification/Chapter Context (if exists, shown as metadata) */}
+                    {currentQuestion.hierarchy.chapter && currentQuestion.hierarchy.chapter !== currentQuestion.hierarchy.subject && (
+                      <div className="mt-3 pt-3 border-t border-gray-800">
+                        <div className="text-xs text-gray-600">
+                          Source: {currentQuestion.hierarchy.chapter}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
