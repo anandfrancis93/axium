@@ -14,6 +14,7 @@ import { RecognitionMethodSelector } from '@/components/quiz/RecognitionMethodSe
 import { AnswerFeedback } from '@/components/quiz/AnswerFeedback'
 import { QuizSession, QuizQuestion, AnswerResult, RecognitionMethod } from '@/lib/types/quiz'
 import { Loader2 } from 'lucide-react'
+import Modal from '@/components/Modal'
 
 type QuizStep = 'confidence' | 'answer' | 'recognition' | 'results'
 
@@ -32,6 +33,7 @@ function LearnPageContent() {
   const [questionCount, setQuestionCount] = useState(0)
   const [correctCount, setCorrectCount] = useState(0)
   const [error, setError] = useState<{ message: string; details?: string; action?: string } | null>(null)
+  const [showExitModal, setShowExitModal] = useState(false)
 
   // Session storage key
   const STORAGE_KEY = 'axium_quiz_state'
@@ -781,11 +783,7 @@ function LearnPageContent() {
             {/* Action Buttons */}
             <div className="flex gap-4">
               <button
-                onClick={() => {
-                  // Clear quiz state from sessionStorage
-                  sessionStorage.removeItem(STORAGE_KEY)
-                  router.push('/subjects')
-                }}
+                onClick={() => setShowExitModal(true)}
                 className="neuro-btn text-gray-300 flex-1 py-4 text-lg font-semibold"
               >
                 Done
@@ -800,6 +798,35 @@ function LearnPageContent() {
           </>
         )}
       </div>
+
+      {/* Exit Confirmation Modal */}
+      <Modal
+        isOpen={showExitModal}
+        onClose={() => setShowExitModal(false)}
+        title="End Quiz Session?"
+        type="warning"
+        actions={[
+          {
+            label: 'Cancel',
+            onClick: () => setShowExitModal(false),
+            variant: 'secondary'
+          },
+          {
+            label: 'OK',
+            onClick: () => {
+              // Clear quiz state from sessionStorage
+              sessionStorage.removeItem(STORAGE_KEY)
+              // Navigate back to Cybersecurity page
+              router.push('/subjects/it-cs/cybersecurity')
+            },
+            variant: 'primary'
+          }
+        ]}
+      >
+        <p className="text-center">
+          Your progress has been saved. Are you sure you want to end this quiz session?
+        </p>
+      </Modal>
     </div>
   )
 }
