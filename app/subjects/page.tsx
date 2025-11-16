@@ -43,22 +43,6 @@ export default async function DashboardPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-6">
 
-        {/* Quick Action - Start Practice */}
-        <div className="neuro-card p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-gray-200 mb-1">Ready to Practice?</h2>
-              <p className="text-sm text-gray-500">AI will select the best topic for you based on your learning progress</p>
-            </div>
-            <Link
-              href="/learn"
-              className="neuro-btn text-blue-400 px-6 py-3 font-semibold"
-            >
-              Start Quiz →
-            </Link>
-          </div>
-        </div>
-
         {/* Subjects Section */}
         <div>
           <h2 className="text-xl font-semibold text-gray-200 mb-4">Subjects</h2>

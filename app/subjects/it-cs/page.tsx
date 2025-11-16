@@ -69,19 +69,19 @@ export default async function ITCSPage() {
           <h3 className="text-xl font-semibold text-gray-200 mb-4">Topics</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Cybersecurity */}
-            <div className="neuro-card p-6 opacity-50 cursor-not-allowed">
+            <Link
+              href="/subjects/it-cs/cybersecurity"
+              className="neuro-card p-6 transition-all hover:translate-y-[-2px] active:translate-y-0"
+            >
               <div className="flex flex-col items-center text-center space-y-3">
                 <div className="neuro-inset w-16 h-16 rounded-xl flex items-center justify-center">
                   <ShieldIcon size={32} className="text-red-400" />
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-gray-200">Cybersecurity</h3>
-                  <span className="inline-block mt-2 text-xs text-gray-500 bg-gray-500/10 px-3 py-1 rounded-full">
-                    Coming Soon
-                  </span>
                 </div>
               </div>
-            </div>
+            </Link>
 
             {/* Networking */}
             <div className="neuro-card p-6 opacity-50 cursor-not-allowed">
