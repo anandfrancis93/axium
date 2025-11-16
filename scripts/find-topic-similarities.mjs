@@ -152,16 +152,18 @@ async function applySimilarPairs(pairs, minSimilarity = 0.85) {
 
       try {
         await session.run(`
-          MATCH (t1:CurriculumEntity {name: $topic1})
-          MATCH (t2:CurriculumEntity {name: $topic2})
+          MATCH (t1:CurriculumEntity)
+          WHERE id(t1) = $id1
+          MATCH (t2:CurriculumEntity)
+          WHERE id(t2) = $id2
           MERGE (t1)-[r:SIMILAR_TO]-(t2)
           SET r.similarity = $similarity,
               r.method = 'embedding',
               r.model = 'text-embedding-3-small'
           RETURN r
         `, {
-          topic1: pair.topic1,
-          topic2: pair.topic2,
+          id1: pair.id1,
+          id2: pair.id2,
           similarity: pair.similarity
         })
 

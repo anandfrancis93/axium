@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ShieldIcon, SearchIcon } from '@/components/icons'
+import { ShieldIcon, SearchIcon, TrashIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import { createClient } from '@/lib/supabase/client'
 
@@ -18,6 +18,7 @@ export default function CybersecurityPage() {
   const [topicsProgress, setTopicsProgress] = useState<TopicProgress[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading] = useState(true)
+  const [resetting, setResetting] = useState(false)
 
   useEffect(() => {
     fetchTopicsProgress()
@@ -76,6 +77,54 @@ export default function CybersecurityPage() {
       console.error('Error in fetchTopicsProgress:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function resetProgress() {
+    // Show confirmation dialog
+    const confirmed = window.confirm(
+      '⚠️ WARNING: This will permanently delete ALL your Cybersecurity progress!\n\n' +
+      '• All quiz attempts will be deleted\n' +
+      '• All mastery scores will be reset\n' +
+      '• All learning history will be lost\n\n' +
+      'This action cannot be undone. Are you sure you want to continue?'
+    )
+
+    if (!confirmed) return
+
+    try {
+      setResetting(true)
+      const supabase = createClient()
+
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        alert('You must be logged in to reset progress')
+        return
+      }
+
+      // Call API to delete progress
+      const response = await fetch('/api/progress/reset-subject', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subject: 'Cybersecurity' })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to reset progress')
+      }
+
+      alert(`✅ Success! Deleted ${result.deletedCount} progress records.`)
+
+      // Refresh the page to show empty state
+      await fetchTopicsProgress()
+    } catch (error) {
+      console.error('Error resetting progress:', error)
+      alert('Failed to reset progress. Please try again.')
+    } finally {
+      setResetting(false)
     }
   }
 
@@ -167,7 +216,19 @@ export default function CybersecurityPage() {
 
         {/* Topics Progress */}
         <div>
-          <h3 className="text-xl font-semibold text-gray-200 mb-4">Your Progress</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold text-gray-200">Your Progress</h3>
+            {topicsProgress.length > 0 && (
+              <button
+                onClick={resetProgress}
+                disabled={resetting}
+                className="neuro-btn text-red-400 px-4 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <TrashIcon size={18} />
+                <span>{resetting ? 'Resetting...' : 'Reset Progress'}</span>
+              </button>
+            )}
+          </div>
 
           {/* Search Bar */}
           <div className="mb-4">

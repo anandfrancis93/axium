@@ -87,11 +87,14 @@ export function QuestionCard({
 
       {/* Answer Input */}
       <div className="space-y-3">
-        {/* MCQ (Single or Multiple) */}
-        {(question.question_format === 'mcq_single' || question.question_format === 'mcq_multi') && question.options && (
+        {/* MCQ (Single or Multiple) and Fill in the Blank */}
+        {(question.question_format === 'mcq_single' || question.question_format === 'mcq_multi' || question.question_format === 'fill_blank') && question.options && (
           <div className="space-y-2">
             {question.question_format === 'mcq_multi' && (
               <p className="text-sm text-gray-500 mb-3">Select all that apply</p>
+            )}
+            {question.question_format === 'fill_blank' && (
+              <p className="text-sm text-gray-500 mb-3">Select the correct word or phrase to complete the sentence</p>
             )}
             {question.options.map((option, idx) => (
               <button
@@ -162,28 +165,17 @@ export function QuestionCard({
           </div>
         )}
 
-        {/* Fill in the Blank / Open Ended */}
-        {(question.question_format === 'fill_blank' || question.question_format === 'open_ended') && (
+        {/* Open Ended (essay-style answer) */}
+        {question.question_format === 'open_ended' && (
           <div>
-            {question.question_format === 'open_ended' ? (
-              <textarea
-                value={answer as string}
-                onChange={(e) => handleAnswerChange(e.target.value)}
-                disabled={disabled}
-                placeholder="Type your answer here..."
-                rows={6}
-                className="neuro-input w-full"
-              />
-            ) : (
-              <input
-                type="text"
-                value={answer as string}
-                onChange={(e) => handleAnswerChange(e.target.value)}
-                disabled={disabled}
-                placeholder="Type your answer..."
-                className="neuro-input w-full"
-              />
-            )}
+            <textarea
+              value={answer as string}
+              onChange={(e) => handleAnswerChange(e.target.value)}
+              disabled={disabled}
+              placeholder="Type your answer here..."
+              rows={6}
+              className="neuro-input w-full"
+            />
             {showCorrectAnswer && (
               <div className="mt-3 p-3 neuro-inset rounded-lg">
                 <span className="text-sm text-gray-500">Correct answer: </span>
