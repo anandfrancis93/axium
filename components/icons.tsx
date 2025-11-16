@@ -776,3 +776,98 @@ export const SearchIcon = ({ className = "", size = 24, weight = 'regular', with
     </svg>
   )
 }
+
+// Subject-specific icons
+export const CodeIcon = ({ className = "", size = 24, weight = 'regular', withShadow = false }: IconProps) => {
+  const strokeWidth = getStrokeWidth(size, weight)
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      style={getShadowStyle(withShadow)}
+    >
+      <polyline points="16 18 22 12 16 6" />
+      <polyline points="8 6 2 12 8 18" />
+    </svg>
+  )
+}
+
+export const CalculatorIcon = ({ className = "", size = 24, weight = 'regular', withShadow = false }: IconProps) => {
+  const strokeWidth = getStrokeWidth(size, weight)
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      style={getShadowStyle(withShadow)}
+    >
+      <rect x="4" y="2" width="16" height="20" rx="2" />
+      <rect x="8" y="6" width="8" height="4" />
+      <line x1="8" y1="14" x2="8.01" y2="14" />
+      <line x1="12" y1="14" x2="12.01" y2="14" />
+      <line x1="16" y1="14" x2="16.01" y2="14" />
+      <line x1="8" y1="18" x2="8.01" y2="18" />
+      <line x1="12" y1="18" x2="12.01" y2="18" />
+      <line x1="16" y1="18" x2="16.01" y2="18" />
+    </svg>
+  )
+}
+
+export const AtomIcon = ({ className = "", size = 24, weight = 'regular', withShadow = false }: IconProps) => {
+  const strokeWidth = getStrokeWidth(size, weight)
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      style={getShadowStyle(withShadow)}
+    >
+      <circle cx="12" cy="12" r="1" />
+      <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(30 12 12)" />
+      <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(90 12 12)" />
+      <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(150 12 12)" />
+    </svg>
+  )
+}
+
+export const PenToolIcon = ({ className = "", size = 24, weight = 'regular', withShadow = false }: IconProps) => {
+  const strokeWidth = getStrokeWidth(size, weight)
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      style={getShadowStyle(withShadow)}
+    >
+      <path d="M12 19l7-7 3 3-7 7-3-3z" />
+      <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+      <path d="M2 2l7.586 7.586" />
+      <circle cx="11" cy="11" r="2" />
+    </svg>
+  )
+}
