@@ -7,7 +7,7 @@
 'use client'
 
 import { useState, useEffect, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { QuestionCard } from '@/components/quiz/QuestionCard'
 import { ConfidenceSlider } from '@/components/quiz/ConfidenceSlider'
 import { RecognitionMethodSelector } from '@/components/quiz/RecognitionMethodSelector'
@@ -20,6 +20,14 @@ type QuizStep = 'confidence' | 'answer' | 'recognition' | 'results'
 
 function LearnPageContent() {
   const router = useRouter()
+  const pathname = usePathname()
+
+  // Extract subject from URL path
+  // e.g., /subjects/it-cs/cybersecurity/learn → category: it-cs, subject: cybersecurity
+  const pathParts = pathname?.split('/').filter(Boolean) || []
+  const category = pathParts[1] || 'it-cs' // URL category (e.g., 'it-cs', 'science')
+  const subject = pathParts[2] || 'cybersecurity' // Subject slug (matches subjects.slug in DB)
+  const chapterPageUrl = `/subjects/${category}/${subject}`
 
   const [currentQuestion, setCurrentQuestion] = useState<QuizQuestion | null>(null)
   const [currentStep, setCurrentStep] = useState<QuizStep>('confidence')
@@ -44,7 +52,7 @@ function LearnPageContent() {
 
     if (!authorized) {
       // User accessed page without clicking "Start Quiz" - redirect
-      router.push('/subjects/it-cs/cybersecurity')
+      router.push(chapterPageUrl)
       return
     }
 
@@ -56,7 +64,7 @@ function LearnPageContent() {
 
     const handlePopState = () => {
       // If user tries to go back, redirect them away
-      router.push('/subjects/it-cs/cybersecurity')
+      router.push(chapterPageUrl)
     }
 
     window.addEventListener('popstate', handlePopState)
@@ -64,7 +72,7 @@ function LearnPageContent() {
     return () => {
       window.removeEventListener('popstate', handlePopState)
     }
-  }, [router])
+  }, [router, chapterPageUrl])
 
   // Save state to sessionStorage whenever it changes
   useEffect(() => {
@@ -129,7 +137,10 @@ function LearnPageContent() {
 
       const response = await fetch('/api/quiz/next-question', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subject // Subject slug to filter topics by subject
+        })
       })
 
       if (!response.ok) {
@@ -844,8 +855,8 @@ function LearnPageContent() {
             onClick: () => {
               // Clear quiz state from sessionStorage
               sessionStorage.removeItem(STORAGE_KEY)
-              // Navigate back to Cybersecurity page
-              router.push('/subjects/it-cs/cybersecurity')
+              // Navigate back to chapter page
+              router.push(chapterPageUrl)
             },
             variant: 'primary'
           }

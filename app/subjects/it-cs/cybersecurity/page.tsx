@@ -44,7 +44,10 @@ export default function CybersecurityPage() {
           topics (
             name,
             chapters (
-              name
+              name,
+              subjects (
+                name
+              )
             )
           )
         `)
@@ -56,9 +59,9 @@ export default function CybersecurityPage() {
         return
       }
 
-      // Filter for Cybersecurity chapter and format data
+      // Filter for Cybersecurity subject and format data
       const cybersecurityTopics = data
-        ?.filter((item: any) => item.topics?.chapters?.name === 'Cybersecurity')
+        ?.filter((item: any) => item.topics?.chapters?.subjects?.name === 'Cybersecurity')
         .map((item: any) => ({
           topic_id: item.topic_id,
           topic_name: item.topics?.name || 'Unknown Topic',

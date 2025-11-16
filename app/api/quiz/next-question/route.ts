@@ -33,10 +33,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Get subject from request body to filter topics (optional)
+    const body = await request.json()
+    const { subject } = body
+
     // RL selects the optimal topic and Bloom level
+    // Filter by subject if provided (e.g., 'cybersecurity', 'physics')
     let selection
     try {
-      selection = await selectNextTopic(user.id)
+      selection = await selectNextTopic(user.id, subject)
     } catch (selectionError) {
       console.error('Error in RL selection:', selectionError)
       return NextResponse.json(
