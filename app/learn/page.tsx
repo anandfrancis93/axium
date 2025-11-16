@@ -533,87 +533,7 @@ function LearnPageContent() {
               </div>
             </div>
 
-            {/* Section 3: Why This Question? */}
-            <div className="neuro-card p-6">
-              <h3 className="text-xl font-semibold text-gray-200 mb-4">
-                Why This Question?
-              </h3>
-
-              <div className="space-y-4">
-                {/* Selection Method */}
-                <div className="p-4 neuro-inset rounded-lg">
-                  <div className="text-sm text-white mb-2">Selection Method</div>
-                  <div className="font-semibold text-blue-400">
-                    {(() => {
-                      const reason = (currentQuestion as any).selection_reason || ''
-
-                      if ((currentQuestion as any).selection_method === 'spaced_repetition') {
-                        return 'Spaced Repetition'
-                      } else {
-                        // RL-Driven: Extract phase name from selection_reason
-                        const colonIndex = reason.indexOf(':')
-                        if (colonIndex > 0) {
-                          const phaseName = reason.substring(0, colonIndex).trim()
-                          // Capitalize first letter of each word
-                          const capitalizedPhase = phaseName.split(' ').map((word: string) =>
-                            word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-                          ).join(' ')
-                          return `RL - ${capitalizedPhase}`
-                        }
-                        return 'RL-Driven'
-                      }
-                    })()}
-                  </div>
-                  <div className="text-sm text-white mt-2">
-                    {(() => {
-                      const reason = (currentQuestion as any).selection_reason || ''
-
-                      if ((currentQuestion as any).selection_method === 'spaced_repetition') {
-                        return 'Reviewing topics based on optimal timing for memory retention'
-                      } else {
-                        // Extract explanation from selection_reason (text after colon)
-                        const colonIndex = reason.indexOf(':')
-                        if (colonIndex > 0) {
-                          return reason.substring(colonIndex + 1).trim()
-                        }
-                        return 'AI-driven topic selection based on your learning progress'
-                      }
-                    })()}
-                  </div>
-                </div>
-
-                {/* Priority Score - Only show when > 0% */}
-                {(currentQuestion as any).selection_priority !== undefined && ((currentQuestion as any).selection_priority || 0) > 0 && (
-                  <div className="p-4 neuro-inset rounded-lg">
-                    <div className="text-sm text-gray-400 mb-2">Priority Score</div>
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1">
-                        <div className="neuro-inset rounded-full h-3 overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-to-r from-blue-500 to-blue-400"
-                            style={{ width: `${((currentQuestion as any).selection_priority || 0) * 100}%` }}
-                          />
-                        </div>
-                      </div>
-                      <div className="text-lg font-bold text-blue-400">
-                        {((currentQuestion as any).selection_priority * 100).toFixed(0)}%
-                      </div>
-                    </div>
-                    <div className="text-xs text-gray-500 mt-2">
-                      {(() => {
-                        const priority = ((currentQuestion as any).selection_priority || 0) * 100
-                        if (priority <= 25) return "Optional practice - you're doing well here"
-                        if (priority <= 50) return "Recommended practice - building stronger foundations"
-                        if (priority <= 75) return "Important practice - needs attention"
-                        return "Urgent practice - significant gap detected"
-                      })()}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Section 4: Topic Details */}
+            {/* Section 3: Topic Details */}
             <div className="neuro-card p-6">
               <h3 className="text-xl font-semibold text-gray-200 mb-4">
                 Topic Details
@@ -666,7 +586,7 @@ function LearnPageContent() {
               )}
             </div>
 
-            {/* Section 5: Your Performance */}
+            {/* Section 4: Your Performance */}
             <div className="neuro-card p-6">
               <h3 className="text-xl font-semibold text-gray-200 mb-4">
                 Your Performance
