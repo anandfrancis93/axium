@@ -91,17 +91,28 @@ export default function CybersecurityPage() {
     return Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length)
   }
 
-  // Format date
-  const formatDate = (dateString: string) => {
+  // Format date and time
+  const formatDateTime = (dateString: string) => {
     const date = new Date(dateString)
     const now = new Date()
-    const diffTime = Math.abs(now.getTime() - date.getTime())
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    const diffMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
 
-    if (diffDays === 0) return 'Today'
-    if (diffDays === 1) return 'Yesterday'
-    if (diffDays < 7) return `${diffDays} days ago`
-    return date.toLocaleDateString()
+    // If less than 1 hour ago, show relative time
+    if (diffMinutes < 60) {
+      if (diffMinutes < 1) return 'Just now'
+      if (diffMinutes === 1) return '1 minute ago'
+      return `${diffMinutes} minutes ago`
+    }
+
+    // Otherwise show full date and time
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    })
   }
 
   return (
@@ -235,7 +246,7 @@ export default function CybersecurityPage() {
                           </td>
                           <td className="p-4 text-right">
                             <span className="text-sm text-gray-500">
-                              {formatDate(topic.last_practiced_at)}
+                              {formatDateTime(topic.last_practiced_at)}
                             </span>
                           </td>
                         </tr>
