@@ -175,32 +175,42 @@ async function fetchKnowledgeContext(
     return contextParts.join('\n\n')
   }
 
-  // If no chunks, use Neo4j knowledge graph context
-  // For now, return topic name - the LLM will use general knowledge
-  console.log(`[Context] No chunks found for ${topicName}, using general knowledge + Neo4j relationships`)
+  // If no chunks, use multi-hop graph traversal for systems thinking context
+  console.log(`[Context] No chunks found for ${topicName}, using multi-hop graph traversal`)
 
-  // Fetch topic details from database
-  const { data: topic } = await supabase
-    .from('topics')
-    .select('name, description, chapter_id, chapters(name, subject_id, subjects(name))')
-    .eq('id', topicId)
-    .single()
+  try {
+    const { getMultiHopContext } = await import('@/lib/graphrag/multi-hop-context')
+    const graphContext = await getMultiHopContext(topicId, 3)
+    console.log(`[Context] Retrieved multi-hop context: ${graphContext.keystoneScore} dependent topics`)
+    return graphContext.contextText
+  } catch (graphError) {
+    console.error('[Context] Error fetching graph context:', graphError)
+    // Fallback to basic topic info
+    console.log(`[Context] Falling back to basic topic info`)
 
-  if (topic) {
-    let context = `Topic: ${topic.name}\n`
-    if (topic.description) {
-      context += `Description: ${topic.description}\n`
-    }
-    if (topic.chapters) {
-      context += `Chapter: ${topic.chapters.name}\n`
-      if (topic.chapters.subjects) {
-        context += `Subject: ${topic.chapters.subjects.name}\n`
+    // Fetch topic details from database
+    const { data: topic } = await supabase
+      .from('topics')
+      .select('name, description, chapter_id, chapters(name, subject_id, subjects(name))')
+      .eq('id', topicId)
+      .single()
+
+    if (topic) {
+      let context = `Topic: ${topic.name}\n`
+      if (topic.description) {
+        context += `Description: ${topic.description}\n`
       }
+      if (topic.chapters) {
+        context += `Chapter: ${topic.chapters.name}\n`
+        if (topic.chapters.subjects) {
+          context += `Subject: ${topic.chapters.subjects.name}\n`
+        }
+      }
+      return context + '\nNote: Generate questions based on general knowledge of this topic.'
     }
-    return context + '\nNote: Generate questions based on general knowledge of this topic.'
-  }
 
-  return `Topic: ${topicName}\nGenerate questions based on general knowledge of this topic.`
+    return `Topic: ${topicName}\nGenerate questions based on general knowledge of this topic.`
+  }
 }
 
 /**

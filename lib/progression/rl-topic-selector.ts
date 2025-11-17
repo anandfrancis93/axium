@@ -311,7 +311,7 @@ function selectRLTopic(
   }
 
   // Calculate priority for each topic with progress
-  const priorities = calculateTopicPriorities(eligibleProgress)
+  let priorities = await calculateTopicPriorities(eligibleProgress)
 
   if (priorities.length === 0) {
     // Fallback to cold start
@@ -326,6 +326,16 @@ function selectRLTopic(
       priority: 0,
       selectionMethod: 'rl'
     }
+  }
+
+  // Apply keystone scoring (prioritize high-impact topics in graph)
+  try {
+    const { applyKeystoneScoring } = await import('./keystone-scoring')
+    priorities = await applyKeystoneScoring(priorities)
+    console.log(`[RL] Applied keystone scoring to ${priorities.length} topics`)
+  } catch (error) {
+    console.error('[RL] Error applying keystone scoring:', error)
+    // Continue without keystone scoring
   }
 
   // Select highest priority topic
