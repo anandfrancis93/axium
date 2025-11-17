@@ -4,6 +4,13 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { ShieldIcon, ArrowLeftIcon } from '@/components/icons'
 import { createClient } from '@/lib/supabase/client'
+import {
+  CognitiveDimension,
+  COGNITIVE_DIMENSIONS,
+  DimensionCoverageByLevel,
+  parseDimensionCoverage,
+  getCoverageForLevel
+} from '@/lib/utils/cognitive-dimensions'
 
 interface TopicDetail {
   topic_id: string
@@ -13,6 +20,7 @@ interface TopicDetail {
   total_attempts: number
   correct_answers: number
   mastery_scores: Record<string, number>
+  dimension_coverage: DimensionCoverageByLevel
   last_practiced_at: string
   confidence_calibration_error: number
 }
@@ -105,6 +113,7 @@ export default function TopicDetailPage() {
           total_attempts: 0,
           correct_answers: 0,
           mastery_scores: {},
+          dimension_coverage: {},
           last_practiced_at: new Date().toISOString(),
           confidence_calibration_error: 0
         })
@@ -167,6 +176,7 @@ export default function TopicDetailPage() {
         total_attempts: progressData.total_attempts,
         correct_answers: progressData.correct_answers,
         mastery_scores: progressData.mastery_scores,
+        dimension_coverage: parseDimensionCoverage(progressData.dimension_coverage),
         last_practiced_at: progressData.last_practiced_at,
         confidence_calibration_error: progressData.confidence_calibration_error
       })
@@ -368,6 +378,137 @@ export default function TopicDetailPage() {
             ))}
           </div>
         </div>
+
+        {/* Cognitive Dimension Coverage */}
+        {topicDetail.total_attempts > 0 && (
+          <div className="neuro-card">
+            <div className="p-6 border-b border-gray-800">
+              <h2 className="text-xl font-semibold text-gray-200">Cognitive Dimension Coverage</h2>
+              <p className="text-sm text-gray-500 mt-1">Understanding from multiple perspectives (5W1H Framework)</p>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {bloomLevels.filter(bl => bl.attempts > 0).map((bl) => {
+                const coveredDimensions = getCoverageForLevel(topicDetail.dimension_coverage, bl.level)
+                const allDimensions = Object.values(CognitiveDimension)
+                const coveragePercentage = Math.round((coveredDimensions.length / 6) * 100)
+
+                return (
+                  <div key={`dim-${bl.level}`} className="neuro-inset p-4 rounded-lg">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="neuro-raised w-10 h-10 rounded-lg flex items-center justify-center">
+                          <span className="text-sm font-bold text-blue-400">{bl.level}</span>
+                        </div>
+                        <div>
+                          <div className="font-semibold text-gray-200">Level {bl.level} - {bl.name}</div>
+                          <div className="text-xs text-gray-500">
+                            {coveredDimensions.length}/6 dimensions covered ({coveragePercentage}%)
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className={`text-xl font-bold ${
+                          coveredDimensions.length >= 4 ? 'text-green-400' :
+                          coveredDimensions.length >= 2 ? 'text-yellow-400' :
+                          'text-red-400'
+                        }`}>
+                          {coveredDimensions.length >= 4 ? '✓' : coveredDimensions.length > 0 ? '◐' : '○'}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {coveredDimensions.length >= 4 ? 'Ready' : 'Need 4'}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Dimension Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {allDimensions.map(dim => {
+                        const isCovered = coveredDimensions.includes(dim)
+                        const dimInfo = COGNITIVE_DIMENSIONS[dim]
+
+                        return (
+                          <div
+                            key={`${bl.level}-${dim}`}
+                            className={`p-3 rounded-lg border-2 transition-all cursor-help ${
+                              isCovered
+                                ? 'border-green-400/30 bg-green-400/5'
+                                : 'border-gray-700/50 bg-gray-800/30'
+                            }`}
+                            title={dimInfo.description}
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="text-lg">{dimInfo.icon}</span>
+                              <div className="flex-1 min-w-0">
+                                <div className={`text-sm font-semibold truncate ${
+                                  isCovered ? 'text-green-400' : 'text-gray-500'
+                                }`}>
+                                  {dimInfo.name}
+                                </div>
+                                <div className="text-xs text-gray-600 truncate">
+                                  {dimInfo.description.split(',')[0]}
+                                </div>
+                              </div>
+                              {isCovered && (
+                                <span className="text-green-400 text-sm">✓</span>
+                              )}
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    {/* Next Recommended Dimension */}
+                    {coveredDimensions.length < 6 && (
+                      <div className="mt-4 p-3 neuro-raised rounded-lg border border-blue-400/20">
+                        <div className="text-xs text-blue-400 font-semibold mb-1">
+                          💡 Next Recommended
+                        </div>
+                        <div className="text-sm text-gray-300">
+                          Practice questions about:{' '}
+                          <span className="font-semibold text-blue-400">
+                            {allDimensions
+                              .filter(d => !coveredDimensions.includes(d))
+                              .map(d => COGNITIVE_DIMENSIONS[d].name)
+                              .join(', ')}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Legend */}
+            <div className="p-6 border-t border-gray-800">
+              <h4 className="text-sm font-semibold text-gray-400 mb-3">Unlock Requirements</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div className="flex items-start gap-2">
+                  <span className="text-green-400 mt-0.5">✓</span>
+                  <div>
+                    <div className="font-medium text-gray-300">100% Mastery</div>
+                    <div className="text-xs text-gray-500">All attempts correct</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-blue-400 mt-0.5">◐</span>
+                  <div>
+                    <div className="font-medium text-gray-300">4+ Dimensions</div>
+                    <div className="text-xs text-gray-500">Breadth of understanding</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-purple-400 mt-0.5">5</span>
+                  <div>
+                    <div className="font-medium text-gray-300">5+ Attempts</div>
+                    <div className="text-xs text-gray-500">Statistical reliability</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Calibration Info */}
         {topicDetail.total_attempts > 0 && (
