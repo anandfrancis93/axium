@@ -552,12 +552,28 @@ function LearnPageContent() {
                           {currentQuestion.question_format === 'mcq_multi' ? (
                             <Square
                               size={20}
-                              className={isUserAnswer ? 'fill-current' : ''}
+                              className={`${
+                                isUserAnswer
+                                  ? isCorrectAnswer
+                                    ? 'fill-current text-green-400'
+                                    : 'fill-current text-red-400'
+                                  : isCorrectAnswer
+                                    ? 'text-green-400'
+                                    : 'text-gray-300'
+                              }`}
                             />
                           ) : (
                             <Circle
                               size={20}
-                              className={isUserAnswer ? 'fill-current' : ''}
+                              className={`${
+                                isUserAnswer
+                                  ? isCorrectAnswer
+                                    ? 'fill-current text-green-400'
+                                    : 'fill-current text-red-400'
+                                  : isCorrectAnswer
+                                    ? 'text-green-400'
+                                    : 'text-gray-300'
+                              }`}
                             />
                           )}
                           <div className="flex-1">
