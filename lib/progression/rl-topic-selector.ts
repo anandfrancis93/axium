@@ -154,7 +154,7 @@ export async function selectNextTopic(
   if (isSpacedRepetition) {
     return selectSpacedRepetitionTopic(eligibleTopics, progress)
   } else {
-    return selectRLTopic(eligibleTopics, progress, questionCount)
+    return await selectRLTopic(eligibleTopics, progress, questionCount)
   }
 }
 
@@ -285,11 +285,11 @@ function selectSpacedRepetitionTopic(
 /**
  * Select topic using RL optimization
  */
-function selectRLTopic(
+async function selectRLTopic(
   eligibleTopics: any[],
   progress: UserProgressRow[],
   totalAttempts: number
-): TopicSelection {
+): Promise<TopicSelection> {
   // Filter progress to only eligible topics
   const eligibleProgress = progress.filter(p =>
     eligibleTopics.some(t => t.id === p.topic_id)
@@ -311,7 +311,7 @@ function selectRLTopic(
   }
 
   // Calculate priority for each topic with progress
-  let priorities = await calculateTopicPriorities(eligibleProgress)
+  let priorities = calculateTopicPriorities(eligibleProgress)
 
   if (priorities.length === 0) {
     // Fallback to cold start
