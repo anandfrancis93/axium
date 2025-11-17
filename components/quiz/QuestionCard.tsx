@@ -102,48 +102,53 @@ export function QuestionCard({
             {question.question_format === 'fill_blank' && (
               <p className="text-sm text-gray-500 mb-3">Select the correct word or phrase to complete the sentence</p>
             )}
-            {question.options.map((option, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => handleMultipleChoice(option)}
-                disabled={disabled}
-                className={`
-                  w-full text-left transition-all
-                  ${isOptionSelected(option)
-                    ? 'neuro-raised text-blue-400'
-                    : 'neuro-inset text-gray-300'
-                  }
-                  ${showCorrectAnswer && isCorrectOption(option)
-                    ? 'text-green-400'
-                    : ''
-                  }
-                  ${showCorrectAnswer && isOptionSelected(option) && !isCorrectOption(option)
-                    ? 'text-red-400'
-                    : ''
-                  }
-                  ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}
-                `}
-              >
-                <div className="flex items-center gap-3">
-                  {question.question_format === 'mcq_multi' ? (
-                    <Square
-                      size={20}
-                      className={isOptionSelected(option) ? 'fill-current' : ''}
-                    />
-                  ) : (
-                    <Circle
-                      size={20}
-                      className={isOptionSelected(option) ? 'fill-current' : ''}
-                    />
-                  )}
-                  <span>{capitalizeFirst(option)}</span>
-                  {showCorrectAnswer && isCorrectOption(option) && (
-                    <CheckCircle2 size={20} className="ml-auto text-green-400" />
-                  )}
-                </div>
-              </button>
-            ))}
+            {question.options.map((option, idx) => {
+              const optionLetter = String.fromCharCode(65 + idx) // A, B, C, D...
+              const optionWithLetter = `${optionLetter}. ${option}` // Add letter prefix for submission
+
+              return (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => handleMultipleChoice(optionWithLetter)}
+                  disabled={disabled}
+                  className={`
+                    w-full text-left transition-all
+                    ${isOptionSelected(optionWithLetter)
+                      ? 'neuro-raised text-blue-400'
+                      : 'neuro-inset text-gray-300'
+                    }
+                    ${showCorrectAnswer && isCorrectOption(option)
+                      ? 'text-green-400'
+                      : ''
+                    }
+                    ${showCorrectAnswer && isOptionSelected(optionWithLetter) && !isCorrectOption(option)
+                      ? 'text-red-400'
+                      : ''
+                    }
+                    ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}
+                  `}
+                >
+                  <div className="flex items-center gap-3">
+                    {question.question_format === 'mcq_multi' ? (
+                      <Square
+                        size={20}
+                        className={isOptionSelected(optionWithLetter) ? 'fill-current' : ''}
+                      />
+                    ) : (
+                      <Circle
+                        size={20}
+                        className={isOptionSelected(optionWithLetter) ? 'fill-current' : ''}
+                      />
+                    )}
+                    <span><span className="text-blue-400 mr-2">{optionLetter}.</span>{capitalizeFirst(option)}</span>
+                    {showCorrectAnswer && isCorrectOption(option) && (
+                      <CheckCircle2 size={20} className="ml-auto text-green-400" />
+                    )}
+                  </div>
+                </button>
+              )
+            })}
           </div>
         )}
 
