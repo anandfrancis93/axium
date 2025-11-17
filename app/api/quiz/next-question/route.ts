@@ -217,23 +217,40 @@ async function getNextFormatRoundRobin(
   const recommendedFormats = getRecommendedFormats(bloomLevel)
 
   // Get user progress to retrieve last used format index
-  const { data: progress } = await supabase
+  const { data: progress, error: progressError } = await supabase
     .from('user_progress')
     .select('rl_metadata')
     .eq('user_id', userId)
     .eq('topic_id', topicId)
     .single()
 
+  console.log('[Round Robin] Progress data:', {
+    userId,
+    topicId,
+    bloomLevel,
+    hasProgress: !!progress,
+    rl_metadata: progress?.rl_metadata,
+    error: progressError
+  })
+
   let formatIndex = 0
+  let lastIndex = -1
 
   if (progress?.rl_metadata?.format_round_robin) {
     // Get the last used index for this Bloom level
-    const lastIndex = progress.rl_metadata.format_round_robin[`bloom_${bloomLevel}`] ?? -1
+    lastIndex = progress.rl_metadata.format_round_robin[`bloom_${bloomLevel}`] ?? -1
     // Increment to next format (with wrap-around)
     formatIndex = (lastIndex + 1) % recommendedFormats.length
   }
 
   const selectedFormat = recommendedFormats[formatIndex]
+
+  console.log('[Round Robin] Format selection:', {
+    recommendedFormats,
+    lastIndex,
+    newIndex: formatIndex,
+    selectedFormat
+  })
 
   // Update the round robin index in user_progress
   const updatedMetadata = {
@@ -244,7 +261,7 @@ async function getNextFormatRoundRobin(
     }
   }
 
-  await supabase
+  const { error: upsertError } = await supabase
     .from('user_progress')
     .upsert({
       user_id: userId,
@@ -255,6 +272,10 @@ async function getNextFormatRoundRobin(
     })
 
   console.log(`[Round Robin] Bloom ${bloomLevel}: Selected format ${selectedFormat} (index ${formatIndex}/${recommendedFormats.length})`)
+  console.log('[Round Robin] Upsert result:', {
+    updatedMetadata,
+    error: upsertError
+  })
 
   return selectedFormat
 }
