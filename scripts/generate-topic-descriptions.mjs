@@ -88,8 +88,17 @@ async function main() {
   console.log('Generate Topic Descriptions')
   console.log('='.repeat(60))
 
-  // Fetch all topics without descriptions
-  const { data: topics, error } = await supabase
+  // Get limit from command line argument (default: 20 for testing)
+  const limit = parseInt(process.argv[2]) || 20
+  const testMode = !process.argv[2] || limit < 100
+
+  if (testMode) {
+    console.log(`\n⚠️  TEST MODE: Processing only ${limit} topics`)
+    console.log(`To process all topics, run: node scripts/generate-topic-descriptions.mjs 999999\n`)
+  }
+
+  // Fetch topics without descriptions
+  let query = supabase
     .from('topics')
     .select(`
       id,
@@ -106,12 +115,18 @@ async function main() {
     .or('description.is.null,description.eq.')
     .order('hierarchy_level')
 
+  if (limit) {
+    query = query.limit(limit)
+  }
+
+  const { data: topics, error } = await query
+
   if (error) {
     console.error('Error fetching topics:', error)
     process.exit(1)
   }
 
-  console.log(`\nFound ${topics.length} topics without descriptions\n`)
+  console.log(`\nFound ${topics.length} topics without descriptions${testMode ? ' (limited for testing)' : ''}\n`)
 
   // Fetch parent names in bulk
   const parentIds = [...new Set(topics.filter(t => t.parent_topic_id).map(t => t.parent_topic_id))]
