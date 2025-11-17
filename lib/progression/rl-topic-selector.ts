@@ -86,40 +86,30 @@ export async function selectNextTopic(
   console.log(`[RL] Question ${questionCount + 1}: ${isSpacedRepetition ? 'SPACED REPETITION (20%)' : 'RL-DRIVEN (80%)'}`)
 
   // Get all available topics with hierarchy information
-  // Only select actual topics (hierarchy_level >= 3), not learning objectives (level 2)
+  // Only select actual topics (hierarchy_level >= 1+), not domains/objectives
   const { data: allTopics, error: topicsError } = await supabase
     .from('topics')
-    .select('id, name, prerequisites, chapter_id, hierarchy_level, parent_topic_id, chapters(id, name, slug, subject_id, subjects(id, name, slug))')
-    .gte('hierarchy_level', 3)
+    .select('id, name, prerequisites, hierarchy_level, parent_topic_id, subject_id, subjects(id, name, slug)')
+    .gte('hierarchy_level', 1)
 
   if (topicsError || !allTopics || allTopics.length === 0) {
     throw new Error('No topics found in database')
   }
 
-  // Filter topics by subject/chapter if provided
+  // Filter topics by subject if provided (no more chapters)
   let filteredTopics = allTopics
-  if (subject || chapter) {
+  if (subject) {
     filteredTopics = allTopics.filter((topic: any) => {
-      const topicSubject = topic.chapters?.subjects?.slug
-      const topicChapter = topic.chapters?.slug
+      const topicSubject = topic.subjects?.slug
 
       // Check subject match if provided
-      if (subject && topicSubject !== subject) {
-        return false
-      }
-
-      // Check chapter match if provided
-      if (chapter && topicChapter !== chapter) {
-        return false
-      }
-
-      return true
+      return subject === topicSubject
     })
 
-    console.log(`[RL] Filtered to ${filteredTopics.length} topics for subject=${subject}, chapter=${chapter}`)
+    console.log(`[RL] Filtered to ${filteredTopics.length} topics for subject=${subject}`)
 
     if (filteredTopics.length === 0) {
-      throw new Error(`No topics found for ${subject ? `subject: ${subject}` : ''}${chapter ? ` chapter: ${chapter}` : ''}`)
+      throw new Error(`No topics found for subject: ${subject}`)
     }
   }
 

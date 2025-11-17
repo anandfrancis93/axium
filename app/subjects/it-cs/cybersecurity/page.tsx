@@ -44,11 +44,8 @@ export default function CybersecurityPage() {
           last_practiced_at,
           topics (
             name,
-            chapters (
-              name,
-              subjects (
-                name
-              )
+            subjects (
+              name
             )
           )
         `)
@@ -62,7 +59,7 @@ export default function CybersecurityPage() {
 
       // Filter for Cybersecurity subject and format data
       const cybersecurityTopics = data
-        ?.filter((item: any) => item.topics?.chapters?.subjects?.name === 'Cybersecurity')
+        ?.filter((item: any) => item.topics?.subjects?.name === 'Cybersecurity')
         .map((item: any) => ({
           topic_id: item.topic_id,
           topic_name: item.topics?.name || 'Unknown Topic',

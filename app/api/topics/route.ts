@@ -1,6 +1,6 @@
 /**
  * Topics API
- * GET /api/topics?chapterId=xxx - Get topics for a chapter
+ * GET /api/topics?subjectId=xxx - Get topics for a subject
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -9,22 +9,22 @@ import { createClient } from '@/lib/supabase/server'
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const chapterId = searchParams.get('chapterId')
+    const subjectId = searchParams.get('subjectId')
 
-    if (!chapterId) {
+    if (!subjectId) {
       return NextResponse.json(
-        { error: 'chapterId is required' },
+        { error: 'subjectId is required' },
         { status: 400 }
       )
     }
 
     const supabase = await createClient()
 
-    // Get all topics for the chapter
+    // Get all topics for the subject
     const { data: topics, error } = await supabase
       .from('topics')
       .select('*')
-      .eq('chapter_id', chapterId)
+      .eq('subject_id', subjectId)
       .order('name')
 
     if (error) {

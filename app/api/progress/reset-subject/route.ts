@@ -49,28 +49,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Then get chapters for this subject
-    const { data: chapters, error: chaptersError } = await supabase
-      .from('chapters')
-      .select('id')
-      .eq('subject_id', subjects.id)
-
-    if (chaptersError || !chapters || chapters.length === 0) {
-      console.error('Error fetching chapters:', chaptersError)
-      return NextResponse.json({
-        success: true,
-        deletedCount: 0,
-        message: `No chapters found for subject: ${subject}`
-      })
-    }
-
-    const chapterIds = chapters.map(c => c.id)
-
-    // Get all topics for these chapters
+    // Get all topics for this subject (no more chapters)
     const { data: topics, error: topicsError } = await supabase
       .from('topics')
       .select('id')
-      .in('chapter_id', chapterIds)
+      .eq('subject_id', subjects.id)
 
     if (topicsError) {
       console.error('Error fetching topics:', topicsError)

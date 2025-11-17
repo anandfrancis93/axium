@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     // Fetch topic hierarchy for display
     const { data: topicHierarchy } = await supabase
       .from('topics')
-      .select('name, description, hierarchy_level, parent_topic_id, chapter_id, chapters(name, subject_id, subjects(name))')
+      .select('name, description, hierarchy_level, parent_topic_id, subject_id, subjects(name)')
       .eq('id', selection.topicId)
       .single()
 
@@ -111,8 +111,8 @@ export async function POST(request: NextRequest) {
       question_text: question.question || question.question_text,
       // Add hierarchy for display
       hierarchy: topicHierarchy ? {
-        subject: (topicHierarchy.chapters as any)?.subjects?.name || null,
-        chapter: (topicHierarchy.chapters as any)?.name || null,
+        subject: (topicHierarchy.subjects as any)?.name || null,
+        chapter: null, // No chapters anymore
         topic: topicHierarchy.name, // Actual topic name (no cleaning needed - it's a real topic now)
         learningObjective: learningObjective, // Parent learning objective (## level)
         hierarchyLevel: topicHierarchy.hierarchy_level,

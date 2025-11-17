@@ -12,7 +12,10 @@
     "parse-curriculum": "tsx scripts/parse-curriculum.ts",
     "neo4j:import": "tsx scripts/import-to-neo4j.ts",
     "neo4j:import:test": "tsx scripts/import-to-neo4j.ts --test",
-    "neo4j:validate": "tsx scripts/validate-neo4j.ts"
+    "neo4j:validate": "tsx scripts/validate-neo4j.ts",
+    "neo4j:rebuild": "tsx scripts/rebuild-neo4j-from-postgres.ts",
+    "neo4j:verify": "tsx scripts/verify-neo4j-structure.ts",
+    "graphrag:clear": "tsx scripts/clear-graphrag-data.ts"
   },
   "repository": {
     "type": "git",
