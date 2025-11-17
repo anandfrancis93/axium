@@ -51,7 +51,8 @@ export default function TopicDetailPage() {
   const [topicDetail, setTopicDetail] = useState<TopicDetail | null>(null)
   const [bloomLevels, setBloomLevels] = useState<BloomLevelDetail[]>([])
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'overview' | 'dimensions' | 'bloom' | 'calibration'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'bloom' | 'calibration'>('overview')
+  const [expandedBloomLevel, setExpandedBloomLevel] = useState<number | null>(null)
 
   useEffect(() => {
     fetchTopicDetail()
@@ -274,14 +275,6 @@ export default function TopicDetailPage() {
             Overview Stats
           </button>
           <button
-            onClick={() => setActiveTab('dimensions')}
-            className={`neuro-btn px-6 py-3 whitespace-nowrap ${
-              activeTab === 'dimensions' ? 'text-blue-400' : 'text-gray-400'
-            }`}
-          >
-            Cognitive Dimension Coverage
-          </button>
-          <button
             onClick={() => setActiveTab('bloom')}
             className={`neuro-btn px-6 py-3 whitespace-nowrap ${
               activeTab === 'bloom' ? 'text-blue-400' : 'text-gray-400'
@@ -330,113 +323,6 @@ export default function TopicDetailPage() {
         </div>
         )}
 
-        {/* Cognitive Dimension Coverage */}
-        {activeTab === 'dimensions' && topicDetail.total_attempts > 0 && (
-          <div className="neuro-card">
-            <div className="p-6 border-b border-gray-800">
-              <h2 className="text-xl font-semibold text-gray-200">Cognitive Dimension Coverage</h2>
-              <p className="text-sm text-gray-500 mt-1">Understanding from multiple perspectives (5W1H Framework)</p>
-            </div>
-
-            <div className="p-6 space-y-6">
-              {bloomLevels.filter(bl => bl.attempts > 0).map((bl) => {
-                const coveredDimensions = getCoverageForLevel(topicDetail.dimension_coverage, bl.level)
-                const allDimensions = Object.values(CognitiveDimension)
-                const coveragePercentage = Math.round((coveredDimensions.length / 6) * 100)
-
-                return (
-                  <div key={`dim-${bl.level}`} className="neuro-inset p-4 rounded-lg">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="neuro-raised w-10 h-10 rounded-lg flex items-center justify-center">
-                          <span className="text-sm font-bold text-blue-400">{bl.level}</span>
-                        </div>
-                        <div>
-                          <div className="font-semibold text-gray-200">Level {bl.level} - {bl.name}</div>
-                          <div className="text-xs text-gray-500">
-                            {coveredDimensions.length}/6 dimensions covered ({coveragePercentage}%)
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className={`text-sm font-semibold ${
-                          coveredDimensions.length >= 4 ? 'text-green-400' :
-                          coveredDimensions.length >= 2 ? 'text-yellow-400' :
-                          'text-red-400'
-                        }`}>
-                          {coveredDimensions.length >= 4 ? 'Ready' : `${coveredDimensions.length}/4`}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Dimension Grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {allDimensions.map(dim => {
-                        const isCovered = coveredDimensions.includes(dim)
-                        const dimInfo = COGNITIVE_DIMENSIONS[dim]
-
-                        return (
-                          <div
-                            key={`${bl.level}-${dim}`}
-                            className="neuro-inset p-3 rounded-lg cursor-help"
-                            title={dimInfo.description}
-                          >
-                            <div className={`text-sm font-semibold truncate ${
-                              isCovered ? 'text-green-400' : 'text-gray-500'
-                            }`}>
-                              {dimInfo.name}
-                            </div>
-                            <div className="text-xs text-gray-600 truncate">
-                              {dimInfo.description.split(',')[0]}
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-
-                    {/* Next Recommended Dimension */}
-                    {coveredDimensions.length < 6 && (
-                      <div className="mt-4 p-3 neuro-raised rounded-lg">
-                        <div className="text-xs text-blue-400 font-semibold mb-1">
-                          Next Recommended
-                        </div>
-                        <div className="text-sm text-gray-300">
-                          Practice questions about:{' '}
-                          <span className="font-semibold text-blue-400">
-                            {allDimensions
-                              .filter(d => !coveredDimensions.includes(d))
-                              .map(d => COGNITIVE_DIMENSIONS[d].name)
-                              .join(', ')}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-
-            {/* Legend */}
-            <div className="p-6 border-t border-gray-800">
-              <h4 className="text-sm font-semibold text-gray-400 mb-3">Unlock Requirements</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                <div>
-                  <div className="font-medium text-green-400">100% Mastery</div>
-                  <div className="text-xs text-gray-500">All attempts correct</div>
-                </div>
-                <div>
-                  <div className="font-medium text-blue-400">4+ Dimensions</div>
-                  <div className="text-xs text-gray-500">Breadth of understanding</div>
-                </div>
-                <div>
-                  <div className="font-medium text-purple-400">5+ Attempts</div>
-                  <div className="text-xs text-gray-500">Statistical reliability</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Bloom Level Breakdown */}
         {activeTab === 'bloom' && (
         <div className="neuro-card">
@@ -446,65 +332,148 @@ export default function TopicDetailPage() {
           </div>
 
           <div className="p-6 space-y-4">
-            {bloomLevels.map((bl) => (
-              <div key={bl.level} className="neuro-inset p-4 rounded-lg">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="neuro-raised w-10 h-10 rounded-lg flex items-center justify-center">
-                      <span className="text-sm font-bold text-blue-400">{bl.level}</span>
-                    </div>
-                    <div>
-                      <div className="font-semibold text-gray-200">{bl.name}</div>
-                      <div className="text-xs text-gray-500">
-                        {BLOOM_LEVELS[bl.level - 1].description}
+            {bloomLevels.map((bl) => {
+              const coveredDimensions = getCoverageForLevel(topicDetail.dimension_coverage, bl.level)
+              const allDimensions = Object.values(CognitiveDimension)
+              const coveragePercentage = Math.round((coveredDimensions.length / 6) * 100)
+              const isExpanded = expandedBloomLevel === bl.level
+
+              return (
+                <div key={bl.level} className="neuro-inset rounded-lg">
+                  {/* Clickable Header */}
+                  <button
+                    type="button"
+                    onClick={() => setExpandedBloomLevel(isExpanded ? null : bl.level)}
+                    className="w-full p-4 text-left"
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="neuro-raised w-10 h-10 rounded-lg flex items-center justify-center">
+                          <span className="text-sm font-bold text-blue-400">{bl.level}</span>
+                        </div>
+                        <div>
+                          <div className="font-semibold text-gray-200">{bl.name}</div>
+                          <div className="text-xs text-gray-500">
+                            {BLOOM_LEVELS[bl.level - 1].description}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <div className={`text-2xl font-bold ${
+                            bl.mastery >= 80 ? 'text-green-400' :
+                            bl.mastery >= 60 ? 'text-yellow-400' :
+                            bl.mastery > 0 ? 'text-red-400' :
+                            'text-gray-600'
+                          }`}>
+                            {bl.mastery}%
+                          </div>
+                          <div className="text-xs text-gray-500">mastery</div>
+                        </div>
+                        <span className="text-gray-400 text-xl">
+                          {isExpanded ? '▼' : '▶'}
+                        </span>
                       </div>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <div className={`text-2xl font-bold ${
-                      bl.mastery >= 80 ? 'text-green-400' :
-                      bl.mastery >= 60 ? 'text-yellow-400' :
-                      bl.mastery > 0 ? 'text-red-400' :
-                      'text-gray-600'
-                    }`}>
-                      {bl.mastery}%
+
+                    {/* Progress Bar */}
+                    <div className="relative h-3 neuro-inset rounded-full overflow-hidden bg-gray-900/50">
+                      <div
+                        className={`absolute top-0 left-0 bottom-0 rounded-full transition-all ${
+                          bl.mastery >= 80 ? 'bg-green-400' :
+                          bl.mastery >= 60 ? 'bg-yellow-400' :
+                          bl.mastery > 0 ? 'bg-red-400' :
+                          'bg-gray-700'
+                        }`}
+                        style={{ width: `${bl.mastery}%` }}
+                      />
                     </div>
-                    <div className="text-xs text-gray-500">mastery</div>
-                  </div>
-                </div>
 
-                {/* Progress Bar */}
-                <div className="relative h-3 neuro-inset rounded-full overflow-hidden bg-gray-900/50">
-                  <div
-                    className={`absolute top-0 left-0 bottom-0 rounded-full transition-all ${
-                      bl.mastery >= 80 ? 'bg-green-400' :
-                      bl.mastery >= 60 ? 'bg-yellow-400' :
-                      bl.mastery > 0 ? 'bg-red-400' :
-                      'bg-gray-700'
-                    }`}
-                    style={{ width: `${bl.mastery}%` }}
-                  />
-                </div>
+                    {/* Stats Row */}
+                    <div className="flex items-center justify-between mt-3 text-sm">
+                      <div className="text-gray-400">
+                        <span className="font-medium text-gray-300">{bl.attempts}</span> attempts
+                      </div>
+                      <div className="text-gray-400">
+                        <span className="font-medium text-gray-300">{bl.correct}</span> correct
+                      </div>
+                      <div className={`font-medium ${
+                        bl.accuracy >= 80 ? 'text-green-400' :
+                        bl.accuracy >= 60 ? 'text-yellow-400' :
+                        bl.accuracy > 0 ? 'text-red-400' :
+                        'text-gray-600'
+                      }`}>
+                        {bl.accuracy}% accuracy
+                      </div>
+                    </div>
+                  </button>
 
-                {/* Stats Row */}
-                <div className="flex items-center justify-between mt-3 text-sm">
-                  <div className="text-gray-400">
-                    <span className="font-medium text-gray-300">{bl.attempts}</span> attempts
-                  </div>
-                  <div className="text-gray-400">
-                    <span className="font-medium text-gray-300">{bl.correct}</span> correct
-                  </div>
-                  <div className={`font-medium ${
-                    bl.accuracy >= 80 ? 'text-green-400' :
-                    bl.accuracy >= 60 ? 'text-yellow-400' :
-                    bl.accuracy > 0 ? 'text-red-400' :
-                    'text-gray-600'
-                  }`}>
-                    {bl.accuracy}% accuracy
-                  </div>
+                  {/* Expanded: Cognitive Dimension Coverage */}
+                  {isExpanded && bl.attempts > 0 && (
+                    <div className="px-4 pb-4 pt-2 border-t border-gray-800">
+                      <div className="mb-4">
+                        <h4 className="text-sm font-semibold text-gray-300 mb-2">
+                          Cognitive Dimension Coverage
+                        </h4>
+                        <div className="text-xs text-gray-500 mb-2">
+                          {coveredDimensions.length}/6 dimensions covered ({coveragePercentage}%) •
+                          <span className={`ml-1 font-semibold ${
+                            coveredDimensions.length >= 4 ? 'text-green-400' :
+                            coveredDimensions.length >= 2 ? 'text-yellow-400' :
+                            'text-red-400'
+                          }`}>
+                            {coveredDimensions.length >= 4 ? 'Ready to unlock next level' : `Need ${4 - coveredDimensions.length} more`}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Dimension Grid */}
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+                        {allDimensions.map(dim => {
+                          const isCovered = coveredDimensions.includes(dim)
+                          const dimInfo = COGNITIVE_DIMENSIONS[dim]
+
+                          return (
+                            <div
+                              key={`${bl.level}-${dim}`}
+                              className="neuro-inset p-3 rounded-lg cursor-help"
+                              title={dimInfo.description}
+                            >
+                              <div className={`text-sm font-semibold truncate ${
+                                isCovered ? 'text-green-400' : 'text-gray-500'
+                              }`}>
+                                {dimInfo.name}
+                              </div>
+                              <div className="text-xs text-gray-600 truncate">
+                                {dimInfo.description.split(',')[0]}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+
+                      {/* Next Recommended Dimension */}
+                      {coveredDimensions.length < 6 && (
+                        <div className="p-3 neuro-raised rounded-lg">
+                          <div className="text-xs text-blue-400 font-semibold mb-1">
+                            Next Recommended
+                          </div>
+                          <div className="text-sm text-gray-300">
+                            Practice questions about:{' '}
+                            <span className="font-semibold text-blue-400">
+                              {allDimensions
+                                .filter(d => !coveredDimensions.includes(d))
+                                .map(d => COGNITIVE_DIMENSIONS[d].name)
+                                .join(', ')}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
         )}
