@@ -23,12 +23,12 @@ const xai = new OpenAI({
 
 async function generateDescription(topicName, parentName, hierarchyLevel, subjectName) {
   const contextByLevel = {
-    2: `This is a Learning Objective (## level heading) under "${parentName}" in ${subjectName}.`,
     3: `This is a Topic (### level heading) under the learning objective "${parentName}" in ${subjectName}.`,
-    4: `This is a Subtopic (#### level heading) under "${parentName}" in ${subjectName}.`
+    4: `This is a Subtopic (#### level heading) under the topic "${parentName}" in ${subjectName}.`,
+    5: `This is a Sub-subtopic (##### level heading) under "${parentName}" in ${subjectName}.`
   }
 
-  const context = contextByLevel[hierarchyLevel] || `This is a topic in ${subjectName}.`
+  const context = contextByLevel[hierarchyLevel] || `This is a topic under "${parentName}" in ${subjectName}.`
 
   const prompt = `You are a cybersecurity curriculum expert. Generate a concise, accurate description (1-2 sentences, max 150 characters) for the following topic.
 
@@ -97,7 +97,8 @@ async function main() {
     console.log(`To process all topics, run: node scripts/generate-topic-descriptions.mjs 999999\n`)
   }
 
-  // Fetch topics without descriptions
+  // Fetch topics without descriptions (only level 3+: topics, subtopics, sub-subtopics)
+  // Level 1 = Domain (#), Level 2 = Objective (##) - these don't need descriptions
   let query = supabase
     .from('topics')
     .select(`
@@ -113,6 +114,7 @@ async function main() {
       )
     `)
     .or('description.is.null,description.eq.')
+    .gte('hierarchy_level', 3)  // Only process level 3+ (###, ####, #####)
     .order('hierarchy_level')
 
   if (limit) {
