@@ -78,7 +78,7 @@ export default function TopicDetailPage() {
       // Fetch topic info and user progress
       const { data: topicData, error: topicError } = await supabase
         .from('topics')
-        .select('id, name, description, hierarchy_path')
+        .select('id, name, description, full_name')
         .eq('name', topicName)
         .single()
 
@@ -111,7 +111,7 @@ export default function TopicDetailPage() {
           topic_id: topicData.id,
           topic_name: topicData.name,
           topic_description: topicData.description,
-          topic_hierarchy: topicData.hierarchy_path,
+          topic_hierarchy: topicData.full_name,
           total_attempts: 0,
           correct_answers: 0,
           mastery_scores: {},
@@ -174,7 +174,7 @@ export default function TopicDetailPage() {
         topic_id: topicData.id,
         topic_name: topicData.name,
         topic_description: topicData.description,
-        topic_hierarchy: progressData.hierarchy_path,
+        topic_hierarchy: topicData.full_name,
         total_attempts: progressData.total_attempts,
         correct_answers: progressData.correct_answers,
         mastery_scores: progressData.mastery_scores,
