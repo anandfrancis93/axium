@@ -365,6 +365,37 @@ async function generateQuestion(
 
   const formatInstruction = formatInstructions[questionFormat] || formatInstructions.mcq_single
 
+  // Detect domain-specific topics (cybersecurity, security, threats, attacks, vulnerabilities)
+  const securityKeywords = ['security', 'attack', 'threat', 'vulnerability', 'exploit', 'malware', 'cryptography', 'authentication', 'authorization', 'encryption']
+  const isSecurityTopic = securityKeywords.some(keyword =>
+    topicName.toLowerCase().includes(keyword) || context.toLowerCase().includes(keyword)
+  )
+
+  // Build domain-specific constraints
+  let domainConstraints = ''
+  if (isSecurityTopic) {
+    domainConstraints = `
+**🔒 CYBERSECURITY DOMAIN CONSTRAINTS:**
+This is a cybersecurity/security topic. Your question MUST:
+- Focus on SPECIFIC security concepts, threats, or controls mentioned in the context
+- Test understanding of HOW attacks work, WHAT defenses exist, or WHY security measures matter
+- Reference SPECIFIC details from the learning context (e.g., attack vectors, threat actors, security controls)
+- ❌ AVOID generic "What is X?" definitions unless the topic is truly foundational
+- ❌ DO NOT ask overly broad questions that could apply to any domain
+- ✅ For Bloom 1 (Remember): Ask about SPECIFIC components, methods, or characteristics (e.g., "What is X attack vector?" not "What is X?")
+- ✅ For Bloom 2-4: Test understanding of threats, defenses, attack mechanisms, or security principles
+- ✅ Ensure questions are anchored to cybersecurity domain, not generic IT concepts
+
+**Example BAD question (too generic):**
+"What is cloud access?"
+→ This could mean anything in IT/cloud computing
+
+**Example GOOD question (domain-specific):**
+"What is the primary security risk associated with cloud access network vectors?"
+→ Anchored to security threats, references specific attack vector concept
+`
+  }
+
   const prompt = `You are an expert educator creating questions based on Bloom's Taxonomy.
 
 **Topic:** ${topicName}
@@ -374,17 +405,21 @@ async function generateQuestion(
 
 **Learning Context:**
 ${context}
+${domainConstraints}
 
 **Instructions:**
 ${formatInstruction}
 
-**Requirements:**
-1. Question must test at Bloom Level ${bloomLevel} (${bloom.name})
-2. Use one of these verbs: ${bloom.verbs}
-3. Base the question on the provided learning context
-4. Ensure the question is clear, unambiguous, and has ONE definitive correct answer (or multiple for mcq_multi)
-5. Provide a detailed explanation that teaches the concept
-6. Return ONLY valid JSON, no additional text
+**CRITICAL REQUIREMENTS:**
+1. **Parse the Learning Context:** Extract key concepts, details, and specifics from the context above
+2. **Use Specific Details:** Your question MUST reference at least one specific detail from the context
+3. **Test at Bloom Level ${bloomLevel} (${bloom.name}):** Use one of these verbs: ${bloom.verbs}
+4. **Avoid Generic Questions:** Do NOT ask broad "What is X?" questions if the context provides specific details about X
+5. **Domain Anchoring:** Ensure the question is clearly anchored to the topic's domain (e.g., cybersecurity, physics, biology)
+6. **Validate Alignment:** The question should test understanding of the SPECIFIC details provided, not general knowledge
+7. **Clear and Unambiguous:** ONE definitive correct answer (or multiple for mcq_multi)
+8. **Detailed Explanation:** Explain WHY the correct answer is right using clear reasoning
+9. **Return ONLY valid JSON:** No additional text or markdown
 
 **❌ NEVER reference source materials in questions OR explanations:**
 - Do NOT include "in the context of [source]" (e.g., "CompTIA Security+ SY0-701")
@@ -394,11 +429,13 @@ ${formatInstruction}
 - Write questions AND explanations as if they are standalone educational content
 - Focus on the TOPIC and CONCEPTS, not the source they came from
 
-**✅ EXPLANATION QUALITY:**
-- Explain WHY the correct answer is right using clear reasoning
-- Do NOT cite external sources, curriculums, or certifications
-- Use phrases like "This is correct because..." not "According to [source]..."
-- Focus on conceptual understanding, not memorization of source material
+**✅ QUESTION QUALITY CHECKLIST:**
+Before finalizing your question, verify:
+- [ ] Does this question reference SPECIFIC details from the learning context?
+- [ ] Is this question anchored to the topic's domain (not overly generic)?
+- [ ] Does this test Bloom Level ${bloomLevel} (${bloom.name})?
+- [ ] Would a student need to understand the topic's SPECIFIC details to answer correctly?
+- [ ] Is the correct answer clearly supported by the learning context?
 
 Generate the question now:`
 
