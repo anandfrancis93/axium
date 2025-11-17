@@ -308,7 +308,12 @@ export default function CybersecurityPage() {
                           className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors"
                         >
                           <td className="p-4">
-                            <div className="font-medium text-gray-200">{topic.topic_name}</div>
+                            <a
+                              href={`/subjects/it-cs/cybersecurity/${encodeURIComponent(topic.topic_name)}`}
+                              className="font-medium text-blue-400 hover:text-blue-300 hover:underline cursor-pointer"
+                            >
+                              {topic.topic_name}
+                            </a>
                           </td>
                           <td className="p-4 text-center">
                             <span className="text-gray-300">{topic.total_attempts}</span>

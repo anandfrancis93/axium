@@ -15,6 +15,7 @@
     "neo4j:validate": "tsx scripts/validate-neo4j.ts",
     "neo4j:rebuild": "tsx scripts/rebuild-neo4j-from-postgres.ts",
     "neo4j:verify": "tsx scripts/verify-neo4j-structure.ts",
+    "neo4j:relationships": "tsx scripts/identify-topic-relationships.ts",
     "graphrag:clear": "tsx scripts/clear-graphrag-data.ts"
   },
   "repository": {
