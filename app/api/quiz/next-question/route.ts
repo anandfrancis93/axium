@@ -236,8 +236,8 @@ async function generateQuestion(
   const bloom = bloomDescriptions[bloomLevel] || bloomDescriptions[1]
 
   const formatInstructions: Record<string, string> = {
-    mcq_single: 'Generate a multiple-choice question with 4 options and ONE correct answer. Format: {"question": "...", "options": ["A", "B", "C", "D"], "correct_answer": "A", "explanation": "..."}',
-    mcq_multi: 'Generate a multiple-choice question with 4-6 options and MULTIPLE correct answers. Format: {"question": "Select all that apply...", "options": ["A", "B", "C", "D"], "correct_answer": ["A", "C"], "explanation": "..."}',
+    mcq_single: 'Generate a multiple-choice question with 4 options and ONE correct answer. Format: {"question": "What is X?", "options": ["First option text", "Second option text", "Third option text", "Fourth option text"], "correct_answer": "A", "explanation": "..."}. IMPORTANT: options array should contain ONLY the option text without any letter prefixes (A, B, C, D). The correct_answer should be just the letter (A, B, C, or D).',
+    mcq_multi: 'Generate a multiple-choice question with 4-6 options and MULTIPLE correct answers. Format: {"question": "Select all that apply: Which are X?", "options": ["First option text", "Second option text", "Third option text", "Fourth option text"], "correct_answer": ["A", "C"], "explanation": "..."}. IMPORTANT: options array should contain ONLY the option text without any letter prefixes. The correct_answer should be an array of letters.',
     true_false: 'Generate a true/false question. Format: {"question": "...", "options": ["True", "False"], "correct_answer": "True", "explanation": "..."}',
     fill_blank: 'Generate a fill-in-the-blank question with 4 options. Format: {"question": "The process of _____ is...", "options": ["photosynthesis", "respiration", "osmosis", "diffusion"], "correct_answer": "photosynthesis", "explanation": "..."}',
     matching: 'Generate a matching question with 4 pairs. Format: {"question": "Match the following...", "options": ["1-A", "1-B", "2-A", "2-B", "3-A", "3-B", "4-A", "4-B"], "correct_answer": ["1-A", "2-B", "3-C", "4-D"], "explanation": "..."}',
