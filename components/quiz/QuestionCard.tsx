@@ -104,17 +104,20 @@ export function QuestionCard({
             )}
             {question.options.map((option, idx) => {
               const optionLetter = String.fromCharCode(65 + idx) // A, B, C, D...
-              const optionWithLetter = `${optionLetter}. ${option}` // Add letter prefix for submission
+              // Only add letter prefix for MCQ questions, not for fill_blank
+              const submissionValue = question.question_format === 'fill_blank'
+                ? option
+                : `${optionLetter}. ${option}`
 
               return (
                 <button
                   key={idx}
                   type="button"
-                  onClick={() => handleMultipleChoice(optionWithLetter)}
+                  onClick={() => handleMultipleChoice(submissionValue)}
                   disabled={disabled}
                   className={`
                     w-full text-left transition-all
-                    ${isOptionSelected(optionWithLetter)
+                    ${isOptionSelected(submissionValue)
                       ? 'neuro-raised text-blue-400'
                       : 'neuro-inset text-gray-300'
                     }
@@ -122,7 +125,7 @@ export function QuestionCard({
                       ? 'text-green-400'
                       : ''
                     }
-                    ${showCorrectAnswer && isOptionSelected(optionWithLetter) && !isCorrectOption(option)
+                    ${showCorrectAnswer && isOptionSelected(submissionValue) && !isCorrectOption(option)
                       ? 'text-red-400'
                       : ''
                     }
@@ -133,12 +136,12 @@ export function QuestionCard({
                     {question.question_format === 'mcq_multi' ? (
                       <Square
                         size={20}
-                        className={isOptionSelected(optionWithLetter) ? 'fill-current' : ''}
+                        className={isOptionSelected(submissionValue) ? 'fill-current' : ''}
                       />
                     ) : (
                       <Circle
                         size={20}
-                        className={isOptionSelected(optionWithLetter) ? 'fill-current' : ''}
+                        className={isOptionSelected(submissionValue) ? 'fill-current' : ''}
                       />
                     )}
                     <span>{capitalizeFirst(option)}</span>
