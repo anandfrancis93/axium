@@ -152,7 +152,7 @@ export async function selectNextTopic(
 
   // Determine selection method
   if (isSpacedRepetition) {
-    return selectSpacedRepetitionTopic(eligibleTopics, progress)
+    return await selectSpacedRepetitionTopic(eligibleTopics, progress)
   } else {
     return await selectRLTopic(eligibleTopics, progress, questionCount)
   }
@@ -224,10 +224,10 @@ async function filterByPrerequisites(
 /**
  * Select topic using Spaced Repetition (SR)
  */
-function selectSpacedRepetitionTopic(
+async function selectSpacedRepetitionTopic(
   eligibleTopics: any[],
   progress: UserProgressRow[]
-): TopicSelection {
+): Promise<TopicSelection> {
   const now = new Date()
 
   // Filter to topics that have been practiced before (have progress)
@@ -238,7 +238,7 @@ function selectSpacedRepetitionTopic(
   if (practicedTopics.length === 0) {
     // No practiced topics yet - fall back to RL for cold start
     console.log('[SR] No practiced topics - falling back to RL')
-    return selectRLTopic(eligibleTopics, progress, 0)
+    return await selectRLTopic(eligibleTopics, progress, 0)
   }
 
   // Calculate time since last practice for each topic
@@ -269,7 +269,7 @@ function selectSpacedRepetitionTopic(
 
   if (!selected) {
     // Fallback
-    return selectRLTopic(eligibleTopics, progress, 0)
+    return await selectRLTopic(eligibleTopics, progress, 0)
   }
 
   return {
