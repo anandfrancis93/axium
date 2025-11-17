@@ -520,22 +520,23 @@ function LearnPageContent() {
               {(currentQuestion.question_format === 'mcq_single' || currentQuestion.question_format === 'mcq_multi') && currentQuestion.options && (
                 <div className="space-y-3">
                   {currentQuestion.options.map((option, idx) => {
+                    const optionLetter = String.fromCharCode(65 + idx) // A, B, C, D...
+
                     const isUserAnswer = Array.isArray(userAnswer)
                       ? userAnswer.includes(option)
                       : userAnswer === option
 
-                    // Handle different correct answer formats (with/without letter prefix)
-                    const normalizeAnswer = (ans: string) => {
-                      return ans.replace(/^[A-Z]\.\s*/, '').trim()
+                    // Convert letter-based correct answers (A, B, C) to actual option text
+                    let correctOptionText = answerResult.correctAnswer
+                    if (typeof correctOptionText === 'string' && correctOptionText.length === 1 && /^[A-Z]$/.test(correctOptionText) && currentQuestion.options) {
+                      // It's a letter (A, B, C, D), convert to index
+                      const correctIdx = correctOptionText.charCodeAt(0) - 65
+                      correctOptionText = currentQuestion.options[correctIdx]
                     }
 
-                    const normalizedOption = normalizeAnswer(option)
-                    const isCorrectAnswer = Array.isArray(answerResult.correctAnswer)
-                      ? answerResult.correctAnswer.some((ca: string) =>
-                          ca === option || normalizeAnswer(ca) === normalizedOption
-                        )
-                      : answerResult.correctAnswer === option ||
-                        normalizeAnswer(String(answerResult.correctAnswer)) === normalizedOption
+                    const isCorrectAnswer = Array.isArray(correctOptionText)
+                      ? correctOptionText.includes(option)
+                      : correctOptionText === option
 
                     return (
                       <div
@@ -554,13 +555,13 @@ function LearnPageContent() {
                             isUserAnswer && !isCorrectAnswer ? 'text-red-400' :
                             'text-gray-300'
                           }`}>
-                            {option}
+                            <span className="text-blue-400 mr-2">{optionLetter}.</span>{option}
                           </div>
                           {isUserAnswer && (
                             <div className="text-xs text-gray-500 mt-1">Your answer</div>
                           )}
                           {!isUserAnswer && isCorrectAnswer && (
-                            <div className="text-xs text-gray-500 mt-1">Correct answer</div>
+                            <div className="text-xs text-green-400 mt-1">✓ Correct answer</div>
                           )}
                         </div>
                       </div>
