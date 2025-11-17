@@ -117,13 +117,20 @@ export default function CybersecurityPage() {
       }
 
       // Show detailed message
+      const hasUserData = (result.progressRecords || 0) > 0 || (result.responseRecords || 0) > 0
+      const hasQuestions = (result.questionsRecords || 0) > 0
+
       if (result.deletedCount === 0) {
-        alert(`✅ Reset complete.\n\nNo records found to delete.\nYou haven't answered any questions yet for Cybersecurity topics.`)
+        alert(`✅ Reset complete.\n\nNo records found to delete.\nYou haven't started any quizzes yet for Cybersecurity topics.`)
+      } else if (!hasUserData && hasQuestions) {
+        // Only questions deleted, no user progress/responses
+        alert(`✅ Reset complete.\n\nDeleted ${result.questionsRecords} generated question(s).\n\nNote: You generated questions but didn't answer any yet.`)
       } else {
+        // Has user data (and possibly questions)
         const details = [
-          result.progressRecords > 0 ? `${result.progressRecords} progress records` : null,
-          result.responseRecords > 0 ? `${result.responseRecords} response records` : null,
-          result.questionsRecords > 0 ? `${result.questionsRecords} generated questions` : null
+          result.progressRecords > 0 ? `${result.progressRecords} progress record(s)` : null,
+          result.responseRecords > 0 ? `${result.responseRecords} response(s)` : null,
+          result.questionsRecords > 0 ? `${result.questionsRecords} generated question(s)` : null
         ].filter(Boolean).join(', ')
 
         alert(`✅ Success!\n\nDeleted ${details}.`)
