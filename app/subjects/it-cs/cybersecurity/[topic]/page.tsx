@@ -14,7 +14,6 @@ interface TopicDetail {
   correct_answers: number
   mastery_scores: Record<string, number>
   last_practiced_at: string
-  rl_phase: string
   confidence_calibration_error: number
 }
 
@@ -35,15 +34,6 @@ const BLOOM_LEVELS = [
   { level: 5, name: 'Evaluate', description: 'Justify a stand or decision' },
   { level: 6, name: 'Create', description: 'Produce new or original work' }
 ]
-
-const RL_PHASE_INFO: Record<string, { name: string; color: string; description: string }> = {
-  'cold_start': { name: 'Cold Start', color: 'text-gray-400', description: 'Initial learning phase (< 10 attempts)' },
-  'exploration': { name: 'Exploration', color: 'text-blue-400', description: 'Testing different strategies (10-50 attempts)' },
-  'optimization': { name: 'Optimization', color: 'text-cyan-400', description: 'Focusing on high-value actions (50-150 attempts)' },
-  'stabilization': { name: 'Stabilization', color: 'text-green-400', description: 'Stable, consistent performance (150+ attempts)' },
-  'adaptation': { name: 'Adaptation', color: 'text-yellow-400', description: 'Responding to performance changes (150+ attempts)' },
-  'meta_learning': { name: 'Meta-Learning', color: 'text-purple-400', description: 'Learning how to learn (500+ attempts)' }
-}
 
 export default function TopicDetailPage() {
   const router = useRouter()
@@ -116,7 +106,6 @@ export default function TopicDetailPage() {
           correct_answers: 0,
           mastery_scores: {},
           last_practiced_at: new Date().toISOString(),
-          rl_phase: 'cold_start',
           confidence_calibration_error: 0
         })
         setBloomLevels(BLOOM_LEVELS.map(bl => ({
@@ -179,7 +168,6 @@ export default function TopicDetailPage() {
         correct_answers: progressData.correct_answers,
         mastery_scores: progressData.mastery_scores,
         last_practiced_at: progressData.last_practiced_at,
-        rl_phase: progressData.rl_phase,
         confidence_calibration_error: progressData.confidence_calibration_error
       })
       setBloomLevels(bloomLevelDetails)
@@ -229,8 +217,6 @@ export default function TopicDetailPage() {
     return Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length)
   })()
 
-  const rlPhase = RL_PHASE_INFO[topicDetail.rl_phase] || RL_PHASE_INFO['cold_start']
-
   return (
     <div className="min-h-screen" style={{ background: '#0a0a0a' }}>
       {/* Header */}
@@ -270,7 +256,7 @@ export default function TopicDetailPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 space-y-6">
 
         {/* Overview Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div className="neuro-stat group">
             <div className="flex items-center justify-between mb-3">
               <div className="text-sm text-blue-400 font-medium">Total Attempts</div>
@@ -309,18 +295,6 @@ export default function TopicDetailPage() {
             </div>
             <div className="text-xs text-gray-600 mt-2">
               Avg across {Object.keys(topicDetail.mastery_scores).length} levels
-            </div>
-          </div>
-
-          <div className="neuro-stat group">
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-sm text-cyan-400 font-medium">Learning Phase</div>
-            </div>
-            <div className={`text-2xl font-bold ${rlPhase.color} group-hover:opacity-80 transition-opacity`}>
-              {rlPhase.name}
-            </div>
-            <div className="text-xs text-gray-600 mt-2">
-              {rlPhase.description}
             </div>
           </div>
         </div>
