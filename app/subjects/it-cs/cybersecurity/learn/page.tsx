@@ -697,15 +697,6 @@ function LearnPageContent() {
                         )}
                       </div>
                     </div>
-
-                    {/* Certification/Chapter Context (if exists, shown as metadata) */}
-                    {currentQuestion.hierarchy.chapter && currentQuestion.hierarchy.chapter !== currentQuestion.hierarchy.subject && (
-                      <div className="mt-3 pt-3 border-t border-gray-800">
-                        <div className="text-xs text-gray-600">
-                          Source: {currentQuestion.hierarchy.chapter}
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
               )}
