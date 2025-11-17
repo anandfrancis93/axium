@@ -520,9 +520,12 @@ function LearnPageContent() {
               {(currentQuestion.question_format === 'mcq_single' || currentQuestion.question_format === 'mcq_multi') && currentQuestion.options && (
                 <div className="space-y-3">
                   {currentQuestion.options.map((option, idx) => {
+                    const optionLetter = String.fromCharCode(65 + idx) // A, B, C, D...
+                    const optionWithLetter = `${optionLetter}. ${option}` // Match what's sent to API
+
                     const isUserAnswer = Array.isArray(userAnswer)
-                      ? userAnswer.includes(option)
-                      : userAnswer === option
+                      ? userAnswer.includes(optionWithLetter)
+                      : userAnswer === optionWithLetter
 
                     // Convert letter-based correct answers (A, B, C) to actual option text
                     let correctOptionText = answerResult.correctAnswer
