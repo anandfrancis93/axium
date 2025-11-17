@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { ShieldIcon, ArrowLeftIcon } from '@/components/icons'
 import { createClient } from '@/lib/supabase/client'
 
@@ -45,9 +45,10 @@ const RL_PHASE_INFO: Record<string, { name: string; color: string; description: 
   'meta_learning': { name: 'Meta-Learning', color: 'text-purple-400', description: 'Learning how to learn (500+ attempts)' }
 }
 
-export default function TopicDetailPage({ params }: { params: { topic: string } }) {
+export default function TopicDetailPage() {
   const router = useRouter()
-  const topicName = decodeURIComponent(params.topic)
+  const params = useParams()
+  const topicName = decodeURIComponent(params.topic as string)
 
   const [topicDetail, setTopicDetail] = useState<TopicDetail | null>(null)
   const [bloomLevels, setBloomLevels] = useState<BloomLevelDetail[]>([])
@@ -62,12 +63,17 @@ export default function TopicDetailPage({ params }: { params: { topic: string } 
       setLoading(true)
       const supabase = createClient()
 
+      console.log('Fetching topic detail for:', topicName)
+
       // Get current user
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
+        console.log('No user found, redirecting')
         router.push('/subjects/it-cs/cybersecurity')
         return
       }
+
+      console.log('User found:', user.id)
 
       // Fetch topic info and user progress
       const { data: topicData, error: topicError } = await supabase
@@ -76,11 +82,16 @@ export default function TopicDetailPage({ params }: { params: { topic: string } 
         .eq('name', topicName)
         .single()
 
+      console.log('Topic query result:', { topicData, topicError })
+
       if (topicError || !topicData) {
         console.error('Error fetching topic:', topicError)
+        console.error('Topic not found for name:', topicName)
         router.push('/subjects/it-cs/cybersecurity')
         return
       }
+
+      console.log('Topic found:', topicData.name)
 
       // Fetch user progress for this topic
       const { data: progressData, error: progressError } = await supabase
