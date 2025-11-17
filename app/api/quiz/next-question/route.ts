@@ -85,8 +85,8 @@ export async function POST(request: NextRequest) {
     // Fetch knowledge graph context for the selected topic
     const context = await fetchKnowledgeContext(supabase, selection.topicId, selection.topicName)
 
-    // Select format based on Bloom level
-    const recommendedFormat = getDefaultFormatForBloomLevel(selection.bloomLevel)
+    // Select format using round robin (cycles through recommended formats for this Bloom level)
+    const recommendedFormat = await getNextFormatRoundRobin(supabase, user.id, selection.topicId, selection.bloomLevel)
 
     // Generate question using xAI Grok
     const question = await generateQuestion(
@@ -204,7 +204,64 @@ async function fetchKnowledgeContext(
 }
 
 /**
+ * Get next format using round robin for this Bloom level
+ * Cycles through recommended formats to ensure variety
+ */
+async function getNextFormatRoundRobin(
+  supabase: any,
+  userId: string,
+  topicId: string,
+  bloomLevel: number
+): Promise<string> {
+  // Get recommended formats for this Bloom level
+  const recommendedFormats = getRecommendedFormats(bloomLevel)
+
+  // Get user progress to retrieve last used format index
+  const { data: progress } = await supabase
+    .from('user_progress')
+    .select('rl_metadata')
+    .eq('user_id', userId)
+    .eq('topic_id', topicId)
+    .single()
+
+  let formatIndex = 0
+
+  if (progress?.rl_metadata?.format_round_robin) {
+    // Get the last used index for this Bloom level
+    const lastIndex = progress.rl_metadata.format_round_robin[`bloom_${bloomLevel}`] ?? -1
+    // Increment to next format (with wrap-around)
+    formatIndex = (lastIndex + 1) % recommendedFormats.length
+  }
+
+  const selectedFormat = recommendedFormats[formatIndex]
+
+  // Update the round robin index in user_progress
+  const updatedMetadata = {
+    ...(progress?.rl_metadata || {}),
+    format_round_robin: {
+      ...(progress?.rl_metadata?.format_round_robin || {}),
+      [`bloom_${bloomLevel}`]: formatIndex
+    }
+  }
+
+  await supabase
+    .from('user_progress')
+    .upsert({
+      user_id: userId,
+      topic_id: topicId,
+      rl_metadata: updatedMetadata
+    }, {
+      onConflict: 'user_id,topic_id'
+    })
+
+  console.log(`[Round Robin] Bloom ${bloomLevel}: Selected format ${selectedFormat} (index ${formatIndex}/${recommendedFormats.length})`)
+
+  return selectedFormat
+}
+
+/**
  * Get format based on Bloom level (randomly selected from recommended formats)
+ * @deprecated Use getNextFormatRoundRobin instead for consistent cycling
  */
 function getDefaultFormatForBloomLevel(bloomLevel: number): string {
   // Get recommended formats for this Bloom level
