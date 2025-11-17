@@ -586,9 +586,6 @@ function LearnPageContent() {
                             }`}>
                               {option}
                             </div>
-                            {isUserAnswer && (
-                              <div className="text-xs text-gray-500 mt-1">Your answer</div>
-                            )}
                             {!isUserAnswer && isCorrectAnswer && (
                               <div className="text-xs text-gray-500 mt-1">Correct answer</div>
                             )}
