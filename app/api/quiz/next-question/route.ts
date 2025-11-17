@@ -204,7 +204,7 @@ async function fetchKnowledgeContext(
 }
 
 /**
- * Get next format using round robin for this Bloom level
+ * Get next format using round robin for this Bloom level (GLOBAL across all topics)
  * Cycles through recommended formats to ensure variety
  */
 async function getNextFormatRoundRobin(
@@ -216,29 +216,27 @@ async function getNextFormatRoundRobin(
   // Get recommended formats for this Bloom level
   const recommendedFormats = getRecommendedFormats(bloomLevel)
 
-  // Get user progress to retrieve last used format index
-  const { data: progress, error: progressError } = await supabase
-    .from('user_progress')
-    .select('rl_metadata')
+  // Get user settings to retrieve GLOBAL last used format index
+  const { data: settings, error: settingsError } = await supabase
+    .from('user_settings')
+    .select('format_round_robin')
     .eq('user_id', userId)
-    .eq('topic_id', topicId)
     .single()
 
-  console.log('[Round Robin] Progress data:', {
+  console.log('[Round Robin] User settings:', {
     userId,
-    topicId,
     bloomLevel,
-    hasProgress: !!progress,
-    rl_metadata: progress?.rl_metadata,
-    error: progressError
+    hasSettings: !!settings,
+    format_round_robin: settings?.format_round_robin,
+    error: settingsError
   })
 
   let formatIndex = 0
   let lastIndex = -1
 
-  if (progress?.rl_metadata?.format_round_robin) {
-    // Get the last used index for this Bloom level
-    lastIndex = progress.rl_metadata.format_round_robin[`bloom_${bloomLevel}`] ?? -1
+  if (settings?.format_round_robin) {
+    // Get the last used index for this Bloom level (global across all topics)
+    lastIndex = settings.format_round_robin[`bloom_${bloomLevel}`] ?? -1
     // Increment to next format (with wrap-around)
     formatIndex = (lastIndex + 1) % recommendedFormats.length
   }
@@ -252,28 +250,24 @@ async function getNextFormatRoundRobin(
     selectedFormat
   })
 
-  // Update the round robin index in user_progress
-  const updatedMetadata = {
-    ...(progress?.rl_metadata || {}),
-    format_round_robin: {
-      ...(progress?.rl_metadata?.format_round_robin || {}),
-      [`bloom_${bloomLevel}`]: formatIndex
-    }
+  // Update the global round robin index in user_settings
+  const updatedRoundRobin = {
+    ...(settings?.format_round_robin || {}),
+    [`bloom_${bloomLevel}`]: formatIndex
   }
 
   const { error: upsertError } = await supabase
-    .from('user_progress')
+    .from('user_settings')
     .upsert({
       user_id: userId,
-      topic_id: topicId,
-      rl_metadata: updatedMetadata
+      format_round_robin: updatedRoundRobin
     }, {
-      onConflict: 'user_id,topic_id'
+      onConflict: 'user_id'
     })
 
-  console.log(`[Round Robin] Bloom ${bloomLevel}: Selected format ${selectedFormat} (index ${formatIndex}/${recommendedFormats.length})`)
+  console.log(`[Round Robin] Bloom ${bloomLevel}: Selected format ${selectedFormat} (index ${formatIndex}/${recommendedFormats.length}) - GLOBAL`)
   console.log('[Round Robin] Upsert result:', {
-    updatedMetadata,
+    updatedRoundRobin,
     error: upsertError
   })
 
