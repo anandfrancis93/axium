@@ -13,7 +13,7 @@ import { ConfidenceSlider } from '@/components/quiz/ConfidenceSlider'
 import { RecognitionMethodSelector } from '@/components/quiz/RecognitionMethodSelector'
 import { AnswerFeedback } from '@/components/quiz/AnswerFeedback'
 import { QuizSession, QuizQuestion, AnswerResult, RecognitionMethod } from '@/lib/types/quiz'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Circle, Square } from 'lucide-react'
 import Modal from '@/components/Modal'
 
 type QuizStep = 'confidence' | 'answer' | 'recognition' | 'results'
@@ -545,22 +545,35 @@ function LearnPageContent() {
                             : 'neuro-inset'
                         }`}
                       >
-                        <div className="flex-1">
-                          <div className={`${
-                            isUserAnswer || isCorrectAnswer ? 'font-semibold' : ''
-                          } ${
-                            isCorrectAnswer ? 'text-green-400' :
-                            isUserAnswer && !isCorrectAnswer ? 'text-red-400' :
-                            'text-gray-300'
-                          }`}>
-                            {option}
+                        <div className="flex items-center gap-3 flex-1">
+                          {currentQuestion.question_format === 'mcq_multi' ? (
+                            <Square
+                              size={20}
+                              className={isUserAnswer ? 'fill-current' : ''}
+                            />
+                          ) : (
+                            <Circle
+                              size={20}
+                              className={isUserAnswer ? 'fill-current' : ''}
+                            />
+                          )}
+                          <div className="flex-1">
+                            <div className={`${
+                              isUserAnswer || isCorrectAnswer ? 'font-semibold' : ''
+                            } ${
+                              isCorrectAnswer ? 'text-green-400' :
+                              isUserAnswer && !isCorrectAnswer ? 'text-red-400' :
+                              'text-gray-300'
+                            }`}>
+                              {option}
+                            </div>
+                            {isUserAnswer && (
+                              <div className="text-xs text-gray-500 mt-1">Your answer</div>
+                            )}
+                            {!isUserAnswer && isCorrectAnswer && (
+                              <div className="text-xs text-green-400 mt-1">✓ Correct answer</div>
+                            )}
                           </div>
-                          {isUserAnswer && (
-                            <div className="text-xs text-gray-500 mt-1">Your answer</div>
-                          )}
-                          {!isUserAnswer && isCorrectAnswer && (
-                            <div className="text-xs text-green-400 mt-1">✓ Correct answer</div>
-                          )}
                         </div>
                       </div>
                     )
