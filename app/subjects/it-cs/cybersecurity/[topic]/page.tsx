@@ -217,10 +217,6 @@ export default function TopicDetailPage() {
     )
   }
 
-  const overallAccuracy = topicDetail.total_attempts > 0
-    ? Math.round((topicDetail.correct_answers / topicDetail.total_attempts) * 100)
-    : 0
-
   const overallMastery = (() => {
     const scores = Object.values(topicDetail.mastery_scores).filter(score => score > 0)
     if (scores.length === 0) return 0
@@ -266,29 +262,13 @@ export default function TopicDetailPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 space-y-6">
 
         {/* Overview Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="neuro-stat group">
             <div className="flex items-center justify-between mb-3">
               <div className="text-sm text-blue-400 font-medium">Total Attempts</div>
             </div>
             <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
               {topicDetail.total_attempts}
-            </div>
-          </div>
-
-          <div className="neuro-stat group">
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-sm text-green-400 font-medium">Accuracy</div>
-            </div>
-            <div className={`text-4xl font-bold group-hover:text-green-400 transition-colors ${
-              overallAccuracy >= 80 ? 'text-green-400' :
-              overallAccuracy >= 60 ? 'text-yellow-400' :
-              'text-red-400'
-            }`}>
-              {overallAccuracy}%
-            </div>
-            <div className="text-xs text-gray-600 mt-2">
-              {topicDetail.correct_answers} / {topicDetail.total_attempts} correct
             </div>
           </div>
 
