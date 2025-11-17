@@ -249,8 +249,8 @@ async function getNextFormatRoundRobin(
   }
   const topicFormatIndex = (topicLastIndex + 1) % recommendedFormats.length
 
-  // USE PER-TOPIC INDEX for selection (ensures variety when revisiting same topic)
-  const selectedFormat = recommendedFormats[topicFormatIndex]
+  // USE GLOBAL INDEX for selection (ensures variety across all topics)
+  const selectedFormat = recommendedFormats[globalFormatIndex]
 
   console.log('[Round Robin] State:', {
     userId,
@@ -260,7 +260,7 @@ async function getNextFormatRoundRobin(
     global: { lastIndex: globalLastIndex, newIndex: globalFormatIndex, format: recommendedFormats[globalFormatIndex] },
     perTopic: { lastIndex: topicLastIndex, newIndex: topicFormatIndex, format: recommendedFormats[topicFormatIndex] },
     selectedFormat: selectedFormat,
-    selectionMode: 'per-topic'
+    selectionMode: 'GLOBAL'
   })
 
   // Update BOTH global and per-topic state
@@ -298,7 +298,7 @@ async function getNextFormatRoundRobin(
       })
   ])
 
-  console.log(`[Round Robin] Bloom ${bloomLevel}: Selected format ${selectedFormat} (per-topic index ${topicFormatIndex}/${recommendedFormats.length}, global index ${globalFormatIndex}/${recommendedFormats.length})`)
+  console.log(`[Round Robin] Bloom ${bloomLevel}: Selected format ${selectedFormat} (GLOBAL index ${globalFormatIndex}/${recommendedFormats.length}, per-topic index ${topicFormatIndex}/${recommendedFormats.length})`)
 
   return selectedFormat
 }
