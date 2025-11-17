@@ -82,8 +82,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Fetch knowledge graph context for the selected topic
-    const context = await fetchKnowledgeContext(supabase, selection.topicId, selection.topicName)
+    // Fetch mastery-aware knowledge graph context for the selected topic
+    const context = await fetchKnowledgeContext(supabase, user.id, selection.topicId, selection.topicName)
 
     // Select format using round robin (cycles through recommended formats for this Bloom level)
     const recommendedFormat = await getNextFormatRoundRobin(supabase, user.id, selection.topicId, selection.bloomLevel)
@@ -154,10 +154,12 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * Fetch knowledge context from Neo4j knowledge graph or knowledge chunks
+ * Fetch mastery-aware knowledge context from Neo4j knowledge graph
+ * Ensures questions only reference topics the user has mastered
  */
 async function fetchKnowledgeContext(
   supabase: any,
+  userId: string,
   topicId: string,
   topicName: string
 ): Promise<string> {
@@ -175,16 +177,22 @@ async function fetchKnowledgeContext(
     return contextParts.join('\n\n')
   }
 
-  // If no chunks, use multi-hop graph traversal for systems thinking context
-  console.log(`[Context] No chunks found for ${topicName}, using multi-hop graph traversal`)
+  // If no chunks, use mastery-aware multi-hop graph traversal
+  console.log(`[Context] No chunks found for ${topicName}, using mastery-aware graph traversal`)
 
   try {
-    const { getMultiHopContext } = await import('@/lib/graphrag/multi-hop-context')
-    const graphContext = await getMultiHopContext(topicId, 3)
-    console.log(`[Context] Retrieved multi-hop context: ${graphContext.keystoneScore} dependent topics`)
+    const { getMasteryAwareContext } = await import('@/lib/graphrag/multi-hop-context')
+    const graphContext = await getMasteryAwareContext(
+      userId,
+      topicId,
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      3
+    )
+    console.log(`[Context] Retrieved mastery-aware context: ${graphContext.keystoneScore} dependent topics, ${graphContext.masteredTopicIds.length} mastered, ${graphContext.notStudiedTopicIds.length} not studied`)
     return graphContext.contextText
   } catch (graphError) {
-    console.error('[Context] Error fetching graph context:', graphError)
+    console.error('[Context] Error fetching mastery-aware context:', graphError)
     // Fallback to basic topic info
     console.log(`[Context] Falling back to basic topic info`)
 

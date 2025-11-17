@@ -6,12 +6,18 @@
  */
 
 import { createSession } from '@/lib/neo4j/client'
+import { createClient } from '@supabase/supabase-js'
 
 export interface GraphNode {
   id: string
   name: string
   description: string
   hierarchy_level: number
+}
+
+export interface MasteredGraphNode extends GraphNode {
+  userMastery: number | null // 0-100, null if never studied
+  isMastered: boolean // true if mastery >= 70%
 }
 
 export interface GraphRelationship {
@@ -31,6 +37,20 @@ export interface MultiHopContext {
   relatedTopics: GraphNode[] // Topics at same level sharing parent
   contextText: string
   keystoneScore: number // How many topics depend on this one
+}
+
+export interface MasteryAwareContext {
+  centralTopic: MasteredGraphNode
+  parents: MasteredGraphNode[]
+  children: MasteredGraphNode[]
+  siblings: MasteredGraphNode[]
+  ancestors: MasteredGraphNode[]
+  descendants: MasteredGraphNode[]
+  relatedTopics: MasteredGraphNode[]
+  contextText: string
+  keystoneScore: number
+  masteredTopicIds: string[] // Quick lookup: which topics user has mastered
+  notStudiedTopicIds: string[] // Quick lookup: which topics user hasn't studied
 }
 
 /**
@@ -301,4 +321,256 @@ export async function getKeystoneTopics(limit: number = 10): Promise<Array<{topi
   } finally {
     await session.close()
   }
+}
+
+/**
+ * Get mastery-aware multi-hop context for a topic
+ * Annotates all related topics with user's mastery status
+ * Enables question generation that respects prerequisite knowledge
+ */
+export async function getMasteryAwareContext(
+  userId: string,
+  topicId: string,
+  supabaseUrl: string,
+  supabaseServiceKey: string,
+  maxHops: number = 3
+): Promise<MasteryAwareContext> {
+  // Get base multi-hop context
+  const baseContext = await getMultiHopContext(topicId, maxHops)
+
+  // Create Supabase client
+  const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
+  // Collect all topic IDs from the context
+  const allTopicIds = new Set<string>([
+    baseContext.centralTopic.id,
+    ...baseContext.parents.map(t => t.id),
+    ...baseContext.children.map(t => t.id),
+    ...baseContext.siblings.map(t => t.id),
+    ...baseContext.ancestors.map(t => t.id),
+    ...baseContext.descendants.map(t => t.id),
+    ...baseContext.relatedTopics.map(t => t.id)
+  ])
+
+  // Fetch user's mastery for all these topics
+  const { data: userProgress } = await supabase
+    .from('user_progress')
+    .select('topic_id, mastery_scores')
+    .eq('user_id', userId)
+    .in('topic_id', Array.from(allTopicIds))
+
+  // Build mastery map
+  const masteryMap = new Map<string, number>()
+
+  if (userProgress) {
+    for (const progress of userProgress) {
+      const scores = progress.mastery_scores as Record<string, any>
+
+      // Calculate average mastery across all Bloom levels
+      let totalMastery = 0
+      let count = 0
+
+      for (const levelScores of Object.values(scores)) {
+        if (typeof levelScores === 'object' && levelScores !== null) {
+          const avgForLevel = Object.values(levelScores as Record<string, number>).reduce(
+            (sum, score) => sum + score, 0
+          ) / Object.keys(levelScores).length
+          totalMastery += avgForLevel
+          count++
+        } else if (typeof levelScores === 'number') {
+          totalMastery += levelScores
+          count++
+        }
+      }
+
+      const avgMastery = count > 0 ? totalMastery / count : 0
+      masteryMap.set(progress.topic_id, avgMastery)
+    }
+  }
+
+  // Helper to annotate a GraphNode with mastery
+  const annotateTopic = (node: GraphNode): MasteredGraphNode => {
+    const mastery = masteryMap.get(node.id) ?? null
+    return {
+      ...node,
+      userMastery: mastery,
+      isMastered: mastery !== null && mastery >= 70
+    }
+  }
+
+  // Annotate all topics
+  const centralTopic = annotateTopic(baseContext.centralTopic)
+  const parents = baseContext.parents.map(annotateTopic)
+  const children = baseContext.children.map(annotateTopic)
+  const siblings = baseContext.siblings.map(annotateTopic)
+  const ancestors = baseContext.ancestors.map(annotateTopic)
+  const descendants = baseContext.descendants.map(annotateTopic)
+  const relatedTopics = baseContext.relatedTopics.map(annotateTopic)
+
+  // Collect mastered and not-studied topic IDs
+  const masteredTopicIds: string[] = []
+  const notStudiedTopicIds: string[] = []
+
+  const allAnnotated = [centralTopic, ...parents, ...children, ...siblings, ...ancestors, ...descendants, ...relatedTopics]
+  for (const topic of allAnnotated) {
+    if (topic.isMastered) {
+      masteredTopicIds.push(topic.id)
+    } else if (topic.userMastery === null) {
+      notStudiedTopicIds.push(topic.id)
+    }
+  }
+
+  // Build mastery-aware context text
+  const contextText = buildMasteryAwareContextText({
+    centralTopic,
+    parents,
+    children,
+    siblings,
+    ancestors,
+    descendants,
+    relatedTopics,
+    keystoneScore: baseContext.keystoneScore
+  })
+
+  return {
+    centralTopic,
+    parents,
+    children,
+    siblings,
+    ancestors,
+    descendants,
+    relatedTopics,
+    contextText,
+    keystoneScore: baseContext.keystoneScore,
+    masteredTopicIds,
+    notStudiedTopicIds
+  }
+}
+
+/**
+ * Build mastery-aware context text with clear indicators
+ * Shows which topics user has mastered vs. not studied
+ */
+function buildMasteryAwareContextText(context: {
+  centralTopic: MasteredGraphNode
+  parents: MasteredGraphNode[]
+  children: MasteredGraphNode[]
+  siblings: MasteredGraphNode[]
+  ancestors: MasteredGraphNode[]
+  descendants: MasteredGraphNode[]
+  relatedTopics: MasteredGraphNode[]
+  keystoneScore: number
+}): string {
+  const { centralTopic, parents, children, siblings, ancestors, descendants, relatedTopics, keystoneScore } = context
+
+  const formatTopic = (t: MasteredGraphNode) => {
+    if (t.isMastered) {
+      return `✅ ${t.name} (MASTERED - ${t.userMastery!.toFixed(0)}%)`
+    } else if (t.userMastery !== null) {
+      return `⚠️ ${t.name} (IN PROGRESS - ${t.userMastery!.toFixed(0)}%)`
+    } else {
+      return `❌ ${t.name} (NOT YET STUDIED)`
+    }
+  }
+
+  let text = `MASTERY-AWARE SYSTEMS THINKING CONTEXT FOR: ${centralTopic.name}\n\n`
+
+  // Central topic with mastery
+  text += `## CENTRAL TOPIC\n`
+  text += `${formatTopic(centralTopic)} (Level ${centralTopic.hierarchy_level})\n`
+  if (centralTopic.description) {
+    text += `Description: ${centralTopic.description}\n`
+  }
+  text += `Keystone Score: ${keystoneScore} (${keystoneScore > 10 ? 'HIGH IMPACT' : keystoneScore > 5 ? 'MODERATE IMPACT' : 'LOW IMPACT'} topic)\n\n`
+
+  // Mastered topics first (can be referenced)
+  const masteredParents = parents.filter(p => p.isMastered)
+  const masteredSiblings = siblings.filter(s => s.isMastered)
+  const masteredRelated = relatedTopics.filter(r => r.isMastered)
+  const masteredAncestors = ancestors.filter(a => a.isMastered)
+
+  if (masteredParents.length > 0 || masteredSiblings.length > 0 || masteredRelated.length > 0 || masteredAncestors.length > 0) {
+    text += `## ✅ MASTERED TOPICS (Safe to reference in questions)\n\n`
+
+    if (masteredParents.length > 0) {
+      text += `Parent Concepts:\n`
+      masteredParents.forEach(p => text += `- ${p.name} (${p.userMastery!.toFixed(0)}%)\n`)
+      text += `\n`
+    }
+
+    if (masteredSiblings.length > 0) {
+      text += `Peer Concepts:\n`
+      masteredSiblings.slice(0, 5).forEach(s => text += `- ${s.name} (${s.userMastery!.toFixed(0)}%)\n`)
+      text += `\n`
+    }
+
+    if (masteredRelated.length > 0) {
+      text += `Related Applications:\n`
+      masteredRelated.slice(0, 5).forEach(r => text += `- ${r.name} (${r.userMastery!.toFixed(0)}%)\n`)
+      text += `\n`
+    }
+
+    if (masteredAncestors.length > 0) {
+      text += `Broader Context:\n`
+      masteredAncestors.slice(0, 3).forEach(a => text += `- ${a.name} (${a.userMastery!.toFixed(0)}%)\n`)
+      text += `\n`
+    }
+  }
+
+  // Not-yet-studied topics (cannot be referenced)
+  const notStudiedParents = parents.filter(p => p.userMastery === null)
+  const notStudiedSiblings = siblings.filter(s => s.userMastery === null)
+  const notStudiedChildren = children.filter(c => c.userMastery === null)
+  const notStudiedRelated = relatedTopics.filter(r => r.userMastery === null)
+
+  if (notStudiedParents.length > 0 || notStudiedSiblings.length > 0 || notStudiedChildren.length > 0 || notStudiedRelated.length > 0) {
+    text += `## ❌ NOT YET STUDIED (Do NOT reference in questions)\n\n`
+
+    if (notStudiedParents.length > 0) {
+      text += `Parent Concepts: ${notStudiedParents.map(p => p.name).join(', ')}\n`
+    }
+
+    if (notStudiedSiblings.length > 0) {
+      text += `Peer Concepts: ${notStudiedSiblings.slice(0, 5).map(s => s.name).join(', ')}\n`
+    }
+
+    if (notStudiedChildren.length > 0) {
+      text += `Sub-Concepts: ${notStudiedChildren.slice(0, 5).map(c => c.name).join(', ')}\n`
+    }
+
+    if (notStudiedRelated.length > 0) {
+      text += `Related Topics: ${notStudiedRelated.slice(0, 5).map(r => r.name).join(', ')}\n`
+    }
+
+    text += `\n`
+  }
+
+  // Explicit instruction section
+  text += `## 🎯 QUESTION GENERATION CONSTRAINTS\n\n`
+  text += `CRITICAL RULES:\n`
+  text += `1. Only reference topics marked ✅ MASTERED in your question\n`
+  text += `2. Do NOT assume knowledge of topics marked ❌ NOT YET STUDIED\n`
+  text += `3. Do NOT compare/contrast with unstudied topics\n`
+  text += `4. Build questions that use only mastered topics as foundation\n`
+  text += `5. If no mastered related topics exist, focus purely on the central topic\n\n`
+
+  const masteredCount = masteredParents.length + masteredSiblings.length + masteredRelated.length
+  if (masteredCount === 0) {
+    text += `NOTE: User has no mastered related topics. Generate a self-contained question\n`
+    text += `focusing only on ${centralTopic.name} without requiring external context.\n\n`
+  } else {
+    text += `You may use these mastered topics for comparisons, applications, or examples:\n`
+    if (masteredParents.length > 0) {
+      text += `- Parents: ${masteredParents.map(p => p.name).join(', ')}\n`
+    }
+    if (masteredSiblings.length > 0) {
+      text += `- Peers: ${masteredSiblings.map(s => s.name).join(', ')}\n`
+    }
+    if (masteredRelated.length > 0) {
+      text += `- Applications: ${masteredRelated.map(r => r.name).join(', ')}\n`
+    }
+    text += `\n`
+  }
+
+  return text
 }
