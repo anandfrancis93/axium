@@ -520,8 +520,6 @@ function LearnPageContent() {
               {(currentQuestion.question_format === 'mcq_single' || currentQuestion.question_format === 'mcq_multi') && currentQuestion.options && (
                 <div className="space-y-3">
                   {currentQuestion.options.map((option, idx) => {
-                    const optionLetter = String.fromCharCode(65 + idx) // A, B, C, D...
-
                     const isUserAnswer = Array.isArray(userAnswer)
                       ? userAnswer.includes(option)
                       : userAnswer === option
@@ -555,7 +553,7 @@ function LearnPageContent() {
                             isUserAnswer && !isCorrectAnswer ? 'text-red-400' :
                             'text-gray-300'
                           }`}>
-                            <span className="text-blue-400 mr-2">{optionLetter}.</span>{option}
+                            {option}
                           </div>
                           {isUserAnswer && (
                             <div className="text-xs text-gray-500 mt-1">Your answer</div>

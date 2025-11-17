@@ -141,7 +141,7 @@ export function QuestionCard({
                         className={isOptionSelected(optionWithLetter) ? 'fill-current' : ''}
                       />
                     )}
-                    <span><span className="text-blue-400 mr-2">{optionLetter}.</span>{capitalizeFirst(option)}</span>
+                    <span>{capitalizeFirst(option)}</span>
                     {showCorrectAnswer && isCorrectOption(option) && (
                       <CheckCircle2 size={20} className="ml-auto text-green-400" />
                     )}
