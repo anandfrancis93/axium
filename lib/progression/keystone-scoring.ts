@@ -128,7 +128,7 @@ export async function getTopKeystoneTopics(
               t.hierarchy_level as hierarchyLevel,
               dependentCount
        ORDER BY dependentCount DESC
-       LIMIT $limit`,
+       LIMIT toInteger($limit)`,
       { subjectId, limit }
     )
 

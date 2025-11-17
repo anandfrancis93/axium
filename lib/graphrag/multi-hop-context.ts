@@ -285,7 +285,7 @@ export async function getKeystoneTopics(limit: number = 10): Promise<Array<{topi
        RETURN t.id as id, t.name as name, t.description as description,
               t.hierarchy_level as hierarchy_level, dependentCount
        ORDER BY dependentCount DESC
-       LIMIT $limit`,
+       LIMIT toInteger($limit)`,
       { limit }
     )
 
