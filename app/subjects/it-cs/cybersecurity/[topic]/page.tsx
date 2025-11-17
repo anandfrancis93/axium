@@ -318,15 +318,12 @@ export default function TopicDetailPage() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className={`text-xl font-bold ${
+                        <div className={`text-sm font-semibold ${
                           coveredDimensions.length >= 4 ? 'text-green-400' :
                           coveredDimensions.length >= 2 ? 'text-yellow-400' :
                           'text-red-400'
                         }`}>
-                          {coveredDimensions.length >= 4 ? '✓' : coveredDimensions.length > 0 ? '◐' : '○'}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {coveredDimensions.length >= 4 ? 'Ready' : 'Need 4'}
+                          {coveredDimensions.length >= 4 ? 'Ready' : `${coveredDimensions.length}/4`}
                         </div>
                       </div>
                     </div>
@@ -359,9 +356,6 @@ export default function TopicDetailPage() {
                                   {dimInfo.description.split(',')[0]}
                                 </div>
                               </div>
-                              {isCovered && (
-                                <span className="text-green-400 text-sm">✓</span>
-                              )}
                             </div>
                           </div>
                         )
@@ -372,7 +366,7 @@ export default function TopicDetailPage() {
                     {coveredDimensions.length < 6 && (
                       <div className="mt-4 p-3 neuro-raised rounded-lg border border-blue-400/20">
                         <div className="text-xs text-blue-400 font-semibold mb-1">
-                          💡 Next Recommended
+                          Next Recommended
                         </div>
                         <div className="text-sm text-gray-300">
                           Practice questions about:{' '}
@@ -394,26 +388,17 @@ export default function TopicDetailPage() {
             <div className="p-6 border-t border-gray-800">
               <h4 className="text-sm font-semibold text-gray-400 mb-3">Unlock Requirements</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                <div className="flex items-start gap-2">
-                  <span className="text-green-400 mt-0.5">✓</span>
-                  <div>
-                    <div className="font-medium text-gray-300">100% Mastery</div>
-                    <div className="text-xs text-gray-500">All attempts correct</div>
-                  </div>
+                <div>
+                  <div className="font-medium text-green-400">100% Mastery</div>
+                  <div className="text-xs text-gray-500">All attempts correct</div>
                 </div>
-                <div className="flex items-start gap-2">
-                  <span className="text-blue-400 mt-0.5">◐</span>
-                  <div>
-                    <div className="font-medium text-gray-300">4+ Dimensions</div>
-                    <div className="text-xs text-gray-500">Breadth of understanding</div>
-                  </div>
+                <div>
+                  <div className="font-medium text-blue-400">4+ Dimensions</div>
+                  <div className="text-xs text-gray-500">Breadth of understanding</div>
                 </div>
-                <div className="flex items-start gap-2">
-                  <span className="text-purple-400 mt-0.5">5</span>
-                  <div>
-                    <div className="font-medium text-gray-300">5+ Attempts</div>
-                    <div className="text-xs text-gray-500">Statistical reliability</div>
-                  </div>
+                <div>
+                  <div className="font-medium text-purple-400">5+ Attempts</div>
+                  <div className="text-xs text-gray-500">Statistical reliability</div>
                 </div>
               </div>
             </div>
@@ -529,10 +514,10 @@ export default function TopicDetailPage() {
             </div>
             <p className="text-sm text-gray-500 mt-4">
               {topicDetail.confidence_calibration_error <= 0.2
-                ? '✅ Well-calibrated! Your confidence matches your actual performance.'
+                ? 'Well-calibrated! Your confidence matches your actual performance.'
                 : topicDetail.confidence_calibration_error <= 0.4
-                ? '⚠️ Moderate calibration. Try to be more accurate in assessing your knowledge.'
-                : '❌ Poor calibration. Your confidence significantly differs from your actual performance.'}
+                ? 'Moderate calibration. Try to be more accurate in assessing your knowledge.'
+                : 'Poor calibration. Your confidence significantly differs from your actual performance.'}
             </p>
           </div>
         )}
