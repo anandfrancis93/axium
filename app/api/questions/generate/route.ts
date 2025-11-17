@@ -21,43 +21,61 @@ const BLOOM_LEVELS = {
   6: 'Create (produce new or original work)',
 }
 
-// Knowledge Dimensions - Different perspectives on learning the same concept
-const KNOWLEDGE_DIMENSIONS: Record<string, string> = {
-  definition: `DIMENSION: Definition/Conceptual Understanding
-- Focus on "what is it?" and core terminology
-- Test understanding of fundamental concepts, definitions, and classifications
-- Appropriate for Bloom levels 1-2 (Remember, Understand)
-- Example: "What is a firewall?" or "Define defense in depth"`,
+// 5W1H Cognitive Dimensions - Universal framework for comprehensive topic coverage
+const COGNITIVE_DIMENSIONS: Record<string, string> = {
+  WHAT: `COGNITIVE DIMENSION: WHAT (Definition, Identification, Components)
+- Focus on "What is it?", "What are its parts?", "What defines it?"
+- Test understanding of definitions, core concepts, components, and classifications
+- Applies to ALL Bloom levels (complexity adjusts by level)
+- Examples:
+  * Bloom 1: "What is [topic]?"
+  * Bloom 3: "What components make up [topic]?"
+  * Bloom 5: "What criteria define an effective [topic]?"`,
 
-  example: `DIMENSION: Examples and Applications
-- Focus on "how is it used?" and practical instances
-- Test ability to recognize or provide real-world examples
-- Appropriate for Bloom levels 2-3 (Understand, Apply)
-- Example: "Which scenario demonstrates a man-in-the-middle attack?" or "Give an example of physical security"`,
+  WHY: `COGNITIVE DIMENSION: WHY (Purpose, Rationale, Motivation)
+- Focus on "Why is it used?", "Why does it matter?", "What problem does it solve?"
+- Test understanding of purpose, rationale, significance, and value
+- Applies to ALL Bloom levels (complexity adjusts by level)
+- Examples:
+  * Bloom 1: "Why is [topic] important?"
+  * Bloom 3: "Why would you choose [topic] over alternatives?"
+  * Bloom 5: "Why might [topic] fail to achieve its purpose?"`,
 
-  comparison: `DIMENSION: Comparison and Contrast
-- Focus on "how are these different/similar?" and relationships
-- Test ability to distinguish between related concepts
-- Appropriate for Bloom levels 2-4 (Understand, Apply, Analyze)
-- Example: "How does symmetric encryption differ from asymmetric?" or "Compare preventive vs detective controls"`,
+  WHEN: `COGNITIVE DIMENSION: WHEN (Context, Timing, Lifecycle)
+- Focus on "When is it used?", "When does it occur?", "What is its lifecycle?"
+- Test understanding of temporal context, appropriate timing, and lifecycle stages
+- Applies to ALL Bloom levels (complexity adjusts by level)
+- Examples:
+  * Bloom 1: "When is [topic] typically used?"
+  * Bloom 3: "When should [topic] be applied in this scenario?"
+  * Bloom 5: "When would [topic] be inappropriate?"`,
 
-  scenario: `DIMENSION: Scenario-Based Problem Solving
-- Focus on "what should you do?" in realistic situations
-- Test ability to apply knowledge to novel contexts and make decisions
-- Appropriate for Bloom levels 3-5 (Apply, Analyze, Evaluate)
-- Example: "Your network is under DDoS attack. What steps should you take?" or "Which control best addresses this risk?"`,
+  WHERE: `COGNITIVE DIMENSION: WHERE (Location, Scope, Boundaries)
+- Focus on "Where is it applied?", "Where does it fit?", "What is its scope?"
+- Test understanding of context, placement, boundaries, and applicability
+- Applies to ALL Bloom levels (complexity adjusts by level)
+- Examples:
+  * Bloom 1: "Where in the system is [topic] implemented?"
+  * Bloom 3: "Where would [topic] provide the most value?"
+  * Bloom 5: "Where are the boundaries of [topic]'s effectiveness?"`,
 
-  implementation: `DIMENSION: Implementation and Procedures
-- Focus on "how do you implement/configure it?" and step-by-step processes
-- Test knowledge of setup, configuration, and operational procedures
-- Appropriate for Bloom levels 3-6 (Apply, Analyze, Evaluate, Create)
-- Example: "What steps are required to configure MFA?" or "Design a secure network architecture"`,
+  HOW: `COGNITIVE DIMENSION: HOW (Mechanism, Process, Methodology)
+- Focus on "How does it work?", "How is it implemented?", "What are the steps?"
+- Test understanding of mechanisms, processes, procedures, and implementation
+- Applies to ALL Bloom levels (complexity adjusts by level)
+- Examples:
+  * Bloom 1: "How does [topic] function?"
+  * Bloom 3: "How would you implement [topic]?"
+  * Bloom 6: "How would you design a better [topic]?"`,
 
-  troubleshooting: `DIMENSION: Troubleshooting and Analysis
-- Focus on "why isn't it working?" and diagnostic reasoning
-- Test ability to identify problems, analyze symptoms, and propose solutions
-- Appropriate for Bloom levels 4-6 (Analyze, Evaluate, Create)
-- Example: "Authentication is failing. What could be the cause?" or "Diagnose this security incident"`
+  CHARACTERISTICS: `COGNITIVE DIMENSION: CHARACTERISTICS (Properties, Attributes, Relationships)
+- Focus on "What are its properties?", "How does it relate to others?", "What are its attributes?"
+- Test understanding of features, traits, relationships, and distinguishing factors
+- Applies to ALL Bloom levels (complexity adjusts by level)
+- Examples:
+  * Bloom 1: "What are the key characteristics of [topic]?"
+  * Bloom 4: "How do the characteristics of [topic] compare to alternatives?"
+  * Bloom 5: "Which characteristic of [topic] is most critical?"`,
 }
 
 // Question format instructions
@@ -139,7 +157,7 @@ export async function POST(request: NextRequest) {
       topic_id,
       bloom_level,
       question_format = 'mcq_single',
-      dimension = 'definition',  // Default to definition dimension
+      cognitive_dimension = 'WHAT',  // Default to WHAT dimension
       num_questions = 1,
       useGraphRAG = false  // Flag to use GraphRAG instead of vector search
     } = body
@@ -152,10 +170,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate dimension
-    if (dimension && !KNOWLEDGE_DIMENSIONS[dimension]) {
+    // Validate cognitive dimension
+    if (cognitive_dimension && !COGNITIVE_DIMENSIONS[cognitive_dimension]) {
       return NextResponse.json(
-        { error: `Invalid dimension. Must be one of: ${Object.keys(KNOWLEDGE_DIMENSIONS).join(', ')}` },
+        { error: `Invalid cognitive_dimension. Must be one of: ${Object.keys(COGNITIVE_DIMENSIONS).join(', ')}` },
         { status: 400 }
       )
     }
@@ -192,7 +210,7 @@ export async function POST(request: NextRequest) {
 
     const formatInstructions = FORMAT_INSTRUCTIONS[question_format] || FORMAT_INSTRUCTIONS.mcq_single
 
-    console.log(`Generating ${num_questions} ${question_format} question(s) for topic: "${topicFullName}" at Bloom level ${bloomLevelNum}, dimension: ${dimension}${useGraphRAG ? ' (using GraphRAG)' : ''}`)
+    console.log(`Generating ${num_questions} ${question_format} question(s) for topic: "${topicFullName}" at Bloom level ${bloomLevelNum}, cognitive dimension: ${cognitive_dimension}${useGraphRAG ? ' (using GraphRAG)' : ''}`)
 
     // Step 1 & 2: Context Retrieval (Vector RAG or GraphRAG)
     let context = ''
@@ -278,10 +296,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 3: Generate questions using AI
-    console.log('Generating questions with Grok AI...')
+    console.log('Generating questions with Claude AI...')
     const bloomDescription = BLOOM_LEVELS[bloomLevelNum as keyof typeof BLOOM_LEVELS]
 
-    const dimensionInstructions = KNOWLEDGE_DIMENSIONS[dimension]
+    const dimensionInstructions = COGNITIVE_DIMENSIONS[cognitive_dimension]
 
     const prompt = `You are an expert educator creating assessment questions for students studying cybersecurity.
 
@@ -297,12 +315,12 @@ ${dimensionInstructions}
 CONTEXT (from course materials):
 ${context}
 
-TASK: Generate ${num_questions} question(s) at Bloom's level ${bloomLevelNum} about "${topicName}" focusing on the ${dimension} dimension.
+TASK: Generate ${num_questions} question(s) at Bloom's level ${bloomLevelNum} about "${topicName}" focusing on the ${cognitive_dimension} cognitive dimension.
 
 REQUIREMENTS:
 1. Base questions ONLY on the provided context
 2. Match the cognitive level of Bloom's ${bloomLevelNum} (${bloomDescription})
-3. Focus on the ${dimension} dimension as specified above
+3. Focus on the ${cognitive_dimension} cognitive dimension as specified above
 4. Follow the question format instructions exactly
 5. Clearly indicate the correct answer
 6. Include a brief, educational explanation for the correct answer
@@ -400,7 +418,7 @@ Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other 
     }
 
     // Step 5: Return questions for preview (NOT stored in database)
-    console.log(`Successfully generated ${questionsData.questions.length} question(s) for preview (Bloom: ${bloomLevelNum}, Dimension: ${dimension})`)
+    console.log(`Successfully generated ${questionsData.questions.length} question(s) for preview (Bloom: ${bloomLevelNum}, Cognitive Dimension: ${cognitive_dimension})`)
 
     // Format questions for preview (add IDs for frontend display)
     const previewQuestions = questionsData.questions.map((q: any, idx: number) => ({
@@ -413,7 +431,7 @@ Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other 
       correct_answer: q.correct_answer,
       explanation: q.explanation,
       bloom_level: bloomLevelNum,
-      knowledge_dimension: dimension,
+      cognitive_dimension: cognitive_dimension,
       topic: topicName,
       topic_full_name: topicFullName,
       difficulty_estimated: bloomLevelNum >= 4 ? 'hard' : bloomLevelNum >= 3 ? 'medium' : 'easy',
@@ -424,7 +442,7 @@ Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other 
       success: true,
       questions: previewQuestions,
       chunks_used: chunksUsed,
-      dimension_used: dimension,
+      cognitive_dimension_used: cognitive_dimension,
       note: 'Questions are for preview/testing only - not stored in database',
     })
   } catch (error) {

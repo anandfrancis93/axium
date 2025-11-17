@@ -1,0 +1,359 @@
+[dotenv@17.2.3] injecting env (0) from .env.local -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
+================================================================================
+TOPIC CLASSIFICATION: TREE, BRANCHES & LEAVES
+================================================================================
+
+Legend:
+  🌳 = TRUNK (Level 1 root with branches)
+  🪵 = ROOT (Level 1 standalone, no children)
+  🌿 = BRANCH (Has children)
+  🍃 = LEAF (No children, end node)
+
+================================================================================
+
+🪵 Accounting
+
+🪵 Advanced Persistent Threat (APT)
+
+🪵 Agentless Software
+
+🪵 Attack Surface
+
+🌳 Authentication
+    ├── 🌿 Authentication Design
+    │   ├── 🍃 Availability (Authentication)
+    │   ├── 🍃 Confidentiality (Authentication)
+    │   └── 🍃 Integrity (Authentication)
+    ├── 🌿 Authentication Factor
+    │   ├── 🍃 Something You Are Factor
+    │   ├── 🍃 Something You Have Factor
+    │   ├── 🍃 Something You Know Factor
+    │   └── 🍃 Somewhere You Are Factor
+    ├── 🌿 Authentication Methods
+    │   ├── 🍃 Attestation
+    │   ├── 🌿 Biometric Authentication
+    │   │   ├── 🍃 Cost/Implementation
+    │   │   ├── 🍃 Crossover Error Rate (CER)
+    │   │   ├── 🍃 Failure to Enroll Rate (FER)
+    │   │   ├── 🍃 False Acceptance Rate (FAR)
+    │   │   ├── 🍃 False Rejection Rate (FRR)
+    │   │   └── 🍃 Throughput (Speed)
+    │   ├── 🍃 Hard authentication token
+    │   ├── 🍃 Multifactor Authentication (MFA)
+    │   ├── 🍃 One-time password (OTP)
+    │   ├── 🍃 Password Manager
+    │   ├── 🍃 Passwordless
+    │   ├── 🍃 Personal Identification Number (PIN)
+    │   ├── 🍃 Security Key
+    │   ├── 🍃 Smart Cards
+    │   ├── 🍃 Soft Authentication Token
+    │   └── 🌿 Token Generation
+    │       ├── 🍃 Certificate-Based Authentication
+    │       └── 🍃 Fast Identity Online (FIDO) Universal 2nd Factor (U2F)
+    ├── 🌿 Authentication Protocols
+    │   ├── 🍃 Directory Service
+    │   ├── 🍃 Distinguished Name (DN)
+    │   ├── 🌿 Kerberos
+    │   │   ├── 🍃 Key Distribution Center (KDC)
+    │   │   ├── 🍃 TGS session Key
+    │   │   └── 🍃 Ticket Granting Ticket (TGT)
+    │   ├── 🍃 Lightweight Directory Access Protocol (LDAP)
+    │   ├── 🍃 Linux Authentication
+    │   ├── 🍃 Local Authentication
+    │   ├── 🍃 Network Authentication
+    │   ├── 🍃 NT LAN Manager (NTLM) Authentication
+    │   ├── 🍃 Pluggable Authentication Module (PAM)
+    │   ├── 🍃 Remote Authentication
+    │   └── 🍃 Single Sign-on (SSO)
+    └── 🌿 Password Best Practices
+        ├── 🍃 Password Age
+        ├── 🍃 Password Complexity
+        ├── 🍃 Password Length
+        └── 🍃 Password Reuse and History
+
+🌳 Authorization
+    └── 🌿 Access Control Models
+        ├── 🍃 Attribute-based Access Control (ABAC)
+        ├── 🍃 Discretionary Access Control (DAC)
+        ├── 🍃 Least Privilege
+        ├── 🍃 Mandatory Access Control (MAC)
+        ├── 🍃 Role-based Access Control (RBAC)
+        └── 🍃 Rule-based Access Control
+
+🪵 Availability
+
+🪵 Chief Information Officer (CIO)
+
+🪵 Chief Security Officer (CSO)
+
+🪵 Chief Technology Officer (CTO)
+
+🪵 Client-Based Software
+
+🪵 Compensating Security Control
+
+🪵 Computer Emergency Response Team (CERT)
+
+🪵 Computer Incident Response Team (CIRT)
+
+🪵 Computer Security Incident Response Team (CSIRT)
+
+🪵 Confidentiality
+
+🪵 Corrective Security Control
+
+🌳 Cryptography
+    ├── 🌿 Asymmetric Encryption
+    │   ├── 🍃 Asymmetric Algorithm
+    │   ├── 🍃 Private Key
+    │   └── 🍃 Public Key
+    ├── 🌿 Data Protection
+    │   ├── 🍃 Data at Rest
+    │   ├── 🍃 Data in Transit / Data in Motion
+    │   ├── 🍃 Data in Use / Data in Processing
+    │   ├── 🌿 Encryption Levels
+    │   │   ├── 🍃 Database-Level Encryption / Transparent Data Encryption (TDE)
+    │   │   ├── 🍃 File Encryption
+    │   │   ├── 🍃 Full Disk Encryption (FDE)
+    │   │   ├── 🍃 Partition Encryption
+    │   │   ├── 🍃 Record-Level Encryption / Cell/Column Encryption
+    │   │   ├── 🍃 Self-Encrypting Drive (SED)
+    │   │   └── 🍃 Volume Encryption
+    │   └── 🍃 Transport / Communication Encryption
+    ├── 🌿 Encryption Fundamentals
+    │   ├── 🍃 Ciphertext
+    │   ├── 🍃 Cryptanalysis
+    │   ├── 🍃 Cryptographic Algorithm
+    │   ├── 🍃 Cryptographic Key
+    │   ├── 🍃 Cryptographic Primitive
+    │   ├── 🍃 Encryption
+    │   ├── 🍃 Key Length
+    │   └── 🍃 Plaintext / Cleartext
+    ├── 🌿 Hashing
+    │   ├── 🍃 Digital Signature
+    │   ├── 🍃 Hash-based Message Authentication Code (HMAC)
+    │   ├── 🍃 Message Digest Algorithm #5 (MD5)
+    │   └── 🍃 Secure Hash Algorithm (SHA)
+    ├── 🌿 Key Management
+    │   ├── 🍃 Blockchain
+    │   ├── 🍃 Diffie-Hellman (D-H)
+    │   ├── 🍃 Entropy
+    │   ├── 🍃 Ephemeral Session Key
+    │   ├── 🍃 Hardware Security Module (HSM)
+    │   ├── 🍃 Key Escrow
+    │   ├── 🍃 Key Exchange
+    │   ├── 🍃 Key Stretching
+    │   ├── 🍃 Open Public Ledger
+    │   ├── 🍃 Perfect Forward Secrecy (PFS)
+    │   ├── 🍃 Pseudo Random Number Generator (PRNG)
+    │   ├── 🍃 Salting
+    │   ├── 🍃 True Random Number Generator (TRNG)
+    │   ├── 🍃 Trusted Platform Module (TPM)
+    │   └── 🍃 Virtual Trusted Platform Module (vTPM)
+    ├── 🌿 Obfuscation
+    │   ├── 🍃 Data Masking
+    │   ├── 🍃 Steganography
+    │   └── 🍃 Tokenization
+    ├── 🌿 Public Key Infrastructure (PKI)
+    │   ├── 🍃 Certificate Authority (CA)
+    │   ├── 🍃 Certificate Chaining / Chain of Trust
+    │   ├── 🍃 Certificate Revocation List (CRL)
+    │   ├── 🍃 Certificate Signing Request (CSR)
+    │   ├── 🍃 Common Name (CN)
+    │   ├── 🍃 Digital Certificate
+    │   ├── 🍃 Online Certificate Status Protocol (OCSP)
+    │   ├── 🍃 Public Key Cryptography Standards (PKCS)
+    │   ├── 🍃 Root Certificate
+    │   ├── 🍃 Root of Trust
+    │   ├── 🍃 Self-signed Certificate
+    │   ├── 🍃 Single Certificate Authority
+    │   ├── 🍃 Subject Alternative Name (SAN)
+    │   ├── 🍃 Third Party Certificate Authority
+    │   └── 🍃 Wildcard Domain
+    └── 🍃 Symmetric Encryption
+
+🌳 Cybersecurity Frameworks (CSF)
+    └── 🌿 NIST Cybersecurity Framework
+        ├── 🍃 Detect
+        ├── 🍃 Identify
+        ├── 🍃 Protect
+        ├── 🍃 Recover
+        └── 🍃 Respond
+
+🪵 Detective Security Control
+
+🪵 Deterrent Security Control
+
+🪵 Development and operations (DevOps)
+
+🪵 DevSecOps
+
+🪵 Directive Security Control
+
+🌳 Federation
+    ├── 🍃 Identity Provider (IdP)
+    ├── 🍃 Open Authorization (OAuth)
+    ├── 🍃 Representational State Transfer (REST)
+    ├── 🍃 Security Assertion Markup Language (SAML)
+    └── 🍃 Simple Object Access Protocol (SOAP)
+
+🪵 Gap analysis
+
+🪵 Human Vector
+
+🪵 Identification
+
+🌳 Identity and Access Management (IAM)
+    ├── 🌿 Account Management
+    │   ├── 🍃 Account Policies
+    │   ├── 🍃 Group Account
+    │   ├── 🍃 Group Policy Objects (GPOs)
+    │   ├── 🍃 Just-in-time (JIT) Permission
+    │   ├── 🍃 M of N Control
+    │   ├── 🍃 Privileged access management (PAM)
+    │   ├── 🍃 Secure Administrative Workstation (SAW)
+    │   └── 🍃 Unique Security Identifier (SID)
+    ├── 🌿 Account Restrictions
+    │   ├── 🍃 Duration-based Login Policy
+    │   ├── 🍃 Geolocation
+    │   ├── 🍃 Impossible Travel Time / Risky Login Policy
+    │   ├── 🍃 Location services
+    │   ├── 🍃 Temporary Permissions Policy
+    │   ├── 🍃 Time-of-day Restrictions
+    │   └── 🌿 Zero Standing Privileges (ZSP)
+    │       ├── 🍃 Ephemeral Credentials
+    │       ├── 🍃 Password Vaulting/Brokering
+    │       └── 🍃 Temporary Elevation
+    └── 🌿 User Account Lifecycle
+        ├── 🍃 User Account Deprovisioning
+        └── 🌿 User Account Provisioning
+            ├── 🍃 Creating Permissions Assignment
+            ├── 🍃 Identity Proofing
+            ├── 🍃 Issuing Credentials
+            ├── 🍃 Issuing Hardware and Software Assets
+            └── 🍃 Teaching Policy Awareness
+
+🪵 Information Security
+
+🪵 Information Systems Security Officer (ISSO)
+
+🪵 Integrity
+
+🪵 Intentional Threat
+
+🪵 Level of sophistication/capability
+
+🌳 Lure-Based Vectors
+    ├── 🍃 Document Files
+    ├── 🍃 Email
+    ├── 🍃 Executable File
+    ├── 🍃 Image Files
+    ├── 🍃 Instant Messaging (IM)
+    ├── 🍃 Removable Device
+    ├── 🍃 Short Message Service (SMS)
+    ├── 🍃 Web and Social Media
+    └── 🍃 Zero-click
+
+🪵 Managerial Security Control
+
+🌳 Motivations of Threat Actors
+    ├── 🍃 Blackmail
+    ├── 🍃 Data exfiltration
+    ├── 🍃 Disinformation
+    ├── 🍃 Extortion
+    ├── 🍃 Fraud
+    └── 🍃 Service disruption
+
+🪵 Non-repudiation
+
+🪵 Operational Security Control
+
+🪵 Physical Security Control
+
+🪵 Preventive Security Control
+
+🪵 Resources/funding
+
+🪵 Risk
+
+🪵 Security Controls
+
+🪵 Security Operations Center (SOC)
+
+🪵 Shadow IT
+
+🌳 Social Engineering
+    ├── 🍃 Brand Impersonation
+    ├── 🍃 Business Email Compromise
+    ├── 🌿 Impersonation
+    │   ├── 🍃 Coercion / Threat / Urgency
+    │   └── 🍃 Persuasive / Consensus / Liking
+    ├── 🍃 Pharming
+    ├── 🍃 Phishing
+    ├── 🍃 Pretexting
+    ├── 🍃 SMiShing
+    ├── 🍃 Typosquatting
+    ├── 🍃 Vishing
+    └── 🍃 Watering Hole Attack
+
+🌳 Supply Chain
+    ├── 🍃 Business Partner
+    ├── 🍃 Managed Service Provider (MSP)
+    ├── 🍃 Supplier
+    └── 🍃 Vendor
+
+🪵 Technical Security Control
+
+🪵 Threat
+
+🌳 Threat Actor
+    ├── 🍃 Authorized Hacker
+    ├── 🍃 External Threat Actor
+    ├── 🍃 Hacker
+    ├── 🍃 Hacktivist
+    ├── 🍃 Insider threat
+    ├── 🍃 Internal Threat Actor
+    ├── 🍃 Nation-state
+    ├── 🍃 Organized crime
+    ├── 🍃 Unauthorized Hacker
+    ├── 🍃 Unintentional or Inadvertent Insider Threat
+    ├── 🍃 Unskilled attacker
+    └── 🍃 Whistleblower
+
+🪵 Threat Vector
+
+🪵 Unintentional Threat
+
+🌳 Unsecure Networks
+    ├── 🍃 Bluetooth Network
+    ├── 🍃 Cloud Access
+    ├── 🍃 Default Credentials
+    ├── 🍃 Direct Access
+    ├── 🍃 Local
+    ├── 🍃 Open Service Port
+    ├── 🍃 Remote
+    ├── 🍃 Remote and Wireless Network
+    └── 🍃 Wired Network
+
+🪵 Unsupported Systems / Applications
+
+🪵 Vulnerability
+
+🪵 Vulnerable Software
+
+================================================================================
+STATISTICS
+================================================================================
+Total topics: 273
+
+🌳 Trunks (Level 1 with children): 12
+🪵 Roots (Level 1 standalone):      45
+🌿 Branches (Has children):         24
+🍃 Leaves (No children):            237
+
+By Level:
+  Level 1: 57
+  Level 2: 73
+  Level 3: 117
+  Level 4: 26
+================================================================================

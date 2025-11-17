@@ -108,6 +108,7 @@ export interface Database {
           mastery_scores: Json
           total_attempts: number
           correct_answers: number
+          dimension_coverage: Json
           last_practiced_at: string | null
           created_at: string
           updated_at: string
@@ -120,6 +121,7 @@ export interface Database {
           mastery_scores?: Json
           total_attempts?: number
           correct_answers?: number
+          dimension_coverage?: Json
           last_practiced_at?: string | null
           created_at?: string
           updated_at?: string
@@ -132,6 +134,7 @@ export interface Database {
           mastery_scores?: Json
           total_attempts?: number
           correct_answers?: number
+          dimension_coverage?: Json
           last_practiced_at?: string | null
           created_at?: string
           updated_at?: string
@@ -189,6 +192,8 @@ export interface Database {
           difficulty_level: string | null
           times_used: number
           avg_correctness_rate: number | null
+          cognitive_dimension: 'WHAT' | 'WHY' | 'WHEN' | 'WHERE' | 'HOW' | 'CHARACTERISTICS' | null
+          dimension_metadata: Json
           created_at: string
           updated_at: string
         }
@@ -205,6 +210,8 @@ export interface Database {
           difficulty_level?: string | null
           times_used?: number
           avg_correctness_rate?: number | null
+          cognitive_dimension?: 'WHAT' | 'WHY' | 'WHEN' | 'WHERE' | 'HOW' | 'CHARACTERISTICS' | null
+          dimension_metadata?: Json
           created_at?: string
           updated_at?: string
         }
@@ -221,6 +228,8 @@ export interface Database {
           difficulty_level?: string | null
           times_used?: number
           avg_correctness_rate?: number | null
+          cognitive_dimension?: 'WHAT' | 'WHY' | 'WHEN' | 'WHERE' | 'HOW' | 'CHARACTERISTICS' | null
+          dimension_metadata?: Json
           created_at?: string
           updated_at?: string
         }
