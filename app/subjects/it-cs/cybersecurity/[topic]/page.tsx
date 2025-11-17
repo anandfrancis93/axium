@@ -337,22 +337,16 @@ export default function TopicDetailPage() {
                         return (
                           <div
                             key={`${bl.level}-${dim}`}
-                            className={`p-3 rounded-lg border-2 transition-all cursor-help ${
-                              isCovered
-                                ? 'border-green-400/30 bg-green-400/5'
-                                : 'border-gray-700/50 bg-gray-800/30'
-                            }`}
+                            className="neuro-inset p-3 rounded-lg cursor-help"
                             title={dimInfo.description}
                           >
-                            <div>
-                              <div className={`text-sm font-semibold truncate ${
-                                isCovered ? 'text-green-400' : 'text-gray-500'
-                              }`}>
-                                {dimInfo.name}
-                              </div>
-                              <div className="text-xs text-gray-600 truncate">
-                                {dimInfo.description.split(',')[0]}
-                              </div>
+                            <div className={`text-sm font-semibold truncate ${
+                              isCovered ? 'text-green-400' : 'text-gray-500'
+                            }`}>
+                              {dimInfo.name}
+                            </div>
+                            <div className="text-xs text-gray-600 truncate">
+                              {dimInfo.description.split(',')[0]}
                             </div>
                           </div>
                         )
