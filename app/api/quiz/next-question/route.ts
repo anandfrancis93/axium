@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
       explanation: enrichedQuestion.explanation,
       rag_context: context || undefined,
       source_type: 'ai_generated_realtime',
-      model: 'grok-beta'
+      model: 'grok-4-fast-reasoning'
     })
 
     return NextResponse.json({
@@ -266,6 +266,20 @@ ${formatInstruction}
 4. Ensure the question is clear, unambiguous, and has ONE definitive correct answer (or multiple for mcq_multi)
 5. Provide a detailed explanation that teaches the concept
 6. Return ONLY valid JSON, no additional text
+
+**❌ NEVER reference source materials in questions OR explanations:**
+- Do NOT include "in the context of [source]" (e.g., "CompTIA Security+ SY0-701")
+- Do NOT mention "as covered in [certification]" or "as defined in [curriculum]"
+- Do NOT reference textbook names, certification exams, or course codes
+- Do NOT mention learning objectives or domains by name
+- Write questions AND explanations as if they are standalone educational content
+- Focus on the TOPIC and CONCEPTS, not the source they came from
+
+**✅ EXPLANATION QUALITY:**
+- Explain WHY the correct answer is right using clear reasoning
+- Do NOT cite external sources, curriculums, or certifications
+- Use phrases like "This is correct because..." not "According to [source]..."
+- Focus on conceptual understanding, not memorization of source material
 
 Generate the question now:`
 
