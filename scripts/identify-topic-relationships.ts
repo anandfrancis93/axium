@@ -262,7 +262,7 @@ Respond with a JSON array of relationships. Example:
 If no relationships found for a pair, omit it from the array. Return only valid JSON.`
 
   const response = await xai.chat.completions.create({
-    model: 'grok-3',
+    model: 'grok-4-fast',
     messages: [
       { role: 'system', content: 'You are a cybersecurity ontology expert. Respond only with valid JSON.' },
       { role: 'user', content: prompt }
