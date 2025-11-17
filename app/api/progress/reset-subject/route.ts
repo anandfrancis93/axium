@@ -121,7 +121,16 @@ export async function POST(request: NextRequest) {
       console.error('Error counting user_responses:', countResponsesError)
     }
 
-    console.log(`Found ${progressCount || 0} progress records and ${responsesCount || 0} response records to delete`)
+    const { count: questionsCount, error: countQuestionsError } = await supabase
+      .from('questions')
+      .select('*', { count: 'exact', head: true })
+      .in('topic_id', topicIds)
+
+    if (countQuestionsError && countQuestionsError.message) {
+      console.error('Error counting questions:', countQuestionsError)
+    }
+
+    console.log(`Found ${progressCount || 0} progress records, ${responsesCount || 0} response records, and ${questionsCount || 0} questions to delete`)
 
     // Batch delete to avoid parameter limit (max 100 IDs per batch)
     const BATCH_SIZE = 100
@@ -164,17 +173,29 @@ export async function POST(request: NextRequest) {
         console.error(`Error deleting user_responses batch ${i}-${i + batch.length}:`, deleteResponsesError)
         // Continue anyway - progress deletion is more important
       }
+
+      // Delete questions for this batch (not user-specific)
+      const { error: deleteQuestionsError } = await supabase
+        .from('questions')
+        .delete()
+        .in('topic_id', batch)
+
+      if (deleteQuestionsError) {
+        console.error(`Error deleting questions batch ${i}-${i + batch.length}:`, deleteQuestionsError)
+        // Continue anyway
+      }
     }
 
     console.log(`Successfully deleted all records in ${Math.ceil(topicIds.length / BATCH_SIZE)} batches`)
 
-    const totalDeleted = (progressCount || 0) + (responsesCount || 0)
+    const totalDeleted = (progressCount || 0) + (responsesCount || 0) + (questionsCount || 0)
 
     return NextResponse.json({
       success: true,
       deletedCount: totalDeleted,
       progressRecords: progressCount || 0,
       responseRecords: responsesCount || 0,
+      questionsRecords: questionsCount || 0,
       message: `Successfully deleted ${totalDeleted} records for ${subject}`
     })
 

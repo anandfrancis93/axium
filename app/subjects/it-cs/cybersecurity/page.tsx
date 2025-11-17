@@ -118,9 +118,15 @@ export default function CybersecurityPage() {
 
       // Show detailed message
       if (result.deletedCount === 0) {
-        alert(`✅ Reset complete.\n\nNo progress records found to delete.\nYou haven't answered any questions yet for Cybersecurity topics.`)
+        alert(`✅ Reset complete.\n\nNo records found to delete.\nYou haven't answered any questions yet for Cybersecurity topics.`)
       } else {
-        alert(`✅ Success!\n\nDeleted ${result.progressRecords} progress records and ${result.responseRecords} response records.`)
+        const details = [
+          result.progressRecords > 0 ? `${result.progressRecords} progress records` : null,
+          result.responseRecords > 0 ? `${result.responseRecords} response records` : null,
+          result.questionsRecords > 0 ? `${result.questionsRecords} generated questions` : null
+        ].filter(Boolean).join(', ')
+
+        alert(`✅ Success!\n\nDeleted ${details}.`)
       }
 
       // Refresh the page to show empty state
