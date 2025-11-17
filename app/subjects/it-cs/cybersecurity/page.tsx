@@ -116,7 +116,12 @@ export default function CybersecurityPage() {
         throw new Error(result.error || 'Failed to reset progress')
       }
 
-      alert(`✅ Success! Deleted ${result.deletedCount} progress records.`)
+      // Show detailed message
+      if (result.deletedCount === 0) {
+        alert(`✅ Reset complete.\n\nNo progress records found to delete.\nYou haven't answered any questions yet for Cybersecurity topics.`)
+      } else {
+        alert(`✅ Success!\n\nDeleted ${result.progressRecords} progress records and ${result.responseRecords} response records.`)
+      }
 
       // Refresh the page to show empty state
       await fetchTopicsProgress()
