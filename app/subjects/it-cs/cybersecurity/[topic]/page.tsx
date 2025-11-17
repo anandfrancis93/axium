@@ -355,7 +355,7 @@ export default function TopicDetailPage() {
 
                     {/* Next Recommended Dimension */}
                     {coveredDimensions.length < 6 && (
-                      <div className="mt-4 p-3 neuro-raised rounded-lg border border-blue-400/20">
+                      <div className="mt-4 p-3 neuro-raised rounded-lg">
                         <div className="text-xs text-blue-400 font-semibold mb-1">
                           Next Recommended
                         </div>
