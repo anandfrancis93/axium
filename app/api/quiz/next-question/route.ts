@@ -204,8 +204,9 @@ async function fetchKnowledgeContext(
 }
 
 /**
- * Get next format using round robin for this Bloom level (GLOBAL across all topics)
- * Cycles through recommended formats to ensure variety
+ * Get next format using round robin for this Bloom level
+ * Tracks BOTH global state (across all topics) and per-topic state
+ * Uses per-topic cycling for selection to ensure variety when revisiting topics
  */
 async function getNextFormatRoundRobin(
   supabase: any,
@@ -216,60 +217,88 @@ async function getNextFormatRoundRobin(
   // Get recommended formats for this Bloom level
   const recommendedFormats = getRecommendedFormats(bloomLevel)
 
-  // Get user settings to retrieve GLOBAL last used format index
-  const { data: settings, error: settingsError } = await supabase
-    .from('user_settings')
-    .select('format_round_robin')
-    .eq('user_id', userId)
-    .single()
+  // Fetch BOTH global and per-topic state in parallel
+  const [settingsResult, progressResult] = await Promise.all([
+    supabase
+      .from('user_settings')
+      .select('format_round_robin')
+      .eq('user_id', userId)
+      .single(),
+    supabase
+      .from('user_progress')
+      .select('rl_metadata')
+      .eq('user_id', userId)
+      .eq('topic_id', topicId)
+      .single()
+  ])
 
-  console.log('[Round Robin] User settings:', {
-    userId,
-    bloomLevel,
-    hasSettings: !!settings,
-    format_round_robin: settings?.format_round_robin,
-    error: settingsError
-  })
+  const settings = settingsResult.data
+  const progress = progressResult.data
 
-  let formatIndex = 0
-  let lastIndex = -1
-
+  // Calculate GLOBAL next format index
+  let globalLastIndex = -1
   if (settings?.format_round_robin) {
-    // Get the last used index for this Bloom level (global across all topics)
-    lastIndex = settings.format_round_robin[`bloom_${bloomLevel}`] ?? -1
-    // Increment to next format (with wrap-around)
-    formatIndex = (lastIndex + 1) % recommendedFormats.length
+    globalLastIndex = settings.format_round_robin[`bloom_${bloomLevel}`] ?? -1
   }
+  const globalFormatIndex = (globalLastIndex + 1) % recommendedFormats.length
 
-  const selectedFormat = recommendedFormats[formatIndex]
+  // Calculate PER-TOPIC next format index
+  let topicLastIndex = -1
+  if (progress?.rl_metadata?.format_round_robin) {
+    topicLastIndex = progress.rl_metadata.format_round_robin[`bloom_${bloomLevel}`] ?? -1
+  }
+  const topicFormatIndex = (topicLastIndex + 1) % recommendedFormats.length
 
-  console.log('[Round Robin] Format selection:', {
+  // USE PER-TOPIC INDEX for selection (ensures variety when revisiting same topic)
+  const selectedFormat = recommendedFormats[topicFormatIndex]
+
+  console.log('[Round Robin] State:', {
+    userId,
+    topicId,
+    bloomLevel,
     recommendedFormats,
-    lastIndex,
-    newIndex: formatIndex,
-    selectedFormat
+    global: { lastIndex: globalLastIndex, newIndex: globalFormatIndex, format: recommendedFormats[globalFormatIndex] },
+    perTopic: { lastIndex: topicLastIndex, newIndex: topicFormatIndex, format: recommendedFormats[topicFormatIndex] },
+    selectedFormat: selectedFormat,
+    selectionMode: 'per-topic'
   })
 
-  // Update the global round robin index in user_settings
-  const updatedRoundRobin = {
+  // Update BOTH global and per-topic state
+  const updatedGlobalRoundRobin = {
     ...(settings?.format_round_robin || {}),
-    [`bloom_${bloomLevel}`]: formatIndex
+    [`bloom_${bloomLevel}`]: globalFormatIndex
   }
 
-  const { error: upsertError } = await supabase
-    .from('user_settings')
-    .upsert({
-      user_id: userId,
-      format_round_robin: updatedRoundRobin
-    }, {
-      onConflict: 'user_id'
-    })
+  const updatedTopicMetadata = {
+    ...(progress?.rl_metadata || {}),
+    format_round_robin: {
+      ...(progress?.rl_metadata?.format_round_robin || {}),
+      [`bloom_${bloomLevel}`]: topicFormatIndex
+    }
+  }
 
-  console.log(`[Round Robin] Bloom ${bloomLevel}: Selected format ${selectedFormat} (index ${formatIndex}/${recommendedFormats.length}) - GLOBAL`)
-  console.log('[Round Robin] Upsert result:', {
-    updatedRoundRobin,
-    error: upsertError
-  })
+  // Execute updates in parallel
+  await Promise.all([
+    supabase
+      .from('user_settings')
+      .upsert({
+        user_id: userId,
+        format_round_robin: updatedGlobalRoundRobin
+      }, {
+        onConflict: 'user_id'
+      }),
+    supabase
+      .from('user_progress')
+      .upsert({
+        user_id: userId,
+        topic_id: topicId,
+        rl_metadata: updatedTopicMetadata
+      }, {
+        onConflict: 'user_id,topic_id'
+      })
+  ])
+
+  console.log(`[Round Robin] Bloom ${bloomLevel}: Selected format ${selectedFormat} (per-topic index ${topicFormatIndex}/${recommendedFormats.length}, global index ${globalFormatIndex}/${recommendedFormats.length})`)
 
   return selectedFormat
 }
