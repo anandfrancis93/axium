@@ -51,6 +51,7 @@ export default function TopicDetailPage() {
   const [topicDetail, setTopicDetail] = useState<TopicDetail | null>(null)
   const [bloomLevels, setBloomLevels] = useState<BloomLevelDetail[]>([])
   const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState<'overview' | 'dimensions' | 'bloom' | 'calibration'>('overview')
 
   useEffect(() => {
     fetchTopicDetail()
@@ -261,7 +262,46 @@ export default function TopicDetailPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 space-y-6">
 
+        {/* Tab Navigation */}
+        {topicDetail.total_attempts > 0 && (
+        <div className="flex gap-2 overflow-x-auto">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`neuro-btn px-6 py-3 whitespace-nowrap ${
+              activeTab === 'overview' ? 'text-blue-400' : 'text-gray-400'
+            }`}
+          >
+            Overview Stats
+          </button>
+          <button
+            onClick={() => setActiveTab('dimensions')}
+            className={`neuro-btn px-6 py-3 whitespace-nowrap ${
+              activeTab === 'dimensions' ? 'text-blue-400' : 'text-gray-400'
+            }`}
+          >
+            Cognitive Dimension Coverage
+          </button>
+          <button
+            onClick={() => setActiveTab('bloom')}
+            className={`neuro-btn px-6 py-3 whitespace-nowrap ${
+              activeTab === 'bloom' ? 'text-blue-400' : 'text-gray-400'
+            }`}
+          >
+            Bloom Level Breakdown
+          </button>
+          <button
+            onClick={() => setActiveTab('calibration')}
+            className={`neuro-btn px-6 py-3 whitespace-nowrap ${
+              activeTab === 'calibration' ? 'text-blue-400' : 'text-gray-400'
+            }`}
+          >
+            Confidence Calibration
+          </button>
+        </div>
+        )}
+
         {/* Overview Stats */}
+        {activeTab === 'overview' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="neuro-stat group">
             <div className="flex items-center justify-between mb-3">
@@ -288,9 +328,10 @@ export default function TopicDetailPage() {
             </div>
           </div>
         </div>
+        )}
 
         {/* Cognitive Dimension Coverage */}
-        {topicDetail.total_attempts > 0 && (
+        {activeTab === 'dimensions' && topicDetail.total_attempts > 0 && (
           <div className="neuro-card">
             <div className="p-6 border-b border-gray-800">
               <h2 className="text-xl font-semibold text-gray-200">Cognitive Dimension Coverage</h2>
@@ -397,6 +438,7 @@ export default function TopicDetailPage() {
         )}
 
         {/* Bloom Level Breakdown */}
+        {activeTab === 'bloom' && (
         <div className="neuro-card">
           <div className="p-6 border-b border-gray-800">
             <h2 className="text-xl font-semibold text-gray-200">Bloom Level Breakdown</h2>
@@ -465,9 +507,10 @@ export default function TopicDetailPage() {
             ))}
           </div>
         </div>
+        )}
 
         {/* Calibration Info */}
-        {topicDetail.total_attempts > 0 && (
+        {activeTab === 'calibration' && topicDetail.total_attempts > 0 && (
           <div className="neuro-card p-6">
             <h3 className="text-lg font-semibold text-gray-200 mb-4">Confidence Calibration</h3>
             <div className="flex items-center gap-4">
