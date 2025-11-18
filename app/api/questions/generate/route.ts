@@ -350,9 +350,11 @@ EXPLANATION REQUIREMENTS:
 ANTI-TELLTALE QUALITY CONTROLS (CRITICAL):
 These measures prevent obvious answer giveaways and test-taking tricks:
 
-a) Length Variation: All 4 options must have similar length (within 10-20 characters of each other)
-   ❌ BAD: A) "CIA" B) "Confidentiality, Integrity, and Availability ensuring data protection" C) "Security" D) "Info"
-   ✅ GOOD: All options are 40-60 characters, similarly detailed
+a) Length Variation: All 4 options must have similar length (within 15 characters max difference)
+   ❌ BAD: One option is a long, detailed sentence while others are short phrases
+   ❌ BAD: A) "Selecting a technology that meets requirements for confidentiality..." B) "Passwords" C) "Firewalls" D) "Hardware"
+   ✅ GOOD: All options are roughly equal length. If one is a full sentence, ALL must be full sentences.
+   CRITICAL: If the correct answer is long, you MUST write equally long, detailed distractors.
 
 b) Plausible Distractors: Wrong answers must be from the same domain and sound believable
    ❌ BAD: If correct answer is "Preventive (control type)", wrong answers shouldn't be "Apple" or "Database"
