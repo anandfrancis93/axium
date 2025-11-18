@@ -832,6 +832,28 @@ function LearnPageContent() {
                         {answerResult.isCorrect ? 'Correct' : 'Incorrect'}
                       </span>
                     </div>
+                    {answerResult.nextReviewDate && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-white text-sm">Next Review:</span>
+                        <span className="font-semibold text-yellow-400">
+                          {(() => {
+                            const reviewDate = new Date(answerResult.nextReviewDate)
+                            const now = new Date()
+                            const timeDiff = reviewDate.getTime() - now.getTime()
+                            const hoursUntil = Math.ceil(timeDiff / (1000 * 60 * 60))
+                            const daysUntil = Math.ceil(timeDiff / (1000 * 60 * 60 * 24))
+
+                            if (hoursUntil < 1) {
+                              return 'Due now'
+                            } else if (hoursUntil < 24) {
+                              return `In ${hoursUntil} ${hoursUntil === 1 ? 'hour' : 'hours'}`
+                            } else {
+                              return `In ${daysUntil} ${daysUntil === 1 ? 'day' : 'days'}`
+                            }
+                          })()}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

@@ -115,6 +115,9 @@ export async function POST(request: NextRequest) {
     console.log('Response saved successfully:', insertData)
 
     // Save question permanently for spaced repetition (if not already saved)
+    // Calculate and get next review date
+    const nextReviewDate = calculateNextReviewDate(calibrationScore)
+
     await saveQuestionForSpacedRepetition(
       supabase,
       questionId,
@@ -150,6 +153,7 @@ export async function POST(request: NextRequest) {
       explanation: question.explanation,
       calibrationScore,                        // TRACK 1: For RL system
       reward: calibrationScore,                // Legacy: Same as calibrationScore
+      nextReviewDate: nextReviewDate.toISOString(),  // When to review this question again
       sessionComplete: false  // This would be determined by the session state
     }
 

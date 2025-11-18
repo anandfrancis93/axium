@@ -94,6 +94,7 @@ export interface AnswerResult {
   explanation: string
   calibrationScore: number  // TRACK 1: Calibration score (-1.5 to +1.5, format-independent)
   reward: number  // Legacy: Same as calibrationScore for backward compatibility
+  nextReviewDate?: string  // ISO timestamp for when this question should be reviewed again
   calibrationBreakdown?: {  // Reward breakdown for transparency (future enhancement)
     correctness: number
     confidenceCalibration: number
