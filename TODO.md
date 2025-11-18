@@ -33,16 +33,16 @@ This file tracks all development tasks for the Axium intelligent learning platfo
   - [x] Get API keys (Supabase, OpenAI, xAI)
   - [x] Add all keys to `.env.local`
   - [x] Test authentication flow
-- [x] Build document upload and chunking pipeline
-  - [x] Create upload UI in admin dashboard (`/admin`)
-  - [x] Add file validation (PDF, text input, max size)
-  - [x] Implement PDF text extraction (`pdf-parse` library)
-  - [x] Implement semantic chunking (paragraph-aware, ~1000 chars)
-  - [x] Generate embeddings via OpenAI (`text-embedding-3-small`)
-  - [x] Store chunks in `knowledge_chunks` table
-  - [x] Associate chunks with chapters
-  - [x] Add progress indicators and loading states
-  - [x] Handle errors gracefully with user feedback
+- [ ] Build document upload and chunking pipeline (MISSING IN CODEBASE)
+  - [ ] Create upload UI in admin dashboard (`/admin`)
+  - [ ] Add file validation (PDF, text input, max size)
+  - [ ] Implement PDF text extraction (`pdf-parse` library)
+  - [ ] Implement semantic chunking (paragraph-aware, ~1000 chars)
+  - [ ] Generate embeddings via OpenAI (`text-embedding-3-small`)
+  - [ ] Store chunks in `knowledge_chunks` table
+  - [ ] Associate chunks with chapters
+  - [ ] Add progress indicators and loading states
+  - [ ] Handle errors gracefully with user feedback
 - [x] Create AI integration for question generation (using xAI Grok instead of Claude)
   - [x] Set up xAI Grok client (`grok-4-fast-reasoning`)
   - [x] Create prompt templates for all 6 Bloom levels
@@ -54,11 +54,11 @@ This file tracks all development tasks for the Axium intelligent learning platfo
   - [x] Add topic extraction from uploaded content
   - [x] Add random question generation feature
   - [x] Implement anti-telltale quality controls
-- [x] Build admin UI for content and question management
-  - [x] Subject and chapter management
-  - [x] Document upload interface
-  - [x] Question generator with manual and random modes
-  - [x] Generated questions preview
+- [ ] Build admin UI for content and question management (MISSING IN CODEBASE)
+  - [ ] Subject and chapter management
+  - [ ] Document upload interface
+  - [ ] Question generator with manual and random modes
+  - [ ] Generated questions preview
 
 ### 🚧 In Progress
 Currently: Testing question generation quality

@@ -1,4 +1,4 @@
-import neo4j, { Driver, Session } from 'neo4j-driver'
+import neo4j, { Driver, Session, Record as Neo4jRecord } from 'neo4j-driver'
 
 /**
  * GraphRAG Context Structure
@@ -235,6 +235,49 @@ export interface EntitySummary {
   scopeTags: string[]
 }
 
+// Helper interfaces for Neo4j query results
+interface Neo4jRelationshipTarget {
+  id: string | null
+  name: string | null
+  [key: string]: any
+}
+
+interface Neo4jChild {
+  id: string
+  name: string
+  entityType: string
+  summary: string | null
+}
+
+interface Neo4jRelatedConcept {
+  id: string
+  name: string
+  domain: string
+  sharedConcept: string
+  strength: 'high' | 'medium' | 'low'
+  crossDomain: boolean
+}
+
+interface Neo4jSemanticRelationship {
+  id: string
+  name: string
+  confidence?: number
+  reasoning?: string
+}
+
+interface Neo4jEnablesConcept {
+  id: string
+  name: string
+  relationshipType: string
+}
+
+interface Neo4jPrerequisite extends Neo4jSemanticRelationship {
+  strategy?: string
+  difficultyScore?: number
+  learningDepth?: number
+}
+
+
 /**
  * Create Neo4j driver instance
  */
@@ -461,7 +504,7 @@ export async function getContextById(entityId: string): Promise<GraphRAGContext 
 
     const record = result.records[0]
 
-    const prerequisites = record.get('prerequisites').filter((p: any) => p.id !== null)
+    const prerequisites = (record.get('prerequisites') as Neo4jPrerequisite[]).filter(p => p.id !== null)
 
     return {
       id: record.get('id'),
@@ -477,36 +520,36 @@ export async function getContextById(entityId: string): Promise<GraphRAGContext 
       parentId: record.get('parentId'),
       grandparentName: record.get('grandparentName'),
       grandparentId: record.get('grandparentId'),
-      children: record.get('children').filter((c: any) => c.id !== null),
-      grandchildren: record.get('grandchildren').filter((gc: any) => gc.id !== null),
-      relatedConcepts: record.get('relatedConcepts').filter((r: any) => r.id !== null),
+      children: (record.get('children') as Neo4jChild[]).filter(c => c.id !== null),
+      grandchildren: (record.get('grandchildren') as Neo4jChild[]).filter(gc => gc.id !== null),
+      relatedConcepts: (record.get('relatedConcepts') as Neo4jRelatedConcept[]).filter(r => r.id !== null),
       semanticRelationships: {
         // Taxonomy
-        isA: record.get('isARelationships').filter((r: any) => r.id !== null),
-        partOf: record.get('partOfRelationships').filter((r: any) => r.id !== null),
-        categoryOf: record.get('categoryOfRelationships').filter((r: any) => r.id !== null),
-        variantOf: record.get('variantOfRelationships').filter((r: any) => r.id !== null),
+        isA: (record.get('isARelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+        partOf: (record.get('partOfRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+        categoryOf: (record.get('categoryOfRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+        variantOf: (record.get('variantOfRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
         // Educational
         prerequisites,
-        prerequisiteFor: record.get('prerequisiteForRelationships').filter((r: any) => r.id !== null),
-        dependsOn: record.get('dependsOnRelationships').filter((r: any) => r.id !== null),
-        contrastsWith: record.get('contrastsWithRelationships').filter((r: any) => r.id !== null),
+        prerequisiteFor: (record.get('prerequisiteForRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+        dependsOn: (record.get('dependsOnRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+        contrastsWith: (record.get('contrastsWithRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
         // Security
-        protectsAgainst: record.get('protectsAgainstRelationships').filter((r: any) => r.id !== null),
-        attacks: record.get('attacksRelationships').filter((r: any) => r.id !== null),
+        protectsAgainst: (record.get('protectsAgainstRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+        attacks: (record.get('attacksRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
         // Technical
-        implements: record.get('implementsRelationships').filter((r: any) => r.id !== null),
-        configures: record.get('configuresRelationships').filter((r: any) => r.id !== null),
-        requires: record.get('requiresRelationships').filter((r: any) => r.id !== null),
+        implements: (record.get('implementsRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+        configures: (record.get('configuresRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+        requires: (record.get('requiresRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
         // Functional
-        logs: record.get('logsRelationships').filter((r: any) => r.id !== null),
-        monitors: record.get('monitorsRelationships').filter((r: any) => r.id !== null),
-        scans: record.get('scansRelationships').filter((r: any) => r.id !== null),
+        logs: (record.get('logsRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+        monitors: (record.get('monitorsRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+        scans: (record.get('scansRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
         // Logical
-        leadsTo: record.get('leadsToRelationships').filter((r: any) => r.id !== null),
-        enables: record.get('enablesRelationships').filter((r: any) => r.id !== null),
+        leadsTo: (record.get('leadsToRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+        enables: (record.get('enablesRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
         // Backward compatibility
-        enablesConcepts: record.get('enablesConcepts').filter((e: any) => e.id !== null)
+        enablesConcepts: (record.get('enablesConcepts') as Neo4jEnablesConcept[]).filter(e => e.id !== null)
       },
       learningMetadata: {
         difficultyScore: record.get('difficultyScore') || 1,
@@ -681,42 +724,42 @@ export async function findEntitiesByName(name: string): Promise<GraphRAGContext[
         parentId: record.get('parentId'),
         grandparentName: record.get('grandparentName'),
         grandparentId: record.get('grandparentId'),
-        children: record.get('children').filter((c: any) => c.id !== null),
+        children: (record.get('children') as Neo4jChild[]).filter(c => c.id !== null),
         grandchildren: [],
-        relatedConcepts: record.get('relatedConcepts').filter((r: any) => r.id !== null),
+        relatedConcepts: (record.get('relatedConcepts') as Neo4jRelatedConcept[]).filter(r => r.id !== null),
         semanticRelationships: {
           // Taxonomy
-          isA: record.get('isARelationships').filter((r: any) => r.id !== null),
-          partOf: record.get('partOfRelationships').filter((r: any) => r.id !== null),
-          categoryOf: record.get('categoryOfRelationships').filter((r: any) => r.id !== null),
-          variantOf: record.get('variantOfRelationships').filter((r: any) => r.id !== null),
+          isA: (record.get('isARelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+          partOf: (record.get('partOfRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+          categoryOf: (record.get('categoryOfRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+          variantOf: (record.get('variantOfRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
 
           // Educational
           prerequisites,
-          prerequisiteFor: record.get('prerequisiteForRelationships').filter((r: any) => r.id !== null),
-          dependsOn: record.get('dependsOnRelationships').filter((r: any) => r.id !== null),
-          contrastsWith: record.get('contrastsWithRelationships').filter((r: any) => r.id !== null),
+          prerequisiteFor: (record.get('prerequisiteForRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+          dependsOn: (record.get('dependsOnRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+          contrastsWith: (record.get('contrastsWithRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
 
           // Security
-          protectsAgainst: record.get('protectsAgainstRelationships').filter((r: any) => r.id !== null),
-          attacks: record.get('attacksRelationships').filter((r: any) => r.id !== null),
+          protectsAgainst: (record.get('protectsAgainstRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+          attacks: (record.get('attacksRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
 
           // Technical
-          implements: record.get('implementsRelationships').filter((r: any) => r.id !== null),
-          configures: record.get('configuresRelationships').filter((r: any) => r.id !== null),
-          requires: record.get('requiresRelationships').filter((r: any) => r.id !== null),
+          implements: (record.get('implementsRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+          configures: (record.get('configuresRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+          requires: (record.get('requiresRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
 
           // Functional
-          logs: record.get('logsRelationships').filter((r: any) => r.id !== null),
-          monitors: record.get('monitorsRelationships').filter((r: any) => r.id !== null),
-          scans: record.get('scansRelationships').filter((r: any) => r.id !== null),
+          logs: (record.get('logsRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+          monitors: (record.get('monitorsRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+          scans: (record.get('scansRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
 
           // Logical
-          leadsTo: record.get('leadsToRelationships').filter((r: any) => r.id !== null),
-          enables: record.get('enablesRelationships').filter((r: any) => r.id !== null),
+          leadsTo: (record.get('leadsToRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+          enables: (record.get('enablesRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
 
           // Backward compatibility
-          enablesConcepts: record.get('enablesConcepts').filter((e: any) => e.id !== null)
+          enablesConcepts: (record.get('enablesConcepts') as Neo4jEnablesConcept[]).filter(e => e.id !== null)
         },
         learningMetadata: {
           difficultyScore: record.get('difficultyScore') || 1,
@@ -843,7 +886,7 @@ export async function getContextByPath(fullPath: string): Promise<GraphRAGContex
     }
 
     const record = result.records[0]
-    const prerequisites = record.get('prerequisites').filter((p: any) => p.id !== null)
+    const prerequisites = (record.get('prerequisites') as Neo4jPrerequisite[]).filter(p => p.id !== null)
 
     return {
       id: record.get('id'),
@@ -859,36 +902,36 @@ export async function getContextByPath(fullPath: string): Promise<GraphRAGContex
       parentId: record.get('parentId'),
       grandparentName: record.get('grandparentName'),
       grandparentId: record.get('grandparentId'),
-      children: record.get('children').filter((c: any) => c.id !== null),
+      children: (record.get('children') as Neo4jChild[]).filter(c => c.id !== null),
       grandchildren: [],
-      relatedConcepts: record.get('relatedConcepts').filter((r: any) => r.id !== null),
+      relatedConcepts: (record.get('relatedConcepts') as Neo4jRelatedConcept[]).filter(r => r.id !== null),
       semanticRelationships: {
         // Taxonomy
-        isA: record.get('isARelationships').filter((r: any) => r.id !== null),
-        partOf: record.get('partOfRelationships').filter((r: any) => r.id !== null),
-        categoryOf: record.get('categoryOfRelationships').filter((r: any) => r.id !== null),
-        variantOf: record.get('variantOfRelationships').filter((r: any) => r.id !== null),
+        isA: (record.get('isARelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+        partOf: (record.get('partOfRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+        categoryOf: (record.get('categoryOfRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+        variantOf: (record.get('variantOfRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
         // Educational
         prerequisites,
-        prerequisiteFor: record.get('prerequisiteForRelationships').filter((r: any) => r.id !== null),
-        dependsOn: record.get('dependsOnRelationships').filter((r: any) => r.id !== null),
-        contrastsWith: record.get('contrastsWithRelationships').filter((r: any) => r.id !== null),
+        prerequisiteFor: (record.get('prerequisiteForRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+        dependsOn: (record.get('dependsOnRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+        contrastsWith: (record.get('contrastsWithRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
         // Security
-        protectsAgainst: record.get('protectsAgainstRelationships').filter((r: any) => r.id !== null),
-        attacks: record.get('attacksRelationships').filter((r: any) => r.id !== null),
+        protectsAgainst: (record.get('protectsAgainstRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+        attacks: (record.get('attacksRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
         // Technical
-        implements: record.get('implementsRelationships').filter((r: any) => r.id !== null),
-        configures: record.get('configuresRelationships').filter((r: any) => r.id !== null),
-        requires: record.get('requiresRelationships').filter((r: any) => r.id !== null),
+        implements: (record.get('implementsRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+        configures: (record.get('configuresRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+        requires: (record.get('requiresRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
         // Functional
-        logs: record.get('logsRelationships').filter((r: any) => r.id !== null),
-        monitors: record.get('monitorsRelationships').filter((r: any) => r.id !== null),
-        scans: record.get('scansRelationships').filter((r: any) => r.id !== null),
+        logs: (record.get('logsRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+        monitors: (record.get('monitorsRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+        scans: (record.get('scansRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
         // Logical
-        leadsTo: record.get('leadsToRelationships').filter((r: any) => r.id !== null),
-        enables: record.get('enablesRelationships').filter((r: any) => r.id !== null),
+        leadsTo: (record.get('leadsToRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
+        enables: (record.get('enablesRelationships') as Neo4jSemanticRelationship[]).filter(r => r.id !== null),
         // Backward compatibility
-        enablesConcepts: record.get('enablesConcepts').filter((e: any) => e.id !== null)
+        enablesConcepts: (record.get('enablesConcepts') as Neo4jEnablesConcept[]).filter(e => e.id !== null)
       },
       learningMetadata: {
         difficultyScore: record.get('difficultyScore') || 1,

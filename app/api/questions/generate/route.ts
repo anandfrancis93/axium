@@ -369,6 +369,7 @@ c) Keyword Avoidance (Giveaways): The correct answer MUST NOT appear in the ques
 SELF-CORRECTION STEP (Perform this internally before outputting):
 1. Check Word Counts: Are all options within +/- 2 words of each other?
    -> IF NO: Rewrite options to match the length of the correct answer exactly.
+   -> CRITICAL: Distractors must NOT be significantly shorter (>3 words difference) than the correct answer.
 2. Check giveaways: Does the question contain the answer word?
    -> IF YES: Rewrite the question.
 3. Check distractors: Are they plausible concepts?

@@ -47,17 +47,17 @@ export async function localGraphSearch(
   // Check cache first
   const cached = await checkQueryCache(chapterId, topicName, bloomLevel, dimension)
   if (cached) {
-    console.log('GraphRAG query cache hit')
+    // Log removed
     return cached
   }
 
-  console.log(`GraphRAG local search: ${topicName} (Bloom ${bloomLevel})`)
+
 
   // Step 1: Find seed entities related to topic
   const seedEntities = await findSeedEntities(chapterId, topicName, maxEntities)
 
   if (seedEntities.length === 0) {
-    console.log('No entities found, returning empty context')
+
     return {
       entities: [],
       relationships: [],

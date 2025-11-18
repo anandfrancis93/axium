@@ -100,7 +100,7 @@ export async function storeGeneratedQuestion(
     }
 
     if (existing) {
-      console.log(`Duplicate question found: ${existing.id}`)
+      // Log removed
       return { success: true, questionId: existing.id, isDuplicate: true }
     }
 
@@ -153,7 +153,7 @@ export async function storeGeneratedQuestion(
       return { success: false, error: error.message }
     }
 
-    console.log(`Question stored successfully: ${data.id}`)
+    // Log removed
     return { success: true, questionId: data.id, isDuplicate: false }
 
   } catch (error: any) {
@@ -212,7 +212,7 @@ export async function batchStoreQuestions(
   const duplicateCount = results.filter(r => r.isDuplicate).length
   const errorCount = results.filter(r => !r.success).length
 
-  console.log(`Batch storage complete: ${successCount} stored, ${duplicateCount} duplicates, ${errorCount} errors`)
+  // Log removed
 
   return results
 }

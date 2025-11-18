@@ -151,8 +151,8 @@ function parseClaudeResponse(responseText: string, format: QuestionFormat, conte
       const answerLower = parsed.correctAnswer.toLowerCase().trim()
       const topicLower = context.name.toLowerCase().trim()
       const isTopicNameOrVariant = answerLower === topicLower ||
-                                    answerLower.includes(topicLower) ||
-                                    topicLower.includes(answerLower)
+        answerLower.includes(topicLower) ||
+        topicLower.includes(answerLower)
 
       if (!isTopicNameOrVariant) {
         throw new QuestionGenerationError(
@@ -358,12 +358,12 @@ export async function generateQuestionWithRetry(
         }
 
         // Log retry attempt
-        console.log(`Question generation failed (attempt ${attempt}/${maxRetries}): ${error.message}`)
+        // Log removed
 
         // Exponential backoff for rate limits
         if (error.message.includes('Rate limit')) {
           const delay = Math.pow(2, attempt) * 1000
-          console.log(`Waiting ${delay}ms before retry...`)
+          // Log removed
           await new Promise(resolve => setTimeout(resolve, delay))
         } else {
           // Short delay for other retryable errors

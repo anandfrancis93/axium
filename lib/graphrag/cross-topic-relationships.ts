@@ -23,7 +23,7 @@ export async function inferCrossTopicRelationships(): Promise<InferredRelationsh
   const relationships: InferredRelationship[] = []
 
   try {
-    console.log('[Graph Inference] Finding cross-topic relationships...')
+    // Log removed
 
     // 1. Find topics that share concepts (co-occurrence)
     const sharedConceptsQuery = `
@@ -53,7 +53,7 @@ export async function inferCrossTopicRelationships(): Promise<InferredRelationsh
       })
     })
 
-    console.log(`[Graph Inference] Found ${relationships.length} shared concept relationships`)
+    // Log removed
 
     // 2. Find prerequisite chains (A depends on B, B depends on C → A indirectly depends on C)
     const prerequisiteChainQuery = `
@@ -74,7 +74,7 @@ export async function inferCrossTopicRelationships(): Promise<InferredRelationsh
       })
     })
 
-    console.log(`[Graph Inference] Found ${prereqResult.records.length} prerequisite chain relationships`)
+    // Log removed
 
     // 3. Find attack-defense pairs (if concept A attacks B, and C defends against B → C protects against A)
     const attackDefenseQuery = `
@@ -95,7 +95,7 @@ export async function inferCrossTopicRelationships(): Promise<InferredRelationsh
       })
     })
 
-    console.log(`[Graph Inference] Found ${attackDefenseResult.records.length} attack-defense relationships`)
+    // Log removed
 
     // 4. Find similar topics by community detection (topics in same cluster)
     const communityQuery = `
@@ -128,12 +128,12 @@ export async function inferCrossTopicRelationships(): Promise<InferredRelationsh
         }
       })
 
-      console.log(`[Graph Inference] Found ${communityRelationships} community-based relationships`)
+      // Log removed
     } catch (error) {
-      console.log('[Graph Inference] Community detection not available (graph projection needed)')
+      // Log removed
     }
 
-    console.log(`[Graph Inference] Total inferred relationships: ${relationships.length}`)
+    // Log removed
     return relationships
 
   } finally {
@@ -172,7 +172,7 @@ export async function applyInferredRelationships(
       appliedCount++
     }
 
-    console.log(`[Graph Inference] Applied ${appliedCount} inferred relationships to Neo4j`)
+    // Log removed
     return appliedCount
 
   } finally {
@@ -184,7 +184,7 @@ export async function applyInferredRelationships(
  * Main function: Infer and apply cross-topic relationships
  */
 export async function enrichKnowledgeGraph(minConfidence: number = 0.6): Promise<void> {
-  console.log('[Knowledge Graph Enrichment] Starting...')
+  // Log removed
 
   // Step 1: Infer relationships
   const relationships = await inferCrossTopicRelationships()
@@ -192,6 +192,5 @@ export async function enrichKnowledgeGraph(minConfidence: number = 0.6): Promise
   // Step 2: Apply high-confidence relationships
   const appliedCount = await applyInferredRelationships(relationships, minConfidence)
 
-  console.log(`[Knowledge Graph Enrichment] Complete! Applied ${appliedCount} relationships.`)
-  console.log(`[Knowledge Graph Enrichment] Cost: $0 (no API calls)`)
+  // Log removed
 }

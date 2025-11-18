@@ -69,15 +69,7 @@ export async function POST(request: NextRequest) {
     // Store the response (use topicId from submission for on-the-fly questions)
     const responseTopicId = topicId || question.topic_id
 
-    console.log('Attempting to insert response:', {
-      user_id: user.id,
-      question_id: questionId,
-      topic_id: responseTopicId,
-      calibration_score: calibrationScore,
-      confidence,
-      recognition_method: recognitionMethod,
-      cognitive_dimension: question.cognitive_dimension
-    })
+
 
     const { data: insertData, error: insertError } = await supabase
       .from('user_responses')
@@ -112,7 +104,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('Response saved successfully:', insertData)
+
 
     // Save question permanently for spaced repetition (if not already saved)
     // Calculate and get next review date
@@ -417,7 +409,7 @@ async function updateUserProgress(
       throw new Error(`Failed to create user progress: ${insertError.message}`)
     }
 
-    console.log(`[Progress] Created initial progress for topic ${topicId}`)
+
   } else {
     // Update existing progress
     const newCorrect = progress.correct_answers + (isCorrect ? 1 : 0)
@@ -454,7 +446,6 @@ async function updateUserProgress(
       // Add dimension if not already covered for this Bloom level
       if (!currentCoverage.includes(cognitiveDimension)) {
         updatedDimensionCoverage[bloomLevel] = [...currentCoverage, cognitiveDimension]
-        console.log(`[Dimension Coverage] Added ${cognitiveDimension} to Bloom ${bloomLevel} (now ${updatedDimensionCoverage[bloomLevel].length}/6 covered)`)
       }
     }
 
@@ -476,7 +467,7 @@ async function updateUserProgress(
       throw new Error(`Failed to update user progress: ${updateError.message}`)
     }
 
-    console.log(`[Progress] Updated progress for topic ${topicId}: ${newCorrect}/${newTotal} correct`)
+
 
     // Increment global question position (1-10 cycle for 7-2-1 split)
     const newPosition = (progress.question_position || 0) % 10 + 1
@@ -518,7 +509,7 @@ async function saveQuestionForSpacedRepetition(
       if (updateError) {
         console.error('[Spaced Repetition] Error updating next_review_date:', updateError)
       } else {
-        console.log(`[Spaced Repetition] Updated next review: ${nextReviewDate.toISOString()}`)
+        // Log removed
       }
     } else {
       // Insert new question
@@ -542,7 +533,7 @@ async function saveQuestionForSpacedRepetition(
       if (insertError) {
         console.error('[Spaced Repetition] Error saving question:', insertError)
       } else {
-        console.log(`[Spaced Repetition] Question saved with next review: ${nextReviewDate.toISOString()}`)
+        // Log removed
       }
     }
   } catch (error) {

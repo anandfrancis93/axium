@@ -44,9 +44,7 @@ export async function storeGraphData(
   entities: StoredEntity[]
   relationships: StoredRelationship[]
 }> {
-  console.log(
-    `Storing ${entities.length} entities and ${relationships.length} relationships for chapter ${chapterId}`
-  )
+  // Log removed
 
   // Step 1: Generate embeddings for entities
   const entitiesWithEmbeddings = await generateEntityEmbeddings(entities)
@@ -159,7 +157,7 @@ async function storeEntitiesInNeo4j(
       results.push({ entity, neo4jId })
     }
 
-    console.log(`Stored ${results.length} entities in Neo4j`)
+    // Log removed
     return results
   } catch (error) {
     console.error('Error storing entities in Neo4j:', error)
@@ -247,7 +245,7 @@ async function storeRelationshipsInNeo4j(
       })
     }
 
-    console.log(`Stored ${results.length} relationships in Neo4j`)
+    // Log removed
     return results
   } catch (error) {
     console.error('Error storing relationships in Neo4j:', error)
@@ -291,7 +289,7 @@ async function cacheEntitiesInSupabase(
     throw error
   }
 
-  console.log(`Cached ${data.length} entities in Supabase`)
+  // Log removed
 
   return data.map((row: any) => ({
     id: row.id,
@@ -357,7 +355,7 @@ async function cacheRelationshipsInSupabase(
     throw error
   }
 
-  console.log(`Cached ${data.length} relationships in Supabase`)
+  // Log removed
 
   return data.map((row: any) => ({
     id: row.id,

@@ -76,14 +76,14 @@ export async function selectNextTopic(
     .eq('user_id', userId)
 
   const questionCount = totalQuestions || 0
-  console.log(`[RL] User has answered ${questionCount} questions total`)
+
 
   // Determine if this should be RL or Spaced Repetition
   // 2 out of every 10 questions (20%) are SR, rest are RL
   // SR on questions: 5, 10, 15, 20, 25, 30... (every 5th)
   const isSpacedRepetition = ((questionCount + 1) % 5 === 0)
 
-  console.log(`[RL] Question ${questionCount + 1}: ${isSpacedRepetition ? 'SPACED REPETITION (20%)' : 'RL-DRIVEN (80%)'}`)
+
 
   // Get all available topics with hierarchy information
   // Only select actual topics (hierarchy_level >= 1+), not domains/objectives
@@ -106,7 +106,7 @@ export async function selectNextTopic(
       return subject === topicSubject
     })
 
-    console.log(`[RL] Filtered to ${filteredTopics.length} topics for subject=${subject}`)
+
 
     if (filteredTopics.length === 0) {
       throw new Error(`No topics found for subject: ${subject}`)
@@ -148,7 +148,7 @@ export async function selectNextTopic(
     throw new Error('No eligible topics found. Please check prerequisite requirements.')
   }
 
-  console.log(`[RL] ${eligibleTopics.length} topics eligible (prerequisites met)`)
+
 
   // Determine selection method
   if (isSpacedRepetition) {
@@ -237,7 +237,7 @@ async function selectSpacedRepetitionTopic(
 
   if (practicedTopics.length === 0) {
     // No practiced topics yet - fall back to RL for cold start
-    console.log('[SR] No practiced topics - falling back to RL')
+    // Log removed
     return await selectRLTopic(eligibleTopics, progress, 0)
   }
 
@@ -332,7 +332,7 @@ async function selectRLTopic(
   try {
     const { applyKeystoneScoring } = await import('./keystone-scoring')
     priorities = await applyKeystoneScoring(priorities)
-    console.log(`[RL] Applied keystone scoring to ${priorities.length} topics`)
+    // Log removed
   } catch (error) {
     console.error('[RL] Error applying keystone scoring:', error)
     // Continue without keystone scoring
@@ -435,8 +435,8 @@ function calculateTopicPriorities(
       const avgCurrentMastery = typeof currentLevelMastery === 'number'
         ? currentLevelMastery
         : Object.values(currentLevelMastery as Record<string, number>).reduce(
-            (sum, score) => sum + score, 0
-          ) / Object.keys(currentLevelMastery).length
+          (sum, score) => sum + score, 0
+        ) / Object.keys(currentLevelMastery).length
 
       if (avgCurrentMastery > 80 && p.current_bloom_level < 6) {
         recommendedBloomLevel = p.current_bloom_level + 1

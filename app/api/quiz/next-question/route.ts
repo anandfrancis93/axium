@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     const position = await getNextQuestionPosition(supabase, user.id)
     const questionInfo = determineQuestionType(position)
 
-    console.log(`[7-2-1 Pattern] Position ${position}/10: ${questionInfo.type}`)
+
 
     // Route to appropriate handler based on position
     if (questionInfo.type === 'spaced_repetition') {
@@ -91,7 +91,7 @@ async function handleSpacedRepetitionQuestion(
   user: any,
   subject?: string
 ): Promise<NextResponse> {
-  console.log('[Spaced Repetition] Fetching due questions...')
+
 
   // Fetch questions due for review
   const dueQuestions = await fetchDueSpacedRepetitionQuestions(
@@ -102,14 +102,14 @@ async function handleSpacedRepetitionQuestion(
   )
 
   if (dueQuestions.length === 0) {
-    console.log('[Spaced Repetition] No questions due, falling back to new topic')
+
     return await handleNewTopicQuestion(supabase, user, subject)
   }
 
   // Return the first due question (already contains all metadata)
   const question = dueQuestions[0]
 
-  console.log(`[Spaced Repetition] Returning saved question for topic: ${question.topics.name}`)
+
 
   return NextResponse.json({
     success: true,
@@ -144,7 +144,7 @@ async function handleDimensionPracticeQuestion(
   user: any,
   subject?: string
 ): Promise<NextResponse> {
-  console.log('[Dimension Practice] Finding topics with uncovered dimensions...')
+
 
   // Find topics with uncovered dimensions
   const topicsWithUncovered = await findTopicsWithUncoveredDimensions(
@@ -154,7 +154,7 @@ async function handleDimensionPracticeQuestion(
   )
 
   if (topicsWithUncovered.length === 0) {
-    console.log('[Dimension Practice] No uncovered dimensions found, falling back to new topic')
+
     return await handleNewTopicQuestion(supabase, user, subject)
   }
 
@@ -170,7 +170,7 @@ async function handleDimensionPracticeQuestion(
     bloomLevel
   )
 
-  console.log(`[Dimension Practice] Topic: ${topic.name}, Bloom: ${bloomLevel}, Dimension: ${nextDimension}`)
+
 
   // Fetch context and generate question
   const context = await fetchKnowledgeContext(supabase, user.id, topicId, topic.name)
@@ -234,12 +234,7 @@ async function handleNewTopicQuestion(
     )
   }
 
-  console.log('[RL Selection]', {
-    topic: selection.topicName,
-    bloomLevel: selection.bloomLevel,
-    reason: selection.selectionReason,
-    priority: selection.priority
-  })
+
 
   // Fetch topic hierarchy for display
   const { data: topicHierarchy } = await supabase
@@ -290,7 +285,7 @@ async function handleNewTopicQuestion(
     selectedDimension as CognitiveDimension
   )
 
-  console.log(`[What First Rule] Final dimension: ${selectedDimension}`)
+
 
   // Generate question using xAI Grok
   const question = await generateQuestion(
@@ -354,13 +349,13 @@ async function fetchKnowledgeContext(
     .limit(5)
 
   if (!error && chunks && chunks.length > 0) {
-    console.log(`[Context] Found ${chunks.length} knowledge chunks for ${topicName}`)
+
     const contextParts = chunks.map((chunk: any) => chunk.content)
     return contextParts.join('\n\n')
   }
 
   // If no chunks, use mastery-aware multi-hop graph traversal
-  console.log(`[Context] No chunks found for ${topicName}, using mastery-aware graph traversal`)
+
 
   try {
     const { getMasteryAwareContext } = await import('@/lib/graphrag/multi-hop-context')
@@ -371,12 +366,12 @@ async function fetchKnowledgeContext(
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
       3
     )
-    console.log(`[Context] Retrieved mastery-aware context: ${graphContext.keystoneScore} dependent topics, ${graphContext.masteredTopicIds.length} mastered, ${graphContext.notStudiedTopicIds.length} not studied`)
+
     return graphContext.contextText
   } catch (graphError) {
     console.error('[Context] Error fetching mastery-aware context:', graphError)
     // Fallback to basic topic info
-    console.log(`[Context] Falling back to basic topic info`)
+
 
     // Fetch topic details from database
     const { data: topic } = await supabase
@@ -452,16 +447,7 @@ async function getNextFormatRoundRobin(
   // USE GLOBAL INDEX for selection (ensures variety across all topics)
   const selectedFormat = recommendedFormats[globalFormatIndex]
 
-  console.log('[Round Robin] State:', {
-    userId,
-    topicId,
-    bloomLevel,
-    recommendedFormats,
-    global: { lastIndex: globalLastIndex, newIndex: globalFormatIndex, format: recommendedFormats[globalFormatIndex] },
-    perTopic: { lastIndex: topicLastIndex, newIndex: topicFormatIndex, format: recommendedFormats[topicFormatIndex] },
-    selectedFormat: selectedFormat,
-    selectionMode: 'GLOBAL'
-  })
+
 
   // Update BOTH global and per-topic state
   const updatedGlobalRoundRobin = {
@@ -498,7 +484,7 @@ async function getNextFormatRoundRobin(
       })
   ])
 
-  console.log(`[Round Robin] Bloom ${bloomLevel}: Selected format ${selectedFormat} (GLOBAL index ${globalFormatIndex}/${recommendedFormats.length}, per-topic index ${topicFormatIndex}/${recommendedFormats.length})`)
+
 
   return selectedFormat
 }
@@ -530,7 +516,7 @@ async function selectCognitiveDimension(
   // Use smart selection: prioritizes uncovered dimensions
   const nextDimension = selectNextDimension(coveredDimensions)
 
-  console.log(`[Cognitive Dimension] Bloom ${bloomLevel}: Selected ${nextDimension}, covered: ${coveredDimensions.join(', ')}`)
+
 
   return nextDimension
 }
