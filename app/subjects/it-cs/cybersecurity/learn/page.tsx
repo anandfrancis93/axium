@@ -682,7 +682,7 @@ function LearnPageContent() {
                     {currentQuestion.hierarchy.subject && (
                       <div>
                         <div className="text-xs text-gray-500">Domain</div>
-                        <div className="font-semibold text-blue-400">{currentQuestion.hierarchy.subject}</div>
+                        <div className="text-sm font-semibold text-blue-400">{currentQuestion.hierarchy.subject}</div>
                       </div>
                     )}
 
@@ -690,14 +690,14 @@ function LearnPageContent() {
                     {(currentQuestion.hierarchy as any).learningObjective && (
                       <div>
                         <div className="text-xs text-gray-500">Learning Objective</div>
-                        <div className="text-sm text-yellow-400">{(currentQuestion.hierarchy as any).learningObjective}</div>
+                        <div className="text-sm font-semibold text-yellow-400">{(currentQuestion.hierarchy as any).learningObjective}</div>
                       </div>
                     )}
 
                     {/* Topic Level */}
                     <div>
                       <div className="text-xs text-gray-500">Topic</div>
-                      <div className="font-semibold text-green-400">{currentQuestion.hierarchy.topic}</div>
+                      <div className="text-sm font-semibold text-green-400">{currentQuestion.hierarchy.topic}</div>
                     </div>
                   </div>
                 </div>
