@@ -796,6 +796,12 @@ function LearnPageContent() {
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
+                      <span className="text-white text-sm">Result:</span>
+                      <span className={`font-semibold ${answerResult.isCorrect ? 'text-green-400' : 'text-red-400'}`}>
+                        {answerResult.isCorrect ? 'Correct' : 'Incorrect'}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
                       <span className="text-white text-sm">Confidence:</span>
                       <span className={`font-semibold ${
                         confidence === 3 ? 'text-green-400' :
@@ -817,12 +823,6 @@ function LearnPageContent() {
                         {recognitionMethod === 'recognition' && 'Recognition'}
                         {recognitionMethod === 'educated_guess' && 'Educated Guess'}
                         {recognitionMethod === 'random_guess' && 'Random Guess'}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-white text-sm">Result:</span>
-                      <span className={`font-semibold ${answerResult.isCorrect ? 'text-green-400' : 'text-red-400'}`}>
-                        {answerResult.isCorrect ? 'Correct' : 'Incorrect'}
                       </span>
                     </div>
                     {answerResult.nextReviewDate && (
