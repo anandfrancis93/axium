@@ -318,12 +318,7 @@ export default function TopicDetailPage() {
       {/* Header */}
       <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex items-center gap-4 mb-4">
-          <button
-            onClick={() => router.push('/subjects/it-cs/cybersecurity')}
-            className="neuro-btn text-gray-300 px-4 py-2"
-          >
-            <ArrowLeftIcon size={20} />
-          </button>
+
           <div className="flex items-center gap-3 flex-1">
             <div className="neuro-inset w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0">
               <Image src="/icon.svg" width={40} height={40} alt="Axium Logo" className="w-10 h-10" />
