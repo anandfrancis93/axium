@@ -21,6 +21,10 @@ export default function CybersecurityPage() {
   const [loading, setLoading] = useState(true)
   const [resetting, setResetting] = useState(false)
   const [showResetModal, setShowResetModal] = useState(false)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [successMessage, setSuccessMessage] = useState('')
+  const [showErrorModal, setShowErrorModal] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
     fetchTopicsProgress()
@@ -93,7 +97,8 @@ export default function CybersecurityPage() {
       // Get current user
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
-        alert('You must be logged in to reset progress')
+        setErrorMessage('You must be logged in to reset progress')
+        setShowErrorModal(true)
         return
       }
 
@@ -110,15 +115,19 @@ export default function CybersecurityPage() {
         throw new Error(result.error || 'Failed to reset progress')
       }
 
+      // Refresh the page to show empty state
+      await fetchTopicsProgress()
+
       // Show detailed message
       const hasUserData = (result.progressRecords || 0) > 0 || (result.responseRecords || 0) > 0
       const hasQuestions = (result.questionsRecords || 0) > 0
 
+      let message = ''
       if (result.deletedCount === 0) {
-        alert(`✅ Reset complete.\n\nNo records found to delete.\nYou haven't started any quizzes yet for Cybersecurity topics.`)
+        message = 'No records found to delete. You haven\'t started any quizzes yet for Cybersecurity topics.'
       } else if (!hasUserData && hasQuestions) {
         // Only questions deleted, no user progress/responses
-        alert(`✅ Reset complete.\n\nDeleted ${result.questionsRecords} generated question(s).\n\nNote: You generated questions but didn't answer any yet.`)
+        message = `Deleted ${result.questionsRecords} generated question(s).\n\nNote: You generated questions but didn't answer any yet.`
       } else {
         // Has user data (and possibly questions)
         const details = [
@@ -127,14 +136,15 @@ export default function CybersecurityPage() {
           result.questionsRecords > 0 ? `${result.questionsRecords} generated question(s)` : null
         ].filter(Boolean).join(', ')
 
-        alert(`✅ Success!\n\nDeleted ${details}.`)
+        message = `Successfully deleted ${details}.`
       }
 
-      // Refresh the page to show empty state
-      await fetchTopicsProgress()
+      setSuccessMessage(message)
+      setShowSuccessModal(true)
     } catch (error) {
       console.error('Error resetting progress:', error)
-      alert('Failed to reset progress. Please try again.')
+      setErrorMessage('Failed to reset progress. Please try again.')
+      setShowErrorModal(true)
     } finally {
       setResetting(false)
     }
@@ -436,6 +446,44 @@ export default function CybersecurityPage() {
           <p className="text-red-400 font-semibold">
             This action cannot be undone. Are you sure you want to continue?
           </p>
+        </div>
+      </Modal>
+
+      {/* Success Modal */}
+      <Modal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        title="Reset Complete"
+        type="success"
+        actions={[
+          {
+            label: 'OK',
+            onClick: () => setShowSuccessModal(false),
+            variant: 'primary'
+          }
+        ]}
+      >
+        <div className="text-gray-300 whitespace-pre-line">
+          {successMessage}
+        </div>
+      </Modal>
+
+      {/* Error Modal */}
+      <Modal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title="Error"
+        type="warning"
+        actions={[
+          {
+            label: 'OK',
+            onClick: () => setShowErrorModal(false),
+            variant: 'secondary'
+          }
+        ]}
+      >
+        <div className="text-gray-300">
+          {errorMessage}
         </div>
       </Modal>
     </div>
