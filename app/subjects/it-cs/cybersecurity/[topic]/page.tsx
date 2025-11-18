@@ -25,6 +25,12 @@ interface TopicDetail {
   confidence_calibration_error: number
 }
 
+interface DimensionStats {
+  attempts: number
+  correct: number
+  accuracy: number
+}
+
 interface BloomLevelDetail {
   level: number
   name: string
@@ -32,6 +38,7 @@ interface BloomLevelDetail {
   attempts: number
   correct: number
   accuracy: number
+  dimensionStats: Record<string, DimensionStats>
 }
 
 const BLOOM_LEVELS = [
@@ -125,7 +132,8 @@ export default function TopicDetailPage() {
           mastery: 0,
           attempts: 0,
           correct: 0,
-          accuracy: 0
+          accuracy: 0,
+          dimensionStats: {}
         })))
         setLoading(false)
         return
@@ -134,7 +142,7 @@ export default function TopicDetailPage() {
       // Fetch bloom level breakdown from user_responses
       const { data: responsesData, error: responsesError } = await supabase
         .from('user_responses')
-        .select('bloom_level, is_correct')
+        .select('bloom_level, is_correct, cognitive_dimension')
         .eq('user_id', user.id)
         .eq('topic_id', topicData.id)
 
@@ -142,23 +150,49 @@ export default function TopicDetailPage() {
         console.error('Error fetching responses:', responsesError)
       }
 
-      // Calculate bloom level stats
-      const bloomStats: Record<number, { attempts: number; correct: number }> = {}
+      // Calculate bloom level stats and dimension stats
+      const bloomStats: Record<number, {
+        attempts: number
+        correct: number
+        dimensionStats: Record<string, { attempts: number; correct: number }>
+      }> = {}
 
       responsesData?.forEach(response => {
         if (!bloomStats[response.bloom_level]) {
-          bloomStats[response.bloom_level] = { attempts: 0, correct: 0 }
+          bloomStats[response.bloom_level] = { attempts: 0, correct: 0, dimensionStats: {} }
         }
         bloomStats[response.bloom_level].attempts++
         if (response.is_correct) {
           bloomStats[response.bloom_level].correct++
         }
+
+        // Track dimension stats
+        if (response.cognitive_dimension) {
+          const dim = response.cognitive_dimension
+          if (!bloomStats[response.bloom_level].dimensionStats[dim]) {
+            bloomStats[response.bloom_level].dimensionStats[dim] = { attempts: 0, correct: 0 }
+          }
+          bloomStats[response.bloom_level].dimensionStats[dim].attempts++
+          if (response.is_correct) {
+            bloomStats[response.bloom_level].dimensionStats[dim].correct++
+          }
+        }
       })
 
       const bloomLevelDetails = BLOOM_LEVELS.map(bl => {
-        const stats = bloomStats[bl.level] || { attempts: 0, correct: 0 }
+        const stats = bloomStats[bl.level] || { attempts: 0, correct: 0, dimensionStats: {} }
         const mastery = progressData.mastery_scores?.[bl.level] || 0
         const accuracy = stats.attempts > 0 ? Math.round((stats.correct / stats.attempts) * 100) : 0
+
+        // Convert dimension stats to include accuracy
+        const dimensionStats: Record<string, DimensionStats> = {}
+        Object.entries(stats.dimensionStats).forEach(([dim, dimStat]) => {
+          dimensionStats[dim] = {
+            attempts: dimStat.attempts,
+            correct: dimStat.correct,
+            accuracy: dimStat.attempts > 0 ? Math.round((dimStat.correct / dimStat.attempts) * 100) : 0
+          }
+        })
 
         return {
           level: bl.level,
@@ -166,7 +200,8 @@ export default function TopicDetailPage() {
           mastery,
           attempts: stats.attempts,
           correct: stats.correct,
-          accuracy
+          accuracy,
+          dimensionStats
         }
       })
 
@@ -376,6 +411,7 @@ export default function TopicDetailPage() {
                         {allDimensions.map(dim => {
                           const isCovered = coveredDimensions.includes(dim)
                           const dimInfo = COGNITIVE_DIMENSIONS[dim]
+                          const dimStats = bl.dimensionStats[dim]
 
                           return (
                             <div
@@ -383,10 +419,21 @@ export default function TopicDetailPage() {
                               className="neuro-inset p-3 rounded-lg cursor-help"
                               title={dimInfo.description}
                             >
-                              <div className={`text-sm font-semibold truncate ${
-                                isCovered ? 'text-green-400' : 'text-gray-500'
-                              }`}>
-                                {dimInfo.name}
+                              <div className="flex items-center justify-between mb-1">
+                                <div className={`text-sm font-semibold ${
+                                  isCovered ? 'text-green-400' : 'text-gray-500'
+                                }`}>
+                                  {dimInfo.name} {dimStats && `(${dimStats.attempts})`}
+                                </div>
+                                {dimStats && (
+                                  <div className={`text-xs font-bold ${
+                                    dimStats.accuracy >= 80 ? 'text-green-400' :
+                                    dimStats.accuracy >= 60 ? 'text-yellow-400' :
+                                    'text-red-400'
+                                  }`}>
+                                    {dimStats.accuracy}%
+                                  </div>
+                                )}
                               </div>
                               <div className="text-xs text-gray-600 truncate">
                                 {dimInfo.description.split(',')[0]}
