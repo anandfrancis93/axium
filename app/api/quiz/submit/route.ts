@@ -14,6 +14,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { AnswerSubmission, AnswerResult } from '@/lib/types/quiz'
 import { updateQuestionStats } from '@/lib/db/questions'
 import { calculateNextReviewDate } from '@/lib/utils/spaced-repetition'
+import { calculateMetrics } from '@/lib/analytics'
 
 export async function POST(request: NextRequest) {
   try {
@@ -131,6 +132,40 @@ export async function POST(request: NextRequest) {
       question.cognitive_dimension || null,
       isCorrect
     )
+
+    // TRACK 3: Real-time Performance Metrics (Slope, StdDev)
+    // Calculate and update immediately for instant feedback
+    const { data: recentResponses } = await supabase
+      .from('user_responses')
+      .select('calibration_score, is_correct, created_at')
+      .eq('user_id', user.id)
+      .eq('topic_id', responseTopicId)
+      .order('created_at', { ascending: false })
+      .limit(20) // Look at last 20 items
+
+    if (recentResponses && recentResponses.length > 0) {
+      // Reverse to get chronological order (oldest -> newest)
+      const chronologicalResponses = recentResponses.reverse()
+
+      const scores = chronologicalResponses.map((r: any) => {
+        if (r.calibration_score !== null) return Number(r.calibration_score)
+        return r.is_correct ? 1.0 : -1.0
+      })
+
+      const metrics = calculateMetrics(scores)
+
+      await supabase
+        .from('user_progress')
+        .update({
+          calibration_mean: metrics.mean,
+          calibration_stddev: metrics.stdDev,
+          calibration_slope: metrics.slope,
+          calibration_r_squared: metrics.rSquared,
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id)
+        .eq('topic_id', responseTopicId)
+    }
 
     // Expand correct answer if it's just a letter (A, B, C, D) to full option text
     let expandedCorrectAnswer = question.correct_answer
