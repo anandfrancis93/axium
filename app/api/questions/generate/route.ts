@@ -368,9 +368,10 @@ d) Balanced Technical Depth: All options must be equally professional and techni
    ❌ BAD: A) "Hardware security module providing cryptographic key management" B) "A thing" C) "Something" D) "IDK"
    ✅ GOOD: All options are specific, technical terms from the same category
 
-e) Subtle Incorrectness: Wrong answers should be "close but not quite right" - not obviously absurd
-   ❌ BAD: Mixing malware types with food items as distractors
-   ✅ GOOD: All distractors are real security terms, just not the correct answer for this specific question
+e) Subtle Incorrectness & Concept Proximity: Wrong answers must be related concepts that are easily confused, not just random terms from the same field.
+   ❌ BAD (Too easy): Q: "What is Phishing?" Distractors: "Firewall", "Encryption", "Backup" (All security terms, but clearly not social engineering)
+   ✅ GOOD (Subtly wrong): Q: "What is Phishing?" Distractors: "Vishing" (Voice phishing), "Whaling" (Targeted phishing), "Spam" (Unsolicited mail) - These are all related to social engineering/email attacks, requiring precise knowledge to distinguish.
+   CRITICAL: Distractors should represent common misconceptions or related but distinct concepts (e.g., confusing Authentication with Authorization).
 
 FORMAT YOUR RESPONSE AS VALID JSON:
 {
