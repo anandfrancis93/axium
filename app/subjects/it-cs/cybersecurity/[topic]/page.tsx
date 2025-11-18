@@ -58,7 +58,7 @@ export default function TopicDetailPage() {
   const [topicDetail, setTopicDetail] = useState<TopicDetail | null>(null)
   const [bloomLevels, setBloomLevels] = useState<BloomLevelDetail[]>([])
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'bloom' | 'calibration'>('bloom')
+  const [activeTab, setActiveTab] = useState<'bloom' | 'calibration' | 'spaced_repetition'>('bloom')
   const [expandedBloomLevel, setExpandedBloomLevel] = useState<number | null>(null)
 
   useEffect(() => {
@@ -311,6 +311,14 @@ export default function TopicDetailPage() {
           >
             Confidence Calibration
           </button>
+          <button
+            onClick={() => setActiveTab('spaced_repetition')}
+            className={`neuro-btn px-6 py-3 whitespace-nowrap ${
+              activeTab === 'spaced_repetition' ? 'text-blue-400' : 'text-gray-400'
+            }`}
+          >
+            Spaced Repetition
+          </button>
         </div>
         )}
 
@@ -496,6 +504,18 @@ export default function TopicDetailPage() {
                 ? 'Moderate calibration. Try to be more accurate in assessing your knowledge.'
                 : 'Poor calibration. Your confidence significantly differs from your actual performance.'}
             </p>
+          </div>
+        )}
+
+        {/* Spaced Repetition */}
+        {activeTab === 'spaced_repetition' && topicDetail.total_attempts > 0 && (
+          <div className="neuro-card p-6">
+            <h3 className="text-lg font-semibold text-gray-200 mb-4">Spaced Repetition</h3>
+            <div className="neuro-inset p-8 rounded-lg text-center">
+              <p className="text-gray-400">
+                Coming soon: Track when you should review this topic based on spaced repetition algorithm.
+              </p>
+            </div>
           </div>
         )}
 
