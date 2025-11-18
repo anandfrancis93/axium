@@ -697,7 +697,7 @@ function LearnPageContent() {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-white text-sm font-semibold">Question Type:</span>
-                      <span className="font-semibold text-sm text-gray-300">
+                      <span className="font-semibold text-sm text-white">
                         {currentQuestion.question_format === 'mcq_single' ? 'Multiple Choice' :
                          currentQuestion.question_format === 'mcq_multi' ? 'Multiple Select' :
                          currentQuestion.question_format === 'true_false' ? 'True/False' :
