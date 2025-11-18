@@ -13,6 +13,7 @@ import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { AnswerSubmission, AnswerResult } from '@/lib/types/quiz'
 import { updateQuestionStats } from '@/lib/db/questions'
+import { calculateNextReviewDate } from '@/lib/utils/spaced-repetition'
 
 export async function POST(request: NextRequest) {
   try {
@@ -112,6 +113,14 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('Response saved successfully:', insertData)
+
+    // Save question permanently for spaced repetition (if not already saved)
+    await saveQuestionForSpacedRepetition(
+      supabase,
+      questionId,
+      question,
+      calibrationScore
+    )
 
     // Update question statistics (times_used, avg_correctness_rate)
     await updateQuestionStats(questionId, isCorrect)
@@ -464,5 +473,76 @@ async function updateUserProgress(
     }
 
     console.log(`[Progress] Updated progress for topic ${topicId}: ${newCorrect}/${newTotal} correct`)
+
+    // Increment global question position (1-10 cycle for 7-2-1 split)
+    const newPosition = (progress.question_position || 0) % 10 + 1
+    await supabase
+      .from('user_progress')
+      .update({ question_position: newPosition })
+      .eq('user_id', userId)
+      .eq('topic_id', topicId)
+  }
+}
+
+/**
+ * Save question permanently for spaced repetition
+ * Calculates next_review_date based on calibration score
+ */
+async function saveQuestionForSpacedRepetition(
+  supabase: any,
+  questionId: string,
+  question: any,
+  calibrationScore: number
+) {
+  try {
+    // Check if question already exists
+    const { data: existingQuestion } = await supabase
+      .from('questions')
+      .select('id')
+      .eq('id', questionId)
+      .single()
+
+    const nextReviewDate = calculateNextReviewDate(calibrationScore)
+
+    if (existingQuestion) {
+      // Update existing question's next_review_date
+      const { error: updateError } = await supabase
+        .from('questions')
+        .update({ next_review_date: nextReviewDate.toISOString() })
+        .eq('id', questionId)
+
+      if (updateError) {
+        console.error('[Spaced Repetition] Error updating next_review_date:', updateError)
+      } else {
+        console.log(`[Spaced Repetition] Updated next review: ${nextReviewDate.toISOString()}`)
+      }
+    } else {
+      // Insert new question
+      const { error: insertError } = await supabase
+        .from('questions')
+        .insert({
+          id: questionId,
+          topic_id: question.topic_id,
+          bloom_level: question.bloom_level,
+          question_format: question.question_format,
+          cognitive_dimension: question.cognitive_dimension || null,
+          question_text: question.question_text,
+          options: question.options || null,
+          correct_answer: question.correct_answer,
+          explanation: question.explanation || null,
+          rag_context: question.rag_context || null,
+          source_type: 'ai_generated_realtime',
+          next_review_date: nextReviewDate.toISOString()
+        })
+
+      if (insertError) {
+        console.error('[Spaced Repetition] Error saving question:', insertError)
+      } else {
+        console.log(`[Spaced Repetition] Question saved with next review: ${nextReviewDate.toISOString()}`)
+      }
+    }
+  } catch (error) {
+    console.error('[Spaced Repetition] Error in saveQuestionForSpacedRepetition:', error)
+    // Don't throw - this is non-critical, shouldn't block submission
   }
 }
