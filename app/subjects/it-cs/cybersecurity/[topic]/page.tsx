@@ -235,10 +235,10 @@ export default function TopicDetailPage() {
         dimension_coverage: parseDimensionCoverage(progressData.dimension_coverage),
         last_practiced_at: progressData.last_practiced_at,
         confidence_calibration_error: progressData.confidence_calibration_error,
-        calibration_slope: progressData.calibration_slope,
-        calibration_stddev: progressData.calibration_stddev,
-        calibration_r_squared: progressData.calibration_r_squared,
-        calibration_mean: progressData.calibration_mean
+        calibration_slope: progressData.calibration_slope ?? null,
+        calibration_stddev: progressData.calibration_stddev ?? null,
+        calibration_r_squared: progressData.calibration_r_squared ?? null,
+        calibration_mean: progressData.calibration_mean ?? null
       })
       setBloomLevels(bloomLevelDetails)
 
@@ -359,8 +359,8 @@ export default function TopicDetailPage() {
                   <div className="text-xs text-gray-500 mb-1">Learning Rate</div>
                   <div className="flex items-center gap-2">
                     <span className={`text-2xl font-bold ${topicDetail.calibration_slope > 0.5 ? 'text-green-400' :
-                        topicDetail.calibration_slope < -0.5 ? 'text-red-400' :
-                          'text-gray-400'
+                      topicDetail.calibration_slope < -0.5 ? 'text-red-400' :
+                        'text-gray-400'
                       }`}>
                       {topicDetail.calibration_slope > 0.5 ? '↗' : topicDetail.calibration_slope < -0.5 ? '↘' : '→'}
                     </span>
@@ -377,8 +377,8 @@ export default function TopicDetailPage() {
                 <div className="neuro-inset p-4 rounded-lg">
                   <div className="text-xs text-gray-500 mb-1">Consistency</div>
                   <div className={`text-2xl font-bold ${topicDetail.calibration_stddev! < 15 ? 'text-green-400' :
-                      topicDetail.calibration_stddev! < 25 ? 'text-yellow-400' :
-                        'text-red-400'
+                    topicDetail.calibration_stddev! < 25 ? 'text-yellow-400' :
+                      'text-red-400'
                     }`}>
                     {topicDetail.calibration_stddev!.toFixed(1)}%
                   </div>
@@ -391,8 +391,8 @@ export default function TopicDetailPage() {
                 <div className="neuro-inset p-4 rounded-lg">
                   <div className="text-xs text-gray-500 mb-1">Model Fit (R²)</div>
                   <div className={`text-2xl font-bold ${topicDetail.calibration_r_squared! > 0.7 ? 'text-green-400' :
-                      topicDetail.calibration_r_squared! > 0.4 ? 'text-yellow-400' :
-                        'text-gray-400'
+                    topicDetail.calibration_r_squared! > 0.4 ? 'text-yellow-400' :
+                      'text-gray-400'
                     }`}>
                     {topicDetail.calibration_r_squared!.toFixed(2)}
                   </div>
@@ -405,8 +405,8 @@ export default function TopicDetailPage() {
                 <div className="neuro-inset p-4 rounded-lg">
                   <div className="text-xs text-gray-500 mb-1">Average Score</div>
                   <div className={`text-2xl font-bold ${topicDetail.calibration_mean! >= 80 ? 'text-green-400' :
-                      topicDetail.calibration_mean! >= 60 ? 'text-yellow-400' :
-                        'text-red-400'
+                    topicDetail.calibration_mean! >= 60 ? 'text-yellow-400' :
+                      'text-red-400'
                     }`}>
                     {topicDetail.calibration_mean!.toFixed(0)}%
                   </div>

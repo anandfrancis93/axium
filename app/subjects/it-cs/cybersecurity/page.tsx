@@ -52,10 +52,6 @@ export default function CybersecurityPage() {
           correct_answers,
           mastery_scores,
           last_practiced_at,
-          calibration_slope,
-          calibration_stddev,
-          calibration_r_squared,
-          calibration_mean,
           topics (
             name,
             subjects (
@@ -81,10 +77,10 @@ export default function CybersecurityPage() {
           correct_answers: item.correct_answers,
           mastery_scores: item.mastery_scores,
           last_practiced_at: item.last_practiced_at,
-          calibration_slope: item.calibration_slope,
-          calibration_stddev: item.calibration_stddev,
-          calibration_r_squared: item.calibration_r_squared,
-          calibration_mean: item.calibration_mean
+          calibration_slope: item.calibration_slope ?? null,
+          calibration_stddev: item.calibration_stddev ?? null,
+          calibration_r_squared: item.calibration_r_squared ?? null,
+          calibration_mean: item.calibration_mean ?? null
         })) || []
 
       setTopicsProgress(cybersecurityTopics)
@@ -359,8 +355,8 @@ export default function CybersecurityPage() {
                             {topic.calibration_slope !== null && topic.total_attempts >= 2 ? (
                               <div className="flex items-center justify-center gap-1">
                                 <span className={`text-lg font-bold ${topic.calibration_slope > 0.5 ? 'text-green-400' :
-                                    topic.calibration_slope < -0.5 ? 'text-red-400' :
-                                      'text-gray-400'
+                                  topic.calibration_slope < -0.5 ? 'text-red-400' :
+                                    'text-gray-400'
                                   }`}>
                                   {topic.calibration_slope > 0.5 ? '↗' : topic.calibration_slope < -0.5 ? '↘' : '→'}
                                 </span>
@@ -375,8 +371,8 @@ export default function CybersecurityPage() {
                           <td className="p-4 text-center">
                             {topic.calibration_stddev !== null && topic.total_attempts >= 2 ? (
                               <span className={`text-sm font-semibold ${topic.calibration_stddev < 15 ? 'text-green-400' :
-                                  topic.calibration_stddev < 25 ? 'text-yellow-400' :
-                                    'text-red-400'
+                                topic.calibration_stddev < 25 ? 'text-yellow-400' :
+                                  'text-red-400'
                                 }`}>
                                 {topic.calibration_stddev.toFixed(1)}%
                               </span>
