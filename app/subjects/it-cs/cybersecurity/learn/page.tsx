@@ -714,15 +714,15 @@ function LearnPageContent() {
                 {/* Calibration Score */}
                 <div className="p-4 neuro-inset rounded-lg">
                   <div className="text-sm text-white mb-2">Calibration Score</div>
-                  <div className="flex items-center gap-3">
-                    <div className={`text-3xl font-bold ${
+                  <div className="flex items-start gap-3">
+                    <div className={`text-3xl font-bold flex-shrink-0 ${
                       answerResult.calibrationScore > 0 ? 'text-green-400' :
                       answerResult.calibrationScore < 0 ? 'text-red-400' :
                       'text-gray-400'
                     }`}>
                       {answerResult.calibrationScore > 0 ? '+' : ''}{answerResult.calibrationScore.toFixed(2)}
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 pt-2">
                       <div className="neuro-inset rounded-full h-2 overflow-hidden relative bg-gray-800/30">
                         <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gray-600" />
                         <div
