@@ -24,6 +24,7 @@ export interface QuizQuestion {
   topic_name?: string
   bloom_level: number
   question_format: QuestionFormat
+  cognitive_dimension?: string  // What, Why, When, Where, How, Characteristics
   question_text: string
   options?: string[]  // For MCQ
   correct_answer: string | string[]  // Single or multiple correct answers
