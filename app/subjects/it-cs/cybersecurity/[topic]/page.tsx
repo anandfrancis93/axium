@@ -41,6 +41,15 @@ interface BloomLevelDetail {
   dimensionStats: Record<string, DimensionStats>
 }
 
+interface SpacedRepetitionQuestion {
+  id: string
+  question_text: string
+  bloom_level: number
+  cognitive_dimension: string
+  next_review_date: string
+  question_format: string
+}
+
 const BLOOM_LEVELS = [
   { level: 1, name: 'Remember', description: 'Recall facts and basic concepts' },
   { level: 2, name: 'Understand', description: 'Explain ideas or concepts' },
@@ -57,12 +66,14 @@ export default function TopicDetailPage() {
 
   const [topicDetail, setTopicDetail] = useState<TopicDetail | null>(null)
   const [bloomLevels, setBloomLevels] = useState<BloomLevelDetail[]>([])
+  const [spacedRepQuestions, setSpacedRepQuestions] = useState<SpacedRepetitionQuestion[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'bloom' | 'spaced_repetition'>('bloom')
   const [expandedBloomLevel, setExpandedBloomLevel] = useState<number | null>(null)
 
   useEffect(() => {
     fetchTopicDetail()
+    fetchSpacedRepetitionQuestions()
   }, [])
 
   async function fetchTopicDetail() {
@@ -223,6 +234,41 @@ export default function TopicDetailPage() {
       console.error('Error in fetchTopicDetail:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function fetchSpacedRepetitionQuestions() {
+    try {
+      const supabase = createClient()
+
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      // Fetch topic ID
+      const { data: topicData } = await supabase
+        .from('topics')
+        .select('id')
+        .eq('name', topicName)
+        .single()
+
+      if (!topicData) return
+
+      // Fetch questions with next_review_date for this topic
+      const { data: questions, error } = await supabase
+        .from('questions')
+        .select('id, question_text, bloom_level, cognitive_dimension, next_review_date, question_format')
+        .eq('topic_id', topicData.id)
+        .not('next_review_date', 'is', null)
+        .order('next_review_date', { ascending: true })
+
+      if (error) {
+        console.error('Error fetching spaced repetition questions:', error)
+        return
+      }
+
+      setSpacedRepQuestions(questions || [])
+    } catch (error) {
+      console.error('Error in fetchSpacedRepetitionQuestions:', error)
     }
   }
 
@@ -455,12 +501,79 @@ export default function TopicDetailPage() {
         {/* Spaced Repetition */}
         {activeTab === 'spaced_repetition' && topicDetail.total_attempts > 0 && (
           <div className="neuro-card p-6">
-            <h3 className="text-lg font-semibold text-gray-200 mb-4">Spaced Repetition</h3>
-            <div className="neuro-inset p-8 rounded-lg text-center">
-              <p className="text-gray-400">
-                Coming soon: Track when you should review this topic based on spaced repetition algorithm.
-              </p>
-            </div>
+            <h3 className="text-lg font-semibold text-gray-200 mb-4">Spaced Repetition Schedule</h3>
+            <p className="text-sm text-gray-500 mb-6">
+              Questions scheduled for review based on your calibration performance
+            </p>
+
+            {spacedRepQuestions.length === 0 ? (
+              <div className="neuro-inset p-8 rounded-lg text-center">
+                <p className="text-gray-400">
+                  No questions saved for review yet. Answer more questions to build your spaced repetition queue.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {spacedRepQuestions.map((question, index) => {
+                  const reviewDate = new Date(question.next_review_date)
+                  const now = new Date()
+                  const isDue = reviewDate <= now
+                  const timeDiff = reviewDate.getTime() - now.getTime()
+                  const daysUntil = Math.ceil(timeDiff / (1000 * 60 * 60 * 24))
+                  const hoursUntil = Math.ceil(timeDiff / (1000 * 60 * 60))
+
+                  let timeText = ''
+                  if (isDue) {
+                    timeText = 'Due now'
+                  } else if (hoursUntil < 24) {
+                    timeText = `In ${hoursUntil} ${hoursUntil === 1 ? 'hour' : 'hours'}`
+                  } else {
+                    timeText = `In ${daysUntil} ${daysUntil === 1 ? 'day' : 'days'}`
+                  }
+
+                  const bloomLevel = BLOOM_LEVELS.find(bl => bl.level === question.bloom_level)
+                  const dimension = COGNITIVE_DIMENSIONS[question.cognitive_dimension as CognitiveDimension]
+
+                  return (
+                    <div
+                      key={question.id}
+                      className={`neuro-inset p-4 rounded-lg ${isDue ? 'ring-2 ring-yellow-500/50' : ''}`}
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm text-gray-300 mb-2 line-clamp-2">
+                            {question.question_text}
+                          </div>
+                          <div className="flex flex-wrap items-center gap-3 text-xs">
+                            <span className="text-blue-400">
+                              Bloom {question.bloom_level}: {bloomLevel?.name}
+                            </span>
+                            <span className="text-gray-600">•</span>
+                            <span className="text-purple-400">
+                              {dimension?.icon} {dimension?.name}
+                            </span>
+                            <span className="text-gray-600">•</span>
+                            <span className="text-gray-500 capitalize">
+                              {question.question_format.replace('_', ' ')}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <div className={`text-sm font-semibold mb-1 ${
+                            isDue ? 'text-yellow-400' : 'text-gray-400'
+                          }`}>
+                            {timeText}
+                          </div>
+                          <div className="text-xs text-gray-600">
+                            {reviewDate.toLocaleDateString()}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
           </div>
         )}
 
