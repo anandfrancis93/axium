@@ -13,6 +13,10 @@ interface TopicProgress {
   correct_answers: number
   mastery_scores: Record<string, number>
   last_practiced_at: string
+  calibration_slope: number | null
+  calibration_stddev: number | null
+  calibration_r_squared: number | null
+  calibration_mean: number | null
 }
 
 export default function CybersecurityPage() {
@@ -48,6 +52,10 @@ export default function CybersecurityPage() {
           correct_answers,
           mastery_scores,
           last_practiced_at,
+          calibration_slope,
+          calibration_stddev,
+          calibration_r_squared,
+          calibration_mean,
           topics (
             name,
             subjects (
@@ -72,7 +80,11 @@ export default function CybersecurityPage() {
           total_attempts: item.total_attempts,
           correct_answers: item.correct_answers,
           mastery_scores: item.mastery_scores,
-          last_practiced_at: item.last_practiced_at
+          last_practiced_at: item.last_practiced_at,
+          calibration_slope: item.calibration_slope,
+          calibration_stddev: item.calibration_stddev,
+          calibration_r_squared: item.calibration_r_squared,
+          calibration_mean: item.calibration_mean
         })) || []
 
       setTopicsProgress(cybersecurityTopics)
@@ -299,6 +311,8 @@ export default function CybersecurityPage() {
                       <th className="text-center p-4 text-sm font-semibold text-gray-400">Attempts</th>
                       <th className="text-center p-4 text-sm font-semibold text-gray-400">Correct</th>
                       <th className="text-center p-4 text-sm font-semibold text-gray-400">Mastery</th>
+                      <th className="text-center p-4 text-sm font-semibold text-gray-400">Learning Rate</th>
+                      <th className="text-center p-4 text-sm font-semibold text-gray-400">Consistency</th>
                       <th className="text-right p-4 text-sm font-semibold text-gray-400">Last Practiced</th>
                     </tr>
                   </thead>
@@ -333,14 +347,42 @@ export default function CybersecurityPage() {
                           </td>
                           <td className="p-4 text-center">
                             <div className="flex items-center justify-center gap-2">
-                              <div className={`text-lg font-bold ${
-                                overallMastery >= 80 ? 'text-green-400' :
+                              <div className={`text-lg font-bold ${overallMastery >= 80 ? 'text-green-400' :
                                 overallMastery >= 60 ? 'text-yellow-400' :
-                                'text-red-400'
-                              }`}>
+                                  'text-red-400'
+                                }`}>
                                 {overallMastery}%
                               </div>
                             </div>
+                          </td>
+                          <td className="p-4 text-center">
+                            {topic.calibration_slope !== null && topic.total_attempts >= 2 ? (
+                              <div className="flex items-center justify-center gap-1">
+                                <span className={`text-lg font-bold ${topic.calibration_slope > 0.5 ? 'text-green-400' :
+                                    topic.calibration_slope < -0.5 ? 'text-red-400' :
+                                      'text-gray-400'
+                                  }`}>
+                                  {topic.calibration_slope > 0.5 ? '↗' : topic.calibration_slope < -0.5 ? '↘' : '→'}
+                                </span>
+                                <span className="text-sm text-gray-400">
+                                  {topic.calibration_slope.toFixed(2)}
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-sm text-gray-600">N/A</span>
+                            )}
+                          </td>
+                          <td className="p-4 text-center">
+                            {topic.calibration_stddev !== null && topic.total_attempts >= 2 ? (
+                              <span className={`text-sm font-semibold ${topic.calibration_stddev < 15 ? 'text-green-400' :
+                                  topic.calibration_stddev < 25 ? 'text-yellow-400' :
+                                    'text-red-400'
+                                }`}>
+                                {topic.calibration_stddev.toFixed(1)}%
+                              </span>
+                            ) : (
+                              <span className="text-sm text-gray-600">N/A</span>
+                            )}
                           </td>
                           <td className="p-4 text-right">
                             <span className="text-sm text-gray-500">
@@ -369,7 +411,7 @@ export default function CybersecurityPage() {
                           <span className="text-gray-600 ml-1">
                             ({filteredTopics.reduce((sum, topic) => sum + topic.total_attempts, 0) > 0
                               ? Math.round((filteredTopics.reduce((sum, topic) => sum + topic.correct_answers, 0) /
-                                           filteredTopics.reduce((sum, topic) => sum + topic.total_attempts, 0)) * 100)
+                                filteredTopics.reduce((sum, topic) => sum + topic.total_attempts, 0)) * 100)
                               : 0}%)
                           </span>
                         </span>
@@ -381,11 +423,10 @@ export default function CybersecurityPage() {
                             filteredTopics.length
                           )
                           return (
-                            <div className={`text-lg font-bold ${
-                              avgMastery >= 80 ? 'text-green-400' :
+                            <div className={`text-lg font-bold ${avgMastery >= 80 ? 'text-green-400' :
                               avgMastery >= 60 ? 'text-yellow-400' :
-                              'text-red-400'
-                            }`}>
+                                'text-red-400'
+                              }`}>
                               {avgMastery}%
                             </div>
                           )
