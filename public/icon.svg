@@ -3,23 +3,27 @@
   <rect width="512" height="512" fill="#0a0a0a" rx="128"/>
 
   <!-- Graduation Cap Icon in White -->
-  <g transform="translate(256, 256)">
-    <!-- Main board (square top) -->
-    <path d="M -120 -60 L 120 -60 L 120 -40 L -120 -40 Z" fill="white"/>
+  <g transform="translate(256, 280)">
+    <!-- Mortarboard (square cap top in perspective) -->
+    <path d="M 0 -140 L 140 -100 L 0 -60 L -140 -100 Z" fill="white"/>
 
-    <!-- Cap base (triangular perspective) -->
-    <path d="M 0 -40 L -100 20 L -100 40 L 100 40 L 100 20 Z" fill="white"/>
+    <!-- Cap base (rounded bottom part) -->
+    <ellipse cx="0" cy="-60" rx="80" ry="35" fill="white"/>
 
-    <!-- Tassel cord -->
-    <circle cx="0" cy="-50" r="6" fill="white"/>
+    <!-- Tassel string -->
+    <line x1="0" y1="-140" x2="0" y2="-20" stroke="white" stroke-width="4"/>
 
-    <!-- Tassel -->
-    <g transform="translate(40, -30)">
-      <circle cx="0" cy="0" r="8" fill="white"/>
-      <path d="M -4 8 L -2 20 M 0 8 L 0 22 M 4 8 L 2 20" stroke="white" stroke-width="2" fill="none"/>
+    <!-- Tassel top button -->
+    <circle cx="0" cy="-140" r="8" fill="white"/>
+
+    <!-- Tassel bottom -->
+    <g transform="translate(0, -20)">
+      <circle cx="0" cy="0" r="12" fill="white"/>
+      <!-- Tassel threads -->
+      <line x1="-6" y1="12" x2="-8" y2="35" stroke="white" stroke-width="3"/>
+      <line x1="-2" y1="12" x2="-3" y2="38" stroke="white" stroke-width="3"/>
+      <line x1="2" y1="12" x2="3" y2="38" stroke="white" stroke-width="3"/>
+      <line x1="6" y1="12" x2="8" y2="35" stroke="white" stroke-width="3"/>
     </g>
-
-    <!-- Tassel string connecting to board -->
-    <line x1="0" y1="-44" x2="40" y2="-30" stroke="white" stroke-width="2"/>
   </g>
 </svg>
