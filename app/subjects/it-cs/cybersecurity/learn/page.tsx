@@ -687,11 +687,10 @@ function LearnPageContent() {
                 Your Performance
               </h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Summary */}
-                <div className="p-4 neuro-inset rounded-lg">
-                  <div className="text-base font-semibold text-white mb-3">Summary</div>
-                  <div className="space-y-2">
+              {/* Summary */}
+              <div className="p-4 neuro-inset rounded-lg">
+                <div className="text-base font-semibold text-white mb-3">Summary</div>
+                <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-white text-sm">Bloom Level:</span>
                       <span className="font-semibold text-blue-400">
@@ -772,7 +771,6 @@ function LearnPageContent() {
                     </div>
                   </div>
                 </div>
-              </div>
             </div>
 
             {/* Action Buttons */}
