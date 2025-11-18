@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { ShieldIcon, SearchIcon, TrashIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
+import Modal from '@/components/Modal'
 import { createClient } from '@/lib/supabase/client'
 
 interface TopicProgress {
@@ -19,6 +20,7 @@ export default function CybersecurityPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading] = useState(true)
   const [resetting, setResetting] = useState(false)
+  const [showResetModal, setShowResetModal] = useState(false)
 
   useEffect(() => {
     fetchTopicsProgress()
@@ -77,17 +79,12 @@ export default function CybersecurityPage() {
     }
   }
 
-  async function resetProgress() {
-    // Show confirmation dialog
-    const confirmed = window.confirm(
-      '⚠️ WARNING: This will permanently delete ALL your Cybersecurity progress!\n\n' +
-      '• All quiz attempts will be deleted\n' +
-      '• All mastery scores will be reset\n' +
-      '• All learning history will be lost\n\n' +
-      'This action cannot be undone. Are you sure you want to continue?'
-    )
+  function resetProgress() {
+    setShowResetModal(true)
+  }
 
-    if (!confirmed) return
+  async function confirmReset() {
+    setShowResetModal(false)
 
     try {
       setResetting(true)
@@ -407,6 +404,40 @@ export default function CybersecurityPage() {
           )}
         </div>
       </main>
+
+      {/* Reset Progress Confirmation Modal */}
+      <Modal
+        isOpen={showResetModal}
+        onClose={() => setShowResetModal(false)}
+        title="Reset Progress"
+        type="warning"
+        actions={[
+          {
+            label: 'Cancel',
+            onClick: () => setShowResetModal(false),
+            variant: 'secondary'
+          },
+          {
+            label: 'Reset Progress',
+            onClick: confirmReset,
+            variant: 'danger'
+          }
+        ]}
+      >
+        <div className="space-y-4">
+          <p className="text-gray-300">
+            This will permanently delete <strong>ALL</strong> your Cybersecurity progress:
+          </p>
+          <ul className="list-disc list-inside space-y-2 text-gray-400">
+            <li>All quiz attempts will be deleted</li>
+            <li>All mastery scores will be reset</li>
+            <li>All learning history will be lost</li>
+          </ul>
+          <p className="text-red-400 font-semibold">
+            This action cannot be undone. Are you sure you want to continue?
+          </p>
+        </div>
+      </Modal>
     </div>
   )
 }
