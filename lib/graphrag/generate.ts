@@ -164,19 +164,19 @@ function parseClaudeResponse(responseText: string, format: QuestionFormat): any 
 }
 
 /**
- * Generate a single question using Google Gemini 1.5 Pro
+ * Generate a single question using Google Gemini 2.5 Pro
  *
  * @param context - GraphRAG context for the topic
  * @param bloomLevel - Bloom taxonomy level (1-6)
  * @param format - Question format
- * @param model - Gemini model to use (default: gemini-1.5-pro)
+ * @param model - Gemini model to use (default: gemini-2.5-pro)
  * @returns Generated question
  */
 export async function generateQuestion(
   context: GraphRAGContext,
   bloomLevel: number,
   format: QuestionFormat,
-  model: string = 'gemini-1.5-pro'
+  model: string = 'gemini-2.5-pro'
 ): Promise<GeneratedQuestion> {
   const client = createGeminiClient()
 
