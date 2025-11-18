@@ -38,14 +38,16 @@ async function main() {
 
   // Recursive function to print tree with proper branch characters
   function printTree(topic: Topic, indent: string = '', isLast: boolean = true) {
+    const levelTag = `[L${topic.hierarchy_level}]`
+
     // Print current topic
     if (indent === '') {
       // Root level - no prefix
-      console.log(topic.name)
+      console.log(`${levelTag} ${topic.name}`)
     } else {
       // Use tree branch characters
       const branch = isLast ? '└── ' : '├── '
-      console.log(indent + branch + topic.name)
+      console.log(`${indent}${branch}${levelTag} ${topic.name}`)
     }
 
     // Find children

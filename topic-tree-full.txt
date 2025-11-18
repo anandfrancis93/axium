@@ -1,0 +1,342 @@
+[dotenv@17.2.3] injecting env (0) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+======================================================================
+TOPIC HIERARCHY TREE
+======================================================================
+
+[L1] Accounting
+
+[L1] Advanced Persistent Threat (APT)
+
+[L1] Agentless Software
+
+[L1] Attack Surface
+
+[L1] Authentication
+    ├── [L2] Authentication Design
+    │   ├── [L3] Availability (Authentication)
+    │   ├── [L3] Confidentiality (Authentication)
+    │   └── [L3] Integrity (Authentication)
+    ├── [L2] Authentication Factor
+    │   ├── [L3] Something You Are Factor
+    │   ├── [L3] Something You Have Factor
+    │   ├── [L3] Something You Know Factor
+    │   └── [L3] Somewhere You Are Factor
+    ├── [L2] Authentication Methods
+    │   ├── [L3] Attestation
+    │   ├── [L3] Biometric Authentication
+    │   │   ├── [L4] Cost/Implementation
+    │   │   ├── [L4] Crossover Error Rate (CER)
+    │   │   ├── [L4] Failure to Enroll Rate (FER)
+    │   │   ├── [L4] False Acceptance Rate (FAR)
+    │   │   ├── [L4] False Rejection Rate (FRR)
+    │   │   └── [L4] Throughput (Speed)
+    │   ├── [L3] Hard authentication token
+    │   ├── [L3] Multifactor Authentication (MFA)
+    │   ├── [L3] One-time password (OTP)
+    │   ├── [L3] Password Manager
+    │   ├── [L3] Passwordless
+    │   ├── [L3] Personal Identification Number (PIN)
+    │   ├── [L3] Security Key
+    │   ├── [L3] Smart Cards
+    │   ├── [L3] Soft Authentication Token
+    │   └── [L3] Token Generation
+    │       ├── [L4] Certificate-Based Authentication
+    │       └── [L4] Fast Identity Online (FIDO) Universal 2nd Factor (U2F)
+    ├── [L2] Authentication Protocols
+    │   ├── [L3] Directory Service
+    │   ├── [L3] Distinguished Name (DN)
+    │   ├── [L3] Kerberos
+    │   │   ├── [L4] Key Distribution Center (KDC)
+    │   │   ├── [L4] TGS session Key
+    │   │   └── [L4] Ticket Granting Ticket (TGT)
+    │   ├── [L3] Lightweight Directory Access Protocol (LDAP)
+    │   ├── [L3] Linux Authentication
+    │   ├── [L3] Local Authentication
+    │   ├── [L3] Network Authentication
+    │   ├── [L3] NT LAN Manager (NTLM) Authentication
+    │   ├── [L3] Pluggable Authentication Module (PAM)
+    │   ├── [L3] Remote Authentication
+    │   └── [L3] Single Sign-on (SSO)
+    └── [L2] Password Best Practices
+        ├── [L3] Password Age
+        ├── [L3] Password Complexity
+        ├── [L3] Password Length
+        └── [L3] Password Reuse and History
+
+[L1] Authorization
+    └── [L2] Access Control Models
+        ├── [L3] Attribute-based Access Control (ABAC)
+        ├── [L3] Discretionary Access Control (DAC)
+        ├── [L3] Least Privilege
+        ├── [L3] Mandatory Access Control (MAC)
+        ├── [L3] Role-based Access Control (RBAC)
+        └── [L3] Rule-based Access Control
+
+[L1] Availability
+
+[L1] Chief Information Officer (CIO)
+
+[L1] Chief Security Officer (CSO)
+
+[L1] Chief Technology Officer (CTO)
+
+[L1] Client-Based Software
+
+[L1] Compensating Security Control
+
+[L1] Computer Emergency Response Team (CERT)
+
+[L1] Computer Incident Response Team (CIRT)
+
+[L1] Computer Security Incident Response Team (CSIRT)
+
+[L1] Confidentiality
+
+[L1] Corrective Security Control
+
+[L1] Cryptography
+    ├── [L2] Asymmetric Encryption
+    │   ├── [L3] Asymmetric Algorithm
+    │   ├── [L3] Private Key
+    │   └── [L3] Public Key
+    ├── [L2] Data Protection
+    │   ├── [L3] Data at Rest
+    │   ├── [L3] Data in Transit / Data in Motion
+    │   ├── [L3] Data in Use / Data in Processing
+    │   ├── [L3] Encryption Levels
+    │   │   ├── [L4] Database-Level Encryption / Transparent Data Encryption (TDE)
+    │   │   ├── [L4] File Encryption
+    │   │   ├── [L4] Full Disk Encryption (FDE)
+    │   │   ├── [L4] Partition Encryption
+    │   │   ├── [L4] Record-Level Encryption / Cell/Column Encryption
+    │   │   ├── [L4] Self-Encrypting Drive (SED)
+    │   │   └── [L4] Volume Encryption
+    │   └── [L3] Transport / Communication Encryption
+    ├── [L2] Encryption Fundamentals
+    │   ├── [L3] Ciphertext
+    │   ├── [L3] Cryptanalysis
+    │   ├── [L3] Cryptographic Algorithm
+    │   ├── [L3] Cryptographic Key
+    │   ├── [L3] Cryptographic Primitive
+    │   ├── [L3] Encryption
+    │   ├── [L3] Key Length
+    │   └── [L3] Plaintext / Cleartext
+    ├── [L2] Hashing
+    │   ├── [L3] Digital Signature
+    │   ├── [L3] Hash-based Message Authentication Code (HMAC)
+    │   ├── [L3] Message Digest Algorithm #5 (MD5)
+    │   └── [L3] Secure Hash Algorithm (SHA)
+    ├── [L2] Key Management
+    │   ├── [L3] Blockchain
+    │   ├── [L3] Diffie-Hellman (D-H)
+    │   ├── [L3] Entropy
+    │   ├── [L3] Ephemeral Session Key
+    │   ├── [L3] Hardware Security Module (HSM)
+    │   ├── [L3] Key Escrow
+    │   ├── [L3] Key Exchange
+    │   ├── [L3] Key Stretching
+    │   ├── [L3] Open Public Ledger
+    │   ├── [L3] Perfect Forward Secrecy (PFS)
+    │   ├── [L3] Pseudo Random Number Generator (PRNG)
+    │   ├── [L3] Salting
+    │   ├── [L3] True Random Number Generator (TRNG)
+    │   ├── [L3] Trusted Platform Module (TPM)
+    │   └── [L3] Virtual Trusted Platform Module (vTPM)
+    ├── [L2] Obfuscation
+    │   ├── [L3] Data Masking
+    │   ├── [L3] Steganography
+    │   └── [L3] Tokenization
+    ├── [L2] Public Key Infrastructure (PKI)
+    │   ├── [L3] Certificate Authority (CA)
+    │   ├── [L3] Certificate Chaining / Chain of Trust
+    │   ├── [L3] Certificate Revocation List (CRL)
+    │   ├── [L3] Certificate Signing Request (CSR)
+    │   ├── [L3] Common Name (CN)
+    │   ├── [L3] Digital Certificate
+    │   ├── [L3] Online Certificate Status Protocol (OCSP)
+    │   ├── [L3] Public Key Cryptography Standards (PKCS)
+    │   ├── [L3] Root Certificate
+    │   ├── [L3] Root of Trust
+    │   ├── [L3] Self-signed Certificate
+    │   ├── [L3] Single Certificate Authority
+    │   ├── [L3] Subject Alternative Name (SAN)
+    │   ├── [L3] Third Party Certificate Authority
+    │   └── [L3] Wildcard Domain
+    └── [L2] Symmetric Encryption
+
+[L1] Cybersecurity Frameworks (CSF)
+    └── [L2] NIST Cybersecurity Framework
+        ├── [L3] Detect
+        ├── [L3] Identify
+        ├── [L3] Protect
+        ├── [L3] Recover
+        └── [L3] Respond
+
+[L1] Detective Security Control
+
+[L1] Deterrent Security Control
+
+[L1] Development and operations (DevOps)
+
+[L1] DevSecOps
+
+[L1] Directive Security Control
+
+[L1] Federation
+    ├── [L2] Identity Provider (IdP)
+    ├── [L2] Open Authorization (OAuth)
+    ├── [L2] Representational State Transfer (REST)
+    ├── [L2] Security Assertion Markup Language (SAML)
+    └── [L2] Simple Object Access Protocol (SOAP)
+
+[L1] Gap analysis
+
+[L1] Human Vector
+
+[L1] Identification
+
+[L1] Identity and Access Management (IAM)
+    ├── [L2] Account Management
+    │   ├── [L3] Account Policies
+    │   ├── [L3] Group Account
+    │   ├── [L3] Group Policy Objects (GPOs)
+    │   ├── [L3] Just-in-time (JIT) Permission
+    │   ├── [L3] M of N Control
+    │   ├── [L3] Privileged access management (PAM)
+    │   ├── [L3] Secure Administrative Workstation (SAW)
+    │   └── [L3] Unique Security Identifier (SID)
+    ├── [L2] Account Restrictions
+    │   ├── [L3] Duration-based Login Policy
+    │   ├── [L3] Geolocation
+    │   ├── [L3] Impossible Travel Time / Risky Login Policy
+    │   ├── [L3] Location services
+    │   ├── [L3] Temporary Permissions Policy
+    │   ├── [L3] Time-of-day Restrictions
+    │   └── [L3] Zero Standing Privileges (ZSP)
+    │       ├── [L4] Ephemeral Credentials
+    │       ├── [L4] Password Vaulting/Brokering
+    │       └── [L4] Temporary Elevation
+    └── [L2] User Account Lifecycle
+        ├── [L3] User Account Deprovisioning
+        └── [L3] User Account Provisioning
+            ├── [L4] Creating Permissions Assignment
+            ├── [L4] Identity Proofing
+            ├── [L4] Issuing Credentials
+            ├── [L4] Issuing Hardware and Software Assets
+            └── [L4] Teaching Policy Awareness
+
+[L1] Information Security
+
+[L1] Information Systems Security Officer (ISSO)
+
+[L1] Integrity
+
+[L1] Intentional Threat
+
+[L1] Level of sophistication/capability
+
+[L1] Lure-Based Vectors
+    ├── [L2] Document Files
+    ├── [L2] Email
+    ├── [L2] Executable File
+    ├── [L2] Image Files
+    ├── [L2] Instant Messaging (IM)
+    ├── [L2] Removable Device
+    ├── [L2] Short Message Service (SMS)
+    ├── [L2] Web and Social Media
+    └── [L2] Zero-click
+
+[L1] Managerial Security Control
+
+[L1] Motivations of Threat Actors
+    ├── [L2] Blackmail
+    ├── [L2] Data exfiltration
+    ├── [L2] Disinformation
+    ├── [L2] Extortion
+    ├── [L2] Fraud
+    └── [L2] Service disruption
+
+[L1] Non-repudiation
+
+[L1] Operational Security Control
+
+[L1] Physical Security Control
+
+[L1] Preventive Security Control
+
+[L1] Resources/funding
+
+[L1] Risk
+
+[L1] Security Controls
+
+[L1] Security Operations Center (SOC)
+
+[L1] Shadow IT
+
+[L1] Social Engineering
+    ├── [L2] Brand Impersonation
+    ├── [L2] Business Email Compromise
+    ├── [L2] Impersonation
+    │   ├── [L3] Coercion / Threat / Urgency
+    │   └── [L3] Persuasive / Consensus / Liking
+    ├── [L2] Pharming
+    ├── [L2] Phishing
+    ├── [L2] Pretexting
+    ├── [L2] SMiShing
+    ├── [L2] Typosquatting
+    ├── [L2] Vishing
+    └── [L2] Watering Hole Attack
+
+[L1] Supply Chain
+    ├── [L2] Business Partner
+    ├── [L2] Managed Service Provider (MSP)
+    ├── [L2] Supplier
+    └── [L2] Vendor
+
+[L1] Technical Security Control
+
+[L1] Threat
+
+[L1] Threat Actor
+    ├── [L2] Authorized Hacker
+    ├── [L2] External Threat Actor
+    ├── [L2] Hacker
+    ├── [L2] Hacktivist
+    ├── [L2] Insider threat
+    ├── [L2] Internal Threat Actor
+    ├── [L2] Nation-state
+    ├── [L2] Organized crime
+    ├── [L2] Unauthorized Hacker
+    ├── [L2] Unintentional or Inadvertent Insider Threat
+    ├── [L2] Unskilled attacker
+    └── [L2] Whistleblower
+
+[L1] Threat Vector
+
+[L1] Unintentional Threat
+
+[L1] Unsecure Networks
+    ├── [L2] Bluetooth Network
+    ├── [L2] Cloud Access
+    ├── [L2] Default Credentials
+    ├── [L2] Direct Access
+    ├── [L2] Local
+    ├── [L2] Open Service Port
+    ├── [L2] Remote
+    ├── [L2] Remote and Wireless Network
+    └── [L2] Wired Network
+
+[L1] Unsupported Systems / Applications
+
+[L1] Vulnerability
+
+[L1] Vulnerable Software
+
+======================================================================
+Total topics: 273
+  Level 1: 57
+  Level 2: 73
+  Level 3: 117
+  Level 4: 26
+======================================================================
