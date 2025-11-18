@@ -58,7 +58,7 @@ export default function TopicDetailPage() {
   const [topicDetail, setTopicDetail] = useState<TopicDetail | null>(null)
   const [bloomLevels, setBloomLevels] = useState<BloomLevelDetail[]>([])
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'bloom' | 'calibration' | 'spaced_repetition'>('bloom')
+  const [activeTab, setActiveTab] = useState<'bloom' | 'spaced_repetition'>('bloom')
   const [expandedBloomLevel, setExpandedBloomLevel] = useState<number | null>(null)
 
   useEffect(() => {
@@ -304,14 +304,6 @@ export default function TopicDetailPage() {
             Bloom Level Breakdown
           </button>
           <button
-            onClick={() => setActiveTab('calibration')}
-            className={`neuro-btn px-6 py-3 whitespace-nowrap ${
-              activeTab === 'calibration' ? 'text-blue-400' : 'text-gray-400'
-            }`}
-          >
-            Confidence Calibration
-          </button>
-          <button
             onClick={() => setActiveTab('spaced_repetition')}
             className={`neuro-btn px-6 py-3 whitespace-nowrap ${
               activeTab === 'spaced_repetition' ? 'text-blue-400' : 'text-gray-400'
@@ -458,53 +450,6 @@ export default function TopicDetailPage() {
             })}
           </div>
         </div>
-        )}
-
-        {/* Calibration Info */}
-        {activeTab === 'calibration' && topicDetail.total_attempts > 0 && (
-          <div className="neuro-card p-6">
-            <h3 className="text-lg font-semibold text-gray-200 mb-4">Confidence Calibration</h3>
-            <div className="flex items-center gap-4">
-              <div className="flex-1">
-                <div className="neuro-inset rounded-full h-4 overflow-hidden relative bg-gray-800/30">
-                  <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gray-600" />
-                  <div
-                    className={`absolute top-0 bottom-0 ${
-                      topicDetail.confidence_calibration_error <= 0.2 ? 'bg-green-400' :
-                      topicDetail.confidence_calibration_error <= 0.4 ? 'bg-yellow-400' :
-                      'bg-red-400'
-                    }`}
-                    style={{
-                      left: topicDetail.confidence_calibration_error >= 0 ? '50%' : `${50 - (Math.abs(topicDetail.confidence_calibration_error) * 50)}%`,
-                      width: `${Math.abs(topicDetail.confidence_calibration_error) * 50}%`
-                    }}
-                  />
-                </div>
-                <div className="flex justify-between text-xs text-gray-600 mt-2">
-                  <span>Under-confident</span>
-                  <span>Perfect</span>
-                  <span>Over-confident</span>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className={`text-3xl font-bold ${
-                  topicDetail.confidence_calibration_error <= 0.2 ? 'text-green-400' :
-                  topicDetail.confidence_calibration_error <= 0.4 ? 'text-yellow-400' :
-                  'text-red-400'
-                }`}>
-                  {(topicDetail.confidence_calibration_error * 100).toFixed(1)}
-                </div>
-                <div className="text-xs text-gray-500">error %</div>
-              </div>
-            </div>
-            <p className="text-sm text-gray-500 mt-4">
-              {topicDetail.confidence_calibration_error <= 0.2
-                ? 'Well-calibrated! Your confidence matches your actual performance.'
-                : topicDetail.confidence_calibration_error <= 0.4
-                ? 'Moderate calibration. Try to be more accurate in assessing your knowledge.'
-                : 'Poor calibration. Your confidence significantly differs from your actual performance.'}
-            </p>
-          </div>
         )}
 
         {/* Spaced Repetition */}
