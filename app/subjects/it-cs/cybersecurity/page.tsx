@@ -267,8 +267,8 @@ export default function CybersecurityPage() {
       <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex justify-between items-center gap-3">
           <div className="flex items-center gap-3">
-            <div className="neuro-inset w-20 h-20 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Image src="/icon.svg" width={64} height={64} alt="Axium Logo" className="w-16 h-16" />
+            <div className="neuro-inset w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Image src="/icon.svg" width={40} height={40} alt="Axium Logo" className="w-10 h-10" />
             </div>
             <h1 className="text-2xl font-bold text-red-400 truncate">
               Cybersecurity
