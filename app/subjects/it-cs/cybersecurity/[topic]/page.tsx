@@ -550,7 +550,7 @@ export default function TopicDetailPage() {
                             </span>
                             <span className="text-gray-600">•</span>
                             <span className="text-purple-400">
-                              {dimension?.icon} {dimension?.name}
+                              {dimension?.name}
                             </span>
                             <span className="text-gray-600">•</span>
                             <span className="text-gray-500 capitalize">
