@@ -94,6 +94,7 @@ export async function POST(request: NextRequest) {
     // Generate question using xAI Grok
     const question = await generateQuestion(
       selection.topicName,
+      topicHierarchy?.description || null,
       selection.bloomLevel,
       context,
       recommendedFormat,
@@ -377,6 +378,7 @@ function getDefaultFormatForBloomLevel(bloomLevel: number): string {
  */
 async function generateQuestion(
   topicName: string,
+  topicDescription: string | null,
   bloomLevel: number,
   context: string,
   questionFormat: string,
@@ -444,9 +446,21 @@ This is a cybersecurity/security topic. Your question MUST:
 `
   }
 
+  // Build topic definition section
+  const topicDefinition = topicDescription
+    ? `**Topic Definition:**
+${topicDescription}
+
+⚠️ **CRITICAL:** Your question MUST be based on this exact definition. Do NOT assume or infer what "${topicName}" means - use ONLY the definition provided above.`
+    : `**Topic:** ${topicName}
+
+⚠️ **WARNING:** No topic description provided. Generate questions based on the learning context below.`
+
   const prompt = `You are an expert educator creating questions based on Bloom's Taxonomy.
 
-**Topic:** ${topicName}
+**Topic Name:** ${topicName}
+${topicDefinition}
+
 **Bloom Level:** ${bloomLevel} - ${bloom.name}
 **Action Verbs:** ${bloom.verbs}
 **Question Format:** ${questionFormat}
@@ -466,18 +480,19 @@ Your question should specifically target this cognitive dimension while maintain
 ${formatInstruction}
 
 **CRITICAL REQUIREMENTS:**
-1. **Parse the Learning Context:** Extract key concepts, details, and specifics from the context above
-2. **Use Specific Details:** Your question MUST reference at least one specific detail from the context
-3. **Test at Bloom Level ${bloomLevel} (${bloom.name}):** Use one of these verbs: ${bloom.verbs}
-4. **Avoid Vague/Ambiguous Terms:**
+1. **MANDATORY: Use Topic Definition:** ${topicDescription ? 'Your question MUST test the concept defined in the "Topic Definition" above. Do NOT create questions based on what you think the topic name means.' : 'Use the learning context to understand the topic.'}
+2. **Validate Topic Alignment:** Before finalizing, ask yourself: "Does this question test the EXACT concept described in the topic definition?" If NO, revise the question.
+3. **Parse the Learning Context:** Extract key concepts, details, and specifics from the context above
+4. **Use Specific Details:** Your question MUST reference at least one specific detail from the ${topicDescription ? 'topic definition or' : ''} context
+5. **Test at Bloom Level ${bloomLevel} (${bloom.name}):** Use one of these verbs: ${bloom.verbs}
+6. **Avoid Vague/Ambiguous Terms:**
    - ✅ "What is X?" is GOOD when X is crystal clear (e.g., "What is encryption?", "What is AES?")
    - ❌ "What is X?" is BAD when X is vague/ambiguous (e.g., "What is cloud access?" could mean many things)
    - ✅ For vague terms: Disambiguate using context (e.g., "What security risk do cloud access network vectors pose?")
-5. **Domain Anchoring:** Ensure the question is clearly anchored to the topic's domain (e.g., cybersecurity, physics, biology)
-6. **Validate Alignment:** The question should test understanding of the SPECIFIC details provided, not general knowledge
-7. **Clear and Unambiguous:** ONE definitive correct answer (or multiple for mcq_multi)
-8. **Detailed Explanation:** Explain WHY the correct answer is right using clear reasoning
-9. **Return ONLY valid JSON:** No additional text or markdown
+7. **Domain Anchoring:** Ensure the question is clearly anchored to the topic's domain (e.g., cybersecurity, physics, biology)
+8. **Clear and Unambiguous:** ONE definitive correct answer (or multiple for mcq_multi)
+9. **Detailed Explanation:** Explain WHY the correct answer is right using clear reasoning
+10. **Return ONLY valid JSON:** No additional text or markdown
 
 **❌ NEVER reference source materials in questions OR explanations:**
 - Do NOT include "in the context of [source]" (e.g., "CompTIA Security+ SY0-701")
@@ -489,11 +504,13 @@ ${formatInstruction}
 
 **✅ QUESTION QUALITY CHECKLIST:**
 Before finalizing your question, verify:
-- [ ] Does this question reference SPECIFIC details from the learning context?
+${topicDescription ? `- [ ] Does this question test the EXACT concept from the Topic Definition (not what I think "${topicName}" means)?` : ''}
+- [ ] Does this question reference SPECIFIC details from the ${topicDescription ? 'topic definition or' : ''} learning context?
 - [ ] Is this question anchored to the topic's domain (not overly generic)?
 - [ ] Does this test Bloom Level ${bloomLevel} (${bloom.name})?
 - [ ] Would a student need to understand the topic's SPECIFIC details to answer correctly?
-- [ ] Is the correct answer clearly supported by the learning context?
+- [ ] Is the correct answer clearly supported by the ${topicDescription ? 'topic definition and' : ''} learning context?
+${topicDescription ? `- [ ] If the topic name is vague (like "Local"), did I use the definition to clarify what it means?` : ''}
 
 Generate the question now:`
 
