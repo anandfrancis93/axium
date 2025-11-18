@@ -33,8 +33,8 @@ export default function HamburgerMenu() {
     if (user) {
       // Try to get full name from user metadata (Google OAuth provides this)
       const fullName = user.user_metadata?.full_name ||
-                       user.user_metadata?.name ||
-                       `${user.user_metadata?.given_name || ''} ${user.user_metadata?.family_name || ''}`.trim()
+        user.user_metadata?.name ||
+        `${user.user_metadata?.given_name || ''} ${user.user_metadata?.family_name || ''}`.trim()
 
       setUserName(fullName || user.email?.split('@')[0] || 'User')
     }
@@ -47,41 +47,62 @@ export default function HamburgerMenu() {
   }
 
   return (
-    <div ref={menuRef} className="relative">
-      {/* Hamburger Button */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="neuro-btn p-3 flex items-center gap-2"
-        aria-label="Menu"
-      >
-        <MenuIcon size={20} className="text-gray-400" />
-      </button>
-
-      {/* Dropdown Menu */}
+  return (
+    <div className="relative z-50">
+      {/* Backdrop */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 neuro-card z-50">
-          {/* User Info */}
-          <div className="neuro-inset p-4 rounded-lg mb-3 flex items-center gap-3">
-            <div className="neuro-inset w-10 h-10 rounded-full flex items-center justify-center">
-              <UserIcon size={18} className="text-blue-400" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-gray-200 truncate">
-                {userName}
+        <div
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 animate-fade-in"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      <div ref={menuRef} className="relative z-50">
+        {/* Hamburger Button */}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className={`neuro-btn p-3 flex items-center gap-2 transition-all duration-200 ${isOpen ? 'bg-white/5 text-blue-400' : 'text-gray-400'}`}
+          aria-label="Menu"
+        >
+          <MenuIcon size={20} />
+        </button>
+
+        {/* Dropdown Menu */}
+        {isOpen && (
+          <div className="absolute right-0 mt-3 w-72 neuro-card origin-top-right animate-scale-in overflow-hidden shadow-2xl ring-1 ring-white/10">
+            {/* User Info */}
+            <div className="p-4 border-b border-white/5 bg-white/5">
+              <div className="flex items-center gap-3">
+                <div className="neuro-inset w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0">
+                  <UserIcon size={18} className="text-blue-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-bold text-gray-200 truncate">
+                    {userName}
+                  </div>
+                  <div className="text-xs text-gray-500 truncate">
+                    Signed in
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Sign Out Button */}
-          <button
-            onClick={handleSignOut}
-            className="neuro-btn w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:text-red-300 transition-colors"
-          >
-            <LogOutIcon size={18} />
-            <span>Sign Out</span>
-          </button>
-        </div>
-      )}
+            {/* Menu Items */}
+            <div className="p-2">
+              <button
+                onClick={handleSignOut}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all group"
+              >
+                <div className="p-2 rounded-lg bg-red-500/10 group-hover:bg-red-500/20 transition-colors">
+                  <LogOutIcon size={18} />
+                </div>
+                <span className="font-medium">Sign Out</span>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
+  )
   )
 }
