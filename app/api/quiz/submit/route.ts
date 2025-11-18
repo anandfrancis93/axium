@@ -68,35 +68,6 @@ export async function POST(request: NextRequest) {
     // Store the response (use topicId from submission for on-the-fly questions)
     const responseTopicId = topicId || question.topic_id
 
-    // Deduplication: Check for recent identical submissions (within 10 minutes)
-    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString()
-    const { data: recentResponse } = await supabase
-      .from('user_responses')
-      .select('id, created_at')
-      .eq('user_id', user.id)
-      .eq('question_id', questionId)
-      .eq('topic_id', responseTopicId)
-      .gte('created_at', tenMinutesAgo)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single()
-
-    if (recentResponse) {
-      console.warn('[Deduplication] Duplicate submission detected:', {
-        existingResponseId: recentResponse.id,
-        existingCreatedAt: recentResponse.created_at,
-        questionId
-      })
-      return NextResponse.json(
-        {
-          error: 'Duplicate submission detected',
-          details: 'You already answered this question recently. Please continue to the next question.',
-          isDuplicate: true
-        },
-        { status: 400 }
-      )
-    }
-
     console.log('Attempting to insert response:', {
       user_id: user.id,
       question_id: questionId,
