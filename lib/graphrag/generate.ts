@@ -188,7 +188,7 @@ function parseClaudeResponse(responseText: string, format: QuestionFormat): any 
     // Check for overly short options (likely too vague/generic)
     const shortOptions = parsed.options
       .map((opt: string, idx: number) => ({ opt, idx, len: optionLengths[idx] }))
-      .filter(({ len }) => len < 30)
+      .filter(({ len }: { opt: string; idx: number; len: number }) => len < 30)
 
     if (shortOptions.length > 0) {
       const details = shortOptions.map(({ opt, idx, len }) =>
