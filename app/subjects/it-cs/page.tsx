@@ -55,7 +55,7 @@ export default async function ITCSPage() {
               <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
               <div className="relative flex flex-col items-center text-center space-y-4">
                 <div className="neuro-raised w-20 h-20 rounded-2xl flex items-center justify-center group-hover:text-blue-400 transition-colors duration-300">
-                  <ShieldIcon size={40} className="text-red-400 group-hover:scale-110 transition-transform duration-300" />
+                  <ShieldIcon size={40} className="text-red-400 group-hover:scale-110 transition-transform duration-300" withShadow />
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-gray-100 group-hover:text-blue-400 transition-colors">Cybersecurity</h3>
