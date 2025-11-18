@@ -234,3 +234,38 @@ export function getCoverageForLevel(
 ): CognitiveDimension[] {
   return coverageByLevel[bloomLevel.toString()] || []
 }
+
+/**
+ * Check if a topic+Bloom level should start with "What" dimension
+ * Returns true if the user has never practiced this topic at this Bloom level
+ *
+ * @param coverageByLevel - User's dimension coverage
+ * @param bloomLevel - Current Bloom level
+ * @returns true if should start with "What", false otherwise
+ */
+export function shouldStartWithWhat(
+  coverageByLevel: DimensionCoverageByLevel,
+  bloomLevel: number
+): boolean {
+  const covered = getCoverageForLevel(coverageByLevel, bloomLevel)
+  return covered.length === 0
+}
+
+/**
+ * Get the dimension to use for a topic, enforcing "What first" rule
+ *
+ * @param coverageByLevel - User's dimension coverage
+ * @param bloomLevel - Current Bloom level
+ * @param requestedDimension - The dimension that was requested (e.g., from round-robin)
+ * @returns Dimension to use (WHAT if enforcing rule, otherwise requested dimension)
+ */
+export function enforceDimensionRule(
+  coverageByLevel: DimensionCoverageByLevel,
+  bloomLevel: number,
+  requestedDimension: CognitiveDimension
+): CognitiveDimension {
+  if (shouldStartWithWhat(coverageByLevel, bloomLevel)) {
+    return CognitiveDimension.WHAT
+  }
+  return requestedDimension
+}
