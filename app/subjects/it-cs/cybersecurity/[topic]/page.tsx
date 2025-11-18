@@ -326,7 +326,7 @@ export default function TopicDetailPage() {
           </button>
           <div className="flex items-center gap-3 flex-1">
             <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Image src="/icon.svg" width={28} height={28} alt="Axium Logo" className="w-7 h-7" />
+              <Image src="/icon.svg" width={36} height={36} alt="Axium Logo" className="w-9 h-9" />
             </div>
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl font-bold text-gray-200 truncate">
