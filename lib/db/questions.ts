@@ -10,6 +10,7 @@ export interface QuestionData {
   topic_id: string
   bloom_level: number
   question_format: string
+  cognitive_dimension?: string
   question_text: string
   options?: string[]
   correct_answer: string | string[]  // Can be string or array
@@ -43,6 +44,7 @@ export async function saveQuestion(question: QuestionData) {
         question_text: question.question_text,
         question_type: question.question_format, // Map to old schema field
         question_format: question.question_format, // New schema field
+        cognitive_dimension: question.cognitive_dimension || null,
         options: question.options || null,
         correct_answer: correctAnswer,
         correct_answers: correctAnswers,
@@ -91,6 +93,7 @@ export async function saveQuestions(questions: QuestionData[]) {
         question_text: q.question_text,
         question_type: q.question_format,
         question_format: q.question_format,
+        cognitive_dimension: q.cognitive_dimension || null,
         options: q.options || null,
         correct_answer: correctAnswer,
         correct_answers: correctAnswers,
