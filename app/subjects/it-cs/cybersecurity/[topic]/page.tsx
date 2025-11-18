@@ -325,8 +325,8 @@ export default function TopicDetailPage() {
             <ArrowLeftIcon size={20} />
           </button>
           <div className="flex items-center gap-3 flex-1">
-            <div className="neuro-inset w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Image src="/icon.svg" width={48} height={48} alt="Axium Logo" className="w-12 h-12" />
+            <div className="neuro-inset w-20 h-20 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Image src="/icon.svg" width={64} height={64} alt="Axium Logo" className="w-16 h-16" />
             </div>
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl font-bold text-gray-200 truncate">
