@@ -8,6 +8,7 @@ import Modal from '@/components/Modal'
 import { createClient } from '@/lib/supabase/client'
 import LearningCurveChart from '@/components/LearningCurveChart'
 
+
 interface TopicProgress {
   topic_id: string
   topic_name: string
@@ -22,15 +23,11 @@ interface TopicProgress {
   recent_responses: { attempt: number; score: number; isCorrect: boolean }[]
 }
 
-interface GlobalProgress {
-  calibration_slope: number | null
-  calibration_stddev: number | null
-  recent_responses: { attempt: number; score: number; isCorrect: boolean }[]
-}
+
 
 export default function CybersecurityPage() {
   const [topicsProgress, setTopicsProgress] = useState<TopicProgress[]>([])
-  const [globalProgress, setGlobalProgress] = useState<GlobalProgress | null>(null)
+
   const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading] = useState(true)
   const [resetting, setResetting] = useState(false)
@@ -152,46 +149,7 @@ export default function CybersecurityPage() {
 
       setTopicsProgress(cybersecurityTopics)
 
-      // Fetch Global Progress
-      const { data: globalData, error: globalError } = await supabase
-        .from('user_global_progress')
-        .select('calibration_slope, calibration_stddev')
-        .eq('user_id', user.id)
-        .single()
 
-      if (globalError && globalError.code !== 'PGRST116') { // Ignore not found error
-        console.error('Error fetching global progress:', globalError)
-      }
-
-      // Fetch global recent responses
-      const { data: globalResponsesData, error: globalResponsesError } = await supabase
-        .from('user_responses')
-        .select('calibration_score, is_correct, created_at')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(50)
-
-      if (globalResponsesError) {
-        console.error('Error fetching global responses:', globalResponsesError)
-      }
-
-      let globalResponses: { attempt: number; score: number; isCorrect: boolean }[] = []
-      if (globalResponsesData && globalResponsesData.length > 0) {
-        const chronological = [...globalResponsesData].reverse()
-        globalResponses = chronological.map((r, i) => ({
-          attempt: i + 1,
-          score: r.calibration_score !== null ? Number(r.calibration_score) : (r.is_correct ? 1.0 : -1.0),
-          isCorrect: r.is_correct
-        }))
-      }
-
-      if (globalData || globalResponses.length > 0) {
-        setGlobalProgress({
-          calibration_slope: globalData?.calibration_slope ?? null,
-          calibration_stddev: globalData?.calibration_stddev ?? null,
-          recent_responses: globalResponses
-        })
-      }
     } catch (error) {
       console.error('Error in fetchTopicsProgress:', error)
     } finally {
@@ -548,44 +506,7 @@ export default function CybersecurityPage() {
           )}
 
 
-          {/* Overall Learning Curve */}
-          {!loading && globalProgress && globalProgress.recent_responses.length > 1 && (
-            <div className="neuro-card p-6 mt-6">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-200">Overall Learning Curve</h3>
-                  <p className="text-sm text-gray-500">Your performance trend across all topics</p>
-                </div>
-                <div className="flex gap-4 text-sm">
-                  <div className="flex flex-col items-end">
-                    <span className="text-gray-500">Slope</span>
-                    <span className={`font-mono font-bold ${(globalProgress.calibration_slope || 0) > 0 ? 'text-green-400' : 'text-gray-300'
-                      }`}>
-                      {(globalProgress.calibration_slope || 0) > 0 ? '+' : ''}
-                      {(globalProgress.calibration_slope || 0).toFixed(4)}
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-end">
-                    <span className="text-gray-500">Consistency</span>
-                    <span className="font-mono font-bold text-blue-400">
-                      ±{(globalProgress.calibration_stddev || 0).toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-              </div>
 
-              <div className="h-64 w-full">
-                <LearningCurveChart
-                  data={globalProgress.recent_responses}
-                  slope={globalProgress.calibration_slope}
-                  intercept={null}
-                  stddev={globalProgress.calibration_stddev}
-                  height={256}
-                  sparkline={false}
-                />
-              </div>
-            </div>
-          )}
         </div>
       </main>
 
