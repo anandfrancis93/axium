@@ -494,11 +494,14 @@ function LearnPageContent() {
               </h2>
 
               {/* Answer Options with Result */}
-              {(currentQuestion.question_format === 'mcq_single' || currentQuestion.question_format === 'mcq_multi') && currentQuestion.options && (
+              {(currentQuestion.question_format === 'mcq_single' || currentQuestion.question_format === 'mcq_multi' || currentQuestion.question_format === 'fill_blank') && currentQuestion.options && (
                 <div className="space-y-3">
                   {currentQuestion.options.map((option, idx) => {
                     const optionLetter = String.fromCharCode(65 + idx) // A, B, C, D...
-                    const optionWithLetter = `${optionLetter}. ${option}` // Match what's sent to API
+                    // For fill_blank, don't add letter prefix
+                    const optionWithLetter = currentQuestion.question_format === 'fill_blank'
+                      ? option
+                      : `${optionLetter}. ${option}` // Match what's sent to API
 
                     const isUserAnswer = Array.isArray(userAnswer)
                       ? userAnswer.includes(optionWithLetter)
@@ -611,8 +614,8 @@ function LearnPageContent() {
                 </div>
               )}
 
-              {/* Fill in the Blank / Open Ended Answer with Result */}
-              {(currentQuestion.question_format === 'fill_blank' || currentQuestion.question_format === 'open_ended') && (
+              {/* Open Ended Answer with Result */}
+              {currentQuestion.question_format === 'open_ended' && (
                 <div className="space-y-4">
                   <div className="neuro-inset p-4 rounded-lg">
                     <div className="text-sm text-gray-500 mb-2">Your answer:</div>
