@@ -365,14 +365,13 @@ c) Keyword Avoidance (Giveaways): The correct answer MUST NOT appear in the ques
    ✅ GOOD: "A security professional hired to test systems is called?" Answer: "Authorized/White Hat"
    CRITICAL: Check if the answer word exists in your generated question. If yes, REWRITE the question.
 
-d) Balanced Technical Depth: All options must be equally professional and technical
-   ❌ BAD: A) "Hardware security module providing cryptographic key management" B) "A thing" C) "Something" D) "IDK"
-   ✅ GOOD: All options are specific, technical terms from the same category
-
-e) Subtle Incorrectness & Concept Proximity: Wrong answers must be related concepts that are easily confused, not just random terms from the same field.
-   ❌ BAD (Too easy): Q: "What is Phishing?" Distractors: "Firewall", "Encryption", "Backup" (All security terms, but clearly not social engineering)
-   ✅ GOOD (Subtly wrong): Q: "What is Phishing?" Distractors: "Vishing" (Voice phishing), "Whaling" (Targeted phishing), "Spam" (Unsolicited mail) - These are all related to social engineering/email attacks, requiring precise knowledge to distinguish.
-   CRITICAL: Distractors should represent common misconceptions or related but distinct concepts (e.g., confusing Authentication with Authorization).
+SELF-CORRECTION STEP (Perform this internally before outputting):
+1. Check lengths: Is one option significantly longer (>20 chars) than the others?
+   -> IF YES: Rewrite the short options to be more detailed, OR shorten the long option.
+2. Check giveaways: Does the question contain the answer word?
+   -> IF YES: Rewrite the question.
+3. Check distractors: Are they plausible concepts?
+   -> IF NO: Replace with better related terms.
 
 FORMAT YOUR RESPONSE AS VALID JSON:
 {
