@@ -113,7 +113,7 @@ export async function findTopicsWithUncoveredDimensions(
   }
 
   // Filter topics that have uncovered dimensions at their current Bloom level
-  const topicsWithUncovered = data.filter(progress => {
+  const topicsWithUncovered = data.filter((progress: any) => {
     const currentLevel = progress.current_bloom_level
     const coverage = progress.dimension_coverage || {}
     const coveredDimensions = coverage[currentLevel] || []

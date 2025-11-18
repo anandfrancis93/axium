@@ -11,8 +11,18 @@ import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { selectNextTopic } from '@/lib/progression/rl-topic-selector'
 import OpenAI from 'openai'
-import { saveQuestion } from '@/lib/db/questions'
 import { getRecommendedFormats } from '@/lib/graphrag/prompts'
+import { getNextQuestionPosition, determineQuestionType } from '@/lib/utils/question-selection'
+import {
+  fetchDueSpacedRepetitionQuestions,
+  findTopicsWithUncoveredDimensions,
+  selectNextUncoveredDimension
+} from '@/lib/utils/spaced-repetition-selection'
+import {
+  parseDimensionCoverage,
+  enforceDimensionRule,
+  CognitiveDimension
+} from '@/lib/utils/cognitive-dimensions'
 
 // Initialize xAI client
 const xai = new OpenAI({
@@ -37,119 +47,30 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { subject } = body
 
-    // RL selects the optimal topic and Bloom level
-    // Filter by subject if provided (e.g., 'cybersecurity', 'physics')
-    let selection
-    try {
-      selection = await selectNextTopic(user.id, subject)
-    } catch (selectionError) {
-      console.error('Error in RL selection:', selectionError)
-      return NextResponse.json(
-        {
-          error: 'No topics available',
-          details: selectionError instanceof Error ? selectionError.message : 'Please upload learning materials first.',
-          action: 'Please go to Admin > GraphRAG to upload learning content for topics.'
-        },
-        { status: 400 }
-      )
+    // ============================================================
+    // 7-2-1 SPLIT PATTERN
+    // Position 1-7: New topics (RL selection)
+    // Position 8-9: Spaced repetition → fallback to new topic
+    // Position 10: Dimension practice → fallback to new topic
+    // ============================================================
+
+    // Determine current position in 10-question cycle
+    const position = await getNextQuestionPosition(supabase, user.id)
+    const questionInfo = determineQuestionType(position)
+
+    console.log(`[7-2-1 Pattern] Position ${position}/10: ${questionInfo.type}`)
+
+    // Route to appropriate handler based on position
+    if (questionInfo.type === 'spaced_repetition') {
+      // Position 8-9: Try spaced repetition, fallback to new topic
+      return await handleSpacedRepetitionQuestion(supabase, user, subject)
+    } else if (questionInfo.type === 'dimension_practice') {
+      // Position 10: Try dimension practice, fallback to new topic
+      return await handleDimensionPracticeQuestion(supabase, user, subject)
+    } else {
+      // Position 1-7: New topic (RL selection)
+      return await handleNewTopicQuestion(supabase, user, subject)
     }
-
-    console.log('[RL Selection]', {
-      topic: selection.topicName,
-      bloomLevel: selection.bloomLevel,
-      reason: selection.selectionReason,
-      priority: selection.priority
-    })
-
-    // Fetch topic hierarchy for display
-    const { data: topicHierarchy } = await supabase
-      .from('topics')
-      .select('name, description, hierarchy_level, parent_topic_id, subject_id, subjects(name)')
-      .eq('id', selection.topicId)
-      .single()
-
-    // Fetch parent learning objective if this is a topic (level 3+)
-    let learningObjective = null
-    if (topicHierarchy?.parent_topic_id) {
-      const { data: parentData } = await supabase
-        .from('topics')
-        .select('name, hierarchy_level')
-        .eq('id', topicHierarchy.parent_topic_id)
-        .single()
-
-      if (parentData && parentData.hierarchy_level === 2) {
-        learningObjective = parentData.name
-      }
-    }
-
-    // Fetch mastery-aware knowledge graph context for the selected topic
-    const context = await fetchKnowledgeContext(supabase, user.id, selection.topicId, selection.topicName)
-
-    // Select format using round robin (cycles through recommended formats for this Bloom level)
-    const recommendedFormat = await getNextFormatRoundRobin(supabase, user.id, selection.topicId, selection.bloomLevel)
-
-    // Select cognitive dimension (prioritize uncovered dimensions)
-    const selectedDimension = await selectCognitiveDimension(supabase, user.id, selection.topicId, selection.bloomLevel)
-
-    // Generate question using xAI Grok
-    const question = await generateQuestion(
-      selection.topicName,
-      topicHierarchy?.description || null,
-      selection.bloomLevel,
-      context,
-      recommendedFormat,
-      selectedDimension
-    )
-
-    // Add metadata to question and map field names
-    const enrichedQuestion = {
-      ...question,
-      id: crypto.randomUUID(), // Generate proper UUID for database compatibility
-      topic_id: selection.topicId,
-      topic_name: selection.topicName,
-      bloom_level: selection.bloomLevel,
-      selection_reason: selection.selectionReason,
-      selection_priority: selection.priority,
-      selection_method: selection.selectionMethod,
-      question_format: recommendedFormat,
-      cognitive_dimension: selectedDimension,
-      // Map 'question' field to 'question_text' for consistency with QuizQuestion type
-      question_text: question.question || question.question_text,
-      // Add hierarchy for display
-      hierarchy: topicHierarchy ? {
-        subject: (topicHierarchy.subjects as any)?.name || null,
-        chapter: null, // No chapters anymore
-        topic: topicHierarchy.name, // Actual topic name (no cleaning needed - it's a real topic now)
-        learningObjective: learningObjective, // Parent learning objective (## level)
-        hierarchyLevel: topicHierarchy.hierarchy_level,
-        description: topicHierarchy.description || null
-      } : null
-    }
-
-    // Save generated question to database for future spaced repetition
-    await saveQuestion({
-      id: enrichedQuestion.id,
-      topic_id: selection.topicId,
-      bloom_level: selection.bloomLevel,
-      question_format: recommendedFormat,
-      cognitive_dimension: selectedDimension,
-      question_text: enrichedQuestion.question_text,
-      options: enrichedQuestion.options,
-      correct_answer: enrichedQuestion.correct_answer,
-      explanation: enrichedQuestion.explanation,
-      rag_context: context || undefined,
-      source_type: 'ai_generated_realtime',
-      model: 'grok-4-fast-reasoning'
-    })
-
-    return NextResponse.json({
-      success: true,
-      question: enrichedQuestion,
-      metadata: {
-        selectionReason: selection.selectionReason,
-        priority: selection.priority
-      }
-    })
 
   } catch (error) {
     console.error('Error generating next question:', error)
@@ -158,6 +79,260 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
+}
+
+/**
+ * Position 8-9: Spaced Repetition
+ * Returns exact saved question with exact options
+ * Fallback: New topic selection if no questions due
+ */
+async function handleSpacedRepetitionQuestion(
+  supabase: any,
+  user: any,
+  subject?: string
+): Promise<NextResponse> {
+  console.log('[Spaced Repetition] Fetching due questions...')
+
+  // Fetch questions due for review
+  const dueQuestions = await fetchDueSpacedRepetitionQuestions(
+    supabase,
+    user.id,
+    subject,
+    10
+  )
+
+  if (dueQuestions.length === 0) {
+    console.log('[Spaced Repetition] No questions due, falling back to new topic')
+    return await handleNewTopicQuestion(supabase, user, subject)
+  }
+
+  // Return the first due question (already contains all metadata)
+  const question = dueQuestions[0]
+
+  console.log(`[Spaced Repetition] Returning saved question for topic: ${question.topics.name}`)
+
+  return NextResponse.json({
+    success: true,
+    question: {
+      id: question.id,
+      topic_id: question.topic_id,
+      topic_name: question.topics.name,
+      bloom_level: question.bloom_level,
+      question_format: question.question_format,
+      cognitive_dimension: question.cognitive_dimension,
+      question_text: question.question_text,
+      options: question.options,
+      correct_answer: question.correct_answer,
+      explanation: question.explanation,
+      selection_reason: 'Spaced repetition review',
+      selection_method: 'spaced_repetition'
+    },
+    metadata: {
+      selectionReason: 'Spaced repetition review',
+      questionType: 'spaced_repetition'
+    }
+  })
+}
+
+/**
+ * Position 10: Dimension Practice
+ * Selects topic with uncovered dimensions, generates question for next dimension
+ * Fallback: New topic if all dimensions covered
+ */
+async function handleDimensionPracticeQuestion(
+  supabase: any,
+  user: any,
+  subject?: string
+): Promise<NextResponse> {
+  console.log('[Dimension Practice] Finding topics with uncovered dimensions...')
+
+  // Find topics with uncovered dimensions
+  const topicsWithUncovered = await findTopicsWithUncoveredDimensions(
+    supabase,
+    user.id,
+    subject
+  )
+
+  if (topicsWithUncovered.length === 0) {
+    console.log('[Dimension Practice] No uncovered dimensions found, falling back to new topic')
+    return await handleNewTopicQuestion(supabase, user, subject)
+  }
+
+  // Select first topic with uncovered dimensions
+  const selectedProgress = topicsWithUncovered[0]
+  const topicId = selectedProgress.topic_id
+  const bloomLevel = selectedProgress.current_bloom_level
+  const topic = selectedProgress.topics
+
+  // Select next uncovered dimension
+  const nextDimension = selectNextUncoveredDimension(
+    selectedProgress.dimension_coverage || {},
+    bloomLevel
+  )
+
+  console.log(`[Dimension Practice] Topic: ${topic.name}, Bloom: ${bloomLevel}, Dimension: ${nextDimension}`)
+
+  // Fetch context and generate question
+  const context = await fetchKnowledgeContext(supabase, user.id, topicId, topic.name)
+  const questionFormat = await getNextFormatRoundRobin(supabase, user.id, topicId, bloomLevel)
+
+  const question = await generateQuestion(
+    topic.name,
+    topic.description || null,
+    bloomLevel,
+    context,
+    questionFormat,
+    nextDimension
+  )
+
+  // Build enriched question
+  const enrichedQuestion = {
+    ...question,
+    id: crypto.randomUUID(),
+    topic_id: topicId,
+    topic_name: topic.name,
+    bloom_level: bloomLevel,
+    selection_reason: `Dimension practice: ${nextDimension}`,
+    selection_method: 'dimension_practice',
+    question_format: questionFormat,
+    cognitive_dimension: nextDimension,
+    question_text: question.question || question.question_text
+  }
+
+  return NextResponse.json({
+    success: true,
+    question: enrichedQuestion,
+    metadata: {
+      selectionReason: enrichedQuestion.selection_reason,
+      questionType: 'dimension_practice'
+    }
+  })
+}
+
+/**
+ * Position 1-7: New Topic Selection
+ * Uses RL selection with "What first" enforcement
+ */
+async function handleNewTopicQuestion(
+  supabase: any,
+  user: any,
+  subject?: string
+): Promise<NextResponse> {
+  // RL selects the optimal topic and Bloom level
+  let selection
+  try {
+    selection = await selectNextTopic(user.id, subject)
+  } catch (selectionError) {
+    console.error('Error in RL selection:', selectionError)
+    return NextResponse.json(
+      {
+        error: 'No topics available',
+        details: selectionError instanceof Error ? selectionError.message : 'Please upload learning materials first.',
+        action: 'Please go to Admin > GraphRAG to upload learning content for topics.'
+      },
+      { status: 400 }
+    )
+  }
+
+  console.log('[RL Selection]', {
+    topic: selection.topicName,
+    bloomLevel: selection.bloomLevel,
+    reason: selection.selectionReason,
+    priority: selection.priority
+  })
+
+  // Fetch topic hierarchy for display
+  const { data: topicHierarchy } = await supabase
+    .from('topics')
+    .select('name, description, hierarchy_level, parent_topic_id, subject_id, subjects(name)')
+    .eq('id', selection.topicId)
+    .single()
+
+  // Fetch parent learning objective if this is a topic (level 3+)
+  let learningObjective = null
+  if (topicHierarchy?.parent_topic_id) {
+    const { data: parentData } = await supabase
+      .from('topics')
+      .select('name, hierarchy_level')
+      .eq('id', topicHierarchy.parent_topic_id)
+      .single()
+
+    if (parentData && parentData.hierarchy_level === 2) {
+      learningObjective = parentData.name
+    }
+  }
+
+  // Fetch mastery-aware knowledge graph context
+  const context = await fetchKnowledgeContext(supabase, user.id, selection.topicId, selection.topicName)
+
+  // Select format using round robin
+  const recommendedFormat = await getNextFormatRoundRobin(supabase, user.id, selection.topicId, selection.bloomLevel)
+
+  // Select cognitive dimension (prioritize uncovered dimensions)
+  let selectedDimension = await selectCognitiveDimension(supabase, user.id, selection.topicId, selection.bloomLevel)
+
+  // ============================================================
+  // ENFORCE "WHAT FIRST" RULE
+  // If user has never practiced this topic at this Bloom level,
+  // force first question to be "What" dimension
+  // ============================================================
+  const { data: progress } = await supabase
+    .from('user_progress')
+    .select('dimension_coverage')
+    .eq('user_id', user.id)
+    .eq('topic_id', selection.topicId)
+    .single()
+
+  const coverageByLevel = parseDimensionCoverage(progress?.dimension_coverage || {})
+  selectedDimension = enforceDimensionRule(
+    coverageByLevel,
+    selection.bloomLevel,
+    selectedDimension as CognitiveDimension
+  )
+
+  console.log(`[What First Rule] Final dimension: ${selectedDimension}`)
+
+  // Generate question using xAI Grok
+  const question = await generateQuestion(
+    selection.topicName,
+    topicHierarchy?.description || null,
+    selection.bloomLevel,
+    context,
+    recommendedFormat,
+    selectedDimension
+  )
+
+  // Add metadata to question
+  const enrichedQuestion = {
+    ...question,
+    id: crypto.randomUUID(),
+    topic_id: selection.topicId,
+    topic_name: selection.topicName,
+    bloom_level: selection.bloomLevel,
+    selection_reason: selection.selectionReason,
+    selection_priority: selection.priority,
+    selection_method: selection.selectionMethod,
+    question_format: recommendedFormat,
+    cognitive_dimension: selectedDimension,
+    question_text: question.question || question.question_text,
+    hierarchy: topicHierarchy ? {
+      subject: (topicHierarchy.subjects as any)?.name || null,
+      chapter: null,
+      topic: topicHierarchy.name,
+      learningObjective: learningObjective,
+      hierarchyLevel: topicHierarchy.hierarchy_level,
+      description: topicHierarchy.description || null
+    } : null
+  }
+
+  return NextResponse.json({
+    success: true,
+    question: enrichedQuestion,
+    metadata: {
+      selectionReason: selection.selectionReason,
+      priority: selection.priority
+    }
+  })
 }
 
 /**
