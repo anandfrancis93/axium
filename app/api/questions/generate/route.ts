@@ -372,6 +372,9 @@ SELF-CORRECTION STEP (Perform this internally before outputting):
    -> IF YES: Rewrite the question.
 3. Check distractors: Are they plausible concepts?
    -> IF NO: Replace with better related terms.
+4. Check True/False Balance: If generating True/False questions, did you default to "True"?
+   -> IF YES: You MUST flip it to "False" by subtly altering a key fact.
+   -> AIM FOR: 60% False answers to counterbalance your natural bias towards True.
 
 FORMAT YOUR RESPONSE AS VALID JSON:
 {
