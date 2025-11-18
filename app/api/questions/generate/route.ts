@@ -95,7 +95,21 @@ const FORMAT_INSTRUCTIONS: Record<string, string> = {
   true_false: `QUESTION FORMAT: True/False
 - Provide exactly 2 options: "True" and "False"
 - The statement should be clearly true or false based on the context
-- Avoid ambiguous wording`,
+- Avoid ambiguous wording
+
+CRITICAL BALANCE REQUIREMENT:
+- RANDOMLY decide if the answer should be True or False - DO NOT default to True
+- If generating multiple questions, ensure roughly 50/50 split between True and False answers
+- Track your answers: aim for equal distribution (e.g., if you've generated 3 True, next should be False)
+
+HOW TO CREATE FALSE STATEMENTS:
+- Take a true fact from the context and subtly alter ONE key element (e.g., swap a term, reverse a relationship, change a number)
+- Make it plausible but incorrect (not obviously absurd)
+- Examples of good alterations:
+  * "Encryption ensures availability" (changed CIA triad component)
+  * "Firewalls operate at Layer 2" (changed OSI layer)
+  * "AES uses asymmetric encryption" (changed encryption type)
+- Avoid: completely made-up terms, nonsensical statements, or mixing unrelated domains`,
 
   fill_blank: `QUESTION FORMAT: Fill in the Blank
 - Create a statement with a missing key term or concept (use _____)
@@ -210,7 +224,7 @@ export async function POST(request: NextRequest) {
 
     const formatInstructions = FORMAT_INSTRUCTIONS[question_format] || FORMAT_INSTRUCTIONS.mcq_single
 
-    console.log(`Generating ${num_questions} ${question_format} question(s) for topic: "${topicFullName}" at Bloom level ${bloomLevelNum}, cognitive dimension: ${cognitive_dimension}${useGraphRAG ? ' (using GraphRAG)' : ''}`)
+
 
     // Step 1 & 2: Context Retrieval (Vector RAG or GraphRAG)
     let context = ''
@@ -218,14 +232,14 @@ export async function POST(request: NextRequest) {
 
     if (useGraphRAG) {
       // GraphRAG: Query knowledge graph for entities and relationships
-      console.log('Using GraphRAG - querying knowledge graph...')
+
       const { getGraphContextForQuestions } = await import('@/lib/graphrag/question-context')
 
       try {
         const graphContext = await getGraphContextForQuestions(chapter_id, 30)
         context = graphContext.contextText
         chunksUsed = graphContext.entities.length + graphContext.relationships.length
-        console.log(`Retrieved ${graphContext.entities.length} entities and ${graphContext.relationships.length} relationships from knowledge graph`)
+
       } catch (error) {
         console.error('Error querying knowledge graph:', error)
         return NextResponse.json(
@@ -242,7 +256,7 @@ export async function POST(request: NextRequest) {
       }
     } else {
       // Vector RAG: Generate embedding and search chunks
-      console.log('Using Vector RAG - generating topic embedding...')
+
       const embeddingStartTime = Date.now()
       const embeddingResponse = await openai.embeddings.create({
         model: 'text-embedding-3-small',
@@ -250,7 +264,7 @@ export async function POST(request: NextRequest) {
       })
       const topicEmbedding = embeddingResponse.data[0].embedding
 
-      console.log('Searching for relevant chunks...')
+
       const embeddingString = `[${topicEmbedding.join(',')}]`
 
       const { data: chunks, error: searchError } = await supabase.rpc(
@@ -271,7 +285,7 @@ export async function POST(request: NextRequest) {
         )
       }
 
-      console.log('Search results:', { chunks, chunksLength: chunks?.length })
+
 
       if (!chunks || chunks.length === 0) {
         const { count } = await supabase
@@ -288,7 +302,7 @@ export async function POST(request: NextRequest) {
         )
       }
 
-      console.log(`Found ${chunks.length} relevant chunks`)
+
 
       // Build context from chunks
       context = chunks.map((chunk: any) => chunk.content).join('\n\n---\n\n')
@@ -296,7 +310,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 3: Generate questions using AI
-    console.log('Generating questions with Claude AI...')
+
     const bloomDescription = BLOOM_LEVELS[bloomLevelNum as keyof typeof BLOOM_LEVELS]
 
     const dimensionInstructions = COGNITIVE_DIMENSIONS[cognitive_dimension]
@@ -418,7 +432,7 @@ Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other 
     }
 
     // Step 5: Return questions for preview (NOT stored in database)
-    console.log(`Successfully generated ${questionsData.questions.length} question(s) for preview (Bloom: ${bloomLevelNum}, Cognitive Dimension: ${cognitive_dimension})`)
+
 
     // Format questions for preview (add IDs for frontend display)
     const previewQuestions = questionsData.questions.map((q: any, idx: number) => ({
