@@ -51,7 +51,7 @@ export default function TopicDetailPage() {
   const [topicDetail, setTopicDetail] = useState<TopicDetail | null>(null)
   const [bloomLevels, setBloomLevels] = useState<BloomLevelDetail[]>([])
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'overview' | 'bloom' | 'calibration'>('overview')
+  const [activeTab, setActiveTab] = useState<'bloom' | 'calibration'>('bloom')
   const [expandedBloomLevel, setExpandedBloomLevel] = useState<number | null>(null)
 
   useEffect(() => {
@@ -219,12 +219,6 @@ export default function TopicDetailPage() {
     )
   }
 
-  const overallMastery = (() => {
-    const scores = Object.values(topicDetail.mastery_scores).filter(score => score > 0)
-    if (scores.length === 0) return 0
-    return Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length)
-  })()
-
   return (
     <div className="min-h-screen" style={{ background: '#0a0a0a' }}>
       {/* Header */}
@@ -267,14 +261,6 @@ export default function TopicDetailPage() {
         {topicDetail.total_attempts > 0 && (
         <div className="flex gap-2 overflow-x-auto">
           <button
-            onClick={() => setActiveTab('overview')}
-            className={`neuro-btn px-6 py-3 whitespace-nowrap ${
-              activeTab === 'overview' ? 'text-blue-400' : 'text-gray-400'
-            }`}
-          >
-            Overview Stats
-          </button>
-          <button
             onClick={() => setActiveTab('bloom')}
             className={`neuro-btn px-6 py-3 whitespace-nowrap ${
               activeTab === 'bloom' ? 'text-blue-400' : 'text-gray-400'
@@ -290,36 +276,6 @@ export default function TopicDetailPage() {
           >
             Confidence Calibration
           </button>
-        </div>
-        )}
-
-        {/* Overview Stats */}
-        {activeTab === 'overview' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="neuro-stat group">
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-sm text-blue-400 font-medium">Total Attempts</div>
-            </div>
-            <div className="text-4xl font-bold text-gray-200 group-hover:text-blue-400 transition-colors">
-              {topicDetail.total_attempts}
-            </div>
-          </div>
-
-          <div className="neuro-stat group">
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-sm text-purple-400 font-medium">Overall Mastery</div>
-            </div>
-            <div className={`text-4xl font-bold group-hover:text-purple-400 transition-colors ${
-              overallMastery >= 80 ? 'text-green-400' :
-              overallMastery >= 60 ? 'text-yellow-400' :
-              'text-red-400'
-            }`}>
-              {overallMastery}%
-            </div>
-            <div className="text-xs text-gray-600 mt-2">
-              Avg across {Object.keys(topicDetail.mastery_scores).length} levels
-            </div>
-          </div>
         </div>
         )}
 
