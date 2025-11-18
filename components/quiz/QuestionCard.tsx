@@ -78,14 +78,6 @@ export function QuestionCard({
     <div className="neuro-card p-6 space-y-6">
       {/* Question Header */}
       <div className="space-y-2">
-        <div className="flex items-center gap-3 mb-4">
-          <span className="text-xs font-medium text-blue-400 bg-blue-400/10 px-3 py-1 rounded-full">
-            Bloom Level {question.bloom_level}
-          </span>
-          <span className="text-xs font-medium text-gray-500 bg-gray-500/10 px-3 py-1 rounded-full">
-            {formatQuestionType(question.question_format)}
-          </span>
-        </div>
         <h2 className="text-xl font-semibold text-gray-200">
           {question.question_text}
         </h2>
