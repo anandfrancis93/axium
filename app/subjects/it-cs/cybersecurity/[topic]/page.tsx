@@ -396,23 +396,6 @@ export default function TopicDetailPage() {
                         })}
                       </div>
 
-                      {/* Next Recommended Dimension */}
-                      {coveredDimensions.length < 6 && (
-                        <div className="p-3 neuro-raised rounded-lg">
-                          <div className="text-xs text-blue-400 font-semibold mb-1">
-                            Next Recommended
-                          </div>
-                          <div className="text-sm text-gray-300">
-                            Practice questions about:{' '}
-                            <span className="font-semibold text-blue-400">
-                              {allDimensions
-                                .filter(d => !coveredDimensions.includes(d))
-                                .map(d => COGNITIVE_DIMENSIONS[d].name)
-                                .join(', ')}
-                            </span>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   )}
                 </div>
