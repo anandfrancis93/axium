@@ -737,6 +737,16 @@ function LearnPageContent() {
                         {recognitionMethod === 'random_guess' && 'Random Guess'}
                       </span>
                     </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-white text-sm">Calibration Score:</span>
+                      <span className={`font-semibold ${
+                        answerResult.calibrationScore > 0 ? 'text-green-400' :
+                        answerResult.calibrationScore < 0 ? 'text-red-400' :
+                        'text-gray-400'
+                      }`}>
+                        {answerResult.calibrationScore > 0 ? '+' : ''}{answerResult.calibrationScore.toFixed(2)}
+                      </span>
+                    </div>
                     {answerResult.nextReviewDate && (
                       <div className="flex items-center justify-between">
                         <span className="text-white text-sm">Next Review:</span>
@@ -759,16 +769,6 @@ function LearnPageContent() {
                         </span>
                       </div>
                     )}
-                    <div className="flex items-center justify-between">
-                      <span className="text-white text-sm">Calibration Score:</span>
-                      <span className={`font-semibold ${
-                        answerResult.calibrationScore > 0 ? 'text-green-400' :
-                        answerResult.calibrationScore < 0 ? 'text-red-400' :
-                        'text-gray-400'
-                      }`}>
-                        {answerResult.calibrationScore > 0 ? '+' : ''}{answerResult.calibrationScore.toFixed(2)}
-                      </span>
-                    </div>
                   </div>
                 </div>
             </div>
