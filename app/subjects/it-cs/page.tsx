@@ -30,8 +30,8 @@ export default async function ITCSPage() {
       <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 animate-fade-in">
         <div className="flex justify-between items-center gap-3">
           <div className="flex items-center gap-3">
-            <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Image src="/icon.svg" width={36} height={36} alt="Axium Logo" className="w-9 h-9" />
+            <div className="neuro-inset w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Image src="/icon.svg" width={48} height={48} alt="Axium Logo" className="w-12 h-12" />
             </div>
             <h1 className="text-2xl font-bold text-blue-400 truncate">
               IT/CS
@@ -42,10 +42,10 @@ export default async function ITCSPage() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-8">
+      < main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-8" >
 
         {/* Topics */}
-        <div className="animate-slide-up">
+        < div className="animate-slide-up" >
           <h3 className="text-xl font-semibold text-gray-200 mb-6 px-1">Select a Topic</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Cybersecurity - Active */}
@@ -119,8 +119,8 @@ export default async function ITCSPage() {
               </div>
             </div>
           </div>
-        </div>
-      </main>
-    </div>
+        </div >
+      </main >
+    </div >
   )
 }
