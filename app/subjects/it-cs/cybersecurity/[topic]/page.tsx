@@ -319,17 +319,18 @@ export default function TopicDetailPage() {
               <h1 className="text-2xl font-bold text-gray-200 truncate">
                 {topicDetail.topic_name}
               </h1>
+              {topicDetail.topic_hierarchy && (
+                <p className="text-sm text-gray-500 truncate">
+                  {topicDetail.topic_hierarchy
+                    .replace(/^#+ /gm, '')  // Remove # symbols
+                    .split('\n')
+                    .filter(line => line.trim())
+                    .join(' → ')}
+                </p>
+              )}
             </div>
           </div>
         </div>
-
-        {/* Topic Description */}
-        {topicDetail.topic_description && (
-          <div className="neuro-card p-6">
-            <h3 className="text-sm font-semibold text-gray-400 mb-2">Description</h3>
-            <p className="text-gray-300">{topicDetail.topic_description}</p>
-          </div>
-        )}
       </header>
 
       {/* Main Content */}
