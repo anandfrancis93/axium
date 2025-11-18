@@ -411,21 +411,9 @@ export default function TopicDetailPage() {
                   {/* Expanded: Cognitive Dimension Coverage */}
                   {isExpanded && bl.attempts > 0 && (
                     <div className="px-4 pb-4 pt-2 border-t border-gray-800">
-                      <div className="mb-4">
-                        <h4 className="text-sm font-semibold text-gray-300 mb-2">
-                          Cognitive Dimension Coverage
-                        </h4>
-                        <div className="text-xs text-gray-500 mb-2">
-                          {coveredDimensions.length}/6 dimensions covered ({coveragePercentage}%) •
-                          <span className={`ml-1 font-semibold ${
-                            coveredDimensions.length >= 4 ? 'text-green-400' :
-                            coveredDimensions.length >= 2 ? 'text-yellow-400' :
-                            'text-red-400'
-                          }`}>
-                            {coveredDimensions.length >= 4 ? 'Ready to unlock next level' : `Need ${4 - coveredDimensions.length} more`}
-                          </span>
-                        </div>
-                      </div>
+                      <h4 className="text-sm font-semibold text-gray-300 mb-3">
+                        Cognitive Dimension Coverage
+                      </h4>
 
                       {/* Dimension Grid */}
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
