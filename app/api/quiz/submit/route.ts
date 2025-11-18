@@ -558,13 +558,32 @@ async function updateUserProgress(
 
 
 
+
     // Increment global question position (1-10 cycle for 7-2-1 split)
-    const newPosition = (progress.question_position || 0) % 10 + 1
-    await supabase
-      .from('user_progress')
-      .update({ question_position: newPosition })
+    // We need to fetch the current global position first
+    const { data: globalProgress } = await supabase
+      .from('user_global_progress')
+      .select('question_position')
       .eq('user_id', userId)
-      .eq('topic_id', topicId)
+      .single()
+
+    const currentGlobalPosition = globalProgress?.question_position || 0
+    const newPosition = (currentGlobalPosition % 10) + 1
+
+    // Update or insert global progress with new position
+    const { error: globalUpdateError } = await supabase
+      .from('user_global_progress')
+      .upsert({
+        user_id: userId,
+        question_position: newPosition,
+        last_updated_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id'
+      })
+
+    if (globalUpdateError) {
+      console.error('[Progress] Error updating global position:', globalUpdateError)
+    }
   }
 }
 

@@ -57,20 +57,18 @@ export async function getNextQuestionPosition(
   supabase: any,
   userId: string
 ): Promise<number> {
-  // Get the most recent question_position across all user's progress
+  // Get the global question_position from user_global_progress
   const { data, error } = await supabase
-    .from('user_progress')
+    .from('user_global_progress')
     .select('question_position')
     .eq('user_id', userId)
-    .order('updated_at', { ascending: false })
-    .limit(1)
     .single()
 
   if (error || !data) {
-    return 1 // Start at position 1 if no progress yet
+    return 1 // Start at position 1 if no global progress yet
   }
 
-  // Increment position (cycles 1-10)
-  const currentPosition = data.question_position || 0
-  return (currentPosition % 10) + 1
+  // Return current position (already 1-10)
+  // If it's 0 or null, default to 1
+  return data.question_position || 1
 }
