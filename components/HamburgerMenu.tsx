@@ -47,7 +47,7 @@ export default function HamburgerMenu() {
   }
 
   return (
-  return (
+
     <div className="relative z-50">
       {/* Backdrop */}
       {isOpen && (
