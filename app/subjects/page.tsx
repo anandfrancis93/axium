@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { BookIcon, CodeIcon, CalculatorIcon, AtomIcon, PenToolIcon, LockIcon } from '@/components/icons'
+import Image from 'next/image'
 import HamburgerMenu from '@/components/HamburgerMenu'
 
 // Force dynamic rendering to access runtime environment variables
@@ -30,7 +31,7 @@ export default async function DashboardPage() {
         <div className="flex justify-between items-center gap-3">
           <div className="flex items-center gap-3">
             <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0">
-              <BookIcon size={24} className="text-blue-400" />
+              <Image src="/icon.svg" width={28} height={28} alt="Axium Logo" className="w-7 h-7" />
             </div>
             <h1 className="text-2xl font-bold text-blue-400 truncate">
               Axium

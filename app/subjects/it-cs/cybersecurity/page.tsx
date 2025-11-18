@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { ShieldIcon, SearchIcon, TrashIcon } from '@/components/icons'
+import Image from 'next/image'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import Modal from '@/components/Modal'
 import { createClient } from '@/lib/supabase/client'
@@ -267,7 +268,7 @@ export default function CybersecurityPage() {
         <div className="flex justify-between items-center gap-3">
           <div className="flex items-center gap-3">
             <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0">
-              <ShieldIcon size={24} className="text-red-400" />
+              <Image src="/icon.svg" width={28} height={28} alt="Axium Logo" className="w-7 h-7" />
             </div>
             <h1 className="text-2xl font-bold text-red-400 truncate">
               Cybersecurity

@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { PlayIcon, BarChartIcon, BookIcon } from '@/components/icons'
+import Image from 'next/image'
 import HamburgerMenu from '@/components/HamburgerMenu'
 
 export const dynamic = 'force-dynamic'
@@ -68,7 +69,7 @@ export default async function SubjectPage({
         <div className="flex justify-between items-center gap-3">
           <div className="flex items-center gap-3">
             <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0">
-              <BookIcon size={24} className="text-blue-400" />
+              <Image src="/icon.svg" width={28} height={28} alt="Axium Logo" className="w-7 h-7" />
             </div>
             <h1 className="text-2xl font-bold text-blue-400 truncate">
               {subject.name}
@@ -114,11 +115,11 @@ export default async function SubjectPage({
                           <h4 className="text-lg font-semibold text-gray-200 mb-2 group-hover:text-blue-400 transition-colors">
                             {chapter.name}
                           </h4>
-                        {chapter.description && (
-                          <p className="text-sm text-gray-500">
-                            {chapter.description}
-                          </p>
-                        )}
+                          {chapter.description && (
+                            <p className="text-sm text-gray-500">
+                              {chapter.description}
+                            </p>
+                          )}
                         </div>
                       </div>
 

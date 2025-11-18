@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { ShieldIcon, ArrowLeftIcon } from '@/components/icons'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import {
   CognitiveDimension,
@@ -325,7 +326,7 @@ export default function TopicDetailPage() {
           </button>
           <div className="flex items-center gap-3 flex-1">
             <div className="neuro-inset w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0">
-              <ShieldIcon size={24} className="text-red-400" />
+              <Image src="/icon.svg" width={28} height={28} alt="Axium Logo" className="w-7 h-7" />
             </div>
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl font-bold text-gray-200 truncate">
