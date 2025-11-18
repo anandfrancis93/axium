@@ -370,18 +370,6 @@ function LearnPageContent() {
           <>
             {/* Question Text */}
             <div className="neuro-card p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-xs font-medium text-blue-400 bg-blue-400/10 px-3 py-1 rounded-full">
-                  Bloom Level {currentQuestion.bloom_level}
-                </span>
-                <span className="text-xs font-medium text-gray-500 bg-gray-500/10 px-3 py-1 rounded-full">
-                  {currentQuestion.question_format === 'mcq_single' ? 'Multiple Choice' :
-                   currentQuestion.question_format === 'mcq_multi' ? 'Multiple Select' :
-                   currentQuestion.question_format === 'true_false' ? 'True/False' :
-                   currentQuestion.question_format === 'fill_blank' ? 'Fill in the Blank' :
-                   currentQuestion.question_format === 'open_ended' ? 'Open Ended' : 'Question'}
-                </span>
-              </div>
               <h2 className="text-xl font-semibold text-gray-200">
                 {currentQuestion.question_text}
               </h2>
@@ -500,18 +488,6 @@ function LearnPageContent() {
           <>
             {/* Section 1: Question and Options with Results */}
             <div className="neuro-card p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-xs font-medium text-blue-400 bg-blue-400/10 px-3 py-1 rounded-full">
-                  Bloom Level {currentQuestion.bloom_level}
-                </span>
-                <span className="text-xs font-medium text-gray-500 bg-gray-500/10 px-3 py-1 rounded-full">
-                  {currentQuestion.question_format === 'mcq_single' ? 'Multiple Choice' :
-                   currentQuestion.question_format === 'mcq_multi' ? 'Multiple Select' :
-                   currentQuestion.question_format === 'true_false' ? 'True/False' :
-                   currentQuestion.question_format === 'fill_blank' ? 'Fill in the Blank' :
-                   currentQuestion.question_format === 'open_ended' ? 'Open Ended' : 'Question'}
-                </span>
-              </div>
               <h2 className="text-xl font-semibold text-gray-200 mb-6">
                 {currentQuestion.question_text}
               </h2>
@@ -802,6 +778,22 @@ function LearnPageContent() {
                 <div className="p-4 neuro-inset rounded-lg">
                   <div className="text-base font-semibold text-white mb-3">Summary</div>
                   <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-white text-sm">Bloom Level:</span>
+                      <span className="font-semibold text-blue-400">
+                        {currentQuestion.bloom_level}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-white text-sm">Question Type:</span>
+                      <span className="font-semibold text-gray-300">
+                        {currentQuestion.question_format === 'mcq_single' ? 'Multiple Choice' :
+                         currentQuestion.question_format === 'mcq_multi' ? 'Multiple Select' :
+                         currentQuestion.question_format === 'true_false' ? 'True/False' :
+                         currentQuestion.question_format === 'fill_blank' ? 'Fill in the Blank' :
+                         currentQuestion.question_format === 'open_ended' ? 'Open Ended' : 'Question'}
+                      </span>
+                    </div>
                     <div className="flex items-center justify-between">
                       <span className="text-white text-sm">Confidence:</span>
                       <span className={`font-semibold ${
