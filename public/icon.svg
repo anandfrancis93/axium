@@ -3,7 +3,7 @@
   <rect width="512" height="512" fill="#0a0a0a" rx="128"/>
 
   <!-- Graduation Cap Icon in White -->
-  <g transform="translate(256, 280)">
+  <g transform="translate(256, 256)">
     <!-- Mortarboard (square cap top in perspective) -->
     <path d="M 0 -140 L 140 -100 L 0 -60 L -140 -100 Z" fill="white"/>
 
