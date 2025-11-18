@@ -270,7 +270,7 @@ export default function CybersecurityPage() {
             <div className="neuro-inset w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0">
               <Image src="/icon.svg" width={40} height={40} alt="Axium Logo" className="w-10 h-10" />
             </div>
-            <h1 className="text-2xl font-bold text-red-400 truncate">
+            <h1 className="text-2xl font-bold text-white truncate">
               Cybersecurity
             </h1>
           </div>
