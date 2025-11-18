@@ -458,7 +458,7 @@ function LearnPageContent() {
                 <button
                   onClick={() => handleRecognitionSelect('recognition')}
                   disabled={submitting}
-                  className="neuro-btn text-blue-400 p-6 text-left disabled:opacity-50"
+                  className="neuro-btn text-yellow-400 p-6 text-left disabled:opacity-50"
                 >
                   <div className="text-lg font-bold mb-1">Recognized from Options</div>
                   <div className="text-sm text-gray-400">I recognized the correct answer when I saw it</div>
