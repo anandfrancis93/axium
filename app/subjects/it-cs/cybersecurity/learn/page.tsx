@@ -688,93 +688,6 @@ function LearnPageContent() {
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Calibration Score */}
-                <div className="p-4 neuro-inset rounded-lg">
-                  <div className="text-sm text-white mb-2">Calibration Score</div>
-                  <div className="flex items-start gap-3">
-                    <div className={`text-3xl font-bold flex-shrink-0 ${
-                      answerResult.calibrationScore > 0 ? 'text-green-400' :
-                      answerResult.calibrationScore < 0 ? 'text-red-400' :
-                      'text-gray-400'
-                    }`}>
-                      {answerResult.calibrationScore > 0 ? '+' : ''}{answerResult.calibrationScore.toFixed(2)}
-                    </div>
-                    <div className="flex-1 pt-1">
-                      <div className="neuro-inset rounded-full h-2 overflow-hidden relative bg-gray-800/30">
-                        <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gray-600" />
-                        <div
-                          className={`absolute top-0 bottom-0 ${
-                            answerResult.calibrationScore > 0 ? 'bg-green-400' : 'bg-red-400'
-                          }`}
-                          style={{
-                            left: answerResult.calibrationScore > 0 ? '50%' : `${50 + (answerResult.calibrationScore / 1.5 * 50)}%`,
-                            width: `${Math.abs(answerResult.calibrationScore) / 1.5 * 50}%`
-                          }}
-                        />
-                      </div>
-                      <div className="flex justify-between text-xs text-gray-600 mt-1">
-                        <span>-1.5</span>
-                        <span>0</span>
-                        <span>+1.5</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-xs text-white mt-2">
-                    {(() => {
-                      // Get calibration feedback based on all 24 scenarios
-                      const isCorrect = answerResult.isCorrect
-                      const conf = confidence
-                      const method = recognitionMethod
-
-                      // CORRECT ANSWERS
-                      if (isCorrect) {
-                        if (conf === 3) {
-                          if (method === 'memory') return 'You were highly confident, used memory recall, and got it right. Perfect calibration!'
-                          if (method === 'recognition') return 'You were highly confident, recognized the answer from options, and got it right. Great calibration!'
-                          if (method === 'educated_guess') return 'You were highly confident with an educated guess and got it right. Good result, but consider being more cautious with guesses.'
-                          if (method === 'random_guess') return 'You were highly confident with a random guess and got lucky. This shows poor calibration - random guesses shouldn\'t have high confidence.'
-                        }
-                        if (conf === 2) {
-                          if (method === 'memory') return 'You had medium confidence, used memory recall, and got it right. You could trust your memory more!'
-                          if (method === 'recognition') return 'You had medium confidence, recognized the answer, and got it right. Well-calibrated response!'
-                          if (method === 'educated_guess') return 'You had medium confidence with an educated guess and got it right. Good reasoning and appropriate confidence level!'
-                          if (method === 'random_guess') return 'You had medium confidence with a random guess and got lucky. Random guesses should have lower confidence.'
-                        }
-                        if (conf === 1) {
-                          if (method === 'memory') return 'You had low confidence, used memory recall, and got it right. Trust your memory more - you knew it!'
-                          if (method === 'recognition') return 'You had low confidence, recognized the answer, and got it right. Your intuition was better than you thought!'
-                          if (method === 'educated_guess') return 'You had low confidence with an educated guess and got it right. Good calibration - appropriate uncertainty that worked out!'
-                          if (method === 'random_guess') return 'You had low confidence with a random guess and got lucky. Excellent calibration - you knew it was a guess!'
-                        }
-                      }
-
-                      // INCORRECT ANSWERS
-                      if (!isCorrect) {
-                        if (conf === 3) {
-                          if (method === 'memory') return 'You were highly confident, thought you recalled from memory, but got it wrong. This is false memory - the worst calibration scenario.'
-                          if (method === 'recognition') return 'You were highly confident, thought you recognized the answer, but got it wrong. Misrecognition with high confidence shows poor calibration.'
-                          if (method === 'educated_guess') return 'You were highly confident with an educated guess but got it wrong. Overconfidence in your reasoning led to poor calibration.'
-                          if (method === 'random_guess') return 'You were highly confident with a random guess and got it wrong. Why high confidence on a random guess? This shows miscalibration.'
-                        }
-                        if (conf === 2) {
-                          if (method === 'memory') return 'You had medium confidence, thought you recalled from memory, but got it wrong. False memory with moderate confidence.'
-                          if (method === 'recognition') return 'You had medium confidence, thought you recognized the answer, but got it wrong. Misrecognition shows miscalibration.'
-                          if (method === 'educated_guess') return 'You had medium confidence with an educated guess and got it wrong. Your reasoning didn\'t work out this time.'
-                          if (method === 'random_guess') return 'You had medium confidence with a random guess and got it wrong. Random guesses should have lower confidence.'
-                        }
-                        if (conf === 1) {
-                          if (method === 'memory') return 'You had low confidence, thought you recalled from memory, but got it wrong. Good calibration - you sensed the uncertainty!'
-                          if (method === 'recognition') return 'You had low confidence, thought you recognized the answer, but got it wrong. Good calibration - your doubt was warranted!'
-                          if (method === 'educated_guess') return 'You had low confidence with an educated guess and got it wrong. Good calibration - you knew your logic was uncertain!'
-                          if (method === 'random_guess') return 'You had low confidence with a random guess and got it wrong. Excellent calibration - you knew it was just a guess!'
-                        }
-                      }
-
-                      return 'Calibration feedback unavailable'
-                    })()}
-                  </div>
-                </div>
-
                 {/* Summary */}
                 <div className="p-4 neuro-inset rounded-lg">
                   <div className="text-base font-semibold text-white mb-3">Summary</div>
@@ -847,6 +760,16 @@ function LearnPageContent() {
                         </span>
                       </div>
                     )}
+                    <div className="flex items-center justify-between">
+                      <span className="text-white text-sm">Calibration Score:</span>
+                      <span className={`font-semibold ${
+                        answerResult.calibrationScore > 0 ? 'text-green-400' :
+                        answerResult.calibrationScore < 0 ? 'text-red-400' :
+                        'text-gray-400'
+                      }`}>
+                        {answerResult.calibrationScore > 0 ? '+' : ''}{answerResult.calibrationScore.toFixed(2)}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
