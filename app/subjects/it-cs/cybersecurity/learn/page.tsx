@@ -691,7 +691,7 @@ function LearnPageContent() {
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-white text-sm font-semibold">Bloom Level:</span>
-                      <span className="font-semibold text-sm text-blue-400">
+                      <span className="font-semibold text-sm text-white">
                         {currentQuestion.bloom_level} ({BLOOM_LEVEL_NAMES[currentQuestion.bloom_level as BloomLevel]})
                       </span>
                     </div>
