@@ -23,18 +23,24 @@ export default async function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8" style={{ background: '#0a0a0a' }}>
-      <div className="max-w-md w-full">
-        <div className="neuro-container">
+    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-900 via-[#0a0a0a] to-[#0a0a0a]">
+      <div className="max-w-md w-full animate-slide-up">
+        <div className="neuro-card">
           {/* Branding */}
           <div className="text-center mb-8">
-            <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <BookIcon size={40} className="text-blue-400" />
+            <div className="flex justify-center mb-6">
+              <div className="neuro-raised rounded-full p-3 flex items-center justify-center">
+                <img
+                  src="/icon.svg"
+                  alt="Axium Logo"
+                  className="w-24 h-24 drop-shadow-lg"
+                />
+              </div>
             </div>
-            <h1 className="text-4xl font-bold text-blue-400 mb-3">
+            <h1 className="text-4xl font-bold text-blue-400 mb-2 tracking-tight">
               Axium
             </h1>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-400 font-medium">
               Adaptive Learning Platform
             </p>
           </div>
@@ -46,7 +52,7 @@ export default async function LoginPage() {
                 Welcome Back
               </h2>
               <p className="text-sm text-gray-500">
-                Sign in to continue learning
+                Sign in to continue your learning journey
               </p>
             </div>
 
