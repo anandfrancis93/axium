@@ -3,7 +3,7 @@ import "./globals.css";
 import InstallPWA from "@/components/InstallPWA";
 
 export const metadata: Metadata = {
-  title: "Axium - Intelligent Self-Learning App",
+  title: "Axium",
   description: "A personalized AI learning platform powered by adaptive learning and Bloom's Taxonomy",
   manifest: "/manifest.json",
   appleWebApp: {

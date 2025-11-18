@@ -38,7 +38,7 @@ export default function InstallPWA() {
   if (!showInstallButton) return null
 
   return (
-    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 max-w-md w-full mx-4">
+    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 max-w-md w-[calc(100%-2rem)]">
       <div className="neuro-card p-4 flex items-center justify-between gap-4">
         <div className="flex-1">
           <div className="text-sm font-semibold text-gray-200 mb-1">
