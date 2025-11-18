@@ -800,7 +800,7 @@ function LearnPageContent() {
 
                 {/* Summary */}
                 <div className="p-4 neuro-inset rounded-lg">
-                  <div className="text-sm text-white mb-3">Summary</div>
+                  <div className="text-base font-semibold text-white mb-3">Summary</div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-white text-sm">Confidence:</span>
