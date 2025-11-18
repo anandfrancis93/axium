@@ -191,7 +191,7 @@ function parseClaudeResponse(responseText: string, format: QuestionFormat): any 
       .filter(({ len }: { opt: string; idx: number; len: number }) => len < 30)
 
     if (shortOptions.length > 0) {
-      const details = shortOptions.map(({ opt, idx, len }) =>
+      const details = shortOptions.map(({ opt, idx, len }: { opt: string; idx: number; len: number }) =>
         `${String.fromCharCode(65 + idx)}) ${len} chars: "${opt}"`
       ).join('\n')
 
