@@ -1,4 +1,25 @@
 <svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-  <rect width="512" height="512" fill="#3b82f6" rx="128"/>
-  <text x="256" y="340" font-family="Arial, sans-serif" font-size="280" font-weight="bold" fill="white" text-anchor="middle">A</text>
+  <!-- Black background -->
+  <rect width="512" height="512" fill="#0a0a0a" rx="128"/>
+
+  <!-- Graduation Cap Icon in White -->
+  <g transform="translate(256, 256)">
+    <!-- Main board (square top) -->
+    <path d="M -120 -60 L 120 -60 L 120 -40 L -120 -40 Z" fill="white"/>
+
+    <!-- Cap base (triangular perspective) -->
+    <path d="M 0 -40 L -100 20 L -100 40 L 100 40 L 100 20 Z" fill="white"/>
+
+    <!-- Tassel cord -->
+    <circle cx="0" cy="-50" r="6" fill="white"/>
+
+    <!-- Tassel -->
+    <g transform="translate(40, -30)">
+      <circle cx="0" cy="0" r="8" fill="white"/>
+      <path d="M -4 8 L -2 20 M 0 8 L 0 22 M 4 8 L 2 20" stroke="white" stroke-width="2" fill="none"/>
+    </g>
+
+    <!-- Tassel string connecting to board -->
+    <line x1="0" y1="-44" x2="40" y2="-30" stroke="white" stroke-width="2"/>
+  </g>
 </svg>
