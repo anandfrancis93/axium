@@ -13,6 +13,7 @@ import { ConfidenceSlider } from '@/components/quiz/ConfidenceSlider'
 import { RecognitionMethodSelector } from '@/components/quiz/RecognitionMethodSelector'
 import { AnswerFeedback } from '@/components/quiz/AnswerFeedback'
 import { QuizSession, QuizQuestion, AnswerResult, RecognitionMethod } from '@/lib/types/quiz'
+import { BLOOM_LEVEL_NAMES, BloomLevel } from '@/lib/types/database'
 import { Loader2, Circle, Square } from 'lucide-react'
 import Modal from '@/components/Modal'
 
@@ -781,7 +782,7 @@ function LearnPageContent() {
                     <div className="flex items-center justify-between">
                       <span className="text-white text-sm">Bloom Level:</span>
                       <span className="font-semibold text-blue-400">
-                        {currentQuestion.bloom_level}
+                        {currentQuestion.bloom_level} ({BLOOM_LEVEL_NAMES[currentQuestion.bloom_level as BloomLevel]})
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
