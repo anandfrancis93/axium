@@ -160,6 +160,49 @@ function parseClaudeResponse(responseText: string, format: QuestionFormat): any 
       break
   }
 
+  // QUALITY CONTROL: Validate option length balance for MCQ questions
+  if ((format === 'mcq_single' || format === 'mcq_multi') && Array.isArray(parsed.options)) {
+    const optionLengths = parsed.options.map((opt: string) => {
+      // Remove "A) ", "B) ", etc. prefixes if present
+      const cleaned = opt.replace(/^[A-F]\)\s*/, '')
+      return cleaned.length
+    })
+
+    const minLength = Math.min(...optionLengths)
+    const maxLength = Math.max(...optionLengths)
+    const lengthRatio = (maxLength - minLength) / minLength
+
+    // Enforce ±30% length constraint
+    if (lengthRatio > 0.30) {
+      const details = parsed.options.map((opt: string, idx: number) =>
+        `${String.fromCharCode(65 + idx)}) ${optionLengths[idx]} chars: "${opt}"`
+      ).join('\n')
+
+      throw new QuestionGenerationError(
+        `Option length imbalance detected (${Math.round(lengthRatio * 100)}% difference, max 30% allowed):\n${details}`,
+        null,
+        true // Retryable - AI should fix on retry
+      )
+    }
+
+    // Check for overly short options (likely too vague/generic)
+    const shortOptions = parsed.options
+      .map((opt: string, idx: number) => ({ opt, idx, len: optionLengths[idx] }))
+      .filter(({ len }) => len < 30)
+
+    if (shortOptions.length > 0) {
+      const details = shortOptions.map(({ opt, idx, len }) =>
+        `${String.fromCharCode(65 + idx)}) ${len} chars: "${opt}"`
+      ).join('\n')
+
+      throw new QuestionGenerationError(
+        `Options too short/vague detected (< 30 chars). Use specific definitions from related topics:\n${details}`,
+        null,
+        true // Retryable
+      )
+    }
+  }
+
   return parsed
 }
 
