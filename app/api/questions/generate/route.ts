@@ -348,13 +348,12 @@ EXPLANATION REQUIREMENTS:
 ANTI-TELLTALE QUALITY CONTROLS (CRITICAL):
 These measures prevent obvious answer giveaways and test-taking tricks:
 
-a) Length Variation & Anti-Length Bias:
-   - All 4 options must have similar length (within 15 characters max difference).
-   - Avoid making the correct answer consistently the longest option.
-   - Randomize the length distribution: sometimes the correct answer is longest, sometimes shortest, sometimes average.
-   - Ensure distractors are not all significantly shorter than the correct answer.
-   ❌ BAD: Correct answer is 80 chars, ALL distractors are 20 chars.
-   ✅ GOOD: Lengths are mixed. If correct answer is long, at least one distractor is also long.
+a) Length Variation (STRICT):
+   - All 4 options MUST be approximately the same length (within 15 characters max difference).
+   - The correct answer MUST NOT be an outlier (significantly longer or shorter than the others).
+   - If the correct answer requires a long explanation, ALL distractors must be equally long and detailed.
+   ❌ BAD: Correct answer is 100 chars, distractors are 50-60 chars. (Correct answer is an outlier)
+   ✅ GOOD: All options are between 90-110 chars. (Uniform distribution)
 
 b) Plausible Distractors: Wrong answers must be from the same domain and sound believable
    ❌ BAD: If correct answer is "Preventive (control type)", wrong answers shouldn't be "Apple" or "Database"
