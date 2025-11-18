@@ -386,7 +386,7 @@ async function updateUserProgress(
       ? { [bloomLevel]: [cognitiveDimension] }
       : {}
 
-    await supabase
+    const { error: insertError } = await supabase
       .from('user_progress')
       .insert({
         user_id: userId,
@@ -398,6 +398,13 @@ async function updateUserProgress(
         correct_answers: isCorrect ? 1 : 0,
         last_practiced_at: new Date().toISOString()
       })
+
+    if (insertError) {
+      console.error('[Progress] Error creating initial progress:', insertError)
+      throw new Error(`Failed to create user progress: ${insertError.message}`)
+    }
+
+    console.log(`[Progress] Created initial progress for topic ${topicId}`)
   } else {
     // Update existing progress
     const newCorrect = progress.correct_answers + (isCorrect ? 1 : 0)
@@ -438,7 +445,7 @@ async function updateUserProgress(
       }
     }
 
-    await supabase
+    const { error: updateError } = await supabase
       .from('user_progress')
       .update({
         total_attempts: newTotal,
@@ -450,5 +457,12 @@ async function updateUserProgress(
       })
       .eq('user_id', userId)
       .eq('topic_id', topicId)
+
+    if (updateError) {
+      console.error('[Progress] Error updating progress:', updateError)
+      throw new Error(`Failed to update user progress: ${updateError.message}`)
+    }
+
+    console.log(`[Progress] Updated progress for topic ${topicId}: ${newCorrect}/${newTotal} correct`)
   }
 }
