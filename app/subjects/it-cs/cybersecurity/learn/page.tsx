@@ -734,7 +734,7 @@ function LearnPageContent() {
                       <span className="text-white text-sm font-semibold">Method:</span>
                       <span className={`font-semibold text-sm ${
                         recognitionMethod === 'memory' ? 'text-green-400' :
-                        recognitionMethod === 'recognition' ? 'text-blue-400' :
+                        recognitionMethod === 'recognition' ? 'text-yellow-400' :
                         recognitionMethod === 'educated_guess' ? 'text-yellow-400' :
                         'text-red-400'
                       }`}>
