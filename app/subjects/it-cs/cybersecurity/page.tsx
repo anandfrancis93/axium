@@ -5,6 +5,7 @@ import { ShieldIcon, SearchIcon, TrashIcon } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import Modal from '@/components/Modal'
 import { createClient } from '@/lib/supabase/client'
+import LearningCurveChart from '@/components/LearningCurveChart'
 
 interface TopicProgress {
   topic_id: string
@@ -17,6 +18,7 @@ interface TopicProgress {
   calibration_stddev: number | null
   calibration_r_squared: number | null
   calibration_mean: number | null
+  recent_responses: { attempt: number; score: number; isCorrect: boolean }[]
 }
 
 export default function CybersecurityPage() {
@@ -52,6 +54,10 @@ export default function CybersecurityPage() {
           correct_answers,
           mastery_scores,
           last_practiced_at,
+          calibration_slope,
+          calibration_stddev,
+          calibration_r_squared,
+          calibration_mean,
           topics (
             name,
             subjects (
@@ -77,11 +83,54 @@ export default function CybersecurityPage() {
           correct_answers: item.correct_answers,
           mastery_scores: item.mastery_scores,
           last_practiced_at: item.last_practiced_at,
-          calibration_slope: item.calibration_slope ?? null,
-          calibration_stddev: item.calibration_stddev ?? null,
-          calibration_r_squared: item.calibration_r_squared ?? null,
-          calibration_mean: item.calibration_mean ?? null
+          calibration_slope: item.calibration_slope,
+          calibration_stddev: item.calibration_stddev,
+          calibration_r_squared: item.calibration_r_squared,
+          calibration_mean: item.calibration_mean,
+          recent_responses: [] // Will be populated below
         })) || []
+
+      // Fetch recent responses for all these topics to build sparklines
+      if (cybersecurityTopics.length > 0) {
+        const topicIds = cybersecurityTopics.map((t: any) => t.topic_id)
+        const { data: responsesData } = await supabase
+          .from('user_responses')
+          .select('topic_id, calibration_score, is_correct, created_at')
+          .in('topic_id', topicIds)
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          // We need enough history for each topic, but fetching all might be heavy.
+          // For now, fetch all recent and filter in memory. 
+          // Optimization: In a real app, use a stored procedure or window function.
+          .limit(500)
+
+        if (responsesData) {
+          // Group responses by topic
+          const responsesByTopic: Record<string, any[]> = {}
+          responsesData.forEach((r: any) => {
+            if (!responsesByTopic[r.topic_id]) {
+              responsesByTopic[r.topic_id] = []
+            }
+            // Limit to last 15 per topic for sparkline
+            if (responsesByTopic[r.topic_id].length < 15) {
+              responsesByTopic[r.topic_id].push(r)
+            }
+          })
+
+          // Attach to topics
+          cybersecurityTopics.forEach((topic: any) => {
+            const rawResponses = responsesByTopic[topic.topic_id] || []
+            // Reverse to chronological order for the chart
+            const chronological = [...rawResponses].reverse()
+
+            topic.recent_responses = chronological.map((r, i) => ({
+              attempt: i + 1,
+              score: r.calibration_score !== null ? Number(r.calibration_score) : (r.is_correct ? 1.0 : -1.0),
+              isCorrect: r.is_correct
+            }))
+          })
+        }
+      }
 
       setTopicsProgress(cybersecurityTopics)
     } catch (error) {
@@ -307,8 +356,7 @@ export default function CybersecurityPage() {
                       <th className="text-center p-4 text-sm font-semibold text-gray-400">Attempts</th>
                       <th className="text-center p-4 text-sm font-semibold text-gray-400">Correct</th>
                       <th className="text-center p-4 text-sm font-semibold text-gray-400">Mastery</th>
-                      <th className="text-center p-4 text-sm font-semibold text-gray-400">Learning Rate</th>
-                      <th className="text-center p-4 text-sm font-semibold text-gray-400">Consistency</th>
+                      <th className="text-center p-4 text-sm font-semibold text-gray-400 w-32">Learning Curve</th>
                       <th className="text-right p-4 text-sm font-semibold text-gray-400">Last Practiced</th>
                     </tr>
                   </thead>
@@ -351,34 +399,23 @@ export default function CybersecurityPage() {
                               </div>
                             </div>
                           </td>
-                          <td className="p-4 text-center">
-                            {topic.calibration_slope !== null && topic.total_attempts >= 2 ? (
-                              <div className="flex items-center justify-center gap-1">
-                                <span className={`text-lg font-bold ${topic.calibration_slope > 0.5 ? 'text-green-400' :
-                                  topic.calibration_slope < -0.5 ? 'text-red-400' :
-                                    'text-gray-400'
-                                  }`}>
-                                  {topic.calibration_slope > 0.5 ? '↗' : topic.calibration_slope < -0.5 ? '↘' : '→'}
-                                </span>
-                                <span className="text-sm text-gray-400">
-                                  {topic.calibration_slope.toFixed(2)}
-                                </span>
-                              </div>
-                            ) : (
-                              <span className="text-sm text-gray-600">N/A</span>
-                            )}
-                          </td>
-                          <td className="p-4 text-center">
-                            {topic.calibration_stddev !== null && topic.total_attempts >= 2 ? (
-                              <span className={`text-sm font-semibold ${topic.calibration_stddev < 15 ? 'text-green-400' :
-                                topic.calibration_stddev < 25 ? 'text-yellow-400' :
-                                  'text-red-400'
-                                }`}>
-                                {topic.calibration_stddev.toFixed(1)}%
-                              </span>
-                            ) : (
-                              <span className="text-sm text-gray-600">N/A</span>
-                            )}
+                          <td className="p-4">
+                            <div className="h-12 w-32 mx-auto">
+                              {topic.recent_responses.length > 1 ? (
+                                <LearningCurveChart
+                                  data={topic.recent_responses}
+                                  slope={topic.calibration_slope}
+                                  intercept={null}
+                                  stddev={topic.calibration_stddev}
+                                  height={48}
+                                  sparkline={true}
+                                />
+                              ) : (
+                                <div className="h-full flex items-center justify-center text-xs text-gray-600">
+                                  No data
+                                </div>
+                              )}
+                            </div>
                           </td>
                           <td className="p-4 text-right">
                             <span className="text-sm text-gray-500">
@@ -428,6 +465,7 @@ export default function CybersecurityPage() {
                           )
                         })()}
                       </td>
+                      <td className="p-4"></td>
                       <td className="p-4 text-right">
                         {/* Empty - no date for summary row */}
                       </td>

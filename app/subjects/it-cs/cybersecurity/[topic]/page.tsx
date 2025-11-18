@@ -235,10 +235,10 @@ export default function TopicDetailPage() {
         dimension_coverage: parseDimensionCoverage(progressData.dimension_coverage),
         last_practiced_at: progressData.last_practiced_at,
         confidence_calibration_error: progressData.confidence_calibration_error,
-        calibration_slope: progressData.calibration_slope ?? null,
-        calibration_stddev: progressData.calibration_stddev ?? null,
-        calibration_r_squared: progressData.calibration_r_squared ?? null,
-        calibration_mean: progressData.calibration_mean ?? null
+        calibration_slope: progressData.calibration_slope,
+        calibration_stddev: progressData.calibration_stddev,
+        calibration_r_squared: progressData.calibration_r_squared,
+        calibration_mean: progressData.calibration_mean
       })
       setBloomLevels(bloomLevelDetails)
 
