@@ -200,9 +200,10 @@ INSTRUCTIONS:
 2. The question should test knowledge OF "${context.name}" itself (what it is, how it works, when to use it, etc.)
 3. The correct answer should directly relate to identifying, defining, or explaining "${context.name}"
 4. Write 4 options (A, B, C, D) with exactly ONE correct answer
-5. Make distractors (wrong answers) plausible but clearly incorrect
-6. Base the question on the provided context and related concepts
-7. Provide a detailed explanation of why the correct answer is right and others are wrong
+5. ⚠️ CRITICAL: ALL 4 options MUST be within ±30% length of each other (measure in characters)
+6. Make distractors (wrong answers) plausible but clearly incorrect
+7. Base the question on the provided context and related concepts
+8. Provide a detailed explanation of why the correct answer is right and others are wrong
 
 CRITICAL RULE - TEST THE TOPIC:
 - The question must test understanding OF "${context.name}"
@@ -219,6 +220,20 @@ QUALITY CONTROLS - ANTI-TELL-TALE RULES:
 - Grammatical inconsistency (e.g., question says "Which is AN..." but option starts with consonant)
 - Obvious alphabetical or numerical ordering that correlates with correctness
 - Technical jargon ONLY in the correct answer (all options must match complexity level)
+
+❌ BAD EXAMPLE - LENGTH IMBALANCE (DO NOT DO THIS):
+A) A temporary arrangement (25 chars)
+B) A collaborative partnership where two organizations work together toward shared strategic objectives (105 chars) ← CORRECT but TOO LONG
+C) A casual association (21 chars)
+D) An informal connection (23 chars)
+Problem: Option B is 4x longer than others → Students can guess without knowledge
+
+✅ GOOD EXAMPLE - BALANCED LENGTH:
+A) A temporary arrangement for specific projects (48 chars)
+B) A strategic partnership with shared objectives (49 chars) ← CORRECT
+C) A casual association with minimal coordination (49 chars)
+D) An informal connection without formal structure (50 chars)
+All options 48-50 chars → Length doesn't reveal answer
 
 ❌ NEVER reference source materials in questions OR explanations:
 - Do NOT include "in the context of [source]" (e.g., "CompTIA Security+ SY0-701")
@@ -251,9 +266,17 @@ QUALITY CONTROLS - ANTI-TELL-TALE RULES:
 - A knowledgeable person should need to think carefully to eliminate distractors
 - Example for "purpose of security report": All options should be security-related purposes, not HR/finance/etc.
 
+MANDATORY PRE-SUBMISSION VALIDATION:
+Before returning your answer, you MUST verify:
+1. Calculate character count for each option (excluding "A) ", "B) ", etc. prefixes)
+2. Find the shortest and longest options
+3. Verify: (longest - shortest) / shortest ≤ 0.30 (30%)
+4. If validation FAILS, rewrite options to balance lengths BEFORE submitting
+5. Only proceed to JSON output after length validation PASSES
+
 VALIDATION CHECKLIST (review before submitting):
-1. Read each option aloud - does one sound obviously different?
-2. Check length: Are all options within 30% of each other in character count?
+1. ✅ LENGTH CHECK (MANDATORY): Calculate and verify all options are within ±30% length
+2. Read each option aloud - does one sound obviously different?
 3. Check grammar: Does each option complete the question stem correctly?
 4. Check plausibility: Could a student who studied incorrectly believe each distractor?
 5. Check keywords: Are technical terms distributed evenly across options?
@@ -291,9 +314,10 @@ INSTRUCTIONS:
 2. The question should test knowledge OF "${context.name}" itself (characteristics, components, use cases, etc.)
 3. The correct answers should directly relate to aspects of "${context.name}"
 4. Write 5-6 options with 2-3 correct answers
-5. Make the question require understanding of multiple aspects of "${context.name}"
-6. Use "Select all that apply" or similar phrasing
-7. Provide a detailed explanation of why each correct answer is right and each distractor is wrong
+5. ⚠️ CRITICAL: ALL options MUST be within ±30% length of each other (measure in characters)
+6. Make the question require understanding of multiple aspects of "${context.name}"
+7. Use "Select all that apply" or similar phrasing
+8. Provide a detailed explanation of why each correct answer is right and each distractor is wrong
 
 CRITICAL RULE - TEST THE TOPIC:
 - The question must test understanding OF "${context.name}"
@@ -310,6 +334,20 @@ QUALITY CONTROLS - ANTI-TELL-TALE RULES:
 - Technical jargon ONLY in correct answers (or ONLY in distractors)
 - Hints that certain options go together or contradict each other
 - Making all correct answers positive statements and all distractors negative (or vice versa)
+
+❌ BAD EXAMPLE - LENGTH IMBALANCE (DO NOT DO THIS):
+A) Authentication (14 chars) ← CORRECT but TOO SHORT
+B) A comprehensive security framework that combines multiple verification methods (78 chars) ← CORRECT but TOO LONG
+C) Encryption technology (22 chars)
+D) Access logging (15 chars)
+Problem: Length reveals which are correct → Students can guess
+
+✅ GOOD EXAMPLE - BALANCED LENGTH:
+A) Uses multiple independent verification methods (48 chars) ← CORRECT
+B) Requires different types of authentication factors (52 chars) ← CORRECT
+C) Relies solely on password complexity requirements (51 chars)
+D) Stores credentials in encrypted configuration files (54 chars)
+All options 48-54 chars → Length doesn't reveal answers
 
 ❌ NEVER reference source materials in questions OR explanations:
 - Do NOT include "in the context of [source]" (e.g., "CompTIA Security+ SY0-701")
@@ -343,9 +381,17 @@ QUALITY CONTROLS - ANTI-TELL-TALE RULES:
 - A knowledgeable person should need to think carefully to eliminate distractors
 - For "select all that apply" questions, incorrect options should be things that SOUND related but aren't actually correct
 
+MANDATORY PRE-SUBMISSION VALIDATION:
+Before returning your answer, you MUST verify:
+1. Calculate character count for each option (excluding "A) ", "B) ", etc. prefixes)
+2. Find the shortest and longest options
+3. Verify: (longest - shortest) / shortest ≤ 0.30 (30%)
+4. If validation FAILS, rewrite options to balance lengths BEFORE submitting
+5. Only proceed to JSON output after length validation PASSES
+
 VALIDATION CHECKLIST (review before submitting):
-1. Shuffle mental order - do correct answers cluster together?
-2. Check length: Are all options within 30% of each other in character count?
+1. ✅ LENGTH CHECK (MANDATORY): Calculate and verify all options are within ±30% length
+2. Shuffle mental order - do correct answers cluster together?
 3. Check grammar: Do all options follow the same structural pattern?
 4. Check plausibility: Could each distractor seem correct to someone who partially understands?
 5. Check balance: Are absolutes ("always"/"never") used equally in correct/incorrect options?
