@@ -93,18 +93,22 @@ export default function CybersecurityPage() {
       // Fetch recent responses for all these topics to build sparklines
       if (cybersecurityTopics.length > 0) {
         const topicIds = cybersecurityTopics.map((t: any) => t.topic_id)
-        const { data: responsesData } = await supabase
+        console.log('Fetching responses for topics:', topicIds)
+
+        const { data: responsesData, error: responseError } = await supabase
           .from('user_responses')
           .select('topic_id, calibration_score, is_correct, created_at')
           .in('topic_id', topicIds)
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
-          // We need enough history for each topic, but fetching all might be heavy.
-          // For now, fetch all recent and filter in memory. 
-          // Optimization: In a real app, use a stored procedure or window function.
           .limit(500)
 
+        if (responseError) {
+          console.error('Error fetching responses:', responseError)
+        }
+
         if (responsesData) {
+          console.log(`Found ${responsesData.length} responses for sparklines`)
           // Group responses by topic
           const responsesByTopic: Record<string, any[]> = {}
           responsesData.forEach((r: any) => {
@@ -128,7 +132,10 @@ export default function CybersecurityPage() {
               score: r.calibration_score !== null ? Number(r.calibration_score) : (r.is_correct ? 1.0 : -1.0),
               isCorrect: r.is_correct
             }))
+            console.log(`Topic ${topic.topic_name}: ${topic.recent_responses.length} points for graph`)
           })
+        } else {
+          console.log('No responses data found')
         }
       }
 
