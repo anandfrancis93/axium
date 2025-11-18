@@ -88,12 +88,16 @@ export async function POST(request: NextRequest) {
     // Select format using round robin (cycles through recommended formats for this Bloom level)
     const recommendedFormat = await getNextFormatRoundRobin(supabase, user.id, selection.topicId, selection.bloomLevel)
 
+    // Select cognitive dimension (prioritize uncovered dimensions)
+    const selectedDimension = await selectCognitiveDimension(supabase, user.id, selection.topicId, selection.bloomLevel)
+
     // Generate question using xAI Grok
     const question = await generateQuestion(
       selection.topicName,
       selection.bloomLevel,
       context,
-      recommendedFormat
+      recommendedFormat,
+      selectedDimension
     )
 
     // Add metadata to question and map field names
@@ -107,6 +111,7 @@ export async function POST(request: NextRequest) {
       selection_priority: selection.priority,
       selection_method: selection.selectionMethod,
       question_format: recommendedFormat,
+      cognitive_dimension: selectedDimension,
       // Map 'question' field to 'question_text' for consistency with QuizQuestion type
       question_text: question.question || question.question_text,
       // Add hierarchy for display
@@ -126,6 +131,7 @@ export async function POST(request: NextRequest) {
       topic_id: selection.topicId,
       bloom_level: selection.bloomLevel,
       question_format: recommendedFormat,
+      cognitive_dimension: selectedDimension,
       question_text: enrichedQuestion.question_text,
       options: enrichedQuestion.options,
       correct_answer: enrichedQuestion.correct_answer,
@@ -322,6 +328,38 @@ async function getNextFormatRoundRobin(
 }
 
 /**
+ * Select next cognitive dimension for this topic/bloom level
+ * Prioritizes uncovered dimensions to ensure comprehensive coverage
+ */
+async function selectCognitiveDimension(
+  supabase: any,
+  userId: string,
+  topicId: string,
+  bloomLevel: number
+): Promise<string> {
+  const { CognitiveDimension, selectNextDimension, getCoverageForLevel, parseDimensionCoverage } = await import('@/lib/utils/cognitive-dimensions')
+
+  // Fetch user's current dimension coverage for this topic
+  const { data: progress } = await supabase
+    .from('user_progress')
+    .select('dimension_coverage')
+    .eq('user_id', userId)
+    .eq('topic_id', topicId)
+    .single()
+
+  // Parse coverage and get covered dimensions for this Bloom level
+  const coverageByLevel = parseDimensionCoverage(progress?.dimension_coverage || {})
+  const coveredDimensions = getCoverageForLevel(coverageByLevel, bloomLevel)
+
+  // Use smart selection: prioritizes uncovered dimensions
+  const nextDimension = selectNextDimension(coveredDimensions)
+
+  console.log(`[Cognitive Dimension] Bloom ${bloomLevel}: Selected ${nextDimension}, covered: ${coveredDimensions.join(', ')}`)
+
+  return nextDimension
+}
+
+/**
  * Get format based on Bloom level (randomly selected from recommended formats)
  * @deprecated Use getNextFormatRoundRobin instead for consistent cycling
  */
@@ -341,7 +379,8 @@ async function generateQuestion(
   topicName: string,
   bloomLevel: number,
   context: string,
-  questionFormat: string
+  questionFormat: string,
+  cognitiveDimension: string
 ): Promise<any> {
   const bloomDescriptions: Record<number, { name: string; verbs: string }> = {
     1: { name: 'Remember', verbs: 'define, list, recall, identify, name' },
@@ -353,6 +392,10 @@ async function generateQuestion(
   }
 
   const bloom = bloomDescriptions[bloomLevel] || bloomDescriptions[1]
+
+  // Import cognitive dimension info
+  const { COGNITIVE_DIMENSIONS } = await import('@/lib/utils/cognitive-dimensions')
+  const dimensionInfo = COGNITIVE_DIMENSIONS[cognitiveDimension as keyof typeof COGNITIVE_DIMENSIONS]
 
   const formatInstructions: Record<string, string> = {
     mcq_single: 'Generate a multiple-choice question with 4 options and ONE correct answer. Format: {"question": "What is X?", "options": ["First option text", "Second option text", "Third option text", "Fourth option text"], "correct_answer": "A", "explanation": "..."}. IMPORTANT: options array should contain ONLY the option text without any letter prefixes (A, B, C, D). The correct_answer should be just the letter (A, B, C, or D).',
@@ -380,19 +423,24 @@ This is a cybersecurity/security topic. Your question MUST:
 - Focus on SPECIFIC security concepts, threats, or controls mentioned in the context
 - Test understanding of HOW attacks work, WHAT defenses exist, or WHY security measures matter
 - Reference SPECIFIC details from the learning context (e.g., attack vectors, threat actors, security controls)
-- ❌ AVOID generic "What is X?" definitions unless the topic is truly foundational
-- ❌ DO NOT ask overly broad questions that could apply to any domain
-- ✅ For Bloom 1 (Remember): Ask about SPECIFIC components, methods, or characteristics (e.g., "What is X attack vector?" not "What is X?")
-- ✅ For Bloom 2-4: Test understanding of threats, defenses, attack mechanisms, or security principles
+- ❌ AVOID VAGUE/AMBIGUOUS TERMS that could have multiple meanings across domains
+- ❌ DO NOT use topic terms without context if they are ambiguous (e.g., "cloud access" could mean access methods, security, network vectors, etc.)
+- ✅ "What is X?" questions are GOOD when X is crystal clear and unambiguous (e.g., "What is encryption?", "What is AES?")
+- ✅ "What is X?" questions are BAD when X is vague (e.g., "What is cloud access?" - needs disambiguation)
+- ✅ For vague terms: Add specificity from context (e.g., "What is the primary security risk of cloud access network vectors?")
 - ✅ Ensure questions are anchored to cybersecurity domain, not generic IT concepts
 
-**Example BAD question (too generic):**
+**Example BAD question (vague term):**
 "What is cloud access?"
-→ This could mean anything in IT/cloud computing
+→ Ambiguous - could mean access methods, security, protocols, network vectors, etc.
 
-**Example GOOD question (domain-specific):**
-"What is the primary security risk associated with cloud access network vectors?"
-→ Anchored to security threats, references specific attack vector concept
+**Example GOOD question (clear term):**
+"What is encryption?"
+→ Crystal clear, unambiguous concept
+
+**Example GOOD question (disambiguated vague term):**
+"What security risk do cloud access network vectors pose to organizations?"
+→ Same topic, but disambiguated with specific context from learning materials
 `
   }
 
@@ -402,10 +450,17 @@ This is a cybersecurity/security topic. Your question MUST:
 **Bloom Level:** ${bloomLevel} - ${bloom.name}
 **Action Verbs:** ${bloom.verbs}
 **Question Format:** ${questionFormat}
+**Cognitive Dimension:** ${dimensionInfo.name} (${dimensionInfo.description})
 
 **Learning Context:**
 ${context}
 ${domainConstraints}
+
+**🎯 COGNITIVE DIMENSION FOCUS:**
+This question MUST focus on the **${dimensionInfo.name.toUpperCase()}** dimension.
+${dimensionInfo.questionPrompts.map((prompt: string) => `- ${prompt.replace('[topic]', topicName)}`).join('\n')}
+
+Your question should specifically target this cognitive dimension while maintaining Bloom Level ${bloomLevel} complexity.
 
 **Instructions:**
 ${formatInstruction}
@@ -414,7 +469,10 @@ ${formatInstruction}
 1. **Parse the Learning Context:** Extract key concepts, details, and specifics from the context above
 2. **Use Specific Details:** Your question MUST reference at least one specific detail from the context
 3. **Test at Bloom Level ${bloomLevel} (${bloom.name}):** Use one of these verbs: ${bloom.verbs}
-4. **Avoid Generic Questions:** Do NOT ask broad "What is X?" questions if the context provides specific details about X
+4. **Avoid Vague/Ambiguous Terms:**
+   - ✅ "What is X?" is GOOD when X is crystal clear (e.g., "What is encryption?", "What is AES?")
+   - ❌ "What is X?" is BAD when X is vague/ambiguous (e.g., "What is cloud access?" could mean many things)
+   - ✅ For vague terms: Disambiguate using context (e.g., "What security risk do cloud access network vectors pose?")
 5. **Domain Anchoring:** Ensure the question is clearly anchored to the topic's domain (e.g., cybersecurity, physics, biology)
 6. **Validate Alignment:** The question should test understanding of the SPECIFIC details provided, not general knowledge
 7. **Clear and Unambiguous:** ONE definitive correct answer (or multiple for mcq_multi)

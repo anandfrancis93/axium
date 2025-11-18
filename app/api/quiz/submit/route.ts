@@ -74,7 +74,8 @@ export async function POST(request: NextRequest) {
       topic_id: responseTopicId,
       calibration_score: calibrationScore,
       confidence,
-      recognition_method: recognitionMethod
+      recognition_method: recognitionMethod,
+      cognitive_dimension: question.cognitive_dimension
     })
 
     const { data: insertData, error: insertError } = await supabase
@@ -90,6 +91,7 @@ export async function POST(request: NextRequest) {
         recognition_method: recognitionMethod,
         time_taken_seconds: timeTaken,
         question_format: question.question_format,
+        cognitive_dimension: question.cognitive_dimension || null,
         calibration_score: calibrationScore,        // TRACK 1: Calibration (primary)
         reward: calibrationScore                    // Legacy: Store same value for backward compatibility
       })
@@ -114,7 +116,7 @@ export async function POST(request: NextRequest) {
     // Update question statistics (times_used, avg_correctness_rate)
     await updateQuestionStats(questionId, isCorrect)
 
-    // Update user progress (TRACK 2: Format-specific correctness)
+    // Update user progress (TRACK 2: Format-specific correctness + dimension coverage)
     // Note: TRACK 1 (calibration statistics) are automatically updated by database trigger
     await updateUserProgress(
       supabase,
@@ -122,6 +124,7 @@ export async function POST(request: NextRequest) {
       responseTopicId,
       question.bloom_level,
       question.question_format,
+      question.cognitive_dimension || null,
       isCorrect
     )
 
@@ -345,10 +348,13 @@ function calculateCalibrationScore(
 }
 
 /**
- * Update TRACK 2: Mastery scores per Bloom level
+ * Update TRACK 2: Mastery scores per Bloom level + cognitive dimension coverage
  *
  * Updates mastery_scores with overall performance per Bloom level.
  * Structure: {"1": 85, "2": 70, ...}
+ *
+ * Updates dimension_coverage to track which cognitive dimensions have been covered.
+ * Structure: {"1": ["WHAT", "WHY"], "2": ["HOW"], ...}
  *
  * Format-specific performance tracked separately via v_format_performance view.
  */
@@ -358,6 +364,7 @@ async function updateUserProgress(
   topicId: string,
   bloomLevel: number,
   questionFormat: string,
+  cognitiveDimension: string | null,
   isCorrect: boolean
 ) {
   // Fetch current progress
@@ -374,6 +381,11 @@ async function updateUserProgress(
       [bloomLevel]: isCorrect ? 100 : 0
     }
 
+    // Initialize dimension coverage if cognitive dimension is provided
+    const initialDimensionCoverage = cognitiveDimension
+      ? { [bloomLevel]: [cognitiveDimension] }
+      : {}
+
     await supabase
       .from('user_progress')
       .insert({
@@ -381,6 +393,7 @@ async function updateUserProgress(
         topic_id: topicId,
         current_bloom_level: bloomLevel,
         mastery_scores: initialMasteryScores,
+        dimension_coverage: initialDimensionCoverage,
         total_attempts: 1,
         correct_answers: isCorrect ? 1 : 0,
         last_practiced_at: new Date().toISOString()
@@ -412,12 +425,26 @@ async function updateUserProgress(
       updatedMasteryScores[bloomLevel] = isCorrect ? 100 : 0
     }
 
+    // Update dimension coverage (add new dimension if not already covered)
+    const updatedDimensionCoverage = { ...(progress.dimension_coverage || {}) }
+
+    if (cognitiveDimension) {
+      const currentCoverage = updatedDimensionCoverage[bloomLevel] || []
+
+      // Add dimension if not already covered for this Bloom level
+      if (!currentCoverage.includes(cognitiveDimension)) {
+        updatedDimensionCoverage[bloomLevel] = [...currentCoverage, cognitiveDimension]
+        console.log(`[Dimension Coverage] Added ${cognitiveDimension} to Bloom ${bloomLevel} (now ${updatedDimensionCoverage[bloomLevel].length}/6 covered)`)
+      }
+    }
+
     await supabase
       .from('user_progress')
       .update({
         total_attempts: newTotal,
         correct_answers: newCorrect,
         mastery_scores: updatedMasteryScores,
+        dimension_coverage: updatedDimensionCoverage,
         last_practiced_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       })
