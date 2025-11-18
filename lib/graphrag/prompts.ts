@@ -196,11 +196,18 @@ REQUIREMENTS:
 - Use action verbs: ${bloomInfo.actionVerbs.slice(0, 5).join(', ')}
 
 INSTRUCTIONS:
-1. Create a question that tests ${bloomInfo.name.toLowerCase()} skills for the topic "${context.name}"
-2. Write 4 options (A, B, C, D) with exactly ONE correct answer
-3. Make distractors (wrong answers) plausible but clearly incorrect
-4. Base the question on the provided context and related concepts
-5. Provide a detailed explanation of why the correct answer is right and others are wrong
+1. Create a question that tests ${bloomInfo.name.toLowerCase()} skills about "${context.name}"
+2. The question should test knowledge OF "${context.name}" itself (what it is, how it works, when to use it, etc.)
+3. The correct answer should directly relate to identifying, defining, or explaining "${context.name}"
+4. Write 4 options (A, B, C, D) with exactly ONE correct answer
+5. Make distractors (wrong answers) plausible but clearly incorrect
+6. Base the question on the provided context and related concepts
+7. Provide a detailed explanation of why the correct answer is right and others are wrong
+
+CRITICAL RULE - TEST THE TOPIC:
+- The question must test understanding OF "${context.name}"
+- Acceptable: "What is ${context.name}?", "How does ${context.name} work?", "When should you use ${context.name}?"
+- AVOID: Using "${context.name}" in the question stem but asking about something else entirely
 
 QUALITY CONTROLS - ANTI-TELL-TALE RULES:
 ❌ NEVER use these patterns (they give away answers):
@@ -280,11 +287,18 @@ REQUIREMENTS:
 - Use action verbs: ${bloomInfo.actionVerbs.slice(0, 5).join(', ')}
 
 INSTRUCTIONS:
-1. Create a question that tests ${bloomInfo.name.toLowerCase()} skills for the topic "${context.name}"
-2. Write 5-6 options with 2-3 correct answers
-3. Make the question require understanding of multiple aspects
-4. Use "Select all that apply" or similar phrasing
-5. Provide a detailed explanation of why each correct answer is right and each distractor is wrong
+1. Create a question that tests ${bloomInfo.name.toLowerCase()} skills about "${context.name}"
+2. The question should test knowledge OF "${context.name}" itself (characteristics, components, use cases, etc.)
+3. The correct answers should directly relate to aspects of "${context.name}"
+4. Write 5-6 options with 2-3 correct answers
+5. Make the question require understanding of multiple aspects of "${context.name}"
+6. Use "Select all that apply" or similar phrasing
+7. Provide a detailed explanation of why each correct answer is right and each distractor is wrong
+
+CRITICAL RULE - TEST THE TOPIC:
+- The question must test understanding OF "${context.name}"
+- Acceptable: "Which characteristics describe ${context.name}?", "What are the components of ${context.name}?"
+- AVOID: Using "${context.name}" in the question stem but asking about unrelated concepts
 
 QUALITY CONTROLS - ANTI-TELL-TALE RULES:
 ❌ NEVER use these patterns (they give away answers):
@@ -365,10 +379,17 @@ REQUIREMENTS:
 - Cognitive Skills: ${bloomInfo.cognitiveSkills.join(', ')}
 
 INSTRUCTIONS:
-1. Create a statement about "${context.name}" that is definitively true OR false
-2. The statement should test ${bloomInfo.name.toLowerCase()} skills
-3. Avoid ambiguous wording
-4. Provide a clear explanation
+1. Create a statement that defines, describes, or characterizes "${context.name}"
+2. The statement should be definitively true OR false about "${context.name}" itself
+3. The statement should test ${bloomInfo.name.toLowerCase()} skills about "${context.name}"
+4. Avoid ambiguous wording
+5. Provide a clear explanation
+
+CRITICAL RULE - TEST THE TOPIC:
+- The statement must be ABOUT "${context.name}" itself
+- Acceptable: "${context.name} is a type of..." (tests if student knows what it is)
+- Acceptable: "${context.name} provides protection for..." (tests if student knows its purpose)
+- AVOID: Mentioning "${context.name}" but making a statement about something else
 
 QUALITY CONTROLS - ANTI-TELL-TALE RULES:
 ❌ NEVER use these patterns (they give away answers):
@@ -517,11 +538,18 @@ REQUIREMENTS:
 - Use action verbs: ${bloomInfo.actionVerbs.slice(0, 5).join(', ')}
 
 INSTRUCTIONS:
-1. Create a scenario-based question about "${context.name}"
-2. The question should require ${bloomInfo.name.toLowerCase()} skills
-3. Provide a comprehensive model answer (2-3 paragraphs)
-4. Include key points that must be addressed
-5. Create a clear rubric for grading
+1. Create a scenario-based question that requires explaining, analyzing, or applying "${context.name}"
+2. The question should focus on "${context.name}" itself (not just mention it)
+3. The question should require ${bloomInfo.name.toLowerCase()} skills about "${context.name}"
+4. Provide a comprehensive model answer (2-3 paragraphs) that demonstrates understanding of "${context.name}"
+5. Include key points that must be addressed about "${context.name}"
+6. Create a clear rubric for grading
+
+CRITICAL RULE - TEST THE TOPIC:
+- The question must require deep understanding OF "${context.name}"
+- Acceptable: "Explain how ${context.name} works", "Analyze the effectiveness of ${context.name}"
+- Acceptable: "Design a solution using ${context.name}" (for Bloom level 6)
+- AVOID: Asking about something else while merely mentioning "${context.name}" in the scenario
 
 QUALITY CONTROLS:
 ❌ AVOID these question types:
