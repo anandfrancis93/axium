@@ -221,19 +221,19 @@ function parseClaudeResponse(responseText: string, format: QuestionFormat, conte
 }
 
 /**
- * Generate a single question using Claude Sonnet 4.5
+ * Generate a single question using Claude Haiku 4.5
  *
  * @param context - GraphRAG context for the topic
  * @param bloomLevel - Bloom taxonomy level (1-6)
  * @param format - Question format
- * @param model - Claude model to use (default: claude-sonnet-4-5-20250929)
+ * @param model - Claude model to use (default: claude-haiku-4-5)
  * @returns Generated question
  */
 export async function generateQuestion(
   context: GraphRAGContext,
   bloomLevel: number,
   format: QuestionFormat,
-  model: string = 'claude-sonnet-4-5-20250929'
+  model: string = 'claude-haiku-4-5'
 ): Promise<GeneratedQuestion> {
   const client = createAnthropicClient()
 
