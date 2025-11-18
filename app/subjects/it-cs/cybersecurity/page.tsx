@@ -282,217 +282,179 @@ export default function CybersecurityPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-6">
 
         {/* Quick Action - Start Practice */}
-        <div className="neuro-card p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-gray-200 mb-1">Ready to Practice?</h2>
-              <p className="text-sm text-gray-500">AI will select the best topic for you based on your learning progress</p>
+        <div className="neuro-card p-1 rounded-2xl overflow-hidden animate-slide-up" style={{ animationDelay: '0.1s' }}>
+          <div className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 p-6 sm:p-8">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+              <div className="flex-1 text-center sm:text-left">
+                <h2 className="text-2xl font-bold text-white mb-2">Ready to Level Up?</h2>
+                <p className="text-gray-400 max-w-xl">
+                  AI will analyze your performance and select the optimal topic to boost your cybersecurity mastery.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  sessionStorage.setItem('quiz_authorized', 'true')
+                  window.location.href = '/subjects/it-cs/cybersecurity/learn'
+                }}
+                className="neuro-btn-primary px-8 py-4 font-bold text-lg flex items-center gap-2 whitespace-nowrap group"
+              >
+                <span>Start Adaptive Quiz</span>
+                <span className="group-hover:translate-x-1 transition-transform">→</span>
+              </button>
             </div>
-            <button
-              onClick={() => {
-                // Set authorization flag for quiz access
-                sessionStorage.setItem('quiz_authorized', 'true')
-                window.location.href = '/subjects/it-cs/cybersecurity/learn'
-              }}
-              className="neuro-btn text-blue-400 px-6 py-3 font-semibold"
-            >
-              Start Quiz →
-            </button>
           </div>
         </div>
 
         {/* Topics Progress */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
+        <div className="animate-slide-up" style={{ animationDelay: '0.2s' }}>
+          <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-semibold text-gray-200">Your Progress</h3>
             {topicsProgress.length > 0 && (
               <button
                 onClick={resetProgress}
                 disabled={resetting}
-                className="neuro-btn text-red-400 px-4 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="neuro-btn text-red-400 px-4 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 hover:bg-red-500/10"
               >
                 <TrashIcon size={18} />
-                <span>{resetting ? 'Resetting...' : 'Reset Progress'}</span>
+                <span>{resetting ? 'Resetting...' : 'Reset'}</span>
               </button>
             )}
           </div>
 
           {/* Search Bar */}
-          <div className="mb-4">
-            <div className="relative">
-              <SearchIcon size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+          <div className="mb-8">
+            <div className="relative group">
+              <SearchIcon size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-blue-400 transition-colors" />
               <input
                 type="text"
                 placeholder="Search topics..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="neuro-input w-full pl-12"
+                className="neuro-input w-full pl-12 py-4 text-lg bg-[#151515] focus:bg-[#1a1a1a]"
               />
             </div>
           </div>
 
           {/* Loading State */}
           {loading && (
-            <div className="neuro-card p-8 text-center">
-              <div className="text-gray-400">Loading your progress...</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="neuro-card h-48 animate-pulse"></div>
+              ))}
             </div>
           )}
 
           {/* Empty State */}
           {!loading && topicsProgress.length === 0 && (
-            <div className="neuro-inset p-8 rounded-lg text-center">
-              <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <ShieldIcon size={40} className="text-gray-600" />
+            <div className="neuro-inset p-12 rounded-2xl text-center">
+              <div className="neuro-inset w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+                <ShieldIcon size={48} className="text-gray-600" />
               </div>
-              <div className="text-gray-400 text-lg font-semibold mb-2">
+              <div className="text-gray-400 text-xl font-semibold mb-2">
                 No topics attempted yet
               </div>
-              <div className="text-sm text-gray-600 mb-6">
-                Start your first quiz to see your progress here
+              <div className="text-gray-600 mb-8 max-w-md mx-auto">
+                Your learning journey begins with a single step. Start a quiz to begin tracking your mastery.
               </div>
             </div>
           )}
 
-          {/* Topics Table */}
+          {/* Topics Grid */}
           {!loading && filteredTopics.length > 0 && (
-            <div className="neuro-card overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-800">
-                      <th className="text-left p-4 text-sm font-semibold text-gray-400">Topic</th>
-                      <th className="text-center p-4 text-sm font-semibold text-gray-400">Attempts</th>
-                      <th className="text-center p-4 text-sm font-semibold text-gray-400">Correct</th>
-                      <th className="text-center p-4 text-sm font-semibold text-gray-400">Mastery</th>
-                      <th className="text-center p-4 text-sm font-semibold text-gray-400 w-32">Learning Curve</th>
-                      <th className="text-right p-4 text-sm font-semibold text-gray-400">Last Practiced</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredTopics.map((topic) => {
-                      const accuracy = topic.total_attempts > 0
-                        ? Math.round((topic.correct_answers / topic.total_attempts) * 100)
-                        : 0
-                      const overallMastery = calculateOverallMastery(topic.mastery_scores)
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredTopics.map((topic, index) => {
+                const accuracy = topic.total_attempts > 0
+                  ? Math.round((topic.correct_answers / topic.total_attempts) * 100)
+                  : 0
+                const overallMastery = calculateOverallMastery(topic.mastery_scores)
 
-                      return (
-                        <tr
-                          key={topic.topic_id}
-                          className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors"
-                        >
-                          <td className="p-4">
-                            <a
-                              href={`/subjects/it-cs/cybersecurity/${encodeURIComponent(topic.topic_name)}`}
-                              className="font-medium text-blue-400 hover:text-blue-300 hover:underline cursor-pointer"
-                            >
-                              {topic.topic_name}
-                            </a>
-                          </td>
-                          <td className="p-4 text-center">
-                            <span className="text-gray-300">{topic.total_attempts}</span>
-                          </td>
-                          <td className="p-4 text-center">
-                            <span className="text-gray-300">
-                              {topic.correct_answers}
-                              <span className="text-gray-600 ml-1">({accuracy}%)</span>
-                            </span>
-                          </td>
-                          <td className="p-4 text-center">
-                            <div className="flex items-center justify-center gap-2">
-                              <div className={`text-lg font-bold ${overallMastery >= 80 ? 'text-green-400' :
-                                overallMastery >= 60 ? 'text-yellow-400' :
-                                  'text-red-400'
-                                }`}>
-                                {overallMastery}%
-                              </div>
-                            </div>
-                          </td>
-                          <td className="p-4">
-                            <div className="h-12 w-32 mx-auto">
-                              {topic.recent_responses.length > 1 ? (
-                                <LearningCurveChart
-                                  data={topic.recent_responses}
-                                  slope={topic.calibration_slope}
-                                  intercept={null}
-                                  stddev={topic.calibration_stddev}
-                                  height={48}
-                                  sparkline={true}
-                                />
-                              ) : (
-                                <div className="h-full flex items-center justify-center text-xs text-gray-600">
-                                  No data
-                                </div>
-                              )}
-                            </div>
-                          </td>
-                          <td className="p-4 text-right">
-                            <span className="text-sm text-gray-500">
-                              {formatDateTime(topic.last_practiced_at)}
-                            </span>
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                  <tfoot>
-                    <tr className="border-t-2 border-gray-700 bg-gray-800/30">
-                      <td className="p-4">
-                        <div className="font-semibold text-gray-200">
-                          Total ({filteredTopics.length} {filteredTopics.length === 1 ? 'topic' : 'topics'})
-                        </div>
-                      </td>
-                      <td className="p-4 text-center">
-                        <span className="font-semibold text-gray-200">
-                          {filteredTopics.reduce((sum, topic) => sum + topic.total_attempts, 0)}
-                        </span>
-                      </td>
-                      <td className="p-4 text-center">
-                        <span className="font-semibold text-gray-200">
-                          {filteredTopics.reduce((sum, topic) => sum + topic.correct_answers, 0)}
-                          <span className="text-gray-600 ml-1">
-                            ({filteredTopics.reduce((sum, topic) => sum + topic.total_attempts, 0) > 0
-                              ? Math.round((filteredTopics.reduce((sum, topic) => sum + topic.correct_answers, 0) /
-                                filteredTopics.reduce((sum, topic) => sum + topic.total_attempts, 0)) * 100)
-                              : 0}%)
-                          </span>
-                        </span>
-                      </td>
-                      <td className="p-4 text-center">
-                        {(() => {
-                          const avgMastery = Math.round(
-                            filteredTopics.reduce((sum, topic) => sum + calculateOverallMastery(topic.mastery_scores), 0) /
-                            filteredTopics.length
-                          )
-                          return (
-                            <div className={`text-lg font-bold ${avgMastery >= 80 ? 'text-green-400' :
-                              avgMastery >= 60 ? 'text-yellow-400' :
-                                'text-red-400'
-                              }`}>
-                              {avgMastery}%
-                            </div>
-                          )
-                        })()}
-                      </td>
-                      <td className="p-4"></td>
-                      <td className="p-4 text-right">
-                        {/* Empty - no date for summary row */}
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
+                // Determine mastery color
+                let masteryColor = 'text-red-400'
+                let masteryBg = 'bg-red-500/10'
+                let masteryBorder = 'border-red-500/20'
+
+                if (overallMastery >= 80) {
+                  masteryColor = 'text-green-400'
+                  masteryBg = 'bg-green-500/10'
+                  masteryBorder = 'border-green-500/20'
+                } else if (overallMastery >= 60) {
+                  masteryColor = 'text-yellow-400'
+                  masteryBg = 'bg-yellow-500/10'
+                  masteryBorder = 'border-yellow-500/20'
+                }
+
+                return (
+                  <a
+                    key={topic.topic_id}
+                    href={`/subjects/it-cs/cybersecurity/${encodeURIComponent(topic.topic_name)}`}
+                    className="neuro-card p-5 group hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col h-full animate-slide-up"
+                    style={{ animationDelay: `${0.1 + (index * 0.05)}s` }}
+                  >
+                    {/* Header */}
+                    <div className="flex justify-between items-start mb-4">
+                      <h4 className="font-bold text-lg text-gray-200 group-hover:text-blue-400 transition-colors line-clamp-2 flex-1 mr-2">
+                        {topic.topic_name}
+                      </h4>
+                      <div className={`px-2.5 py-1 rounded-lg text-sm font-bold border ${masteryColor} ${masteryBg} ${masteryBorder}`}>
+                        {overallMastery}%
+                      </div>
+                    </div>
+
+                    {/* Stats Row */}
+                    <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-gray-300 font-medium">{topic.total_attempts}</span>
+                        <span>attempts</span>
+                      </div>
+                      <div className="w-1 h-1 rounded-full bg-gray-700"></div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-gray-300 font-medium">{accuracy}%</span>
+                        <span>accuracy</span>
+                      </div>
+                    </div>
+
+                    {/* Learning Curve */}
+                    <div className="mt-auto">
+                      <div className="h-16 w-full mb-3 relative">
+                        {topic.recent_responses.length > 1 ? (
+                          <LearningCurveChart
+                            data={topic.recent_responses}
+                            slope={topic.calibration_slope}
+                            intercept={null}
+                            stddev={topic.calibration_stddev}
+                            height={64}
+                            sparkline={true}
+                            className="opacity-70 group-hover:opacity-100 transition-opacity"
+                          />
+                        ) : (
+                          <div className="h-full flex items-center justify-center text-xs text-gray-700 border border-dashed border-gray-800 rounded-lg">
+                            Not enough data
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between text-xs text-gray-600">
+                        <span>Learning Curve</span>
+                        <span>{formatDateTime(topic.last_practiced_at)}</span>
+                      </div>
+                    </div>
+                  </a>
+                )
+              })}
             </div>
           )}
 
           {/* No Search Results */}
           {!loading && topicsProgress.length > 0 && filteredTopics.length === 0 && (
-            <div className="neuro-inset p-8 rounded-lg text-center">
-              <div className="text-gray-400 text-lg font-semibold mb-2">
-                No topics found
+            <div className="neuro-inset p-12 rounded-2xl text-center">
+              <div className="text-gray-400 text-xl font-semibold mb-2">
+                No topics found matching "{searchQuery}"
               </div>
-              <div className="text-sm text-gray-600">
-                Try a different search term
-              </div>
+              <button
+                onClick={() => setSearchQuery('')}
+                className="text-blue-400 hover:text-blue-300 hover:underline mt-2"
+              >
+                Clear search
+              </button>
             </div>
           )}
         </div>
