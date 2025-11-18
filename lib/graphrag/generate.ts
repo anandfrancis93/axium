@@ -1,5 +1,4 @@
 import Anthropic from '@anthropic-ai/sdk'
-import { GoogleGenerativeAI } from '@google/generative-ai'
 import { GraphRAGContext } from './context'
 import { generateQuestionPrompt, QuestionFormat, QUESTION_FORMATS } from './prompts'
 
@@ -63,19 +62,6 @@ function createAnthropicClient(): Anthropic {
   }
 
   return new Anthropic({ apiKey })
-}
-
-/**
- * Create Google Gemini client
- */
-function createGeminiClient(): GoogleGenerativeAI {
-  const apiKey = process.env.GEMINI_API_KEY
-
-  if (!apiKey) {
-    throw new QuestionGenerationError('Missing GEMINI_API_KEY environment variable', null, false)
-  }
-
-  return new GoogleGenerativeAI(apiKey)
 }
 
 /**
@@ -235,53 +221,55 @@ function parseClaudeResponse(responseText: string, format: QuestionFormat, conte
 }
 
 /**
- * Generate a single question using Google Gemini 2.5 Pro
+ * Generate a single question using Claude Sonnet 4.5
  *
  * @param context - GraphRAG context for the topic
  * @param bloomLevel - Bloom taxonomy level (1-6)
  * @param format - Question format
- * @param model - Gemini model to use (default: gemini-2.5-pro)
+ * @param model - Claude model to use (default: claude-sonnet-4-5-20250929)
  * @returns Generated question
  */
 export async function generateQuestion(
   context: GraphRAGContext,
   bloomLevel: number,
   format: QuestionFormat,
-  model: string = 'gemini-2.5-pro'
+  model: string = 'claude-sonnet-4-5-20250929'
 ): Promise<GeneratedQuestion> {
-  const client = createGeminiClient()
-
-  // Get the model
-  const geminiModel = client.getGenerativeModel({
-    model,
-    generationConfig: {
-      temperature: 0.7,
-      topP: 0.95,
-      topK: 40,
-      maxOutputTokens: 2048,
-      responseMimeType: 'application/json',
-    }
-  })
+  const client = createAnthropicClient()
 
   // Generate prompt
   const prompt = generateQuestionPrompt(context, bloomLevel, format)
 
-  // Call Gemini API
+  // Call Claude API
   try {
-    const result = await geminiModel.generateContent(prompt)
-    const response = result.response
-    const responseText = response.text()
+    const message = await client.messages.create({
+      model,
+      max_tokens: 2048,
+      temperature: 0.7,
+      messages: [
+        {
+          role: 'user',
+          content: prompt
+        }
+      ]
+    })
+
+    // Extract text from response
+    const responseText = message.content[0].type === 'text' ? message.content[0].text : ''
 
     if (!responseText) {
-      throw new QuestionGenerationError('Empty response from Gemini', null, true)
+      throw new QuestionGenerationError('Empty response from Claude', null, true)
     }
 
     // Parse response
     const parsed = parseClaudeResponse(responseText, format, context)
 
-    // Estimate token usage (Gemini API doesn't provide exact counts in free tier)
-    const estimatedInputTokens = Math.ceil(prompt.length / 4)
-    const estimatedOutputTokens = Math.ceil(responseText.length / 4)
+    // Get actual token usage from Claude API
+    const tokensUsed = {
+      input: message.usage.input_tokens,
+      output: message.usage.output_tokens,
+      total: message.usage.input_tokens + message.usage.output_tokens
+    }
 
     // Build result
     const questionResult: GeneratedQuestion = {
@@ -295,11 +283,7 @@ export async function generateQuestion(
       fullPath: context.fullPath,
       generatedAt: new Date(),
       model,
-      tokensUsed: {
-        input: estimatedInputTokens,
-        output: estimatedOutputTokens,
-        total: estimatedInputTokens + estimatedOutputTokens
-      }
+      tokensUsed
     }
 
     // Add format-specific fields
@@ -323,13 +307,13 @@ export async function generateQuestion(
     return questionResult
 
   } catch (error: any) {
-    // Handle Gemini API errors
-    if (error.message?.includes('API key')) {
-      throw new QuestionGenerationError('Invalid Gemini API key', error, false)
-    } else if (error.message?.includes('quota') || error.message?.includes('rate limit')) {
+    // Handle Claude API errors
+    if (error.message?.includes('API key') || error.status === 401) {
+      throw new QuestionGenerationError('Invalid Anthropic API key', error, false)
+    } else if (error.message?.includes('quota') || error.message?.includes('rate limit') || error.status === 429) {
       throw new QuestionGenerationError('Rate limit exceeded', error, true)
-    } else if (error.message?.includes('500') || error.message?.includes('503')) {
-      throw new QuestionGenerationError('Gemini API server error', error, true)
+    } else if (error.status === 500 || error.status === 503) {
+      throw new QuestionGenerationError('Claude API server error', error, true)
     }
 
     // If already a QuestionGenerationError, re-throw
@@ -349,7 +333,7 @@ export async function generateQuestion(
  * @param bloomLevel - Bloom level
  * @param format - Question format
  * @param maxRetries - Maximum retry attempts (default: 3)
- * @param model - Gemini model
+ * @param model - Claude model
  * @returns Generated question
  */
 export async function generateQuestionWithRetry(
