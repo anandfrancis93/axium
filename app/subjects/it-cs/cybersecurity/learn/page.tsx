@@ -835,7 +835,7 @@ function LearnPageContent() {
                     {answerResult.nextReviewDate && (
                       <div className="flex items-center justify-between">
                         <span className="text-white text-sm">Next Review:</span>
-                        <span className="font-semibold text-yellow-400">
+                        <span className="font-semibold text-white">
                           {(() => {
                             const reviewDate = new Date(answerResult.nextReviewDate)
                             const now = new Date()
