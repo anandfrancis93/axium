@@ -47,6 +47,12 @@ function LearnPageContent() {
   // Session storage key
   const STORAGE_KEY = 'axium_quiz_state'
 
+  // Helper function to capitalize first letter
+  const capitalizeFirst = (str: string) => {
+    if (!str) return str
+    return str.charAt(0).toUpperCase() + str.slice(1)
+  }
+
   // Guard: Check if user is authorized to access quiz page
   useEffect(() => {
     const authorized = sessionStorage.getItem('quiz_authorized')
@@ -564,7 +570,7 @@ function LearnPageContent() {
                               isUserAnswer && !isCorrectAnswer ? 'text-red-400' :
                               'text-gray-300'
                             }`}>
-                              {option}
+                              {capitalizeFirst(option)}
                             </div>
                             {!isUserAnswer && isCorrectAnswer && (
                               <div className="text-xs text-gray-500 mt-1">Correct answer</div>
