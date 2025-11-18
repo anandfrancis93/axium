@@ -171,6 +171,88 @@ async function main() {
     }
 
     console.log(`Successfully updated metrics for ${updatedCount} records.`)
+
+    // 5. Calculate Global Metrics for all users
+    console.log('Starting global metrics calculation...')
+
+    // Get unique users
+    const { data: users, error: usersError } = await supabase
+        .from('user_responses')
+        .select('user_id')
+
+    if (usersError) {
+        console.error('Error fetching users:', usersError)
+        return
+    }
+
+    // Deduplicate user IDs
+    const uniqueUserIds = [...new Set(users?.map(u => u.user_id) || [])]
+    console.log(`Found ${uniqueUserIds.length} unique users to process globally.`)
+
+    let globalUpdatedCount = 0
+
+    for (const userId of uniqueUserIds) {
+        // Fetch last 50 responses globally
+        const { data: globalResponses, error: globalError } = await supabase
+            .from('user_responses')
+            .select('calibration_score, is_correct, created_at')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(50)
+
+        if (globalError) {
+            console.error(`Error fetching global responses for user ${userId}:`, globalError)
+            continue
+        }
+
+        if (!globalResponses || globalResponses.length < 2) {
+            continue
+        }
+
+        const chronologicalGlobal = globalResponses.reverse()
+        const globalScores = chronologicalGlobal.map(r => {
+            if (r.calibration_score !== null) return Number(r.calibration_score)
+            return r.is_correct ? 1.0 : -1.0
+        })
+
+        const globalMetrics = calculateMetrics(globalScores)
+
+        // Check if record exists
+        const { data: existingGlobal } = await supabase
+            .from('user_global_progress')
+            .select('id')
+            .eq('user_id', userId)
+            .single()
+
+        if (existingGlobal) {
+            await supabase
+                .from('user_global_progress')
+                .update({
+                    calibration_mean: globalMetrics.mean,
+                    calibration_stddev: globalMetrics.stdDev,
+                    calibration_slope: globalMetrics.slope,
+                    calibration_r_squared: globalMetrics.rSquared,
+                    total_responses_analyzed: globalMetrics.count,
+                    last_updated_at: new Date().toISOString()
+                })
+                .eq('user_id', userId)
+        } else {
+            await supabase
+                .from('user_global_progress')
+                .insert({
+                    user_id: userId,
+                    calibration_mean: globalMetrics.mean,
+                    calibration_stddev: globalMetrics.stdDev,
+                    calibration_slope: globalMetrics.slope,
+                    calibration_r_squared: globalMetrics.rSquared,
+                    total_responses_analyzed: globalMetrics.count,
+                    last_updated_at: new Date().toISOString()
+                })
+        }
+        globalUpdatedCount++
+    }
+
+    console.log(`Successfully updated global metrics for ${globalUpdatedCount} users.`)
 }
 
 main().catch(console.error)

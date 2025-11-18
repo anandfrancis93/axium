@@ -167,6 +167,60 @@ export async function POST(request: NextRequest) {
         .eq('topic_id', responseTopicId)
     }
 
+    // TRACK 4: Global Performance Metrics (Slope, StdDev across ALL topics)
+    // Calculate and update immediately for instant feedback on overall progress
+    const { data: recentGlobalResponses } = await supabase
+      .from('user_responses')
+      .select('calibration_score, is_correct, created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(50) // Look at last 50 items globally for a broader trend
+
+    if (recentGlobalResponses && recentGlobalResponses.length > 1) {
+      // Reverse to get chronological order (oldest -> newest)
+      const chronologicalGlobalResponses = recentGlobalResponses.reverse()
+
+      const globalScores = chronologicalGlobalResponses.map((r: any) => {
+        if (r.calibration_score !== null) return Number(r.calibration_score)
+        return r.is_correct ? 1.0 : -1.0
+      })
+
+      const globalMetrics = calculateMetrics(globalScores)
+
+      // Check if global progress record exists
+      const { data: existingGlobal } = await supabase
+        .from('user_global_progress')
+        .select('id')
+        .eq('user_id', user.id)
+        .single()
+
+      if (existingGlobal) {
+        await supabase
+          .from('user_global_progress')
+          .update({
+            calibration_mean: globalMetrics.mean,
+            calibration_stddev: globalMetrics.stdDev,
+            calibration_slope: globalMetrics.slope,
+            calibration_r_squared: globalMetrics.rSquared,
+            total_responses_analyzed: globalMetrics.count,
+            last_updated_at: new Date().toISOString()
+          })
+          .eq('user_id', user.id)
+      } else {
+        await supabase
+          .from('user_global_progress')
+          .insert({
+            user_id: user.id,
+            calibration_mean: globalMetrics.mean,
+            calibration_stddev: globalMetrics.stdDev,
+            calibration_slope: globalMetrics.slope,
+            calibration_r_squared: globalMetrics.rSquared,
+            total_responses_analyzed: globalMetrics.count,
+            last_updated_at: new Date().toISOString()
+          })
+      }
+    }
+
     // Expand correct answer if it's just a letter (A, B, C, D) to full option text
     let expandedCorrectAnswer = question.correct_answer
     if (question.options && (question.question_format === 'mcq_single' || question.question_format === 'mcq_multi')) {
