@@ -86,7 +86,7 @@ function createGeminiClient(): GoogleGenerativeAI {
  * - Parses JSON
  * - Validates required fields
  */
-function parseClaudeResponse(responseText: string, format: QuestionFormat): any {
+function parseClaudeResponse(responseText: string, format: QuestionFormat, context: GraphRAGContext): any {
   // Remove markdown code blocks if present
   let cleanedText = responseText.trim()
 
@@ -147,6 +147,34 @@ function parseClaudeResponse(responseText: string, format: QuestionFormat): any 
     case 'fill_blank':
       if (!parsed.correctAnswer || typeof parsed.correctAnswer !== 'string') {
         throw new QuestionGenerationError('Fill blank must have correctAnswer string', null, true)
+      }
+
+      // CRITICAL VALIDATION: Ensure topic name is NOT in question stem for fill-blank
+      // The blank should BE the topic name, not a generic term
+      if (parsed.question && parsed.question.toLowerCase().includes(context.name.toLowerCase())) {
+        throw new QuestionGenerationError(
+          `Fill-blank violation: Topic name "${context.name}" appears in question stem. ` +
+          `The blank should BE the topic name, not a generic term. ` +
+          `Question: "${parsed.question}"`,
+          null,
+          true // Retryable
+        )
+      }
+
+      // Validate that correct answer is the topic name (or close variant)
+      const answerLower = parsed.correctAnswer.toLowerCase().trim()
+      const topicLower = context.name.toLowerCase().trim()
+      const isTopicNameOrVariant = answerLower === topicLower ||
+                                    answerLower.includes(topicLower) ||
+                                    topicLower.includes(answerLower)
+
+      if (!isTopicNameOrVariant) {
+        throw new QuestionGenerationError(
+          `Fill-blank violation: Correct answer "${parsed.correctAnswer}" is not the topic name "${context.name}". ` +
+          `The correct answer MUST be the topic name or a direct variant.`,
+          null,
+          true // Retryable
+        )
       }
       break
 
@@ -249,7 +277,7 @@ export async function generateQuestion(
     }
 
     // Parse response
-    const parsed = parseClaudeResponse(responseText, format)
+    const parsed = parseClaudeResponse(responseText, format, context)
 
     // Estimate token usage (Gemini API doesn't provide exact counts in free tier)
     const estimatedInputTokens = Math.ceil(prompt.length / 4)

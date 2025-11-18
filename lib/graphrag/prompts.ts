@@ -563,6 +563,18 @@ CRITICAL RULE - TOPIC AS ANSWER:
 - Example: "_____ is data that is being actively transferred between locations" → Correct Answer: "Data in Motion"
 - DO NOT create questions where "${context.name}" appears in the stem and something else is the answer
 
+❌ WRONG EXAMPLE - TOPIC IN STEM, GENERIC TERM AS ANSWER (DO NOT DO THIS):
+Topic: "Pretexting"
+Question: "Pretexting is a social engineering tactic where a team communicates a lie or half-truth to get someone to believe a _____."
+Answer: "Falsehood" ❌ WRONG - "Falsehood" is a generic term, not the topic name
+Problem: The topic name appears in the STEM, and the blank is for a generic concept. This tests vocabulary, not knowledge of Pretexting.
+
+✅ CORRECT EXAMPLE - TOPIC AS ANSWER:
+Topic: "Pretexting"
+Question: "_____ is a social engineering tactic where a team communicates a lie or half-truth to make someone believe something false."
+Answer: "Pretexting" ✅ CORRECT - The topic name IS the answer
+Benefit: Tests if student can IDENTIFY "Pretexting" from its definition, which is actual knowledge of the topic.
+
 QUALITY CONTROLS - ANTI-TELL-TALE RULES:
 ❌ NEVER use these patterns (they give away answers):
 - One option significantly longer or shorter than others (±30% length difference is maximum)
