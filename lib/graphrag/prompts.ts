@@ -201,7 +201,11 @@ INSTRUCTIONS:
 3. The correct answer should directly relate to identifying, defining, or explaining "${context.name}"
 4. Write 4 options (A, B, C, D) with exactly ONE correct answer
 5. ⚠️ CRITICAL: ALL 4 options MUST be within ±30% length of each other (measure in characters)
-6. Make distractors (wrong answers) plausible but clearly incorrect
+6. ⚠️ CRITICAL: Create distractors using definitions of RELATED topics from the same domain
+   - DO NOT use vague/generic wrong answers ("a temporary solution", "a basic approach")
+   - DO use specific definitions of similar/related topics that could be confused
+   - Each distractor should sound like it COULD be correct if you don't know the precise definition
+   - Student must know the SPECIFIC definition of "${context.name}" to answer correctly
 7. Base the question on the provided context and related concepts
 8. Provide a detailed explanation of why the correct answer is right and others are wrong
 
@@ -266,6 +270,22 @@ All options 48-50 chars → Length doesn't reveal answer
 - A knowledgeable person should need to think carefully to eliminate distractors
 - Example for "purpose of security report": All options should be security-related purposes, not HR/finance/etc.
 
+❌ BAD EXAMPLE - IRRELEVANT DISTRACTORS:
+Question: "What is a Business Partner?"
+A) A temporary arrangement (IRRELEVANT - too vague)
+B) A closer relationship with aligned goals (CORRECT)
+C) A merger of operations (IRRELEVANT - too extreme)
+D) An informal connection (IRRELEVANT - too weak)
+Problem: Only B sounds like a real definition. Others are obviously wrong.
+
+✅ GOOD EXAMPLE - PLAUSIBLE DISTRACTORS:
+Question: "What is a Business Partner?"
+A) An organization that provides products or services under contract (Sounds like "Business Partner" but is actually "Vendor")
+B) Two companies sharing aligned goals and marketing opportunities (CORRECT - actual Business Partner definition)
+C) An external entity managing IT infrastructure and services (Sounds related but is actually "Managed Service Provider")
+D) A company that supplies raw materials or components (Sounds related but is actually "Supplier")
+Problem solved: All options are business relationship types. Student must know the SPECIFIC definition to answer correctly.
+
 MANDATORY PRE-SUBMISSION VALIDATION:
 Before returning your answer, you MUST verify:
 1. Calculate character count for each option (excluding "A) ", "B) ", etc. prefixes)
@@ -276,9 +296,12 @@ Before returning your answer, you MUST verify:
 
 VALIDATION CHECKLIST (review before submitting):
 1. ✅ LENGTH CHECK (MANDATORY): Calculate and verify all options are within ±30% length
-2. Read each option aloud - does one sound obviously different?
-3. Check grammar: Does each option complete the question stem correctly?
-4. Check plausibility: Could a student who studied incorrectly believe each distractor?
+2. ✅ PLAUSIBILITY CHECK (MANDATORY): Read each distractor - does it sound like a real definition of a related topic?
+   - REJECT vague distractors: "a basic method", "a simple approach", "a temporary solution"
+   - REQUIRE specific distractors: definitions of actual related topics from the same domain
+   - Ask: "If I didn't know the precise definition, could I genuinely believe this distractor?"
+3. Read each option aloud - does one sound obviously different?
+4. Check grammar: Does each option complete the question stem correctly?
 5. Check keywords: Are technical terms distributed evenly across options?
 6. Check structure: Do all options follow the same format (e.g., all start with verbs)?
 7. Check domain relevance: Are ALL options from the same topic domain? (e.g., all security-related, not mixing HR/finance/etc.)
@@ -315,9 +338,14 @@ INSTRUCTIONS:
 3. The correct answers should directly relate to aspects of "${context.name}"
 4. Write 5-6 options with 2-3 correct answers
 5. ⚠️ CRITICAL: ALL options MUST be within ±30% length of each other (measure in characters)
-6. Make the question require understanding of multiple aspects of "${context.name}"
-7. Use "Select all that apply" or similar phrasing
-8. Provide a detailed explanation of why each correct answer is right and each distractor is wrong
+6. ⚠️ CRITICAL: Create distractors using characteristics of RELATED topics from the same domain
+   - DO NOT use vague/generic wrong answers ("improves efficiency", "enhances security")
+   - DO use specific characteristics of similar/related topics that could be confused
+   - Each distractor should sound like it COULD be a characteristic of "${context.name}"
+   - Student must know the SPECIFIC characteristics of "${context.name}" to answer correctly
+7. Make the question require understanding of multiple aspects of "${context.name}"
+8. Use "Select all that apply" or similar phrasing
+9. Provide a detailed explanation of why each correct answer is right and each distractor is wrong
 
 CRITICAL RULE - TEST THE TOPIC:
 - The question must test understanding OF "${context.name}"
@@ -381,6 +409,24 @@ All options 48-54 chars → Length doesn't reveal answers
 - A knowledgeable person should need to think carefully to eliminate distractors
 - For "select all that apply" questions, incorrect options should be things that SOUND related but aren't actually correct
 
+❌ BAD EXAMPLE - VAGUE DISTRACTORS:
+Question: "Which characteristics describe Multifactor Authentication?"
+A) Requires multiple verification methods (CORRECT)
+B) Uses different authentication factors (CORRECT)
+C) Improves security (VAGUE - too generic)
+D) Is more complex (VAGUE - too generic)
+E) Costs more money (IRRELEVANT)
+Problem: C, D, E are generic/vague. Only A and B sound specific.
+
+✅ GOOD EXAMPLE - SPECIFIC DISTRACTORS:
+Question: "Which characteristics describe Multifactor Authentication?"
+A) Requires multiple independent verification methods (CORRECT)
+B) Uses different types of authentication factors (CORRECT)
+C) Stores credentials in a centralized password vault (Specific but wrong - describes Password Manager)
+D) Generates time-based single-use codes (Specific but wrong - describes OTP, which is ONE factor)
+E) Relies on biometric matching algorithms (Specific but wrong - describes Biometric Auth, which is ONE factor)
+Problem solved: All options are specific authentication features. Student must know MFA definition precisely.
+
 MANDATORY PRE-SUBMISSION VALIDATION:
 Before returning your answer, you MUST verify:
 1. Calculate character count for each option (excluding "A) ", "B) ", etc. prefixes)
@@ -391,9 +437,12 @@ Before returning your answer, you MUST verify:
 
 VALIDATION CHECKLIST (review before submitting):
 1. ✅ LENGTH CHECK (MANDATORY): Calculate and verify all options are within ±30% length
-2. Shuffle mental order - do correct answers cluster together?
-3. Check grammar: Do all options follow the same structural pattern?
-4. Check plausibility: Could each distractor seem correct to someone who partially understands?
+2. ✅ PLAUSIBILITY CHECK (MANDATORY): Read each distractor - does it sound like a specific characteristic of a related topic?
+   - REJECT vague distractors: "improves performance", "enhances security", "costs more"
+   - REQUIRE specific distractors: characteristics of actual related topics from the same domain
+   - Ask: "If I didn't know the precise characteristics, could I genuinely believe this distractor?"
+3. Shuffle mental order - do correct answers cluster together?
+4. Check grammar: Do all options follow the same structural pattern?
 5. Check balance: Are absolutes ("always"/"never") used equally in correct/incorrect options?
 6. Check wording: Are correct answers using noticeably different language than distractors?
 7. Independent verification: Can each option be evaluated independently without comparing to others?
