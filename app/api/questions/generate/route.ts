@@ -360,9 +360,11 @@ b) Plausible Distractors: Wrong answers must be from the same domain and sound b
    ❌ BAD: If correct answer is "Preventive (control type)", wrong answers shouldn't be "Apple" or "Database"
    ✅ GOOD: Wrong answers should be other control types like "Detective", "Corrective", "Compensating"
 
-c) Keyword Avoidance: Don't repeat exact keywords from question in only the correct answer
-   ❌ BAD: Q: "Which control TYPE prevents incidents?" A: "Preventive control TYPE"
-   ✅ GOOD: Q: "Which control prevents incidents?" A: "Preventive"
+c) Keyword Avoidance (Giveaways): The correct answer MUST NOT appear in the question text.
+   ❌ BAD: "A hacker known as an **authorized** hacker is engaged in what?" Answer: "Authorized"
+   ❌ BAD: "The **confidentiality** of data ensures..." Answer: "Confidentiality"
+   ✅ GOOD: "A security professional hired to test systems is called?" Answer: "Authorized/White Hat"
+   CRITICAL: Check if the answer word exists in your generated question. If yes, REWRITE the question.
 
 d) Balanced Technical Depth: All options must be equally professional and technical
    ❌ BAD: A) "Hardware security module providing cryptographic key management" B) "A thing" C) "Something" D) "IDK"
