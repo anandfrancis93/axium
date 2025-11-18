@@ -433,10 +433,19 @@ REQUIREMENTS:
 - Cognitive Skills: ${bloomInfo.cognitiveSkills.join(', ')}
 
 INSTRUCTIONS:
-1. Create a sentence with one blank (__________) related to "${context.name}"
-2. Provide 4 options where ONE correctly completes the sentence
-3. The blank should test ${bloomInfo.name.toLowerCase()} skills
-4. Make distractors plausible but grammatically fit the sentence
+1. Create a sentence with one blank (__________) where the CORRECT ANSWER is "${context.name}"
+2. The sentence should describe or define "${context.name}" WITHOUT using its name in the question stem
+3. Provide 4 options where ONE is "${context.name}" (or a close synonym/variant if the topic name is too long)
+4. The blank should test ${bloomInfo.name.toLowerCase()} skills about "${context.name}"
+5. Make distractors plausible terms from the same category/domain
+
+CRITICAL RULE - TOPIC AS ANSWER:
+- The correct answer MUST be the topic name: "${context.name}" (or a direct synonym/variant)
+- The question describes WHAT "${context.name}" IS, DOES, or its PURPOSE
+- The student must identify "${context.name}" from the description
+- Example: "_____ is an encryption scheme applied to data-in-motion" → Correct Answer: "Transport / Communication Encryption"
+- Example: "_____ is data that is being actively transferred between locations" → Correct Answer: "Data in Motion"
+- DO NOT create questions where "${context.name}" appears in the stem and something else is the answer
 
 QUALITY CONTROLS - ANTI-TELL-TALE RULES:
 ❌ NEVER use these patterns (they give away answers):
