@@ -348,12 +348,13 @@ EXPLANATION REQUIREMENTS:
 ANTI-TELLTALE QUALITY CONTROLS (CRITICAL):
 These measures prevent obvious answer giveaways and test-taking tricks:
 
-a) Length Variation (STRICT):
-   - All 4 options MUST be approximately the same length (within 15 characters max difference).
-   - The correct answer MUST NOT be an outlier (significantly longer or shorter than the others).
-   - If the correct answer requires a long explanation, ALL distractors must be equally long and detailed.
-   ❌ BAD: Correct answer is 100 chars, distractors are 50-60 chars. (Correct answer is an outlier)
-   ✅ GOOD: All options are between 90-110 chars. (Uniform distribution)
+a) Length Variation (ULTRA-STRICT):
+   - All 4 options MUST have nearly identical word counts (within +/- 2 words or 10% difference).
+   - Example: If correct answer is 5 words, distractors MUST be 4-6 words.
+   - Example: If correct answer is 20 words, distractors MUST be 18-22 words.
+   - The correct answer MUST NOT be an outlier in length.
+   ❌ BAD: Correct answer is 15 words, distractors are 5-8 words.
+   ✅ GOOD: All options are 12-15 words.
 
 b) Plausible Distractors: Wrong answers must be from the same domain and sound believable
    ❌ BAD: If correct answer is "Preventive (control type)", wrong answers shouldn't be "Apple" or "Database"
@@ -366,8 +367,8 @@ c) Keyword Avoidance (Giveaways): The correct answer MUST NOT appear in the ques
    CRITICAL: Check if the answer word exists in your generated question. If yes, REWRITE the question.
 
 SELF-CORRECTION STEP (Perform this internally before outputting):
-1. Check lengths: Is one option significantly longer (>20 chars) than the others?
-   -> IF YES: Rewrite the short options to be more detailed, OR shorten the long option.
+1. Check Word Counts: Are all options within +/- 2 words of each other?
+   -> IF NO: Rewrite options to match the length of the correct answer exactly.
 2. Check giveaways: Does the question contain the answer word?
    -> IF YES: Rewrite the question.
 3. Check distractors: Are they plausible concepts?
