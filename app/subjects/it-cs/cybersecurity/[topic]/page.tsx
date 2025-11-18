@@ -319,9 +319,6 @@ export default function TopicDetailPage() {
               <h1 className="text-2xl font-bold text-gray-200 truncate">
                 {topicDetail.topic_name}
               </h1>
-              {topicDetail.topic_hierarchy && (
-                <p className="text-sm text-gray-500 truncate">{topicDetail.topic_hierarchy}</p>
-              )}
             </div>
           </div>
         </div>
