@@ -358,7 +358,7 @@
     left: calc(100% - 1.375rem);
   }
 }
-}
+
 
 @layer utilities {
   .text-balance {
