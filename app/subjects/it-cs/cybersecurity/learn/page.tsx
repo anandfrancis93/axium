@@ -740,7 +740,7 @@ function LearnPageContent() {
                       <span className={`font-semibold text-sm ${
                         answerResult.calibrationScore > 0 ? 'text-green-400' :
                         answerResult.calibrationScore < 0 ? 'text-red-400' :
-                        'text-gray-400'
+                        'text-yellow-400'
                       }`}>
                         {answerResult.calibrationScore > 0 ? '+' : ''}{answerResult.calibrationScore.toFixed(2)}
                       </span>
