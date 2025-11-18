@@ -690,13 +690,13 @@ function LearnPageContent() {
               <div className="p-4 neuro-inset rounded-lg">
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-white text-sm">Bloom Level:</span>
+                      <span className="text-white text-sm font-semibold">Bloom Level:</span>
                       <span className="font-semibold text-blue-400">
                         {currentQuestion.bloom_level} ({BLOOM_LEVEL_NAMES[currentQuestion.bloom_level as BloomLevel]})
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-white text-sm">Question Type:</span>
+                      <span className="text-white text-sm font-semibold">Question Type:</span>
                       <span className="font-semibold text-gray-300">
                         {currentQuestion.question_format === 'mcq_single' ? 'Multiple Choice' :
                          currentQuestion.question_format === 'mcq_multi' ? 'Multiple Select' :
@@ -706,13 +706,13 @@ function LearnPageContent() {
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-white text-sm">Result:</span>
+                      <span className="text-white text-sm font-semibold">Result:</span>
                       <span className={`font-semibold ${answerResult.isCorrect ? 'text-green-400' : 'text-red-400'}`}>
                         {answerResult.isCorrect ? 'Correct' : 'Incorrect'}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-white text-sm">Confidence:</span>
+                      <span className="text-white text-sm font-semibold">Confidence:</span>
                       <span className={`font-semibold ${
                         confidence === 3 ? 'text-green-400' :
                         confidence === 2 ? 'text-yellow-400' :
@@ -722,7 +722,7 @@ function LearnPageContent() {
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-white text-sm">Method:</span>
+                      <span className="text-white text-sm font-semibold">Method:</span>
                       <span className={`font-semibold ${
                         recognitionMethod === 'memory' ? 'text-green-400' :
                         recognitionMethod === 'recognition' ? 'text-blue-400' :
@@ -736,7 +736,7 @@ function LearnPageContent() {
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-white text-sm">Calibration Score:</span>
+                      <span className="text-white text-sm font-semibold">Calibration Score:</span>
                       <span className={`font-semibold ${
                         answerResult.calibrationScore > 0 ? 'text-green-400' :
                         answerResult.calibrationScore < 0 ? 'text-red-400' :
@@ -747,7 +747,7 @@ function LearnPageContent() {
                     </div>
                     {answerResult.nextReviewDate && (
                       <div className="flex items-center justify-between">
-                        <span className="text-white text-sm">Next Review:</span>
+                        <span className="text-white text-sm font-semibold">Next Review:</span>
                         <span className="font-semibold text-white">
                           {(() => {
                             const reviewDate = new Date(answerResult.nextReviewDate)
