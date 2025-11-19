@@ -311,45 +311,45 @@ export default function CybersecurityPage() {
         </div>
 
         {/* Topics Progress */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
+        <div className="neuro-card overflow-hidden">
+          <div className="p-6 border-b border-gray-800/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <h3 className="text-xl font-semibold text-gray-200">Your Progress</h3>
-            {topicsProgress.length > 0 && (
-              <button
-                onClick={resetProgress}
-                disabled={resetting}
-                className="neuro-btn text-red-400 px-4 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                <TrashIcon size={18} />
-                <span>{resetting ? 'Resetting...' : 'Reset Progress'}</span>
-              </button>
-            )}
-          </div>
-
-          {/* Search Bar */}
-          <div className="mb-4">
-            <div className="relative">
-              <SearchIcon size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
-              <input
-                type="text"
-                placeholder="Search topics..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="neuro-input w-full pl-12"
-              />
+            
+            <div className="flex items-center gap-3 w-full md:w-auto">
+              <div className="relative flex-grow md:w-64">
+                <SearchIcon size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                <input
+                  type="text"
+                  placeholder="Search topics..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="neuro-input w-full pl-10 py-2 text-sm"
+                />
+              </div>
+              
+              {topicsProgress.length > 0 && (
+                <button
+                  onClick={resetProgress}
+                  disabled={resetting}
+                  className="neuro-btn text-red-400 p-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                  title="Reset Progress"
+                >
+                  <TrashIcon size={18} />
+                </button>
+              )}
             </div>
           </div>
 
           {/* Loading State */}
           {loading && (
-            <div className="neuro-card p-8 text-center">
+            <div className="p-8 text-center">
               <div className="text-gray-400">Loading your progress...</div>
             </div>
           )}
 
           {/* Empty State */}
           {!loading && topicsProgress.length === 0 && (
-            <div className="neuro-inset p-8 rounded-lg text-center">
+            <div className="p-8 text-center">
               <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <ShieldIcon size={40} className="text-gray-600" />
               </div>
@@ -364,138 +364,136 @@ export default function CybersecurityPage() {
 
           {/* Topics Table */}
           {!loading && filteredTopics.length > 0 && (
-            <div className="neuro-card overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-800">
-                      <th className="text-left p-4 text-sm font-semibold text-gray-400">Topic</th>
-                      <th className="text-center p-4 text-sm font-semibold text-gray-400">Attempts</th>
-                      <th className="text-center p-4 text-sm font-semibold text-gray-400">Correct</th>
-                      <th className="text-center p-4 text-sm font-semibold text-gray-400">Mastery</th>
-                      <th className="text-center p-4 text-sm font-semibold text-gray-400 w-32">Learning Curve</th>
-                      <th className="text-right p-4 text-sm font-semibold text-gray-400">Last Practiced</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredTopics.map((topic) => {
-                      const accuracy = topic.total_attempts > 0
-                        ? Math.round((topic.correct_answers / topic.total_attempts) * 100)
-                        : 0
-                      const overallMastery = calculateOverallMastery(topic.mastery_scores)
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-800">
+                    <th className="text-left p-4 text-sm font-semibold text-gray-400">Topic</th>
+                    <th className="text-center p-4 text-sm font-semibold text-gray-400">Attempts</th>
+                    <th className="text-center p-4 text-sm font-semibold text-gray-400">Correct</th>
+                    <th className="text-center p-4 text-sm font-semibold text-gray-400">Mastery</th>
+                    <th className="text-center p-4 text-sm font-semibold text-gray-400 w-32">Learning Curve</th>
+                    <th className="text-right p-4 text-sm font-semibold text-gray-400">Last Practiced</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredTopics.map((topic) => {
+                    const accuracy = topic.total_attempts > 0
+                      ? Math.round((topic.correct_answers / topic.total_attempts) * 100)
+                      : 0
+                    const overallMastery = calculateOverallMastery(topic.mastery_scores)
 
-                      return (
-                        <tr
-                          key={topic.topic_id}
-                          className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors"
-                        >
-                          <td className="p-4">
-                            <a
-                              href={`/subjects/it-cs/cybersecurity/${encodeURIComponent(topic.topic_name)}`}
-                              className="font-medium text-blue-400 hover:text-blue-300 hover:underline cursor-pointer"
-                            >
-                              {topic.topic_name}
-                            </a>
-                          </td>
-                          <td className="p-4 text-center">
-                            <span className="text-gray-300">{topic.total_attempts}</span>
-                          </td>
-                          <td className="p-4 text-center">
-                            <span className="text-gray-300">
-                              {topic.correct_answers}
-                              <span className="text-gray-600 ml-1">({accuracy}%)</span>
-                            </span>
-                          </td>
-                          <td className="p-4 text-center">
-                            <div className="flex items-center justify-center gap-2">
-                              <div className={`text-lg font-bold ${overallMastery >= 80 ? 'text-green-400' :
-                                overallMastery >= 60 ? 'text-yellow-400' :
-                                  'text-red-400'
-                                }`}>
-                                {overallMastery}%
-                              </div>
-                            </div>
-                          </td>
-                          <td className="p-4">
-                            <div className="h-12 w-32 mx-auto">
-                              {topic.recent_responses.length > 1 ? (
-                                <LearningCurveChart
-                                  data={topic.recent_responses}
-                                  slope={topic.calibration_slope}
-                                  intercept={null}
-                                  stddev={topic.calibration_stddev}
-                                  height={48}
-                                  sparkline={true}
-                                />
-                              ) : (
-                                <div className="h-full flex items-center justify-center text-xs text-gray-600">
-                                  No data
-                                </div>
-                              )}
-                            </div>
-                          </td>
-                          <td className="p-4 text-right">
-                            <span className="text-sm text-gray-500">
-                              {formatDateTime(topic.last_practiced_at)}
-                            </span>
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                  <tfoot>
-                    <tr className="border-t-2 border-gray-700 bg-gray-800/30">
-                      <td className="p-4">
-                        <div className="font-semibold text-gray-200">
-                          Total ({filteredTopics.length} {filteredTopics.length === 1 ? 'topic' : 'topics'})
-                        </div>
-                      </td>
-                      <td className="p-4 text-center">
-                        <span className="font-semibold text-gray-200">
-                          {filteredTopics.reduce((sum, topic) => sum + topic.total_attempts, 0)}
-                        </span>
-                      </td>
-                      <td className="p-4 text-center">
-                        <span className="font-semibold text-gray-200">
-                          {filteredTopics.reduce((sum, topic) => sum + topic.correct_answers, 0)}
-                          <span className="text-gray-600 ml-1">
-                            ({filteredTopics.reduce((sum, topic) => sum + topic.total_attempts, 0) > 0
-                              ? Math.round((filteredTopics.reduce((sum, topic) => sum + topic.correct_answers, 0) /
-                                filteredTopics.reduce((sum, topic) => sum + topic.total_attempts, 0)) * 100)
-                              : 0}%)
+                    return (
+                      <tr
+                        key={topic.topic_id}
+                        className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors"
+                      >
+                        <td className="p-4">
+                          <a
+                            href={`/subjects/it-cs/cybersecurity/${encodeURIComponent(topic.topic_name)}`}
+                            className="font-medium text-blue-400 hover:text-blue-300 hover:underline cursor-pointer"
+                          >
+                            {topic.topic_name}
+                          </a>
+                        </td>
+                        <td className="p-4 text-center">
+                          <span className="text-gray-300">{topic.total_attempts}</span>
+                        </td>
+                        <td className="p-4 text-center">
+                          <span className="text-gray-300">
+                            {topic.correct_answers}
+                            <span className="text-gray-600 ml-1">({accuracy}%)</span>
                           </span>
-                        </span>
-                      </td>
-                      <td className="p-4 text-center">
-                        {(() => {
-                          const avgMastery = Math.round(
-                            filteredTopics.reduce((sum, topic) => sum + calculateOverallMastery(topic.mastery_scores), 0) /
-                            filteredTopics.length
-                          )
-                          return (
-                            <div className={`text-lg font-bold ${avgMastery >= 80 ? 'text-green-400' :
-                              avgMastery >= 60 ? 'text-yellow-400' :
+                        </td>
+                        <td className="p-4 text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            <div className={`text-lg font-bold ${overallMastery >= 80 ? 'text-green-400' :
+                              overallMastery >= 60 ? 'text-yellow-400' :
                                 'text-red-400'
                               }`}>
-                              {avgMastery}%
+                              {overallMastery}%
                             </div>
-                          )
-                        })()}
-                      </td>
-                      <td className="p-4"></td>
-                      <td className="p-4 text-right">
-                        {/* Empty - no date for summary row */}
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <div className="h-12 w-32 mx-auto">
+                            {topic.recent_responses.length > 1 ? (
+                              <LearningCurveChart
+                                data={topic.recent_responses}
+                                slope={topic.calibration_slope}
+                                intercept={null}
+                                stddev={topic.calibration_stddev}
+                                height={48}
+                                sparkline={true}
+                              />
+                            ) : (
+                              <div className="h-full flex items-center justify-center text-xs text-gray-600">
+                                No data
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                        <td className="p-4 text-right">
+                          <span className="text-sm text-gray-500">
+                            {formatDateTime(topic.last_practiced_at)}
+                          </span>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+                <tfoot>
+                  <tr className="border-t-2 border-gray-700 bg-gray-800/30">
+                    <td className="p-4">
+                      <div className="font-semibold text-gray-200">
+                        Total ({filteredTopics.length} {filteredTopics.length === 1 ? 'topic' : 'topics'})
+                      </div>
+                    </td>
+                    <td className="p-4 text-center">
+                      <span className="font-semibold text-gray-200">
+                        {filteredTopics.reduce((sum, topic) => sum + topic.total_attempts, 0)}
+                      </span>
+                    </td>
+                    <td className="p-4 text-center">
+                      <span className="font-semibold text-gray-200">
+                        {filteredTopics.reduce((sum, topic) => sum + topic.correct_answers, 0)}
+                        <span className="text-gray-600 ml-1">
+                          ({filteredTopics.reduce((sum, topic) => sum + topic.total_attempts, 0) > 0
+                            ? Math.round((filteredTopics.reduce((sum, topic) => sum + topic.correct_answers, 0) /
+                              filteredTopics.reduce((sum, topic) => sum + topic.total_attempts, 0)) * 100)
+                            : 0}%)
+                        </span>
+                      </span>
+                    </td>
+                    <td className="p-4 text-center">
+                      {(() => {
+                        const avgMastery = Math.round(
+                          filteredTopics.reduce((sum, topic) => sum + calculateOverallMastery(topic.mastery_scores), 0) /
+                          filteredTopics.length
+                        )
+                        return (
+                          <div className={`text-lg font-bold ${avgMastery >= 80 ? 'text-green-400' :
+                            avgMastery >= 60 ? 'text-yellow-400' :
+                              'text-red-400'
+                            }`}>
+                            {avgMastery}%
+                          </div>
+                        )
+                      })()}
+                    </td>
+                    <td className="p-4"></td>
+                    <td className="p-4 text-right">
+                      {/* Empty - no date for summary row */}
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
             </div>
           )}
 
           {/* No Search Results */}
           {!loading && topicsProgress.length > 0 && filteredTopics.length === 0 && (
-            <div className="neuro-inset p-8 rounded-lg text-center">
+            <div className="p-8 text-center">
               <div className="text-gray-400 text-lg font-semibold mb-2">
                 No topics found
               </div>
@@ -504,9 +502,6 @@ export default function CybersecurityPage() {
               </div>
             </div>
           )}
-
-
-
         </div>
       </main>
 
