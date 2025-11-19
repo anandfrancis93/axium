@@ -171,6 +171,22 @@ export async function POST(request: NextRequest) {
 
     console.log(`Successfully deleted all records in ${Math.ceil(topicIds.length / BATCH_SIZE)} batches`)
 
+    // Reset global question position to 1 (restart 7-2-1 cycle)
+    const { error: resetGlobalError } = await supabase
+      .from('user_global_progress')
+      .update({
+        question_position: 1,
+        last_updated_at: new Date().toISOString()
+      })
+      .eq('user_id', user.id)
+
+    if (resetGlobalError) {
+      console.error('Error resetting global question position:', resetGlobalError)
+      // Continue anyway, not critical enough to fail the whole request
+    } else {
+      console.log('Successfully reset global question position to 1')
+    }
+
     const totalDeleted = (progressCount || 0) + (responsesCount || 0) + (questionsCount || 0)
 
     return NextResponse.json({
