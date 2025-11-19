@@ -81,6 +81,76 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// ... (existing imports)
+
+/**
+ * Helper to get ripple context string for Bloom 5-6
+ */
+async function getRippleContextString(
+  supabase: any,
+  userId: string,
+  topicId: string,
+  topicName: string,
+  bloomLevel: number
+): Promise<string> {
+  if (bloomLevel < 5) return ''
+
+  try {
+    const { getRippleEffectContext, generateRippleScenarioInstructions } = await import('@/lib/graphrag/ripple-effects')
+
+    // Fetch user progress to build mastery map
+    const { data: progressData } = await supabase
+      .from('user_progress')
+      .select('topic_id, mastery_scores')
+      .eq('user_id', userId)
+
+    const masteredTopicIds: string[] = []
+    const userMasteryMap = new Map<string, number>()
+
+    if (progressData) {
+      progressData.forEach((p: any) => {
+        // Calculate average mastery
+        let total = 0
+        let count = 0
+        const scores = p.mastery_scores || {}
+        
+        Object.values(scores).forEach((val: any) => {
+            if (typeof val === 'number') {
+                total += val
+                count++
+            } else if (typeof val === 'object') {
+                // Handle nested object (bloom level scores)
+                Object.values(val).forEach((v: any) => {
+                    if (typeof v === 'number') {
+                        total += v
+                        count++
+                    }
+                })
+            }
+        })
+
+        const avg = count > 0 ? total / count : 0
+        userMasteryMap.set(p.topic_id, avg)
+        
+        if (avg >= 70) {
+            masteredTopicIds.push(p.topic_id)
+        }
+      })
+    }
+
+    const rippleContext = await getRippleEffectContext(
+      topicId,
+      masteredTopicIds,
+      userMasteryMap
+    )
+
+    return generateRippleScenarioInstructions(rippleContext.dependencyChains, topicName)
+  } catch (error) {
+    console.error('Error fetching ripple context:', error)
+    return ''
+  }
+}
+
 /**
  * Position 8-9: Spaced Repetition
  * Returns exact saved question with exact options
@@ -173,7 +243,14 @@ async function handleDimensionPracticeQuestion(
 
 
   // Fetch context and generate question
-  const context = await fetchKnowledgeContext(supabase, user.id, topicId, topic.name)
+  let context = await fetchKnowledgeContext(supabase, user.id, topicId, topic.name)
+  
+  // Add ripple context for Bloom 5-6
+  const rippleContext = await getRippleContextString(supabase, user.id, topicId, topic.name, bloomLevel)
+  if (rippleContext) {
+    context += `\n\n${rippleContext}`
+  }
+
   const questionFormat = await getNextFormatRoundRobin(supabase, user.id, topicId, bloomLevel)
 
   const question = await generateQuestion(
@@ -258,7 +335,13 @@ async function handleNewTopicQuestion(
   }
 
   // Fetch mastery-aware knowledge graph context
-  const context = await fetchKnowledgeContext(supabase, user.id, selection.topicId, selection.topicName)
+  let context = await fetchKnowledgeContext(supabase, user.id, selection.topicId, selection.topicName)
+
+  // Add ripple context for Bloom 5-6
+  const rippleContext = await getRippleContextString(supabase, user.id, selection.topicId, selection.topicName, selection.bloomLevel)
+  if (rippleContext) {
+    context += `\n\n${rippleContext}`
+  }
 
   // Select format using round robin
   const recommendedFormat = await getNextFormatRoundRobin(supabase, user.id, selection.topicId, selection.bloomLevel)

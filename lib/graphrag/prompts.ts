@@ -175,6 +175,10 @@ function formatContext(context: GraphRAGContext): string {
     parts.push(`\nTechnical Scope: ${context.scopeTags.slice(0, 5).join(', ')}`)
   }
 
+  if (context.rippleContext) {
+    parts.push(`\n${context.rippleContext}`)
+  }
+
   return parts.join('\n')
 }
 

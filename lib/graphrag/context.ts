@@ -220,6 +220,9 @@ export interface GraphRAGContext {
     hasPrerequisites: boolean
     prerequisiteCount: number
   }
+
+  // Ripple Effect Context (for Bloom 5-6)
+  rippleContext?: string
 }
 
 /**
@@ -1250,6 +1253,11 @@ export function formatContextForLLM(context: GraphRAGContext): string {
   // Scope tags
   if (context.scopeTags.length > 0) {
     parts.push(`\nTechnical Scope: ${context.scopeTags.join(', ')}`)
+  }
+
+  // Ripple Effect Context (Bloom 5-6)
+  if (context.rippleContext) {
+    parts.push(`\n${context.rippleContext}`)
   }
 
   return parts.join('\n')
