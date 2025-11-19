@@ -89,9 +89,7 @@ export async function POST(request: NextRequest) {
     
     const chat = model.startChat({
       history: geminiHistory,
-      generationConfig: {
-        maxOutputTokens: 8192,
-      },
+      // generationConfig: { maxOutputTokens: 8192 }, // Removed to use default max
       systemInstruction: {
         role: 'system',
         parts: [{ text: 'You are a helpful AI assistant for the Axium learning platform. You help students with their questions about various subjects.' }]
