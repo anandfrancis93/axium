@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { 
   MessageSquareIcon, 
   TrashIcon, 
@@ -217,7 +219,20 @@ export default function AIChatPage() {
                         : 'neuro-raised rounded-tl-none'
                     }`}
                   >
-                    {msg.content}
+                    <ReactMarkdown 
+                      remarkPlugins={[remarkGfm]}
+                      className="prose prose-invert prose-sm max-w-none break-words [&>ul]:list-disc [&>ul]:pl-4 [&>ol]:list-decimal [&>ol]:pl-4 [&>li]:marker:text-gray-400"
+                      components={{
+                        a: ({node, ...props}) => <a {...props} className="text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer" />,
+                        p: ({node, ...props}) => <p {...props} className="mb-2 last:mb-0" />,
+                        ul: ({node, ...props}) => <ul {...props} className="mb-2 last:mb-0 list-disc list-outside ml-4" />,
+                        ol: ({node, ...props}) => <ol {...props} className="mb-2 last:mb-0 list-decimal list-outside ml-4" />,
+                        li: ({node, ...props}) => <li {...props} className="mb-1" />,
+                        strong: ({node, ...props}) => <strong {...props} className="font-bold text-white" />,
+                      }}
+                    >
+                      {msg.content}
+                    </ReactMarkdown>
                   </div>
 
                   {msg.role === 'user' && (
