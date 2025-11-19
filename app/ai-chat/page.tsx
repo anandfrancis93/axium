@@ -213,7 +213,7 @@ export default function AIChatPage() {
                   )}
                   
                   <div 
-                    className={`max-w-[80%] md:max-w-[70%] p-4 rounded-2xl text-sm leading-relaxed ${
+                    className={`max-w-[80%] md:max-w-[70%] p-4 rounded-2xl text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words [&>ul]:list-disc [&>ul]:pl-4 [&>ol]:list-decimal [&>ol]:pl-4 [&>li]:marker:text-gray-400 ${
                       msg.role === 'user' 
                         ? 'bg-blue-600/10 text-blue-100 rounded-tr-none border border-blue-500/20' 
                         : 'neuro-raised rounded-tl-none'
@@ -221,7 +221,6 @@ export default function AIChatPage() {
                   >
                     <ReactMarkdown 
                       remarkPlugins={[remarkGfm]}
-                      className="prose prose-invert prose-sm max-w-none break-words [&>ul]:list-disc [&>ul]:pl-4 [&>ol]:list-decimal [&>ol]:pl-4 [&>li]:marker:text-gray-400"
                       components={{
                         a: ({node, ...props}) => <a {...props} className="text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer" />,
                         p: ({node, ...props}) => <p {...props} className="mb-2 last:mb-0" />,
