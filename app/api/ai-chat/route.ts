@@ -117,10 +117,21 @@ export async function POST(request: NextRequest) {
       sessionId: currentSessionId
     })
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in AI chat:', error)
+    // Log deep details if available
+    if (error.code) console.error('Error Code:', error.code)
+    if (error.details) console.error('Error Details:', error.details)
+    if (error.hint) console.error('Error Hint:', error.hint)
+
     return NextResponse.json(
-      { error: 'Failed to process chat', details: error instanceof Error ? error.message : 'Unknown error' },
+      { 
+        error: 'Failed to process chat', 
+        details: error.message || 'Unknown error',
+        code: error.code,
+        dbDetails: error.details,
+        hint: error.hint
+      },
       { status: 500 }
     )
   }
