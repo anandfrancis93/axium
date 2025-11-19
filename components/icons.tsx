@@ -777,6 +777,26 @@ export const SearchIcon = ({ className = "", size = 24, weight = 'regular', with
   )
 }
 
+export const MessageSquareIcon = ({ className = "", size = 24, weight = 'regular', withShadow = false }: IconProps) => {
+  const strokeWidth = getStrokeWidth(size, weight)
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      style={getShadowStyle(withShadow)}
+    >
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>
+  )
+}
+
 // Subject-specific icons
 export const CodeIcon = ({ className = "", size = 24, weight = 'regular', withShadow = false }: IconProps) => {
   const strokeWidth = getStrokeWidth(size, weight)
@@ -960,6 +980,27 @@ export const TerminalIcon = ({ className = "", size = 24, weight = 'regular', wi
     >
       <polyline points="4 17 10 11 4 5" />
       <line x1="12" y1="19" x2="20" y2="19" />
+    </svg>
+  )
+}
+
+export const PlusIcon = ({ className = "", size = 24, weight = 'regular', withShadow = false }: IconProps) => {
+  const strokeWidth = getStrokeWidth(size, weight)
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      style={getShadowStyle(withShadow)}
+    >
+      <line x1="12" y1="5" x2="12" y2="19" />
+      <line x1="5" y1="12" x2="19" y2="12" />
     </svg>
   )
 }
