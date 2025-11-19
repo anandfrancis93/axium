@@ -45,7 +45,7 @@ export default async function DashboardPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-8">
 
         {/* Subjects Section */}
-        <div className="animate-slide-up">
+        <div>
           <h2 className="text-xl font-semibold text-gray-200 mb-6 px-1">Select a Subject</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* IT/CS - Active */}
