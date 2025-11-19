@@ -1,13 +1,10 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
-import OpenAI from 'openai'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
-// Initialize xAI client
-const xai = new OpenAI({
-  apiKey: process.env.XAI_API_KEY,
-  baseURL: 'https://api.x.ai/v1'
-})
+// Initialize Gemini client
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
 
 export async function POST(request: NextRequest) {
   try {
@@ -64,42 +61,49 @@ export async function POST(request: NextRequest) {
       throw new Error(`Failed to save user message: ${userMsgError.message}`)
     }
 
-    // Fetch previous messages for context (limit to last 10 for now)
+    // Fetch previous messages for context (limit to last 20 for reasonable context)
     const { data: history } = await supabase
       .from('chat_messages')
       .select('role, content')
       .eq('session_id', currentSessionId)
       .order('created_at', { ascending: true })
-      .limit(10) // Simple context window
+      .limit(20)
 
-    // Prepare messages for xAI
-    const messages = (history || []).map((msg: any) => ({
-      role: msg.role,
-      content: msg.content
-    }))
+    // Prepare history for Gemini
+    // Exclude the very last message we just inserted (it will be sent as the new message)
+    // Filter out the current message from history if it was returned (depends on timing/consistency, safer to just filter by content or take all except last if it matches)
+    // Actually, simpler: We just inserted it. We should send it as the `sendMessage` argument.
+    // So history should be everything *before* this new message.
+    // Since we just inserted it, we can fetch everything and pop the last one, or just exclude it.
+    
+    // Let's format the history correctly
+    const geminiHistory = (history || [])
+      .filter((msg: any) => msg.content !== message) // Simple dedup for the current message
+      .map((msg: any) => ({
+        role: msg.role === 'user' ? 'user' : 'model',
+        parts: [{ text: msg.content }]
+      }))
 
-    // Call xAI
-    const completion = await xai.chat.completions.create({
-      model: 'grok-beta', // Using grok-beta as it's generally available on xAI API
-      messages: [
-        {
-          role: 'system',
-          content: 'You are a helpful AI assistant for the Axium learning platform. You help students with their questions about various subjects.'
-        },
-        ...messages
-      ],
-      temperature: 0.7,
-      max_tokens: 1000
+    // Call Gemini
+    const model = genAI.getGenerativeModel({ model: 'gemini-3-pro-preview' })
+    
+    const chat = model.startChat({
+      history: geminiHistory,
+      generationConfig: {
+        maxOutputTokens: 1000,
+      },
+      systemInstruction: 'You are a helpful AI assistant for the Axium learning platform. You help students with their questions about various subjects.'
     })
 
-    const aiResponse = completion.choices[0]?.message?.content || 'Sorry, I could not generate a response.'
+    const result = await chat.sendMessage(message)
+    const aiResponse = result.response.text() || 'Sorry, I could not generate a response.'
 
     // Save AI response
     const { error: aiMsgError } = await supabase
       .from('chat_messages')
       .insert({
         session_id: currentSessionId,
-        role: 'assistant',
+        role: 'assistant', // Store as 'assistant' for internal consistency
         content: aiResponse
       })
 
