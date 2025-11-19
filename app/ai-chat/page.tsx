@@ -10,7 +10,8 @@ import {
   PlusIcon, 
   ArrowRightIcon, 
   UserIcon, 
-  SparklesIcon 
+  SparklesIcon,
+  MicrophoneIcon
 } from '@/components/icons'
 import HamburgerMenu from '@/components/HamburgerMenu'
 
@@ -31,6 +32,7 @@ export default function AIChatPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [isLiveMode, setIsLiveMode] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -258,19 +260,42 @@ export default function AIChatPage() {
           </div>
 
           {/* Input Area */}
-          <div className="p-4 border-t border-white/5 bg-[#0a0a0a] shrink-0">
+          <div className="p-4 border-t border-white/5 bg-[#0a0a0a] shrink-0 relative">
+            {isLiveMode && (
+              <div className="absolute bottom-full left-0 w-full bg-red-500/10 backdrop-blur-md border-t border-red-500/20 p-2 flex items-center justify-center gap-2 text-red-400 text-sm animate-slide-up">
+                <span className="relative flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                </span>
+                Gemini Live Active (Listening...)
+              </div>
+            )}
+            
             <form onSubmit={sendMessage} className="max-w-4xl mx-auto relative flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setIsLiveMode(!isLiveMode)}
+                className={`p-3 rounded-full transition-all duration-200 flex items-center justify-center ${
+                  isLiveMode 
+                    ? 'bg-red-500/20 text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.3)]' 
+                    : 'neuro-btn text-gray-400 hover:text-gray-200'
+                }`}
+                title={isLiveMode ? "Stop Live Mode" : "Start Gemini Live"}
+              >
+                <MicrophoneIcon size={20} />
+              </button>
+
               <input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Type a message..."
+                placeholder={isLiveMode ? "Listening..." : "Type a message..."}
                 className="neuro-input w-full pr-12 py-4 pl-6 rounded-full focus:ring-2 focus:ring-blue-500/50"
-                disabled={loading}
+                disabled={loading || isLiveMode}
               />
               <button
                 type="submit"
-                disabled={!input.trim() || loading}
+                disabled={!input.trim() || loading || isLiveMode}
                 className="absolute right-2 p-2 neuro-btn rounded-full text-blue-400 hover:text-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ArrowRightIcon size={20} />
