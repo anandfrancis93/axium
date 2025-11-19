@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
     const chat = model.startChat({
       history: geminiHistory,
       generationConfig: {
-        maxOutputTokens: 1000,
+        maxOutputTokens: 8192,
       },
       systemInstruction: {
         role: 'system',
