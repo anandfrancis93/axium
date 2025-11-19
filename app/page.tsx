@@ -9,10 +9,7 @@ export default async function Home() {
     const supabase = await createClient()
     const {
       data: { user },
-      error,
     } = await supabase.auth.getUser()
-
-    console.log('Root Page: getUser result', { user: !!user, error: error?.message })
 
     if (user) {
       redirect('/subjects')
