@@ -447,44 +447,9 @@ async function getNextFormatRoundRobin(
   // USE GLOBAL INDEX for selection (ensures variety across all topics)
   const selectedFormat = recommendedFormats[globalFormatIndex]
 
-
-
-  // Update BOTH global and per-topic state
-  const updatedGlobalRoundRobin = {
-    ...(settings?.format_round_robin || {}),
-    [`bloom_${bloomLevel}`]: globalFormatIndex
-  }
-
-  const updatedTopicMetadata = {
-    ...(progress?.rl_metadata || {}),
-    format_round_robin: {
-      ...(progress?.rl_metadata?.format_round_robin || {}),
-      [`bloom_${bloomLevel}`]: topicFormatIndex
-    }
-  }
-
-  // Execute updates in parallel
-  await Promise.all([
-    supabase
-      .from('user_settings')
-      .upsert({
-        user_id: userId,
-        format_round_robin: updatedGlobalRoundRobin
-      }, {
-        onConflict: 'user_id'
-      }),
-    supabase
-      .from('user_progress')
-      .upsert({
-        user_id: userId,
-        topic_id: topicId,
-        rl_metadata: updatedTopicMetadata
-      }, {
-        onConflict: 'user_id,topic_id'
-      })
-  ])
-
-
+  // NOTE: We do NOT update the database here anymore.
+  // The rotation counter is now updated in /api/quiz/submit ONLY after a successful submission.
+  // This prevents "consuming" a format if the user backs out of the quiz.
 
   return selectedFormat
 }

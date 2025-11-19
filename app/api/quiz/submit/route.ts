@@ -32,6 +32,49 @@ export async function POST(request: NextRequest) {
     const submission: AnswerSubmission = await request.json()
     const { questionId, question: submittedQuestion, answer, confidence, recognitionMethod, timeTaken, topicId } = submission
 
+    // ============================================================
+    // STRICT VALIDATION: Ensure complete submission
+    // All three fields (answer, confidence, recognitionMethod) must be provided
+    // This prevents partial submissions from affecting progress or format rotation
+    // ============================================================
+    if (answer === undefined || answer === null) {
+      return NextResponse.json(
+        { error: 'Missing required field: answer' },
+        { status: 400 }
+      )
+    }
+
+    if (confidence === undefined || confidence === null) {
+      return NextResponse.json(
+        { error: 'Missing required field: confidence' },
+        { status: 400 }
+      )
+    }
+
+    if (!recognitionMethod) {
+      return NextResponse.json(
+        { error: 'Missing required field: recognitionMethod' },
+        { status: 400 }
+      )
+    }
+
+    // Validate confidence is in valid range (1-3)
+    if (typeof confidence !== 'number' || confidence < 1 || confidence > 3) {
+      return NextResponse.json(
+        { error: 'Invalid confidence value. Must be 1 (Low), 2 (Medium), or 3 (High)' },
+        { status: 400 }
+      )
+    }
+
+    // Validate recognitionMethod is valid
+    const validRecognitionMethods = ['memory', 'recognition', 'educated_guess', 'random_guess']
+    if (!validRecognitionMethods.includes(recognitionMethod)) {
+      return NextResponse.json(
+        { error: `Invalid recognitionMethod. Must be one of: ${validRecognitionMethods.join(', ')}` },
+        { status: 400 }
+      )
+    }
+
     // Use submitted question (for on-the-fly) or fetch from database
     let question = submittedQuestion
 
@@ -93,19 +136,11 @@ export async function POST(request: NextRequest) {
 
     if (insertError) {
       console.error('ERROR storing response:', insertError)
-      console.error('Insert error details:', JSON.stringify(insertError, null, 2))
-      // Return error to client so it's visible
       return NextResponse.json(
-        {
-          error: 'Failed to save response',
-          details: insertError.message,
-          code: insertError.code
-        },
+        { error: 'Failed to save response', details: insertError.message },
         { status: 500 }
       )
     }
-
-
 
     // Save question permanently for spaced repetition (if not already saved)
     // Calculate and get next review date
@@ -132,6 +167,61 @@ export async function POST(request: NextRequest) {
       question.cognitive_dimension || null,
       isCorrect
     )
+
+    // ============================================================
+    // UPDATE FORMAT ROTATION (DEFERRED)
+    // Now that the user has submitted an answer, we advance the rotation counter.
+    // This ensures we don't "consume" a format just by viewing a question.
+    // ============================================================
+    try {
+      const { getRecommendedFormats } = await import('@/lib/graphrag/prompts')
+      const recommendedFormats = getRecommendedFormats(question.bloom_level)
+      const currentFormatIndex = recommendedFormats.indexOf(question.question_format)
+
+      if (currentFormatIndex !== -1) {
+        // Calculate next index (simple increment)
+        const nextFormatIndex = (currentFormatIndex + 1) % recommendedFormats.length
+
+        // Fetch current state to merge
+        const [settingsResult, progressResult] = await Promise.all([
+          supabase.from('user_settings').select('format_round_robin').eq('user_id', user.id).single(),
+          supabase.from('user_progress').select('rl_metadata').eq('user_id', user.id).eq('topic_id', responseTopicId).single()
+        ])
+
+        // Update GLOBAL state
+        const updatedGlobalRoundRobin = {
+          ...(settingsResult.data?.format_round_robin || {}),
+          [`bloom_${question.bloom_level}`]: nextFormatIndex
+        }
+
+        // Update PER-TOPIC state
+        const updatedTopicMetadata = {
+          ...(progressResult.data?.rl_metadata || {}),
+          format_round_robin: {
+            ...(progressResult.data?.rl_metadata?.format_round_robin || {}),
+            [`bloom_${question.bloom_level}`]: nextFormatIndex
+          }
+        }
+
+        // Execute updates
+        await Promise.all([
+          supabase.from('user_settings').upsert({
+            user_id: user.id,
+            format_round_robin: updatedGlobalRoundRobin
+          }, { onConflict: 'user_id' }),
+          supabase.from('user_progress').upsert({
+            user_id: user.id,
+            topic_id: responseTopicId,
+            rl_metadata: updatedTopicMetadata
+          }, { onConflict: 'user_id,topic_id' })
+        ])
+
+        console.log(`Advanced format rotation for Bloom ${question.bloom_level} to index ${nextFormatIndex}`)
+      }
+    } catch (rotationError) {
+      console.error('Error updating format rotation:', rotationError)
+      // Non-critical, continue
+    }
 
     // TRACK 3: Real-time Performance Metrics (Slope, StdDev)
     // Calculate and update immediately for instant feedback
