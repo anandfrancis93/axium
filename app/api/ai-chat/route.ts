@@ -92,7 +92,10 @@ export async function POST(request: NextRequest) {
       generationConfig: {
         maxOutputTokens: 1000,
       },
-      systemInstruction: 'You are a helpful AI assistant for the Axium learning platform. You help students with their questions about various subjects.'
+      systemInstruction: {
+        role: 'system',
+        parts: [{ text: 'You are a helpful AI assistant for the Axium learning platform. You help students with their questions about various subjects.' }]
+      }
     })
 
     const result = await chat.sendMessage(message)
