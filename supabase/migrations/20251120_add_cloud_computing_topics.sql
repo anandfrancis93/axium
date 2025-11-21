@@ -6,6 +6,7 @@ DECLARE
   v_subject_id UUID;
   v_cloud_computing_id UUID;
   v_cloud_deployment_model_id UUID;
+  v_cloud_security_considerations_id UUID;
 BEGIN
   -- Get the Cybersecurity subject ID
   SELECT id INTO v_subject_id FROM subjects WHERE name = 'Cybersecurity' LIMIT 1;
@@ -41,5 +42,22 @@ BEGIN
       'A cloud that is deployed for shared use by cooperating tenants.', 3),
     (v_subject_id, v_cloud_deployment_model_id, 'Hybrid Cloud',
       'A cloud deployment that uses both private and public elements. A hybrid cloud most commonly describes a computing environment combining public and private cloud infrastructures, although any combination of cloud infrastructures constitutes a hybrid cloud. In a hybrid cloud, companies can store data in a private cloud but also leverage the resources of a public cloud when needed. This allows for greater flexibility and scalability, as well as cost savings. A hybrid cloud is commonly used because it enables companies to take advantage of the benefits of both private and public clouds. Private clouds can provide greater security and control over data, while public clouds offer more cost-effective scalability and access to a broader range of resources. A hybrid cloud also allows for a smoother transition to the cloud for companies that may need more time to migrate all of their data. A hybrid cloud also presents security challenges, such as managing multiple cloud environments and enforcing consistent security policies. One issue is the complexity of managing multiple cloud environments and integrating them with on-premises infrastructure, which can create security gaps and increase the risk of data breaches. Another concern is the potential for unauthorized access to data and applications, particularly when sensitive information is stored in the public cloud. There are often mistakes caused by confusion over the boundary between on-premises and public cloud infrastructure. Additionally, using multiple cloud providers can make it challenging to enforce consistent security policies across all environments. A hybrid cloud infrastructure can provide data redundancy features, such as replicating data across on-premises and cloud infrastructure. Data protection can be achieved through redundancy, but it can also lead to issues with data consistency stemming from synchronization problems among multiple locations. Considering that legal compliance is a critical concern when implementing any type of cloud environment, organizations must ensure that data stored in both the on-premises and cloud components of the hybrid environment comply with these mandates. This adds additional complexity to data governance and security operations. Another consideration is the establishment and enforcement of service-level agreements (SLAs). SLAs formally outline all performance, availability, and support expectations between the cloud service provider and the organization. Guaranteeing expected levels of service can be challenging when dealing with the integration of different cloud and on-premises systems. Other concerns related to the hybrid cloud include the potential for increased network latency due to large data transfer volumes between on-premises and cloud environments that impact application performance, and monitoring the hybrid environment can be more complex due to the requirement for specialized expertise and tools.', 3);
+
+  -- Level 2: Cloud Security Considerations (branch under Cloud Computing)
+  INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level)
+  VALUES (v_subject_id, v_cloud_computing_id, 'Cloud Security Considerations',
+    'Security-related architectural approaches and considerations for cloud deployments, including tenant isolation, resource management, and infrastructure control models.', 2)
+  RETURNING id INTO v_cloud_security_considerations_id;
+
+  -- Level 3: Cloud Security Architecture Types
+  INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level) VALUES
+    (v_subject_id, v_cloud_security_considerations_id, 'Single-tenant Architecture',
+      'It provides dedicated infrastructure to a single customer, ensuring that only that customer can access the infrastructure. This model offers the highest level of security as the customer has complete control over the infrastructure. However, it can be more expensive than multi-tenant architecture, and the customer is responsible for managing and securing the infrastructure.', 3),
+    (v_subject_id, v_cloud_security_considerations_id, 'Multi-tenant Architecture',
+      'It is when multiple customers share the same infrastructure, with each customer''s data and applications separated logically from other customers. This model is cost-effective but can increase the risk of unauthorized access or data leakage if not properly secured.', 3),
+    (v_subject_id, v_cloud_security_considerations_id, 'Hybrid Architecture',
+      'It uses public and private cloud infrastructure. This model provides greater flexibility and control over sensitive data and applications by allowing customers to store sensitive data on private cloud infrastructure while using public cloud infrastructure for less sensitive workloads. However, it also requires careful management to ensure proper integration and security between the public and private clouds.', 3),
+    (v_subject_id, v_cloud_security_considerations_id, 'Serverless Architecture',
+      'It is when the cloud provider manages the infrastructure and automatically scales resources up or down based on demand. This model can be more secure than traditional architectures because the cloud provider manages and secures the infrastructure. However, customers must still take steps to secure access to their applications and data.', 3);
 
 END $$;
