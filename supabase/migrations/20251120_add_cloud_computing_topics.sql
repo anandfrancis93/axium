@@ -135,9 +135,9 @@ BEGIN
     (v_subject_id, v_customer_responsibilities_id, 'Use and Configuration of Encryption',
       'Use and configuration of encryption, especially the protection of keys', 4);
 
-  -- Level 2: Resilient Cloud Architecture Concepts
+  -- Level 2: Resilient Cloud Architecture
   INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level)
-  VALUES (v_subject_id, v_cloud_computing_id, 'Resilient Cloud Architecture Concepts',
+  VALUES (v_subject_id, v_cloud_computing_id, 'Resilient Cloud Architecture',
     'Architectural approaches and technologies that ensure cloud systems remain available, reliable, and performant even in the face of failures or disruptions.', 2)
   RETURNING id INTO v_resilient_architecture_id;
 
