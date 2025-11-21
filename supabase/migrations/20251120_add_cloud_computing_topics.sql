@@ -7,6 +7,7 @@ DECLARE
   v_cloud_computing_id UUID;
   v_cloud_deployment_model_id UUID;
   v_cloud_security_considerations_id UUID;
+  v_cloud_service_model_id UUID;
 BEGIN
   -- Get the Cybersecurity subject ID
   SELECT id INTO v_subject_id FROM subjects WHERE name = 'Cybersecurity' LIMIT 1;
@@ -59,5 +60,22 @@ BEGIN
       'It uses public and private cloud infrastructure. This model provides greater flexibility and control over sensitive data and applications by allowing customers to store sensitive data on private cloud infrastructure while using public cloud infrastructure for less sensitive workloads. However, it also requires careful management to ensure proper integration and security between the public and private clouds.', 3),
     (v_subject_id, v_cloud_security_considerations_id, 'Serverless Architecture',
       'It is when the cloud provider manages the infrastructure and automatically scales resources up or down based on demand. This model can be more secure than traditional architectures because the cloud provider manages and secures the infrastructure. However, customers must still take steps to secure access to their applications and data.', 3);
+
+  -- Level 2: Cloud Service Model (branch under Cloud Computing)
+  INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level)
+  VALUES (v_subject_id, v_cloud_computing_id, 'Cloud Service Model',
+    'Classifying the provision of cloud services and the limit of the cloud service provider''s responsibility as software, platform, infrastructure, and so on.', 2)
+  RETURNING id INTO v_cloud_service_model_id;
+
+  -- Level 3: Specific Cloud Service Models
+  INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level) VALUES
+    (v_subject_id, v_cloud_service_model_id, 'Software as a Service (SaaS)',
+      'A cloud service model that provisions fully developed application services to users. Rather than purchasing software licenses for a given number of seats, a business accesses software hosted on a supplier''s servers on a pay-as-you-go or lease arrangement (on-demand). The virtual infrastructure allows developers to provision on-demand applications much more quickly than previously. The applications are developed and tested in the cloud without the need to test and deploy on client computers. Examples include Microsoft Office 365 (microsoft.com/en-us/microsoft-365/enterprise), Salesforce (salesforce.com), and Google G Suite (gsuite.google.com).', 3),
+    (v_subject_id, v_cloud_service_model_id, 'Platform as a Service (PaaS)',
+      'A cloud service model that provisions application and database services as a platform for development of apps. It provides resources somewhere between SaaS and IaaS. A typical PaaS solution would provide servers and storage network infrastructure (as per IaaS) but also provide a multi-tier web application/database platform on top. This platform could be based on Oracle and MS SQL or PHP and MySQL. Examples include Oracle Database (oracle.com/database), Microsoft Azure SQL Database (azure.microsoft.com/services/sql-database), and Google App Engine (cloud.google.com/appengine). Distinct from SaaS, this platform would not be configured to do anything. Your developers would create the software (the CRM or e‑commerce application) that runs using the platform. The service provider would be responsible for the integrity and availability of the platform components, and you would be responsible for the security of the application you created on the platform.', 3),
+    (v_subject_id, v_cloud_service_model_id, 'Infrastructure as a Service (IaaS)',
+      'A cloud service model that provisions virtual machines and network infrastructure. It is a means of provisioning IT resources such as servers, load balancers, and storage area network (SAN) components quickly. Rather than purchase these components and the Internet links they require, you rent them as needed from the service provider''s datacenter. Examples include Amazon Elastic Compute Cloud (aws.amazon.com/ec2), Microsoft Azure Virtual Machines (azure.microsoft.com/services/virtual-machines), Oracle Cloud (oracle.com/cloud), and OpenStack (openstack.org).', 3),
+    (v_subject_id, v_cloud_service_model_id, 'Third-Party Vendors',
+      'Third-party vendors are external entities that provide organizations with goods, services, or technology solutions. In cloud computing, third-party vendors refer to the providers offering cloud services to businesses using infrastructure-, platform-, or software-as-a-service models. As a third party, careful consideration regarding cloud service provider selection, contract negotiation, service performance, compliance, and communication practices is paramount. Organizations must adopt robust vendor management strategies to mitigate cloud platform risks, ensure service quality, and optimize cloud deployments. Service-level agreements (SLAs) are contractual agreements between organizations and cloud service providers that outline the expected levels of service delivery. SLAs define metrics, such as uptime, performance, and support response times, along with penalties or remedies if service levels are not met. SLAs provide a framework to hold vendors accountable for delivering services at required performance levels. Organizations must assess the security practices implemented by vendors to protect their sensitive data, including data encryption, access controls, vulnerability management, incident response procedures, and regulatory compliance, and are responsible for ensuring compliance with data privacy requirements, especially if they handle personally identifiable information (PII) or operate in regulated industries. Vendor lock-in makes switching to alternative vendors or platforms challenging or impossible, and so organizations must carefully evaluate data portability, interoperability, and standardization to mitigate vendor lock-in risks. Strategies like multi-cloud or hybrid cloud deployments can provide flexibility and reduce reliance on a single vendor.', 3);
 
 END $$;
