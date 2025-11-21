@@ -8,6 +8,9 @@ DECLARE
   v_cloud_deployment_model_id UUID;
   v_cloud_security_considerations_id UUID;
   v_cloud_service_model_id UUID;
+  v_csp_responsibility_matrix_id UUID;
+  v_csp_responsibilities_id UUID;
+  v_customer_responsibilities_id UUID;
 BEGIN
   -- Get the Cybersecurity subject ID
   SELECT id INTO v_subject_id FROM subjects WHERE name = 'Cybersecurity' LIMIT 1;
@@ -77,5 +80,57 @@ BEGIN
       'A cloud service model that provisions virtual machines and network infrastructure. It is a means of provisioning IT resources such as servers, load balancers, and storage area network (SAN) components quickly. Rather than purchase these components and the Internet links they require, you rent them as needed from the service provider''s datacenter. Examples include Amazon Elastic Compute Cloud (aws.amazon.com/ec2), Microsoft Azure Virtual Machines (azure.microsoft.com/services/virtual-machines), Oracle Cloud (oracle.com/cloud), and OpenStack (openstack.org).', 3),
     (v_subject_id, v_cloud_service_model_id, 'Third-Party Vendors',
       'Third-party vendors are external entities that provide organizations with goods, services, or technology solutions. In cloud computing, third-party vendors refer to the providers offering cloud services to businesses using infrastructure-, platform-, or software-as-a-service models. As a third party, careful consideration regarding cloud service provider selection, contract negotiation, service performance, compliance, and communication practices is paramount. Organizations must adopt robust vendor management strategies to mitigate cloud platform risks, ensure service quality, and optimize cloud deployments. Service-level agreements (SLAs) are contractual agreements between organizations and cloud service providers that outline the expected levels of service delivery. SLAs define metrics, such as uptime, performance, and support response times, along with penalties or remedies if service levels are not met. SLAs provide a framework to hold vendors accountable for delivering services at required performance levels. Organizations must assess the security practices implemented by vendors to protect their sensitive data, including data encryption, access controls, vulnerability management, incident response procedures, and regulatory compliance, and are responsible for ensuring compliance with data privacy requirements, especially if they handle personally identifiable information (PII) or operate in regulated industries. Vendor lock-in makes switching to alternative vendors or platforms challenging or impossible, and so organizations must carefully evaluate data portability, interoperability, and standardization to mitigate vendor lock-in risks. Strategies like multi-cloud or hybrid cloud deployments can provide flexibility and reduce reliance on a single vendor.', 3);
+
+  -- Level 2: Cloud Service Provider (CSP) Responsibility Matrix
+  INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level)
+  VALUES (v_subject_id, v_cloud_computing_id, 'Cloud Service Provider (CSP) Responsibility Matrix',
+    'Identifies that responsibility for the implementation of security as applications, data, and workloads are transitioned into a cloud platform are shared between the customer and the cloud service provider (CSP).', 2)
+  RETURNING id INTO v_csp_responsibility_matrix_id;
+
+  -- Level 3: Cloud Service Provider Responsibilities
+  INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level)
+  VALUES (v_subject_id, v_csp_responsibility_matrix_id, 'Cloud Service Provider Responsibilities',
+    'Security responsibilities that are the obligation of the cloud service provider to implement and maintain.', 3)
+  RETURNING id INTO v_csp_responsibilities_id;
+
+  -- Level 4: Specific CSP Responsibilities
+  INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level) VALUES
+    (v_subject_id, v_csp_responsibilities_id, 'Physical Security of the Infrastructure',
+      'Physical security of the infrastructure', 4),
+    (v_subject_id, v_csp_responsibilities_id, 'Securing Computer, Storage, and Network Equipment',
+      'Securing computer, storage, and network equipment', 4),
+    (v_subject_id, v_csp_responsibilities_id, 'Securing Foundational Elements of Networking',
+      'Securing foundational elements of networking, such as DDoS protection', 4),
+    (v_subject_id, v_csp_responsibilities_id, 'Cloud Storage Backup and Recovery',
+      'Cloud storage backup and recovery', 4),
+    (v_subject_id, v_csp_responsibilities_id, 'Security of Cloud Infrastructure Resource Isolation',
+      'Security of cloud infrastructure resource isolation among tenants', 4),
+    (v_subject_id, v_csp_responsibilities_id, 'Tenant Resource Identity and Access Control',
+      'Tenant resource identity and access control', 4),
+    (v_subject_id, v_csp_responsibilities_id, 'Security, Monitoring, and Incident Response for Infrastructure',
+      'Security, monitoring, and incident response for the infrastructure', 4),
+    (v_subject_id, v_csp_responsibilities_id, 'Securing and Managing Datacenters',
+      'Securing and managing the datacenters located in multiple geographic regions', 4);
+
+  -- Level 3: Cloud Service Customer Responsibilities
+  INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level)
+  VALUES (v_subject_id, v_csp_responsibility_matrix_id, 'Cloud Service Customer Responsibilities',
+    'Security responsibilities that are the obligation of the cloud service customer to implement and maintain.', 3)
+  RETURNING id INTO v_customer_responsibilities_id;
+
+  -- Level 4: Specific Customer Responsibilities
+  INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level) VALUES
+    (v_subject_id, v_customer_responsibilities_id, 'User Identity Management',
+      'User identity management', 4),
+    (v_subject_id, v_customer_responsibilities_id, 'Configuring Geographic Location for Data Storage',
+      'Configuring the geographic location for storing data and running services', 4),
+    (v_subject_id, v_customer_responsibilities_id, 'User and Service Access Controls',
+      'User and service access controls to cloud resources', 4),
+    (v_subject_id, v_customer_responsibilities_id, 'Data and Application Security Configuration',
+      'Data and application security configuration', 4),
+    (v_subject_id, v_customer_responsibilities_id, 'Protection of Operating Systems',
+      'Protection of operating systems, when deployed', 4),
+    (v_subject_id, v_customer_responsibilities_id, 'Use and Configuration of Encryption',
+      'Use and configuration of encryption, especially the protection of keys', 4);
 
 END $$;
