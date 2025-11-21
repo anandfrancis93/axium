@@ -15,6 +15,7 @@ DECLARE
   v_ha_service_levels_id UUID;
   v_virtualization_id UUID;
   v_responsiveness_id UUID;
+  v_sdn_id UUID;
 BEGIN
   -- Get the Cybersecurity subject ID
   SELECT id INTO v_subject_id FROM subjects WHERE name = 'Cybersecurity' LIMIT 1;
@@ -200,5 +201,25 @@ BEGIN
       'It replicates your data across multiple datacenters within one or two regions. This safeguards data and access in the event a single datacenter is destroyed or goes offline.', 4),
     (v_subject_id, v_ha_service_levels_id, 'Geo-redundant Storage (GRS)',
       'It replicates your data to a secondary region that is distant from the primary region. This safeguards data in the event of a regional outage or a disaster.', 4);
+
+  -- Level 3: Software-defined Networking (SDN)
+  INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level)
+  VALUES (v_subject_id, v_resilient_architecture_id, 'Software-defined Networking (SDN)',
+    'APIs and compatible hardware/virtual appliances allowing for programmable network appliances and systems. A software-defined networking (SDN) application can be used to define policy decisions on the control plane. These decisions are then implemented on the data plane by a network controller application, which interfaces with the network devices using APIs. The interface between the SDN applications and the SDN controller is described as the "northbound" API, while that between the controller and appliances is the "southbound" API. SDN can be used to manage compatible physical appliances, but also virtual switches, routers, and firewalls. The architecture supporting the rapid deployment of virtual networking using general-purpose VMs and containers is called network functions virtualization (NFV) (redhat.com/en/topics/virtualization/what-is-nfv). This architecture saves network and security administrators the job and complexity of configuring appliance settings properly to enforce a desired policy. It also allows for fully automated deployment (or provisioning) of network links, appliances, and servers. This makes SDN an important part of the latest automation and orchestration technologies.', 3)
+  RETURNING id INTO v_sdn_id;
+
+  -- Level 4: SDN Planes
+  INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level) VALUES
+    (v_subject_id, v_sdn_id, 'Management Plane',
+      'Monitors traffic conditions and network status.', 4),
+    (v_subject_id, v_sdn_id, 'Control Plane',
+      'Makes decisions about how traffic should be prioritized, secured, and where it should be switched.', 4),
+    (v_subject_id, v_sdn_id, 'Data Plane',
+      'Handles the switching and routing of traffic and imposition of security access controls.', 4);
+
+  -- Level 3: Network Functions Virtualization (NFV)
+  INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level) VALUES
+    (v_subject_id, v_resilient_architecture_id, 'Network Functions Virtualization (NFV)',
+      'Provisioning virtual network appliances, such as switches, routers, and firewalls, via VMs and containers.', 3);
 
 END $$;
