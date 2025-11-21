@@ -13,6 +13,7 @@ DECLARE
   v_customer_responsibilities_id UUID;
   v_resilient_architecture_id UUID;
   v_ha_service_levels_id UUID;
+  v_virtualization_id UUID;
 BEGIN
   -- Get the Cybersecurity subject ID
   SELECT id INTO v_subject_id FROM subjects WHERE name = 'Cybersecurity' LIMIT 1;
@@ -141,10 +142,21 @@ BEGIN
     'Architectural approaches and technologies that ensure cloud systems remain available, reliable, and performant even in the face of failures or disruptions.', 2)
   RETURNING id INTO v_resilient_architecture_id;
 
-  -- Level 3: Core Resilience Technologies
+  -- Level 3: Virtualization
+  INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level)
+  VALUES (v_subject_id, v_resilient_architecture_id, 'Virtualization',
+    'A computing environment where multiple independent operating systems can be installed to a single hardware platform and run simultaneously.', 3)
+  RETURNING id INTO v_virtualization_id;
+
+  -- Level 4: Virtualization Types
   INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level) VALUES
-    (v_subject_id, v_resilient_architecture_id, 'Virtualization',
-      'A computing environment where multiple independent operating systems can be installed to a single hardware platform and run simultaneously.', 3),
+    (v_subject_id, v_virtualization_id, 'Application Virtualization',
+      'A software delivery model where the code runs on a server and is streamed to a client. Application virtualization is a more limited type of virtual desktop infrastructure (VDI). Rather than run the whole client desktop as a virtual platform, the client either accesses an application hosted on a server or streams the application from the server to the client for local processing. Most application virtualization solutions are based on Citrix XenApp (formerly MetaFrame Presentation Server), though Microsoft has developed an App-V product with its Windows Server range and VMware has the ThinApp product. These solution types are often used with HTML5 remote desktop apps, referred to as "clientless" because users can access them through ordinary web browser software.', 4),
+    (v_subject_id, v_virtualization_id, 'Containerization',
+      'An operating system virtualization deployment containing everything required to run a service, application, or microservice. Containerization is a powerful technology that has transformed application packaging and deployment. Containers encapsulate all necessary components for software, including code, libraries, and configurations, within a portable unit termed a "container." Isolating software in this way ensures consistent application behavior regardless of the underlying platform on which it runs. Software containers parallel the use of physical containers utilized in the shipping industry.', 4);
+
+  -- Level 3: Other Core Resilience Technologies
+  INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level) VALUES
     (v_subject_id, v_resilient_architecture_id, 'High Availability (HA)',
       'A metric that defines how closely systems approach the goal of providing data availability 100% of the time while maintaining a high level of system performance.', 3),
     (v_subject_id, v_resilient_architecture_id, 'Data Replication',
