@@ -16,6 +16,8 @@ DECLARE
   v_virtualization_id UUID;
   v_responsiveness_id UUID;
   v_sdn_id UUID;
+  v_cloud_arch_features_id UUID;
+  v_ease_of_deployment_id UUID;
 BEGIN
   -- Get the Cybersecurity subject ID
   SELECT id INTO v_subject_id FROM subjects WHERE name = 'Cybersecurity' LIMIT 1;
@@ -221,5 +223,43 @@ BEGIN
   INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level) VALUES
     (v_subject_id, v_resilient_architecture_id, 'Network Functions Virtualization (NFV)',
       'Provisioning virtual network appliances, such as switches, routers, and firewalls, via VMs and containers.', 3);
+
+  -- Level 2: Cloud Architecture Features
+  INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level)
+  VALUES (v_subject_id, v_cloud_computing_id, 'Cloud Architecture Features',
+    'Key characteristics and capabilities that define cloud computing architectures, including cost models, scalability, resilience, deployment ease, and operational efficiency.', 2)
+  RETURNING id INTO v_cloud_arch_features_id;
+
+  -- Level 3: Cloud Architecture Feature Categories
+  INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level) VALUES
+    (v_subject_id, v_cloud_arch_features_id, 'Cost',
+      'Should focus on solutions that best achieve operational goals while maintaining the confidentiality, integrity, and availability of data, not simply cost in cloud adoption. There are several cost models associated with running services in the cloud, such as consumption-based or subscription-based, and most cloud providers have tools designed to help estimate costs for migrating existing workloads from on-premises to cloud. Using cloud services involves a shift from capital expenses (CapEx) to operational expenses (OpEx). CapEx includes up-front costs for purchasing hardware, software licenses, and infrastructure setup in traditional on-premises IT infrastructure. In contrast, cloud services are typically paid on a pay-as-you-go basis, allowing organizations to convert CapEx into OpEx. Cloud services charge for usage and resource consumption, eliminating the need for significant up-front investments. This OpEx model provides flexibility, scalability, and cost optimization as organizations pay only for the resources they use, making cloud services more cost-effective from the viewpoint that they align expenses with actual usage. However, resources not optimized to run on cloud infrastructure can present significant challenges to the benefits this model advertises and generate overbearing recurring costs.', 3),
+    (v_subject_id, v_cloud_arch_features_id, 'Scalability',
+      'Is one of the most valuable and compelling features of cloud computing. It is the ability to dynamically expand and contract capacity in response to demand with no downtime. There are two basic ways in which services can be scaled. Scale-up (vertical scaling) describes adding capacity to an existing resource, such as a processor, memory, and storage capacity. Scale-out (horizontal scaling) describes adding additional resources, such as more instances (or virtual machines) to work in parallel and increase performance.', 3),
+    (v_subject_id, v_cloud_arch_features_id, 'Resilience',
+      'Cloud providers use redundant hardware, fault tolerance capabilities (such as clustering), and data replication to store data across multiple servers and datacenters, ensuring that data remains available if one server or datacenter fails.', 3),
+    (v_subject_id, v_cloud_arch_features_id, 'Ease of Recovery',
+      'Cloud providers typically offer backup and restore functionality to allow organizations to schedule automated backups and quickly restore data in case of accidental deletion, corruption, or system failures. Cloud providers often implement highly redundant and fault-tolerant architectures, distribute data and services across multiple datacenters or availability zones, and reduce the risk of data loss or service disruption by ensuring that workloads seamlessly failover if one datacenter or zone experiences an outage. Additionally, cloud providers offer disaster recovery services that enable organizations to replicate their environments in different geographic regions to provide failover capabilities in the event of a catastrophe.', 3),
+    (v_subject_id, v_cloud_arch_features_id, 'SLA and ISA',
+      'Service level agreements (SLAs) define expected service levels, including performance, availability, and support commitments between cloud service providers and organizations. It is essential to carefully review and negotiate SLAs to ensure they align with business requirements and adequately protect the organization''s interests. Interconnection Security Agreements (ISAs) establish the security requirements and responsibilities between the organization and the cloud service provider to safeguard sensitive data and ensure compliance with industry regulations to help ensure the confidentiality, integrity, and availability of data and systems within the cloud environment. ISAs help ensure data and system protection within the cloud environment and define encryption methods, access controls, vulnerability management, and data segregation techniques. The agreement must also specify data ownership, audit rights, and data backup, recovery, and retention procedures. Regulated industries must ensure that their cloud service provider complies with relevant regulations, such as GDPR, HIPAA, or PCI DSS, and the ISA must detail how the provider meets these compliance requirements and include provisions for auditing and reporting to demonstrate ongoing compliance. Additionally, the ISA should address the use of subcontractors and clearly define the security responsibilities and requirements for their selection and the process for notifying the organization of subcontractor changes.', 3),
+    (v_subject_id, v_cloud_arch_features_id, 'Power',
+      'Cloud providers prioritize energy efficiency to reduce costs and environmental impact by deploying energy-efficient hardware, optimizing cooling systems, and implementing power management techniques. Additionally, redundant power infrastructure ensures high availability and is enabled using multiple power feeds, backup generators, and UPS systems to prevent service disruptions. Power monitoring and management systems enable cloud providers to track real-time power consumption within datacenters. These systems can help to optimize resource allocation, identify energy-intensive infrastructure, and facilitate load balancing. Scalability in power provisioning refers to a provider''s ability to dynamically allocate power resources based on customer demand. Power usage effectiveness (PUE) is a metric used to measure datacenter energy efficiency. Cloud providers strive for low PUE values, indicating efficient utilization of energy. A lower PUE signifies that a larger proportion of the energy supplied to the datacenter is used for computing purposes rather than supporting infrastructure.', 3),
+    (v_subject_id, v_cloud_arch_features_id, 'Compute',
+      'Compute capabilities in cloud architecture provide the flexibility, scalability, and efficiency necessary to manage and utilize computing resources. Compute capabilities include elasticity, resource pooling, orchestration, automation, and serverless computing, which contribute to delivering highly available, scalable, and cost-effective computing environments in the cloud. Virtual networks facilitate secure communication and traffic routing, while load balancing distributes network traffic to optimize resource utilization and improve performance. Networking also enables private and public connectivity, allowing organizations to establish secure connections between on-premises infrastructure and cloud resources and enabling external access to cloud-based applications. Additionally, networking supports scalable and distributed architectures, enabling fault tolerance, high availability, and efficient content delivery through specialized services such as content delivery networks (CDNs).', 3);
+
+  -- Level 3: Ease of Deployment
+  INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level)
+  VALUES (v_subject_id, v_cloud_arch_features_id, 'Ease of Deployment',
+    'Cloud features supporting ease of deployment include automation, standardization, and portability.', 3)
+  RETURNING id INTO v_ease_of_deployment_id;
+
+  -- Level 4: Ease of Deployment Components
+  INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level) VALUES
+    (v_subject_id, v_ease_of_deployment_id, 'Automation',
+      'Automating the deployment and management of cloud resources reduces the need for manual intervention and is often achieved using configuration management, container orchestration, and infrastructure as code.', 4),
+    (v_subject_id, v_ease_of_deployment_id, 'Standardization',
+      'Standardized configurations, templates, and images simplify deployment and ensure consistency.', 4),
+    (v_subject_id, v_ease_of_deployment_id, 'Portability',
+      'Portability ensures that applications and services can be easily moved between different cloud infrastructures, avoiding vendor lock-in and providing greater flexibility.', 4);
 
 END $$;
