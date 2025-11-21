@@ -18,6 +18,8 @@ DECLARE
   v_sdn_id UUID;
   v_cloud_arch_features_id UUID;
   v_ease_of_deployment_id UUID;
+  v_cloud_sec_considerations_id UUID;
+  v_secure_comm_access_id UUID;
 BEGIN
   -- Get the Cybersecurity subject ID
   SELECT id INTO v_subject_id FROM subjects WHERE name = 'Cybersecurity' LIMIT 1;
@@ -261,5 +263,31 @@ BEGIN
       'Standardized configurations, templates, and images simplify deployment and ensure consistency.', 4),
     (v_subject_id, v_ease_of_deployment_id, 'Portability',
       'Portability ensures that applications and services can be easily moved between different cloud infrastructures, avoiding vendor lock-in and providing greater flexibility.', 4);
+
+  -- Level 2: Cloud Security Considerations
+  INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level)
+  VALUES (v_subject_id, v_cloud_computing_id, 'Cloud Security Considerations',
+    'Security-related considerations and practices specific to cloud computing environments, including data protection, patch management, and secure communication methods.', 2)
+  RETURNING id INTO v_cloud_sec_considerations_id;
+
+  -- Level 3: Security Consideration Categories
+  INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level) VALUES
+    (v_subject_id, v_cloud_sec_considerations_id, 'Data Protection',
+      'Data and applications are stored outside of an organization''s privately managed infrastructure and are essentially stored "on the Internet" which means that configuration mistakes can have disastrous consequences. Taking careful precautions to protect data using access controls and encryption is essential. Additionally, disaster recovery plans must still be developed in response to any catastrophic events that impact the availability of cloud resources.', 3),
+    (v_subject_id, v_cloud_sec_considerations_id, 'Patching',
+      'Cloud providers should have a clear policy regarding patch management, including how often patches are released and how quickly the provider will respond to critical vulnerabilities. Additionally, it''s essential to consider how easy it is to apply patches to applications and systems running on the cloud infrastructure. Patch availability can be ensured through various features, including automated patch management, regular software updates, centralized patch management, security monitoring, third-party software support. Having a plan for testing and deploying patches ensures systems do not experience unplanned downtime and remain secure. Several factors can make patching cloud infrastructures difficult or even impossible to accomplish consistently. One common challenge is the complexity of cloud systems, which can make it difficult to identify and address vulnerabilities. Additionally, some cloud providers may not allow customers to modify the underlying infrastructure, making it impossible to install patches directly. In a cloud environment, the cloud service provider manages the underlying infrastructure. This lack of control can make it difficult or even impossible to apply patches according to legal and regulatory requirements or timelines.', 3);
+
+  -- Level 3: Secure Communication and Access
+  INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level)
+  VALUES (v_subject_id, v_cloud_sec_considerations_id, 'Secure Communication and Access',
+    'Technologies and architectures that provide secure network connectivity and access to cloud resources, combining security services with wide area networking capabilities.', 3)
+  RETURNING id INTO v_secure_comm_access_id;
+
+  -- Level 4: Secure Communication Technologies
+  INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level) VALUES
+    (v_subject_id, v_secure_comm_access_id, 'Software-Defined Wide Area Network (SD-WAN)',
+      'Services that use software-defined mechanisms and routing policies to implement virtual tunnels and overlay networks over multiple types of transport network. A Software-Defined Wide Area Network (SD-WAN) enables organizations to connect their various branch offices, datacenters, and cloud infrastructure over a wide area network (WAN). One of the key advantages of SD-WAN is its ability to provide enhanced security features and considerations. For example, SD-WAN uses encryption to protect data as it travels across the network and can segment network traffic based on priority ratings to ensure that critical data is fully protected. Additionally, SD-WAN can intelligently route traffic based on the application and tightly integrate with firewalls to provide additional protection against known threats. SD-WAN centralizes the management of network security policies to simplify enforcing security measures across an entire network.', 4),
+    (v_subject_id, v_secure_comm_access_id, 'Secure Access Service Edge (SASE)',
+      'A networking and security architecture that provides secure access to cloud applications and services while reducing complexity. It combines security services like firewalls, identity and access management, and secure web gateway with networking services such as SD-WAN. SASE combines the protection of a secure access platform with the agility of a cloud-delivered security architecture. SASE offers a centralized approach to security and access, providing end-to-end protection and streamlining the process of granting secure access to all users, regardless of location. SASE is a network architecture that combines wide area networking (WAN) technologies and cloud-based security services to provide secure access to cloud-based applications and services. SASE offers several security features to help organizations protect their networks and data as SASE operates under a zero trust security model. SASE incorporates Identity and Access Management (IAM) and assumes all users and devices are untrusted until they are authenticated and authorized. SASE also provides a range of threat prevention features, such as intrusion prevention, malware protection, and content filtering.', 4);
 
 END $$;
