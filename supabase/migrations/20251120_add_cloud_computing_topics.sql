@@ -11,6 +11,8 @@ DECLARE
   v_csp_responsibility_matrix_id UUID;
   v_csp_responsibilities_id UUID;
   v_customer_responsibilities_id UUID;
+  v_resilient_architecture_id UUID;
+  v_ha_service_levels_id UUID;
 BEGIN
   -- Get the Cybersecurity subject ID
   SELECT id INTO v_subject_id FROM subjects WHERE name = 'Cybersecurity' LIMIT 1;
@@ -132,5 +134,35 @@ BEGIN
       'Protection of operating systems, when deployed', 4),
     (v_subject_id, v_customer_responsibilities_id, 'Use and Configuration of Encryption',
       'Use and configuration of encryption, especially the protection of keys', 4);
+
+  -- Level 2: Resilient Cloud Architecture Concepts
+  INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level)
+  VALUES (v_subject_id, v_cloud_computing_id, 'Resilient Cloud Architecture Concepts',
+    'Architectural approaches and technologies that ensure cloud systems remain available, reliable, and performant even in the face of failures or disruptions.', 2)
+  RETURNING id INTO v_resilient_architecture_id;
+
+  -- Level 3: Core Resilience Technologies
+  INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level) VALUES
+    (v_subject_id, v_resilient_architecture_id, 'Virtualization',
+      'A computing environment where multiple independent operating systems can be installed to a single hardware platform and run simultaneously.', 3),
+    (v_subject_id, v_resilient_architecture_id, 'High Availability (HA)',
+      'A metric that defines how closely systems approach the goal of providing data availability 100% of the time while maintaining a high level of system performance.', 3),
+    (v_subject_id, v_resilient_architecture_id, 'Data Replication',
+      'Automatically copying data between two processing systems either simultaneously on both systems (synchronous) or from a primary to a secondary location (asynchronous). Data replication allows businesses to copy data to where it can be utilized most effectively. The cloud may be used as a central storage area, making data available among all business units. Data replication requires low latency network connections, security, and data integrity. CSPs offer several data storage performance tiers (cloud.google.com/storage/docs/storage-classes). The terms "hot storage" and "cold storage" refer to how quickly data is retrieved. Hot storage retrieves data more quickly than cold, but the quicker the data retrieval, the higher the cost. Different applications have diverse replication requirements. A database generally needs low-latency, synchronous replication, as a transaction often cannot be considered complete until it has been made on all replicas. A mechanism to replicate data to backup storage might not have such high requirements, depending on the criticality of the data.', 3);
+
+  -- Level 3: High Availability Service Levels
+  INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level)
+  VALUES (v_subject_id, v_resilient_architecture_id, 'High Availability Service Levels',
+    'Different tiers of data replication strategies that provide varying levels of availability and disaster recovery protection.', 3)
+  RETURNING id INTO v_ha_service_levels_id;
+
+  -- Level 4: Specific Service Levels
+  INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level) VALUES
+    (v_subject_id, v_ha_service_levels_id, 'Local Replication',
+      'It replicates your data within a single datacenter in the region where you created your storage account. The replicas are often in separate fault domains and upgrade domains.', 4),
+    (v_subject_id, v_ha_service_levels_id, 'Regional Replication (Zone-redundant Storage)',
+      'It replicates your data across multiple datacenters within one or two regions. This safeguards data and access in the event a single datacenter is destroyed or goes offline.', 4),
+    (v_subject_id, v_ha_service_levels_id, 'Geo-redundant Storage (GRS)',
+      'It replicates your data to a secondary region that is distant from the primary region. This safeguards data in the event of a regional outage or a disaster.', 4);
 
 END $$;
