@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import OpenAI from 'openai'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import Anthropic from '@anthropic-ai/sdk'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -397,24 +397,37 @@ FORMAT YOUR RESPONSE AS VALID JSON:
 
 Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other text.`
 
-    const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || '')
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-3-pro',
-      systemInstruction: 'You are an expert educator. Always respond with valid JSON only, no markdown or other formatting.',
-      generationConfig: {
-        responseMimeType: 'application/json',
-      }
+    const anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
     })
 
-    const result = await model.generateContent(prompt)
-    const responseText = result.response.text()
+    const msg = await anthropic.messages.create({
+      model: 'claude-sonnet-4-5',
+      max_tokens: 4000,
+      temperature: 0.7,
+      system: 'You are an expert educator. Always respond with valid JSON only, no markdown or other formatting.',
+      messages: [
+        {
+          role: 'user',
+          content: prompt
+        }
+      ]
+    })
+
+    const responseText = (msg.content[0] as any).text
 
     let questionsData
 
     try {
-      questionsData = JSON.parse(responseText)
+      // Clean up response text (remove markdown code blocks if present)
+      const cleanedResponse = responseText
+        .replace(/```json\n?/g, '')
+        .replace(/```\n?/g, '')
+        .trim()
+
+      questionsData = JSON.parse(cleanedResponse)
     } catch (parseError) {
-      console.error('Failed to parse Gemini response:', responseText)
+      console.error('Failed to parse Claude response:', responseText)
       return NextResponse.json(
         { error: 'Failed to parse AI response', raw_response: responseText },
         { status: 500 }
