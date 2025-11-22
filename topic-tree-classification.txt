@@ -256,6 +256,12 @@ Legend:
 
 🪵 Information Systems Security Officer (ISSO)
 
+🌳 Internet of Things (IoT)
+    ├── 🍃 Best Practice Guidance for IoT
+    ├── 🍃 Factors Driving Adoption of IoT
+    ├── 🍃 IoT Examples
+    └── 🍃 Security Risks Associated with IoT
+
 🪵 Integrity
 
 🪵 Intentional Threat
@@ -367,16 +373,16 @@ Legend:
 ================================================================================
 STATISTICS
 ================================================================================
-Total topics: 293
+Total topics: 298
 
-🌳 Trunks (Level 1 with children): 15
+🌳 Trunks (Level 1 with children): 16
 🪵 Roots (Level 1 standalone):      45
 🌿 Branches (Has children):         25
-🍃 Leaves (No children):            253
+🍃 Leaves (No children):            257
 
 By Level:
-  Level 1: 60
-  Level 2: 85
+  Level 1: 61
+  Level 2: 89
   Level 3: 122
   Level 4: 26
 ================================================================================

@@ -248,6 +248,12 @@ TOPIC HIERARCHY TREE
 
 [L1] Information Systems Security Officer (ISSO)
 
+[L1] Internet of Things (IoT)
+    ├── [L2] Best Practice Guidance for IoT
+    ├── [L2] Factors Driving Adoption of IoT
+    ├── [L2] IoT Examples
+    └── [L2] Security Risks Associated with IoT
+
 [L1] Integrity
 
 [L1] Intentional Threat
@@ -357,9 +363,9 @@ TOPIC HIERARCHY TREE
 [L1] Vulnerable Software
 
 ======================================================================
-Total topics: 293
-  Level 1: 60
-  Level 2: 85
+Total topics: 298
+  Level 1: 61
+  Level 2: 89
   Level 3: 122
   Level 4: 26
 ======================================================================
