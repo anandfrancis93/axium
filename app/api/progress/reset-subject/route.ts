@@ -189,6 +189,68 @@ export async function POST(request: NextRequest) {
 
     const totalDeleted = (progressCount || 0) + (responsesCount || 0) + (questionsCount || 0)
 
+    // ============================================================
+    // RECALCULATE GLOBAL PROGRESS
+    // Since we deleted a large chunk of data, we must update the global stats
+    // to reflect only the remaining history.
+    // ============================================================
+    try {
+      const { calculateMetrics } = await import('@/lib/analytics')
+
+      // Fetch remaining responses (limit to last 100 for performance, similar to submit logic)
+      const { data: remainingResponses } = await supabase
+        .from('user_responses')
+        .select('calibration_score, is_correct, created_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(100)
+
+      if (remainingResponses && remainingResponses.length > 0) {
+        // Reverse to get chronological order (oldest -> newest)
+        const chronologicalResponses = remainingResponses.reverse()
+
+        const scores = chronologicalResponses.map((r: any) => {
+          if (r.calibration_score !== null) return Number(r.calibration_score)
+          return r.is_correct ? 1.0 : -1.0
+        })
+
+        const newMetrics = calculateMetrics(scores)
+
+        // Update global progress with new metrics
+        await supabase
+          .from('user_global_progress')
+          .update({
+            calibration_mean: newMetrics.mean,
+            calibration_stddev: newMetrics.stdDev,
+            calibration_slope: newMetrics.slope,
+            calibration_r_squared: newMetrics.rSquared,
+            total_responses_analyzed: newMetrics.count,
+            last_updated_at: new Date().toISOString()
+          })
+          .eq('user_id', user.id)
+
+        console.log(`Recalculated global progress: mean=${newMetrics.mean}, count=${newMetrics.count}`)
+      } else {
+        // No responses left (complete reset of all subjects)
+        await supabase
+          .from('user_global_progress')
+          .update({
+            calibration_mean: 0,
+            calibration_stddev: 0,
+            calibration_slope: 0,
+            calibration_r_squared: 0,
+            total_responses_analyzed: 0,
+            last_updated_at: new Date().toISOString()
+          })
+          .eq('user_id', user.id)
+
+        console.log('Reset global progress to zero (no remaining responses)')
+      }
+    } catch (recalcError) {
+      console.error('Error recalculating global progress:', recalcError)
+      // Non-critical, don't fail the request
+    }
+
     return NextResponse.json({
       success: true,
       deletedCount: totalDeleted,
