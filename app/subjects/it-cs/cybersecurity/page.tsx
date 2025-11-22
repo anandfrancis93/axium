@@ -37,9 +37,14 @@ export default function CybersecurityPage() {
   const [showErrorModal, setShowErrorModal] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
 
+  const [showProgress, setShowProgress] = useState(false)
+  const [showSpacedRepetition, setShowSpacedRepetition] = useState(false)
+
   useEffect(() => {
-    fetchTopicsProgress()
-  }, [])
+    if (showProgress || showSpacedRepetition) {
+      fetchTopicsProgress()
+    }
+  }, [showProgress, showSpacedRepetition])
 
   async function fetchTopicsProgress() {
     try {
@@ -310,199 +315,367 @@ export default function CybersecurityPage() {
           </div>
         </div>
 
+        {/* Toggle Buttons */}
+        <div className="flex gap-3">
+          <button
+            onClick={() => {
+              setShowProgress(!showProgress)
+              if (showSpacedRepetition) setShowSpacedRepetition(false)
+            }}
+            className={`neuro-btn px-6 py-2 font-semibold hover:bg-blue-500/10 transition-colors ${showProgress ? 'text-blue-400 bg-blue-500/20' : 'text-blue-400'
+              }`}
+          >
+            My Progress
+          </button>
+          <button
+            onClick={() => {
+              setShowSpacedRepetition(!showSpacedRepetition)
+              if (showProgress) setShowProgress(false)
+            }}
+            className={`neuro-btn px-6 py-2 font-semibold hover:bg-purple-500/10 transition-colors ${showSpacedRepetition ? 'text-purple-400 bg-purple-500/20' : 'text-purple-400'
+              }`}
+          >
+            Spaced Repetition
+          </button>
+        </div>
+
         {/* Topics Progress */}
-        <div className="neuro-card overflow-hidden">
-          <div className="p-6 border-b border-gray-800/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <h3 className="text-xl font-semibold text-gray-200">Your Progress</h3>
-            
-            <div className="flex items-center gap-3 w-full md:w-auto">
-              <div className="relative flex-grow md:w-64">
-                <SearchIcon size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-                <input
-                  type="text"
-                  placeholder="Search topics..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="neuro-input w-full pl-10 py-2 text-sm"
-                />
-              </div>
-              
-              {topicsProgress.length > 0 && (
-                <button
-                  onClick={resetProgress}
-                  disabled={resetting}
-                  className="neuro-btn text-red-400 p-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                  title="Reset Progress"
-                >
-                  <TrashIcon size={18} />
-                </button>
-              )}
-            </div>
-          </div>
+        {showProgress && (
+          <div className="neuro-card overflow-hidden">
+            <div className="p-6 border-b border-gray-800/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <h3 className="text-xl font-semibold text-gray-200">Your Progress</h3>
 
-          {/* Loading State */}
-          {loading && (
-            <div className="p-8 text-center">
-              <div className="text-gray-400">Loading your progress...</div>
-            </div>
-          )}
+              <div className="flex items-center gap-3 w-full md:w-auto">
+                <div className="relative flex-grow md:w-64">
+                  <SearchIcon size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                  <input
+                    type="text"
+                    placeholder="Search topics..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="neuro-input w-full pl-10 py-2 text-sm"
+                  />
+                </div>
 
-          {/* Empty State */}
-          {!loading && topicsProgress.length === 0 && (
-            <div className="p-8 text-center">
-              <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <ShieldIcon size={40} className="text-gray-600" />
-              </div>
-              <div className="text-gray-400 text-lg font-semibold mb-2">
-                No topics attempted yet
-              </div>
-              <div className="text-sm text-gray-600 mb-6">
-                Start your first quiz to see your progress here
+                {topicsProgress.length > 0 && (
+                  <button
+                    onClick={resetProgress}
+                    disabled={resetting}
+                    className="neuro-btn text-red-400 p-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    title="Reset Progress"
+                  >
+                    <TrashIcon size={18} />
+                  </button>
+                )}
               </div>
             </div>
-          )}
 
-          {/* Topics Table */}
-          {!loading && filteredTopics.length > 0 && (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-800">
-                    <th className="text-left p-4 text-sm font-semibold text-gray-400">Topic</th>
-                    <th className="text-center p-4 text-sm font-semibold text-gray-400">Attempts</th>
-                    <th className="text-center p-4 text-sm font-semibold text-gray-400">Correct</th>
-                    <th className="text-center p-4 text-sm font-semibold text-gray-400">Mastery</th>
-                    <th className="text-center p-4 text-sm font-semibold text-gray-400 w-32">Learning Curve</th>
-                    <th className="text-right p-4 text-sm font-semibold text-gray-400">Last Practiced</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredTopics.map((topic) => {
-                    const accuracy = topic.total_attempts > 0
-                      ? Math.round((topic.correct_answers / topic.total_attempts) * 100)
-                      : 0
-                    const overallMastery = calculateOverallMastery(topic.mastery_scores)
+            {/* Loading State */}
+            {loading && (
+              <div className="p-8 text-center">
+                <div className="text-gray-400">Loading your progress...</div>
+              </div>
+            )}
 
-                    return (
-                      <tr
-                        key={topic.topic_id}
-                        className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors"
-                      >
-                        <td className="p-4">
-                          <a
-                            href={`/subjects/it-cs/cybersecurity/${encodeURIComponent(topic.topic_name)}`}
-                            className="font-medium text-blue-400 hover:text-blue-300 hover:underline cursor-pointer"
-                          >
-                            {topic.topic_name}
-                          </a>
-                        </td>
-                        <td className="p-4 text-center">
-                          <span className="text-gray-300">{topic.total_attempts}</span>
-                        </td>
-                        <td className="p-4 text-center">
-                          <span className="text-gray-300">
-                            {topic.correct_answers}
-                            <span className="text-gray-600 ml-1">({accuracy}%)</span>
+            {/* Empty State */}
+            {!loading && topicsProgress.length === 0 && (
+              <div className="p-8 text-center">
+                <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <ShieldIcon size={40} className="text-gray-600" />
+                </div>
+                <div className="text-gray-400 text-lg font-semibold mb-2">
+                  No topics attempted yet
+                </div>
+                <div className="text-sm text-gray-600 mb-6">
+                  Start your first quiz to see your progress here
+                </div>
+              </div>
+            )}
+
+            {/* Topics Table */}
+            {!loading && filteredTopics.length > 0 && (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-800">
+                      <th className="text-left p-4 text-sm font-semibold text-gray-400">Topic</th>
+                      <th className="text-center p-4 text-sm font-semibold text-gray-400">Attempts</th>
+                      <th className="text-center p-4 text-sm font-semibold text-gray-400">Correct</th>
+                      <th className="text-center p-4 text-sm font-semibold text-gray-400">Mastery</th>
+                      <th className="text-center p-4 text-sm font-semibold text-gray-400 w-32">Learning Curve</th>
+                      <th className="text-right p-4 text-sm font-semibold text-gray-400">Last Practiced</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredTopics.map((topic) => {
+                      const accuracy = topic.total_attempts > 0
+                        ? Math.round((topic.correct_answers / topic.total_attempts) * 100)
+                        : 0
+                      const overallMastery = calculateOverallMastery(topic.mastery_scores)
+
+                      return (
+                        <tr
+                          key={topic.topic_id}
+                          className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors"
+                        >
+                          <td className="p-4">
+                            <a
+                              href={`/subjects/it-cs/cybersecurity/${encodeURIComponent(topic.topic_name)}`}
+                              className="font-medium text-blue-400 hover:text-blue-300 hover:underline cursor-pointer"
+                            >
+                              {topic.topic_name}
+                            </a>
+                          </td>
+                          <td className="p-4 text-center">
+                            <span className="text-gray-300">{topic.total_attempts}</span>
+                          </td>
+                          <td className="p-4 text-center">
+                            <span className="text-gray-300">
+                              {topic.correct_answers}
+                              <span className="text-gray-600 ml-1">({accuracy}%)</span>
+                            </span>
+                          </td>
+                          <td className="p-4 text-center">
+                            <div className="flex items-center justify-center gap-2">
+                              <div className={`text-lg font-bold ${overallMastery >= 80 ? 'text-green-400' :
+                                overallMastery >= 60 ? 'text-yellow-400' :
+                                  'text-red-400'
+                                }`}>
+                                {overallMastery}%
+                              </div>
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <div className="h-12 w-32 mx-auto">
+                              {topic.recent_responses.length > 1 ? (
+                                <LearningCurveChart
+                                  data={topic.recent_responses}
+                                  slope={topic.calibration_slope}
+                                  intercept={null}
+                                  stddev={topic.calibration_stddev}
+                                  height={48}
+                                  sparkline={true}
+                                />
+                              ) : (
+                                <div className="h-full flex items-center justify-center text-xs text-gray-600">
+                                  No data
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                          <td className="p-4 text-right">
+                            <span className="text-sm text-gray-500">
+                              {formatDateTime(topic.last_practiced_at)}
+                            </span>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                  <tfoot>
+                    <tr className="border-t-2 border-gray-700 bg-gray-800/30">
+                      <td className="p-4">
+                        <div className="font-semibold text-gray-200">
+                          Total ({filteredTopics.length} {filteredTopics.length === 1 ? 'topic' : 'topics'})
+                        </div>
+                      </td>
+                      <td className="p-4 text-center">
+                        <span className="font-semibold text-gray-200">
+                          {filteredTopics.reduce((sum, topic) => sum + topic.total_attempts, 0)}
+                        </span>
+                      </td>
+                      <td className="p-4 text-center">
+                        <span className="font-semibold text-gray-200">
+                          {filteredTopics.reduce((sum, topic) => sum + topic.correct_answers, 0)}
+                          <span className="text-gray-600 ml-1">
+                            ({filteredTopics.reduce((sum, topic) => sum + topic.total_attempts, 0) > 0
+                              ? Math.round((filteredTopics.reduce((sum, topic) => sum + topic.correct_answers, 0) /
+                                filteredTopics.reduce((sum, topic) => sum + topic.total_attempts, 0)) * 100)
+                              : 0}%)
                           </span>
-                        </td>
-                        <td className="p-4 text-center">
-                          <div className="flex items-center justify-center gap-2">
-                            <div className={`text-lg font-bold ${overallMastery >= 80 ? 'text-green-400' :
-                              overallMastery >= 60 ? 'text-yellow-400' :
+                        </span>
+                      </td>
+                      <td className="p-4 text-center">
+                        {(() => {
+                          const avgMastery = Math.round(
+                            filteredTopics.reduce((sum, topic) => sum + calculateOverallMastery(topic.mastery_scores), 0) /
+                            filteredTopics.length
+                          )
+                          return (
+                            <div className={`text-lg font-bold ${avgMastery >= 80 ? 'text-green-400' :
+                              avgMastery >= 60 ? 'text-yellow-400' :
                                 'text-red-400'
                               }`}>
-                              {overallMastery}%
+                              {avgMastery}%
                             </div>
-                          </div>
-                        </td>
-                        <td className="p-4">
-                          <div className="h-12 w-32 mx-auto">
-                            {topic.recent_responses.length > 1 ? (
-                              <LearningCurveChart
-                                data={topic.recent_responses}
-                                slope={topic.calibration_slope}
-                                intercept={null}
-                                stddev={topic.calibration_stddev}
-                                height={48}
-                                sparkline={true}
-                              />
-                            ) : (
-                              <div className="h-full flex items-center justify-center text-xs text-gray-600">
-                                No data
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                        <td className="p-4 text-right">
-                          <span className="text-sm text-gray-500">
-                            {formatDateTime(topic.last_practiced_at)}
-                          </span>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-                <tfoot>
-                  <tr className="border-t-2 border-gray-700 bg-gray-800/30">
-                    <td className="p-4">
-                      <div className="font-semibold text-gray-200">
-                        Total ({filteredTopics.length} {filteredTopics.length === 1 ? 'topic' : 'topics'})
-                      </div>
-                    </td>
-                    <td className="p-4 text-center">
-                      <span className="font-semibold text-gray-200">
-                        {filteredTopics.reduce((sum, topic) => sum + topic.total_attempts, 0)}
-                      </span>
-                    </td>
-                    <td className="p-4 text-center">
-                      <span className="font-semibold text-gray-200">
-                        {filteredTopics.reduce((sum, topic) => sum + topic.correct_answers, 0)}
-                        <span className="text-gray-600 ml-1">
-                          ({filteredTopics.reduce((sum, topic) => sum + topic.total_attempts, 0) > 0
-                            ? Math.round((filteredTopics.reduce((sum, topic) => sum + topic.correct_answers, 0) /
-                              filteredTopics.reduce((sum, topic) => sum + topic.total_attempts, 0)) * 100)
-                            : 0}%)
-                        </span>
-                      </span>
-                    </td>
-                    <td className="p-4 text-center">
-                      {(() => {
-                        const avgMastery = Math.round(
-                          filteredTopics.reduce((sum, topic) => sum + calculateOverallMastery(topic.mastery_scores), 0) /
-                          filteredTopics.length
-                        )
-                        return (
-                          <div className={`text-lg font-bold ${avgMastery >= 80 ? 'text-green-400' :
-                            avgMastery >= 60 ? 'text-yellow-400' :
-                              'text-red-400'
-                            }`}>
-                            {avgMastery}%
-                          </div>
-                        )
-                      })()}
-                    </td>
-                    <td className="p-4"></td>
-                    <td className="p-4 text-right">
-                      {/* Empty - no date for summary row */}
-                    </td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-          )}
+                          )
+                        })()}
+                      </td>
+                      <td className="p-4"></td>
+                      <td className="p-4 text-right">
+                        {/* Empty - no date for summary row */}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            )}
 
-          {/* No Search Results */}
-          {!loading && topicsProgress.length > 0 && filteredTopics.length === 0 && (
-            <div className="p-8 text-center">
-              <div className="text-gray-400 text-lg font-semibold mb-2">
-                No topics found
+            {/* No Search Results */}
+            {!loading && topicsProgress.length > 0 && filteredTopics.length === 0 && (
+              <div className="p-8 text-center">
+                <div className="text-gray-400 text-lg font-semibold mb-2">
+                  No topics found
+                </div>
+                <div className="text-sm text-gray-600">
+                  Try a different search term
+                </div>
               </div>
-              <div className="text-sm text-gray-600">
-                Try a different search term
-              </div>
+            )}
+          </div>
+        )}
+
+        {/* Spaced Repetition Section */}
+        {showSpacedRepetition && (
+          <div className="neuro-card overflow-hidden">
+            <div className="p-6 border-b border-gray-800/50">
+              <h3 className="text-xl font-semibold text-gray-200">Topics Due for Review</h3>
+              <p className="text-sm text-gray-500 mt-1">Practice these topics to maintain and improve your mastery</p>
             </div>
-          )}
-        </div>
+
+            {/* Loading State */}
+            {loading && (
+              <div className="p-8 text-center">
+                <div className="text-gray-400">Loading spaced repetition topics...</div>
+              </div>
+            )}
+
+            {/* Empty State */}
+            {!loading && topicsProgress.length === 0 && (
+              <div className="p-8 text-center">
+                <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <ShieldIcon size={40} className="text-gray-600" />
+                </div>
+                <div className="text-gray-400 text-lg font-semibold mb-2">
+                  No topics to review yet
+                </div>
+                <div className="text-sm text-gray-600 mb-6">
+                  Start practicing to build your spaced repetition queue
+                </div>
+              </div>
+            )}
+
+            {/* Topics Due for Review */}
+            {!loading && topicsProgress.length > 0 && (() => {
+              // Calculate topics due for review (last practiced more than 24 hours ago or low mastery)
+              const now = new Date().getTime()
+              const dueTopics = topicsProgress
+                .filter(topic => {
+                  const lastPracticed = new Date(topic.last_practiced_at).getTime()
+                  const hoursSinceLastPractice = (now - lastPracticed) / (1000 * 60 * 60)
+                  const overallMastery = calculateOverallMastery(topic.mastery_scores)
+
+                  // Topics are due if:
+                  // - Not practiced in 24+ hours, OR
+                  // - Low mastery (< 60%) and not practiced in 12+ hours
+                  return hoursSinceLastPractice >= 24 || (overallMastery < 60 && hoursSinceLastPractice >= 12)
+                })
+                .sort((a, b) => {
+                  // Sort by last_practiced_at in reverse chronological order (oldest first = most urgent)
+                  return new Date(a.last_practiced_at).getTime() - new Date(b.last_practiced_at).getTime()
+                })
+
+              return dueTopics.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-gray-800">
+                        <th className="text-left p-4 text-sm font-semibold text-gray-400">Topic</th>
+                        <th className="text-center p-4 text-sm font-semibold text-gray-400">Mastery</th>
+                        <th className="text-center p-4 text-sm font-semibold text-gray-400">Last Practiced</th>
+                        <th className="text-center p-4 text-sm font-semibold text-gray-400">Urgency</th>
+                        <th className="text-right p-4 text-sm font-semibold text-gray-400">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {dueTopics.map((topic) => {
+                        const overallMastery = calculateOverallMastery(topic.mastery_scores)
+                        const lastPracticed = new Date(topic.last_practiced_at).getTime()
+                        const hoursSinceLastPractice = (now - lastPracticed) / (1000 * 60 * 60)
+                        const daysSinceLastPractice = Math.floor(hoursSinceLastPractice / 24)
+
+                        // Calculate urgency level
+                        let urgencyLevel = 'Low'
+                        let urgencyColor = 'text-yellow-400'
+                        if (daysSinceLastPractice >= 7) {
+                          urgencyLevel = 'Critical'
+                          urgencyColor = 'text-red-400'
+                        } else if (daysSinceLastPractice >= 3 || overallMastery < 50) {
+                          urgencyLevel = 'High'
+                          urgencyColor = 'text-orange-400'
+                        } else if (daysSinceLastPractice >= 1) {
+                          urgencyLevel = 'Medium'
+                          urgencyColor = 'text-yellow-400'
+                        }
+
+                        return (
+                          <tr
+                            key={topic.topic_id}
+                            className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors"
+                          >
+                            <td className="p-4">
+                              <a
+                                href={`/subjects/it-cs/cybersecurity/${encodeURIComponent(topic.topic_name)}`}
+                                className="font-medium text-blue-400 hover:text-blue-300 hover:underline cursor-pointer"
+                              >
+                                {topic.topic_name}
+                              </a>
+                            </td>
+                            <td className="p-4 text-center">
+                              <div className={`text-lg font-bold ${overallMastery >= 80 ? 'text-green-400' :
+                                overallMastery >= 60 ? 'text-yellow-400' :
+                                  'text-red-400'
+                                }`}>
+                                {overallMastery}%
+                              </div>
+                            </td>
+                            <td className="p-4 text-center">
+                              <span className="text-sm text-gray-500">
+                                {formatDateTime(topic.last_practiced_at)}
+                              </span>
+                            </td>
+                            <td className="p-4 text-center">
+                              <span className={`font-semibold ${urgencyColor}`}>
+                                {urgencyLevel}
+                              </span>
+                            </td>
+                            <td className="p-4 text-right">
+                              <a
+                                href={`/subjects/it-cs/cybersecurity/${encodeURIComponent(topic.topic_name)}`}
+                                className="neuro-btn text-blue-400 px-4 py-1 text-sm font-semibold inline-block"
+                              >
+                                Practice
+                              </a>
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="p-8 text-center">
+                  <div className="text-gray-400 text-lg font-semibold mb-2">
+                    All caught up! 🎉
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    No topics are due for review right now. Check back later!
+                  </div>
+                </div>
+              )
+            })()}
+          </div>
+        )}
       </main>
 
       {/* Reset Progress Confirmation Modal */}

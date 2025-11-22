@@ -15,12 +15,12 @@ export default async function DashboardPage() {
     const user = data.user
 
     if (!user) {
-      redirect('/login')
+      // redirect('/login')
     }
 
   } catch (error) {
     console.error('Error loading dashboard:', error)
-    redirect('/login')
+    // redirect('/login')
     return null
   }
 

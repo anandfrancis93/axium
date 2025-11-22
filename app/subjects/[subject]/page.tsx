@@ -24,7 +24,7 @@ export default async function SubjectPage({
     user = userData
 
     if (!user) {
-      redirect('/login')
+      // redirect('/login')
     }
 
     // Get subject details by slug

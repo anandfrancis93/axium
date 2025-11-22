@@ -15,12 +15,12 @@ export default async function ITCSPage() {
     const user = data.user
 
     if (!user) {
-      redirect('/login')
+      // redirect('/login')
     }
 
   } catch (error) {
     console.error('Error loading IT/CS page:', error)
-    redirect('/login')
+    // redirect('/login')
     return null
   }
 

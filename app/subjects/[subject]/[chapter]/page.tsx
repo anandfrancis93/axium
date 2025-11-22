@@ -23,7 +23,7 @@ export default async function ChapterPage({
     user = userData
 
     if (!user) {
-      redirect('/login')
+      // redirect('/login')
     }
 
     // Get subject details by slug
