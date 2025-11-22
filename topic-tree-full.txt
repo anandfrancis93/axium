@@ -182,6 +182,14 @@ TOPIC HIERARCHY TREE
 
 [L1] Directive Security Control
 
+[L1] Embedded Systems
+    ├── [L2] Aerospace and defense
+    ├── [L2] Automotive systems
+    ├── [L2] Home appliances
+    ├── [L2] Industrial automation
+    ├── [L2] Medical devices
+    └── [L2] Smartphones and tablets
+
 [L1] Federation
     ├── [L2] Identity Provider (IdP)
     ├── [L2] Open Authorization (OAuth)
@@ -264,6 +272,10 @@ TOPIC HIERARCHY TREE
 
 [L1] Preventive Security Control
 
+[L1] Real-Time Operating Systems (RTOS)
+    ├── [L2] Examples of RTOS
+    └── [L2] Risks Associated with RTOS
+
 [L1] Resources/funding
 
 [L1] Risk
@@ -334,9 +346,9 @@ TOPIC HIERARCHY TREE
 [L1] Vulnerable Software
 
 ======================================================================
-Total topics: 273
-  Level 1: 57
-  Level 2: 73
+Total topics: 283
+  Level 1: 59
+  Level 2: 81
   Level 3: 117
   Level 4: 26
 ======================================================================

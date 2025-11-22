@@ -190,6 +190,14 @@ Legend:
 
 🪵 Directive Security Control
 
+🌳 Embedded Systems
+    ├── 🍃 Aerospace and defense
+    ├── 🍃 Automotive systems
+    ├── 🍃 Home appliances
+    ├── 🍃 Industrial automation
+    ├── 🍃 Medical devices
+    └── 🍃 Smartphones and tablets
+
 🌳 Federation
     ├── 🍃 Identity Provider (IdP)
     ├── 🍃 Open Authorization (OAuth)
@@ -272,6 +280,10 @@ Legend:
 
 🪵 Preventive Security Control
 
+🌳 Real-Time Operating Systems (RTOS)
+    ├── 🍃 Examples of RTOS
+    └── 🍃 Risks Associated with RTOS
+
 🪵 Resources/funding
 
 🪵 Risk
@@ -344,16 +356,16 @@ Legend:
 ================================================================================
 STATISTICS
 ================================================================================
-Total topics: 273
+Total topics: 283
 
-🌳 Trunks (Level 1 with children): 12
+🌳 Trunks (Level 1 with children): 14
 🪵 Roots (Level 1 standalone):      45
 🌿 Branches (Has children):         24
-🍃 Leaves (No children):            237
+🍃 Leaves (No children):            245
 
 By Level:
-  Level 1: 57
-  Level 2: 73
+  Level 1: 59
+  Level 2: 81
   Level 3: 117
   Level 4: 26
 ================================================================================
