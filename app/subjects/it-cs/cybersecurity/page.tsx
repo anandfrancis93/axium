@@ -330,7 +330,7 @@ export default function CybersecurityPage() {
               setShowSpacedRepetition(!showSpacedRepetition)
               if (showProgress) setShowProgress(false)
             }}
-            className={`neuro-btn px-6 py-2 font-semibold hover:bg-purple-500/10 transition-colors ${showSpacedRepetition ? 'text-purple-400 bg-purple-500/20' : 'text-purple-400'
+            className={`neuro-btn px-6 py-2 font-semibold hover:bg-blue-500/10 transition-colors ${showSpacedRepetition ? 'text-blue-400 bg-blue-500/20' : 'text-blue-400'
               }`}
           >
             Spaced Repetition
