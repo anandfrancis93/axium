@@ -646,7 +646,6 @@ export default function CybersecurityPage() {
                         <th className="text-center p-4 text-sm font-semibold text-gray-400">Mastery</th>
                         <th className="text-center p-4 text-sm font-semibold text-gray-400">Last Practiced</th>
                         <th className="text-center p-4 text-sm font-semibold text-gray-400">Due In</th>
-                        <th className="text-right p-4 text-sm font-semibold text-gray-400">Action</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -697,14 +696,6 @@ export default function CybersecurityPage() {
                               <span className={`font-semibold ${dueInfo.color}`}>
                                 {dueInfo.text}
                               </span>
-                            </td>
-                            <td className="p-4 text-right">
-                              <a
-                                href={`/subjects/it-cs/cybersecurity/${encodeURIComponent(topic.topic_name)}`}
-                                className="neuro-btn text-blue-400 px-4 py-1 text-sm font-semibold inline-block"
-                              >
-                                Practice
-                              </a>
                             </td>
                           </tr>
                         )
