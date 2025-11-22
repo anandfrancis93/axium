@@ -437,7 +437,7 @@ export default function CybersecurityPage() {
                               (topic.calibration_mean ?? 0) >= 1.0 ? 'text-green-400' :
                               (topic.calibration_mean ?? 0) >= 0.5 ? 'text-yellow-400' :
                               (topic.calibration_mean ?? 0) >= 0.0 ? 'text-yellow-400' :
-                              (topic.calibration_mean ?? 0) >= -0.5 ? 'text-orange-400' :
+                              (topic.calibration_mean ?? 0) >= -0.5 ? 'text-yellow-400' :
                               'text-red-400'
                             }`}>
                               {(topic.calibration_mean ?? 0).toFixed(2)}
@@ -487,7 +487,7 @@ export default function CybersecurityPage() {
                               avgCalibration >= 1.0 ? 'text-green-400' :
                               avgCalibration >= 0.5 ? 'text-yellow-400' :
                               avgCalibration >= 0.0 ? 'text-yellow-400' :
-                              avgCalibration >= -0.5 ? 'text-orange-400' :
+                              avgCalibration >= -0.5 ? 'text-yellow-400' :
                               'text-red-400'
                             }`}>
                               {avgCalibration.toFixed(2)}
@@ -610,7 +610,7 @@ export default function CybersecurityPage() {
                               <div className={`text-lg font-bold ${calibrationScore >= 1.0 ? 'text-green-400' :
                                   calibrationScore >= 0.5 ? 'text-yellow-400' :
                                     calibrationScore >= 0.0 ? 'text-yellow-400' :
-                                      calibrationScore >= -0.5 ? 'text-orange-400' :
+                                      calibrationScore >= -0.5 ? 'text-yellow-400' :
                                         'text-red-400'
                                 }`}>
                                 {calibrationScore.toFixed(2)}
