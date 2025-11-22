@@ -567,30 +567,20 @@ export default function CybersecurityPage() {
 
             {/* Topics Due for Review */}
             {!loading && topicsProgress.length > 0 && (() => {
-              // Calculate topics due for review (last practiced more than 24 hours ago or low mastery)
-              const now = new Date().getTime()
-              const dueTopics = topicsProgress
-                .filter(topic => {
-                  const lastPracticed = new Date(topic.last_practiced_at).getTime()
-                  const hoursSinceLastPractice = (now - lastPracticed) / (1000 * 60 * 60)
-                  const overallMastery = calculateOverallMastery(topic.mastery_scores)
+              // Sort all topics by calibration score (lowest/worst first = highest priority)
+              const sortedTopics = [...topicsProgress].sort((a, b) => {
+                const scoreA = a.calibration_mean ?? 0
+                const scoreB = b.calibration_mean ?? 0
+                return scoreA - scoreB // Lowest scores first
+              })
 
-                  // Topics are due if:
-                  // - Not practiced in 24+ hours, OR
-                  // - Low mastery (< 60%) and not practiced in 12+ hours
-                  return hoursSinceLastPractice >= 24 || (overallMastery < 60 && hoursSinceLastPractice >= 12)
-                })
-                .sort((a, b) => {
-                  // Sort by last_practiced_at in reverse chronological order (oldest first = most urgent)
-                  return new Date(a.last_practiced_at).getTime() - new Date(b.last_practiced_at).getTime()
-                })
-
-              return dueTopics.length > 0 ? (
+              return sortedTopics.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-gray-800">
                         <th className="text-left p-4 text-sm font-semibold text-gray-400">Topic</th>
+                        <th className="text-center p-4 text-sm font-semibold text-gray-400">Calibration</th>
                         <th className="text-center p-4 text-sm font-semibold text-gray-400">Mastery</th>
                         <th className="text-center p-4 text-sm font-semibold text-gray-400">Last Practiced</th>
                         <th className="text-center p-4 text-sm font-semibold text-gray-400">Urgency</th>
@@ -598,24 +588,35 @@ export default function CybersecurityPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {dueTopics.map((topic) => {
+                      {sortedTopics.map((topic) => {
                         const overallMastery = calculateOverallMastery(topic.mastery_scores)
-                        const lastPracticed = new Date(topic.last_practiced_at).getTime()
-                        const hoursSinceLastPractice = (now - lastPracticed) / (1000 * 60 * 60)
-                        const daysSinceLastPractice = Math.floor(hoursSinceLastPractice / 24)
+                        const calibrationScore = topic.calibration_mean ?? 0
 
-                        // Calculate urgency level
-                        let urgencyLevel = 'Low'
-                        let urgencyColor = 'text-yellow-400'
-                        if (daysSinceLastPractice >= 7) {
+                        // Calculate urgency level based on calibration score
+                        // -1.5 to -1.0: Critical (4 hours)
+                        // -1.0 to -0.5: High (12 hours)
+                        // -0.5 to 0.0:  Medium (1 day)
+                        //  0.0 to 0.5:  Medium-Low (2 days)
+                        //  0.5 to 1.0:  Low (4 days)
+                        //  1.0 to 1.5:  Very Low (7 days)
+                        let urgencyLevel = 'Very Low'
+                        let urgencyColor = 'text-green-400'
+
+                        if (calibrationScore <= -1.0) {
                           urgencyLevel = 'Critical'
                           urgencyColor = 'text-red-400'
-                        } else if (daysSinceLastPractice >= 3 || overallMastery < 50) {
+                        } else if (calibrationScore <= -0.5) {
                           urgencyLevel = 'High'
                           urgencyColor = 'text-orange-400'
-                        } else if (daysSinceLastPractice >= 1) {
+                        } else if (calibrationScore <= 0.0) {
                           urgencyLevel = 'Medium'
                           urgencyColor = 'text-yellow-400'
+                        } else if (calibrationScore <= 0.5) {
+                          urgencyLevel = 'Medium-Low'
+                          urgencyColor = 'text-yellow-400'
+                        } else if (calibrationScore <= 1.0) {
+                          urgencyLevel = 'Low'
+                          urgencyColor = 'text-blue-400'
                         }
 
                         return (
@@ -630,6 +631,16 @@ export default function CybersecurityPage() {
                               >
                                 {topic.topic_name}
                               </a>
+                            </td>
+                            <td className="p-4 text-center">
+                              <div className={`text-lg font-bold ${calibrationScore >= 1.0 ? 'text-green-400' :
+                                  calibrationScore >= 0.5 ? 'text-blue-400' :
+                                    calibrationScore >= 0.0 ? 'text-yellow-400' :
+                                      calibrationScore >= -0.5 ? 'text-orange-400' :
+                                        'text-red-400'
+                                }`}>
+                                {calibrationScore.toFixed(2)}
+                              </div>
                             </td>
                             <td className="p-4 text-center">
                               <div className={`text-lg font-bold ${overallMastery >= 80 ? 'text-green-400' :
