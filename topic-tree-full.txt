@@ -203,6 +203,17 @@ TOPIC HIERARCHY TREE
 
 [L1] Identification
 
+[L1] Industrial control systems (ICS)
+    ├── [L2] Human-machine Interfaces (HMIs)
+    ├── [L2] ICS/SCADA Applications
+    │   ├── [L3] Energy
+    │   ├── [L3] Fabrication and Manufacturing
+    │   ├── [L3] Facilities
+    │   ├── [L3] Industrial
+    │   └── [L3] Logistics
+    ├── [L2] Operational Technology (OT)
+    └── [L2] Supervisory Control and Data Acquisition (SCADA)
+
 [L1] Identity and Access Management (IAM)
     ├── [L2] Account Management
     │   ├── [L3] Account Policies
@@ -346,9 +357,9 @@ TOPIC HIERARCHY TREE
 [L1] Vulnerable Software
 
 ======================================================================
-Total topics: 283
-  Level 1: 59
-  Level 2: 81
-  Level 3: 117
+Total topics: 293
+  Level 1: 60
+  Level 2: 85
+  Level 3: 122
   Level 4: 26
 ======================================================================

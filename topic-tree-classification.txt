@@ -211,6 +211,17 @@ Legend:
 
 🪵 Identification
 
+🌳 Industrial control systems (ICS)
+    ├── 🍃 Human-machine Interfaces (HMIs)
+    ├── 🌿 ICS/SCADA Applications
+    │   ├── 🍃 Energy
+    │   ├── 🍃 Fabrication and Manufacturing
+    │   ├── 🍃 Facilities
+    │   ├── 🍃 Industrial
+    │   └── 🍃 Logistics
+    ├── 🍃 Operational Technology (OT)
+    └── 🍃 Supervisory Control and Data Acquisition (SCADA)
+
 🌳 Identity and Access Management (IAM)
     ├── 🌿 Account Management
     │   ├── 🍃 Account Policies
@@ -356,16 +367,16 @@ Legend:
 ================================================================================
 STATISTICS
 ================================================================================
-Total topics: 283
+Total topics: 293
 
-🌳 Trunks (Level 1 with children): 14
+🌳 Trunks (Level 1 with children): 15
 🪵 Roots (Level 1 standalone):      45
-🌿 Branches (Has children):         24
-🍃 Leaves (No children):            245
+🌿 Branches (Has children):         25
+🍃 Leaves (No children):            253
 
 By Level:
-  Level 1: 59
-  Level 2: 81
-  Level 3: 117
+  Level 1: 60
+  Level 2: 85
+  Level 3: 122
   Level 4: 26
 ================================================================================
