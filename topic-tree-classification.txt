@@ -26,9 +26,9 @@ Legend:
     │   └── 🍃 Integrity (Authentication)
     ├── 🌿 Authentication Factor
     │   ├── 🍃 Something You Are
-    │   ├── 🍃 Something You Have Factor
-    │   ├── 🍃 Something You Know Factor
-    │   └── 🍃 Somewhere You Are Factor
+    │   ├── 🍃 Something You Have
+    │   ├── 🍃 Something You Know
+    │   └── 🍃 Somewhere You Are
     ├── 🌿 Authentication Methods
     │   ├── 🍃 Attestation
     │   ├── 🌿 Biometric Authentication

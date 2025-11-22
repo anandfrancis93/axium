@@ -182,13 +182,13 @@ BEGIN
 
   -- Level 3: Authentication Factor types (under Authentication Factor)
   INSERT INTO topics (subject_id, parent_topic_id, name, description, hierarchy_level) VALUES
-    (v_subject_id, v_auth_factor_id, 'Something You Know Factor',
+    (v_subject_id, v_auth_factor_id, 'Something You Know',
       'Something you know is a knowledge factor. It means authentication is based on information that only the authorized user should possess, such as a password, passphrase, or personal identification number (PIN). This could also include answers to security questions or a memorized pattern.', 3),
-    (v_subject_id, v_auth_factor_id, 'Something You Have Factor',
+    (v_subject_id, v_auth_factor_id, 'Something You Have',
       'Something you have is an ownership factor. It means that the account holder possesses something that no one else does, such as a smart card, key fob, or smartphone that can generate or receive a cryptographic token.', 3),
     (v_subject_id, v_auth_factor_id, 'Something You Are',
       'Something you are refers to a biometric or inherence factor. A biometric factor uses either physiological identifiers, such as a fingerprint or facial scan, or behavioral identifiers, such as the way someone moves (gait). The identifiers are scanned and recorded as a template.', 3),
-    (v_subject_id, v_auth_factor_id, 'Somewhere You Are Factor',
+    (v_subject_id, v_auth_factor_id, 'Somewhere You Are',
       'Somewhere you are means the system applies a location-based factor to an authentication decision. Location-based authentication measures some statistics about where you are. This could be a geographic location measured using a device''s location service, or its Internet Protocol (IP) network address.', 3);
 
   -- Level 2: Password Best Practices

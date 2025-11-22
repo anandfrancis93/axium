@@ -18,9 +18,9 @@ TOPIC HIERARCHY TREE
     │   └── [L3] Integrity (Authentication)
     ├── [L2] Authentication Factor
     │   ├── [L3] Something You Are
-    │   ├── [L3] Something You Have Factor
-    │   ├── [L3] Something You Know Factor
-    │   └── [L3] Somewhere You Are Factor
+    │   ├── [L3] Something You Have
+    │   ├── [L3] Something You Know
+    │   └── [L3] Somewhere You Are
     ├── [L2] Authentication Methods
     │   ├── [L3] Attestation
     │   ├── [L3] Biometric Authentication
