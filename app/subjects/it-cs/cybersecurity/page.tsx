@@ -435,7 +435,7 @@ export default function CybersecurityPage() {
                           <td className="p-4 text-center">
                             <div className={`text-lg font-bold ${
                               (topic.calibration_mean ?? 0) >= 1.0 ? 'text-green-400' :
-                              (topic.calibration_mean ?? 0) >= 0.5 ? 'text-blue-400' :
+                              (topic.calibration_mean ?? 0) >= 0.5 ? 'text-yellow-400' :
                               (topic.calibration_mean ?? 0) >= 0.0 ? 'text-yellow-400' :
                               (topic.calibration_mean ?? 0) >= -0.5 ? 'text-orange-400' :
                               'text-red-400'
@@ -485,7 +485,7 @@ export default function CybersecurityPage() {
                           return (
                             <div className={`text-lg font-bold ${
                               avgCalibration >= 1.0 ? 'text-green-400' :
-                              avgCalibration >= 0.5 ? 'text-blue-400' :
+                              avgCalibration >= 0.5 ? 'text-yellow-400' :
                               avgCalibration >= 0.0 ? 'text-yellow-400' :
                               avgCalibration >= -0.5 ? 'text-orange-400' :
                               'text-red-400'
@@ -608,7 +608,7 @@ export default function CybersecurityPage() {
                             </td>
                             <td className="p-4 text-center">
                               <div className={`text-lg font-bold ${calibrationScore >= 1.0 ? 'text-green-400' :
-                                  calibrationScore >= 0.5 ? 'text-blue-400' :
+                                  calibrationScore >= 0.5 ? 'text-yellow-400' :
                                     calibrationScore >= 0.0 ? 'text-yellow-400' :
                                       calibrationScore >= -0.5 ? 'text-orange-400' :
                                         'text-red-400'
