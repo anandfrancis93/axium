@@ -313,6 +313,18 @@ export async function POST(request: NextRequest) {
 
     const dimensionInstructions = COGNITIVE_DIMENSIONS[cognitive_dimension]
 
+    // Quality Control 1: True/False Balance
+    // Randomly decide if we want a True or False question to ensure 50/50 distribution
+    const targetTFAnswer = Math.random() < 0.5 ? 'True' : 'False'
+    let tfInstruction = ''
+    if (question_format === 'true_false') {
+      tfInstruction = `
+**TRUE/FALSE TARGET:**
+Generate a question where the correct answer is **${targetTFAnswer}**.
+${targetTFAnswer === 'False' ? 'You MUST take a true fact and subtly alter it to make it False.' : 'Use a correct fact from the context.'}
+`
+    }
+
     const prompt = `You are an expert educator creating assessment questions for students studying cybersecurity.
 
 BLOOM'S TAXONOMY LEVEL: ${bloomLevelNum} - ${bloomDescription}
@@ -345,6 +357,8 @@ EXPLANATION REQUIREMENTS:
 - Use authoritative, educational tone
 - Example: "Physical security protects tangible assets like hardware and facilities from unauthorized access, theft, and environmental threats, which is essential since physical breaches can lead to data compromise."
 
+${tfInstruction}
+
 ANTI-TELLTALE QUALITY CONTROLS (CRITICAL):
 These measures prevent obvious answer giveaways and test-taking tricks:
 
@@ -356,7 +370,10 @@ a) Length Variation (ULTRA-STRICT):
    ❌ BAD: Correct answer is 15 words, distractors are 5-8 words.
    ✅ GOOD: All options are 12-15 words.
 
-b) Plausible Distractors: Wrong answers must be from the same domain and sound believable
+b) Plausible Distractors (PARTIALLY CORRECT):
+   - Wrong answers must be from the same domain and sound believable.
+   - **Distractors should be "near-misses"**: They should be partially correct or related concepts, but wrong in the specific context of the question.
+   - Avoid obviously wrong or unrelated answers.
    ❌ BAD: If correct answer is "Preventive (control type)", wrong answers shouldn't be "Apple" or "Database"
    ✅ GOOD: Wrong answers should be other control types like "Detective", "Corrective", "Compensating"
 
@@ -445,22 +462,63 @@ Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other 
 
 
     // Format questions for preview (add IDs for frontend display)
-    const previewQuestions = questionsData.questions.map((q: any, idx: number) => ({
-      id: `preview-${Date.now()}-${idx}`,
-      chapter_id,
-      question_text: q.question_text,
-      question_type: 'mcq',
-      question_format,
-      options: q.options,
-      correct_answer: q.correct_answer,
-      explanation: q.explanation,
-      bloom_level: bloomLevelNum,
-      cognitive_dimension: cognitive_dimension,
-      topic: topicName,
-      topic_full_name: topicFullName,
-      difficulty_estimated: bloomLevelNum >= 4 ? 'hard' : bloomLevelNum >= 3 ? 'medium' : 'easy',
-      source_type: 'ai_generated',
-    }))
+    // Quality Control 2 & 3: Shuffle Options to prevent position bias
+    const previewQuestions = questionsData.questions.map((q: any, idx: number) => {
+      let finalOptions = q.options
+      let finalCorrectAnswer = q.correct_answer
+
+      // Only shuffle for MCQ formats
+      if (question_format === 'mcq_single' || question_format === 'mcq_multi') {
+        const optionKeys = Object.keys(q.options) // ['A', 'B', 'C', 'D']
+        const optionValues = Object.values(q.options) as string[] // ['Text A', 'Text B', 'Text C', 'Text D']
+
+        // Create array of objects to shuffle: [{key: 'A', text: 'Text A'}, ...]
+        const optionsArray = optionKeys.map((key, i) => ({
+          originalKey: key,
+          text: optionValues[i]
+        }))
+
+        // Shuffle the array
+        for (let i = optionsArray.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [optionsArray[i], optionsArray[j]] = [optionsArray[j], optionsArray[i]];
+        }
+
+        // Reconstruct options object with new order but standard keys A,B,C,D
+        const newOptions: Record<string, string> = {}
+        let newCorrectAnswer = finalCorrectAnswer
+
+        optionsArray.forEach((opt, index) => {
+          const newKey = String.fromCharCode(65 + index) // 'A', 'B', 'C', 'D'
+          newOptions[newKey] = opt.text
+
+          // If this was the correct answer, update the correct answer key
+          if (opt.originalKey === q.correct_answer) {
+            newCorrectAnswer = newKey
+          }
+        })
+
+        finalOptions = newOptions
+        finalCorrectAnswer = newCorrectAnswer
+      }
+
+      return {
+        id: `preview-${Date.now()}-${idx}`,
+        chapter_id,
+        question_text: q.question_text,
+        question_type: 'mcq',
+        question_format,
+        options: finalOptions,
+        correct_answer: finalCorrectAnswer,
+        explanation: q.explanation,
+        bloom_level: bloomLevelNum,
+        cognitive_dimension: cognitive_dimension,
+        topic: topicName,
+        topic_full_name: topicFullName,
+        difficulty_estimated: bloomLevelNum >= 4 ? 'hard' : bloomLevelNum >= 3 ? 'medium' : 'easy',
+        source_type: 'ai_generated',
+      }
+    })
 
     return NextResponse.json({
       success: true,
