@@ -25,7 +25,7 @@ Legend:
     │   ├── 🍃 Confidentiality (Authentication)
     │   └── 🍃 Integrity (Authentication)
     ├── 🌿 Authentication Factor
-    │   ├── 🍃 Something You Are Factor
+    │   ├── 🍃 Something You Are
     │   ├── 🍃 Something You Have Factor
     │   ├── 🍃 Something You Know Factor
     │   └── 🍃 Somewhere You Are Factor
