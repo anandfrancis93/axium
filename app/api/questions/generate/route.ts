@@ -362,26 +362,33 @@ ${tfInstruction}
 ANTI-TELLTALE QUALITY CONTROLS (CRITICAL):
 These measures prevent obvious answer giveaways and test-taking tricks:
 
-a) Length Variation (ULTRA-STRICT):
-   - All 4 options MUST have nearly identical word counts (within +/- 2 words or 10% difference).
-   - Example: If correct answer is 5 words, distractors MUST be 4-6 words.
-   - Example: If correct answer is 20 words, distractors MUST be 18-22 words.
-   - The correct answer MUST NOT be an outlier in length.
-   ❌ BAD: Correct answer is 15 words, distractors are 5-8 words.
-   ✅ GOOD: All options are 12-15 words.
+a) Length Variation (ULTRA-STRICT UNIFORMITY):
+   - All 4 options MUST have nearly identical word counts (within +/- 2 words).
+   - NO option should be an outlier (significantly longer or shorter than the rest).
+   - The correct answer CAN be the longest, but only by a small margin (1-2 words).
+   - Example: Options lengths: 12, 13, 12, 14 words. (✅ GOOD)
+   - Example: Options lengths: 5, 5, 25, 6 words. (❌ BAD - 25 is an outlier)
+   - IF the correct answer requires a long explanation, YOU MUST lengthen the distractors to match it.
 
-b) Plausible Distractors (PARTIALLY CORRECT):
-   - Wrong answers must be from the same domain and sound believable.
-   - **Distractors should be "near-misses"**: They should be partially correct or related concepts, but wrong in the specific context of the question.
-   - Avoid obviously wrong or unrelated answers.
-   ❌ BAD: If correct answer is "Preventive (control type)", wrong answers shouldn't be "Apple" or "Database"
-   ✅ GOOD: Wrong answers should be other control types like "Detective", "Corrective", "Compensating"
+b) Ontological Consistency (TYPE MATCHING - CRITICAL):
+   - Distractors MUST be the same "Type of Thing" as the correct answer.
+   - ❌ BAD (Type Mismatch):
+     * Question: "What is Bluejacking?"
+     * Correct: "An attack sending unsolicited messages" (Type: Attack)
+     * Distractor: "A security protocol" (Type: Protocol) -> WRONG TYPE
+     * Distractor: "A bluetooth device" (Type: Device) -> WRONG TYPE
+   - ✅ GOOD (Type Match):
+     * Correct: "An attack sending unsolicited messages" (Type: Attack)
+     * Distractor: "An attack stealing data" (Type: Attack) -> MATCH
+     * Distractor: "An attack crashing the device" (Type: Attack) -> MATCH
+   - If the answer is a specific Attribute, distractors must be other Attributes.
+   - If the answer is a Process Step, distractors must be other Process Steps.
 
 c) Keyword Avoidance (Giveaways): The correct answer MUST NOT appear in the question text.
-   ❌ BAD: "A hacker known as an **authorized** hacker is engaged in what?" Answer: "Authorized"
-   ❌ BAD: "The **confidentiality** of data ensures..." Answer: "Confidentiality"
-   ✅ GOOD: "A security professional hired to test systems is called?" Answer: "Authorized/White Hat"
-   CRITICAL: Check if the answer word exists in your generated question. If yes, REWRITE the question.
+   - ❌ BAD: "A hacker known as an **authorized** hacker is engaged in what?" Answer: "Authorized"
+   - ❌ BAD: "The **confidentiality** of data ensures..." Answer: "Confidentiality"
+   - ✅ GOOD: "A security professional hired to test systems is called?" Answer: "Authorized/White Hat"
+   - CRITICAL: Check if the answer word exists in your generated question. If yes, REWRITE the question.
 
 d) Question Phrasing (GRAMMAR):
    - The "question_text" MUST be an interrogative sentence ending with a question mark.
@@ -399,7 +406,6 @@ e) Dimension Strictness:
 SELF-CORRECTION STEP (Perform this internally before outputting):
 1. Check Word Counts: Are all options within +/- 2 words of each other?
    -> IF NO: Rewrite options to match the length of the correct answer exactly.
-   -> CRITICAL: Distractors must NOT be significantly shorter (>3 words difference) than the correct answer.
 2. Check giveaways: Does the question contain the answer word?
    -> IF YES: Rewrite the question.
 3. Check distractors: Are they plausible concepts?
@@ -496,7 +502,6 @@ Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other 
           const j = Math.floor(Math.random() * (i + 1));
           [optionsArray[i], optionsArray[j]] = [optionsArray[j], optionsArray[i]];
         }
-
         // Reconstruct options object with new order but standard keys A,B,C,D
         const newOptions: Record<string, string> = {}
         let newCorrectAnswer = finalCorrectAnswer
