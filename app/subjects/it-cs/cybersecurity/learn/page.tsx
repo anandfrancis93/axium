@@ -383,35 +383,35 @@ function LearnPageContent() {
             </div>
 
             {/* Confidence Buttons */}
-          <div className="neuro-card p-6">
-            <h3 className="text-lg font-semibold text-gray-200 mb-4">How confident are you?</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <button
-                onClick={() => handleConfidenceSelect(1)}
-                className="neuro-btn text-red-400 p-6 text-center"
-              >
-                <div className="text-2xl font-bold mb-2">Low</div>
-                <div className="text-sm text-gray-400">Not very confident</div>
-              </button>
-              <button
-                onClick={() => handleConfidenceSelect(2)}
-                className="neuro-btn text-yellow-400 p-6 text-center"
-              >
-                <div className="text-2xl font-bold mb-2">Medium</div>
-                <div className="text-sm text-gray-400">Somewhat confident</div>
-              </button>
-              <button
-                onClick={() => handleConfidenceSelect(3)}
-                className="neuro-btn text-green-400 p-6 text-center"
-              >
-                <div className="text-2xl font-bold mb-2">High</div>
-                <div className="text-sm text-gray-400">Very confident</div>
-              </button>
+            <div className="neuro-card p-6">
+              <h3 className="text-lg font-semibold text-gray-200 mb-4">How confident are you?</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button
+                  onClick={() => handleConfidenceSelect(1)}
+                  className="neuro-btn text-red-400 p-6 text-center"
+                >
+                  <div className="text-2xl font-bold mb-2">Low</div>
+                  <div className="text-sm text-gray-400">Not very confident</div>
+                </button>
+                <button
+                  onClick={() => handleConfidenceSelect(2)}
+                  className="neuro-btn text-yellow-400 p-6 text-center"
+                >
+                  <div className="text-2xl font-bold mb-2">Medium</div>
+                  <div className="text-sm text-gray-400">Somewhat confident</div>
+                </button>
+                <button
+                  onClick={() => handleConfidenceSelect(3)}
+                  className="neuro-btn text-green-400 p-6 text-center"
+                >
+                  <div className="text-2xl font-bold mb-2">High</div>
+                  <div className="text-sm text-gray-400">Very confident</div>
+                </button>
+              </div>
+              <p className="text-xs text-gray-500 mt-4 text-center">
+                Tip: Being honest about your confidence helps the system personalize your learning
+              </p>
             </div>
-            <p className="text-xs text-gray-500 mt-4 text-center">
-              Tip: Being honest about your confidence helps the system personalize your learning
-            </p>
-          </div>
           </>
         )}
 
@@ -528,48 +528,43 @@ function LearnPageContent() {
                     return (
                       <div
                         key={idx}
-                        className={`transition-all ${
-                          isUserAnswer
+                        className={`transition-all ${isUserAnswer
                             ? 'neuro-raised'
                             : 'neuro-inset'
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center gap-3 flex-1">
                           {currentQuestion.question_format === 'mcq_multi' ? (
                             <Square
                               size={20}
-                              className={`${
-                                isUserAnswer
+                              className={`${isUserAnswer
                                   ? isCorrectAnswer
                                     ? 'fill-current text-green-400'
                                     : 'fill-current text-red-400'
                                   : isCorrectAnswer
                                     ? 'text-green-400'
                                     : 'text-gray-300'
-                              }`}
+                                }`}
                             />
                           ) : (
                             <Circle
                               size={20}
-                              className={`${
-                                isUserAnswer
+                              className={`${isUserAnswer
                                   ? isCorrectAnswer
                                     ? 'fill-current text-green-400'
                                     : 'fill-current text-red-400'
                                   : isCorrectAnswer
                                     ? 'text-green-400'
                                     : 'text-gray-300'
-                              }`}
+                                }`}
                             />
                           )}
                           <div className="flex-1">
-                            <div className={`${
-                              isUserAnswer || isCorrectAnswer ? 'font-semibold' : ''
-                            } ${
-                              isCorrectAnswer ? 'text-green-400' :
-                              isUserAnswer && !isCorrectAnswer ? 'text-red-400' :
-                              'text-gray-300'
-                            }`}>
+                            <div className={`${isUserAnswer || isCorrectAnswer ? 'font-semibold' : ''
+                              } ${isCorrectAnswer ? 'text-green-400' :
+                                isUserAnswer && !isCorrectAnswer ? 'text-red-400' :
+                                  'text-gray-300'
+                              }`}>
                               {capitalizeFirst(option)}
                             </div>
                             {!isUserAnswer && isCorrectAnswer && (
@@ -593,19 +588,16 @@ function LearnPageContent() {
                     return (
                       <div
                         key={option}
-                        className={`flex-1 transition-all ${
-                          isUserAnswer
+                        className={`flex-1 transition-all ${isUserAnswer
                             ? 'neuro-raised'
                             : 'neuro-inset'
-                        }`}
+                          }`}
                       >
-                        <div className={`text-center ${
-                          isUserAnswer || isCorrectAnswer ? 'font-semibold' : ''
-                        } ${
-                          isCorrectAnswer ? 'text-green-400' :
-                          isUserAnswer && !isCorrectAnswer ? 'text-red-400' :
-                          'text-gray-300'
-                        }`}>
+                        <div className={`text-center ${isUserAnswer || isCorrectAnswer ? 'font-semibold' : ''
+                          } ${isCorrectAnswer ? 'text-green-400' :
+                            isUserAnswer && !isCorrectAnswer ? 'text-red-400' :
+                              'text-gray-300'
+                          }`}>
                           {option}
                         </div>
                         {isUserAnswer && (
@@ -625,9 +617,8 @@ function LearnPageContent() {
                 <div className="space-y-4">
                   <div className="neuro-inset p-4 rounded-lg">
                     <div className="text-sm text-gray-500 mb-2">Your answer:</div>
-                    <div className={`font-medium ${
-                      answerResult.isCorrect ? 'text-green-400' : 'text-red-400'
-                    }`}>
+                    <div className={`font-medium ${answerResult.isCorrect ? 'text-green-400' : 'text-red-400'
+                      }`}>
                       {userAnswer || '(No answer provided)'}
                     </div>
                   </div>
@@ -685,6 +676,14 @@ function LearnPageContent() {
                       <div className="text-xs text-gray-500">Topic</div>
                       <div className="text-sm font-semibold text-white">{currentQuestion.hierarchy.topic}</div>
                     </div>
+
+                    {/* Cognitive Dimension */}
+                    {currentQuestion.cognitive_dimension && (
+                      <div>
+                        <div className="text-xs text-gray-500">Cognitive Dimension</div>
+                        <div className="text-sm font-semibold text-white">{currentQuestion.cognitive_dimension}</div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -698,86 +697,83 @@ function LearnPageContent() {
 
               <div className="p-4 neuro-inset rounded-lg">
                 <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-white text-sm font-semibold">Bloom Level:</span>
-                      <span className="font-semibold text-sm text-white">
-                        {currentQuestion.bloom_level} ({BLOOM_LEVEL_NAMES[currentQuestion.bloom_level as BloomLevel]})
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-white text-sm font-semibold">Question Type:</span>
-                      <span className="font-semibold text-sm text-white">
-                        {currentQuestion.question_format === 'mcq_single' ? 'Multiple Choice' :
-                         currentQuestion.question_format === 'mcq_multi' ? 'Multiple Select' :
-                         currentQuestion.question_format === 'true_false' ? 'True/False' :
-                         currentQuestion.question_format === 'fill_blank' ? 'Fill in the Blank' :
-                         currentQuestion.question_format === 'open_ended' ? 'Open Ended' : 'Question'}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-white text-sm font-semibold">Result:</span>
-                      <span className={`font-semibold text-sm ${answerResult.isCorrect ? 'text-green-400' : 'text-red-400'}`}>
-                        {answerResult.isCorrect ? 'Correct' : 'Incorrect'}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-white text-sm font-semibold">Confidence:</span>
-                      <span className={`font-semibold text-sm ${
-                        confidence === 3 ? 'text-green-400' :
-                        confidence === 2 ? 'text-yellow-400' :
-                        'text-red-400'
-                      }`}>
-                        {confidence === 3 ? 'High' : confidence === 2 ? 'Medium' : 'Low'}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-white text-sm font-semibold">Method:</span>
-                      <span className={`font-semibold text-sm ${
-                        recognitionMethod === 'memory' ? 'text-green-400' :
-                        recognitionMethod === 'recognition' ? 'text-yellow-400' :
-                        recognitionMethod === 'educated_guess' ? 'text-yellow-400' :
-                        'text-red-400'
-                      }`}>
-                        {recognitionMethod === 'memory' && 'Memory'}
-                        {recognitionMethod === 'recognition' && 'Recognition'}
-                        {recognitionMethod === 'educated_guess' && 'Educated Guess'}
-                        {recognitionMethod === 'random_guess' && 'Random Guess'}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-white text-sm font-semibold">Calibration Score:</span>
-                      <span className={`font-semibold text-sm ${
-                        answerResult.calibrationScore > 0 ? 'text-green-400' :
-                        answerResult.calibrationScore < 0 ? 'text-red-400' :
-                        'text-yellow-400'
-                      }`}>
-                        {answerResult.calibrationScore > 0 ? '+' : ''}{answerResult.calibrationScore.toFixed(2)}
-                      </span>
-                    </div>
-                    {answerResult.nextReviewDate && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-white text-sm font-semibold">Next Review:</span>
-                        <span className="font-semibold text-sm text-white">
-                          {(() => {
-                            const reviewDate = new Date(answerResult.nextReviewDate)
-                            const now = new Date()
-                            const timeDiff = reviewDate.getTime() - now.getTime()
-                            const hoursUntil = Math.ceil(timeDiff / (1000 * 60 * 60))
-                            const daysUntil = Math.ceil(timeDiff / (1000 * 60 * 60 * 24))
-
-                            if (hoursUntil < 1) {
-                              return 'Due now'
-                            } else if (hoursUntil < 24) {
-                              return `In ${hoursUntil} ${hoursUntil === 1 ? 'hour' : 'hours'}`
-                            } else {
-                              return `In ${daysUntil} ${daysUntil === 1 ? 'day' : 'days'}`
-                            }
-                          })()}
-                        </span>
-                      </div>
-                    )}
+                  <div className="flex items-center justify-between">
+                    <span className="text-white text-sm font-semibold">Bloom Level:</span>
+                    <span className="font-semibold text-sm text-white">
+                      {currentQuestion.bloom_level} ({BLOOM_LEVEL_NAMES[currentQuestion.bloom_level as BloomLevel]})
+                    </span>
                   </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white text-sm font-semibold">Question Type:</span>
+                    <span className="font-semibold text-sm text-white">
+                      {currentQuestion.question_format === 'mcq_single' ? 'Multiple Choice' :
+                        currentQuestion.question_format === 'mcq_multi' ? 'Multiple Select' :
+                          currentQuestion.question_format === 'true_false' ? 'True/False' :
+                            currentQuestion.question_format === 'fill_blank' ? 'Fill in the Blank' :
+                              currentQuestion.question_format === 'open_ended' ? 'Open Ended' : 'Question'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white text-sm font-semibold">Result:</span>
+                    <span className={`font-semibold text-sm ${answerResult.isCorrect ? 'text-green-400' : 'text-red-400'}`}>
+                      {answerResult.isCorrect ? 'Correct' : 'Incorrect'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white text-sm font-semibold">Confidence:</span>
+                    <span className={`font-semibold text-sm ${confidence === 3 ? 'text-green-400' :
+                        confidence === 2 ? 'text-yellow-400' :
+                          'text-red-400'
+                      }`}>
+                      {confidence === 3 ? 'High' : confidence === 2 ? 'Medium' : 'Low'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white text-sm font-semibold">Method:</span>
+                    <span className={`font-semibold text-sm ${recognitionMethod === 'memory' ? 'text-green-400' :
+                        recognitionMethod === 'recognition' ? 'text-yellow-400' :
+                          recognitionMethod === 'educated_guess' ? 'text-yellow-400' :
+                            'text-red-400'
+                      }`}>
+                      {recognitionMethod === 'memory' && 'Memory'}
+                      {recognitionMethod === 'recognition' && 'Recognition'}
+                      {recognitionMethod === 'educated_guess' && 'Educated Guess'}
+                      {recognitionMethod === 'random_guess' && 'Random Guess'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white text-sm font-semibold">Calibration Score:</span>
+                    <span className={`font-semibold text-sm ${answerResult.calibrationScore > 0 ? 'text-green-400' :
+                        answerResult.calibrationScore < 0 ? 'text-red-400' :
+                          'text-yellow-400'
+                      }`}>
+                      {answerResult.calibrationScore > 0 ? '+' : ''}{answerResult.calibrationScore.toFixed(2)}
+                    </span>
+                  </div>
+                  {answerResult.nextReviewDate && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-white text-sm font-semibold">Next Review:</span>
+                      <span className="font-semibold text-sm text-white">
+                        {(() => {
+                          const reviewDate = new Date(answerResult.nextReviewDate)
+                          const now = new Date()
+                          const timeDiff = reviewDate.getTime() - now.getTime()
+                          const hoursUntil = Math.ceil(timeDiff / (1000 * 60 * 60))
+                          const daysUntil = Math.ceil(timeDiff / (1000 * 60 * 60 * 24))
+
+                          if (hoursUntil < 1) {
+                            return 'Due now'
+                          } else if (hoursUntil < 24) {
+                            return `In ${hoursUntil} ${hoursUntil === 1 ? 'hour' : 'hours'}`
+                          } else {
+                            return `In ${daysUntil} ${daysUntil === 1 ? 'day' : 'days'}`
+                          }
+                        })()}
+                      </span>
+                    </div>
+                  )}
                 </div>
+              </div>
             </div>
 
             {/* Action Buttons */}
