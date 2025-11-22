@@ -275,6 +275,68 @@ export default function CybersecurityPage() {
     })
   }
 
+  // Calculate when a topic is due for review based on calibration score
+  const calculateDueIn = (lastPracticedAt: string, calibrationScore: number) => {
+    const lastPracticed = new Date(lastPracticedAt)
+    const now = new Date()
+
+    // Determine interval based on calibration score
+    // -1.5 to -1.0: Critical (4 hours)
+    // -1.0 to -0.5: High (12 hours)
+    // -0.5 to 0.0:  Medium (1 day)
+    //  0.0 to 0.5:  Medium-Low (2 days)
+    //  0.5 to 1.0:  Low (4 days)
+    //  1.0+:        Very Low (7 days)
+    let intervalHours = 168 // Default: 7 days
+
+    if (calibrationScore <= -1.0) {
+      intervalHours = 4
+    } else if (calibrationScore <= -0.5) {
+      intervalHours = 12
+    } else if (calibrationScore <= 0.0) {
+      intervalHours = 24
+    } else if (calibrationScore <= 0.5) {
+      intervalHours = 48
+    } else if (calibrationScore <= 1.0) {
+      intervalHours = 96
+    }
+
+    // Calculate due date
+    const dueDate = new Date(lastPracticed.getTime() + intervalHours * 60 * 60 * 1000)
+    const timeUntilDue = dueDate.getTime() - now.getTime()
+
+    // Convert to hours/days
+    const hoursUntilDue = timeUntilDue / (1000 * 60 * 60)
+    const daysUntilDue = hoursUntilDue / 24
+
+    // Format the output
+    if (hoursUntilDue <= 0) {
+      // Overdue
+      const hoursOverdue = Math.abs(hoursUntilDue)
+      if (hoursOverdue < 1) {
+        return { text: 'Due now', color: 'text-red-400' }
+      } else if (hoursOverdue < 24) {
+        const hours = Math.floor(hoursOverdue)
+        return { text: `Overdue ${hours}h`, color: 'text-red-400' }
+      } else {
+        const days = Math.floor(hoursOverdue / 24)
+        return { text: `Overdue ${days}d`, color: 'text-red-400' }
+      }
+    } else {
+      // Not yet due
+      if (hoursUntilDue < 1) {
+        const minutes = Math.floor(hoursUntilDue * 60)
+        return { text: `Due in ${minutes}m`, color: 'text-yellow-400' }
+      } else if (hoursUntilDue < 24) {
+        const hours = Math.floor(hoursUntilDue)
+        return { text: `Due in ${hours}h`, color: 'text-yellow-400' }
+      } else {
+        const days = Math.floor(daysUntilDue)
+        return { text: `Due in ${days}d`, color: 'text-green-400' }
+      }
+    }
+  }
+
   return (
     <div className="min-h-screen" style={{ background: '#0a0a0a' }}>
       {/* Header */}
@@ -583,7 +645,7 @@ export default function CybersecurityPage() {
                         <th className="text-center p-4 text-sm font-semibold text-gray-400">Calibration</th>
                         <th className="text-center p-4 text-sm font-semibold text-gray-400">Mastery</th>
                         <th className="text-center p-4 text-sm font-semibold text-gray-400">Last Practiced</th>
-                        <th className="text-center p-4 text-sm font-semibold text-gray-400">Urgency</th>
+                        <th className="text-center p-4 text-sm font-semibold text-gray-400">Due In</th>
                         <th className="text-right p-4 text-sm font-semibold text-gray-400">Action</th>
                       </tr>
                     </thead>
@@ -592,32 +654,8 @@ export default function CybersecurityPage() {
                         const overallMastery = calculateOverallMastery(topic.mastery_scores)
                         const calibrationScore = topic.calibration_mean ?? 0
 
-                        // Calculate urgency level based on calibration score
-                        // -1.5 to -1.0: Critical (4 hours)
-                        // -1.0 to -0.5: High (12 hours)
-                        // -0.5 to 0.0:  Medium (1 day)
-                        //  0.0 to 0.5:  Medium-Low (2 days)
-                        //  0.5 to 1.0:  Low (4 days)
-                        //  1.0 to 1.5:  Very Low (7 days)
-                        let urgencyLevel = 'Very Low'
-                        let urgencyColor = 'text-green-400'
-
-                        if (calibrationScore <= -1.0) {
-                          urgencyLevel = 'Critical'
-                          urgencyColor = 'text-red-400'
-                        } else if (calibrationScore <= -0.5) {
-                          urgencyLevel = 'High'
-                          urgencyColor = 'text-orange-400'
-                        } else if (calibrationScore <= 0.0) {
-                          urgencyLevel = 'Medium'
-                          urgencyColor = 'text-yellow-400'
-                        } else if (calibrationScore <= 0.5) {
-                          urgencyLevel = 'Medium-Low'
-                          urgencyColor = 'text-yellow-400'
-                        } else if (calibrationScore <= 1.0) {
-                          urgencyLevel = 'Low'
-                          urgencyColor = 'text-blue-400'
-                        }
+                        // Calculate when topic is due for review
+                        const dueInfo = calculateDueIn(topic.last_practiced_at, calibrationScore)
 
                         return (
                           <tr
@@ -656,8 +694,8 @@ export default function CybersecurityPage() {
                               </span>
                             </td>
                             <td className="p-4 text-center">
-                              <span className={`font-semibold ${urgencyColor}`}>
-                                {urgencyLevel}
+                              <span className={`font-semibold ${dueInfo.color}`}>
+                                {dueInfo.text}
                               </span>
                             </td>
                             <td className="p-4 text-right">
