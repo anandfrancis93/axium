@@ -383,6 +383,19 @@ c) Keyword Avoidance (Giveaways): The correct answer MUST NOT appear in the ques
    ✅ GOOD: "A security professional hired to test systems is called?" Answer: "Authorized/White Hat"
    CRITICAL: Check if the answer word exists in your generated question. If yes, REWRITE the question.
 
+d) Question Phrasing (GRAMMAR):
+   - The "question_text" MUST be an interrogative sentence ending with a question mark.
+   - NEVER provide a statement with a blank as the question text (unless using fill_blank format).
+   - ❌ BAD: "The primary purpose of encryption is..."
+   - ✅ GOOD: "What is the primary purpose of encryption?"
+
+e) Dimension Strictness:
+   - You MUST stick to the assigned Cognitive Dimension (${cognitive_dimension}).
+   - If Dimension is WHAT: Ask about definitions, components, and identification. Do NOT ask "How to" or "When to".
+   - If Dimension is HOW: Ask about mechanisms, flows, and procedures.
+   - If Dimension is WHY: Ask about reasons, benefits, and root causes.
+   - If Dimension is WHEN: Ask about lifecycles, sequences, and conditions.
+
 SELF-CORRECTION STEP (Perform this internally before outputting):
 1. Check Word Counts: Are all options within +/- 2 words of each other?
    -> IF NO: Rewrite options to match the length of the correct answer exactly.

@@ -1,4 +1,4 @@
-[dotenv@17.2.3] injecting env (0) from .env.local -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.2.3] injecting env (0) from .env.local -- tip: 📡 add observability to secrets: https://dotenvx.com/ops
 ======================================================================
 TOPIC HIERARCHY TREE
 ======================================================================
@@ -8,6 +8,57 @@ TOPIC HIERARCHY TREE
 [L1] Advanced Persistent Threat (APT)
 
 [L1] Agentless Software
+
+[L1] Asset Management
+    ├── [L2] Asset Acquisition / Procurement
+    ├── [L2] Asset Assignment / Accounting
+    ├── [L2] Change Control
+    ├── [L2] Change Management
+    ├── [L2] Configuration Management
+    ├── [L2] Data Backup
+    │   ├── [L3] Advanced Data Protection
+    │   │   ├── [L4] Encrypting Backups
+    │   │   ├── [L4] Journaling
+    │   │   ├── [L4] Replication
+    │   │   ├── [L4] SAN Replication
+    │   │   ├── [L4] Snapshots
+    │   │   │   ├── [L5] Filesystem Snapshots
+    │   │   │   ├── [L5] SAN Snapshots
+    │   │   │   └── [L5] VM Snapshots
+    │   │   └── [L4] VM Replication
+    │   ├── [L3] Backup Frequency
+    │   ├── [L3] Data Deduplication
+    │   ├── [L3] Enterprise Backup Features
+    │   │   ├── [L4] Data deduplication and compression
+    │   │   ├── [L4] Granular restore options
+    │   │   ├── [L4] Instant recovery and replication
+    │   │   ├── [L4] Integration capabilities
+    │   │   ├── [L4] Ransomware protection and encryption
+    │   │   ├── [L4] Reporting, monitoring, and alerting tools
+    │   │   └── [L4] Support for various environments
+    │   ├── [L3] Off-site Backup
+    │   ├── [L3] On-site Backup
+    │   └── [L3] Recovery Validation
+    ├── [L2] ITIL Configuration Management
+    │   ├── [L3] Baseline configuration
+    │   ├── [L3] Configuration Item (CI)
+    │   ├── [L3] Configuration management system (CMS)
+    │   └── [L3] Service assets
+    ├── [L2] Monitoring / Asset Tracking
+    │   ├── [L3] Asset Management Software
+    │   ├── [L3] Cloud Asset Discovery
+    │   ├── [L3] Configuration Management Database (CMDB)
+    │   ├── [L3] Manual Inventory
+    │   ├── [L3] Mobile Device Management (MDM)
+    │   └── [L3] Network Scanning
+    ├── [L2] Secure Data Destruction
+    │   ├── [L3] Asset Disposal / Decommissioning
+    │   │   ├── [L4] Certification
+    │   │   ├── [L4] Destruction
+    │   │   └── [L4] Sanitization
+    │   ├── [L3] Hard Disk Drive (HDD)
+    │   └── [L3] Solid-State Drives (SSD)
+    └── [L2] Standard Naming Convention
 
 [L1] Attack Surface
 
@@ -203,17 +254,6 @@ TOPIC HIERARCHY TREE
 
 [L1] Identification
 
-[L1] Industrial control systems (ICS)
-    ├── [L2] Human-machine Interfaces (HMIs)
-    ├── [L2] ICS/SCADA Applications
-    │   ├── [L3] Energy
-    │   ├── [L3] Fabrication and Manufacturing
-    │   ├── [L3] Facilities
-    │   ├── [L3] Industrial
-    │   └── [L3] Logistics
-    ├── [L2] Operational Technology (OT)
-    └── [L2] Supervisory Control and Data Acquisition (SCADA)
-
 [L1] Identity and Access Management (IAM)
     ├── [L2] Account Management
     │   ├── [L3] Account Policies
@@ -244,19 +284,30 @@ TOPIC HIERARCHY TREE
             ├── [L4] Issuing Hardware and Software Assets
             └── [L4] Teaching Policy Awareness
 
+[L1] Industrial control systems (ICS)
+    ├── [L2] Human-machine Interfaces (HMIs)
+    ├── [L2] ICS/SCADA Applications
+    │   ├── [L3] Energy
+    │   ├── [L3] Fabrication and Manufacturing
+    │   ├── [L3] Facilities
+    │   ├── [L3] Industrial
+    │   └── [L3] Logistics
+    ├── [L2] Operational Technology (OT)
+    └── [L2] Supervisory Control and Data Acquisition (SCADA)
+
 [L1] Information Security
 
 [L1] Information Systems Security Officer (ISSO)
+
+[L1] Integrity
+
+[L1] Intentional Threat
 
 [L1] Internet of Things (IoT)
     ├── [L2] Best Practice Guidance for IoT
     ├── [L2] Factors Driving Adoption of IoT
     ├── [L2] IoT Examples
     └── [L2] Security Risks Associated with IoT
-
-[L1] Integrity
-
-[L1] Intentional Threat
 
 [L1] Level of sophistication/capability
 
@@ -362,10 +413,53 @@ TOPIC HIERARCHY TREE
 
 [L1] Vulnerable Software
 
+[L1] Zero Trust Architecture (ZTA)
+    ├── [L2] Benefits of a Zero Trust Architecture
+    │   ├── [L3] Better access controls
+    │   ├── [L3] Greater security
+    │   ├── [L3] Improved governance and compliance
+    │   └── [L3] Increased granularity
+    ├── [L2] Components of a Zero Trust architecture
+    │   ├── [L3] Cloud security
+    │   ├── [L3] Data protection
+    │   ├── [L3] Identity and access management (IAM)
+    │   ├── [L3] Network and endpoint security
+    │   ├── [L3] Network segmentation
+    │   ├── [L3] Network visibility
+    │   ├── [L3] Policy-based enforcement
+    │   └── [L3] Threat detection and prevention
+    ├── [L2] Control Plane and Data Plane
+    │   ├── [L3] Control Plane
+    │   │   ├── [L4] Policy Administrator / Policy Decision Point
+    │   │   └── [L4] Policy Engine
+    │   └── [L3] Data Plane
+    │       ├── [L4] Client Systems
+    │       ├── [L4] Implicit Trust Zone
+    │       ├── [L4] Policy Enforcement Point
+    │       ├── [L4] Session Management
+    │       └── [L4] Subject Credentials
+    ├── [L2] Deperimeterization
+    ├── [L2] Goal of Zero Trust Architecture
+    ├── [L2] Trends Driving Deperimeterization
+    │   ├── [L3] Cloud
+    │   ├── [L3] Mobile
+    │   ├── [L3] Outsourcing and Contracting
+    │   ├── [L3] Remote Work
+    │   └── [L3] Wireless Networks (Wi-Fi)
+    ├── [L2] Zero Trust Architecture Examples
+    │   ├── [L3] Cisco Zero Trust Architecture
+    │   ├── [L3] Google BeyondCorp
+    │   └── [L3] Palo Alto Networks Prisma Access
+    └── [L2] Zero Trust Security Concepts
+        ├── [L3] Adaptive identity
+        ├── [L3] Device posture
+        ├── [L3] Policy-driven access control
+        └── [L3] Threat scope reduction
+
 ======================================================================
-Total topics: 298
-  Level 1: 61
-  Level 2: 89
-  Level 3: 122
-  Level 4: 26
+Total topics: 390
+  Level 1: 63
+  Level 2: 107
+  Level 3: 168
+  Level 4: 49
 ======================================================================

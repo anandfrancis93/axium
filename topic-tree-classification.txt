@@ -1,4 +1,4 @@
-[dotenv@17.2.3] injecting env (0) from .env.local -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
+[dotenv@17.2.3] injecting env (0) from .env.local -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
 ================================================================================
 TOPIC CLASSIFICATION: TREE, BRANCHES & LEAVES
 ================================================================================
@@ -16,6 +16,57 @@ Legend:
 🪵 Advanced Persistent Threat (APT)
 
 🪵 Agentless Software
+
+🌳 Asset Management
+    ├── 🍃 Asset Acquisition / Procurement
+    ├── 🍃 Asset Assignment / Accounting
+    ├── 🍃 Change Control
+    ├── 🍃 Change Management
+    ├── 🍃 Configuration Management
+    ├── 🌿 Data Backup
+    │   ├── 🌿 Advanced Data Protection
+    │   │   ├── 🍃 Encrypting Backups
+    │   │   ├── 🍃 Journaling
+    │   │   ├── 🍃 Replication
+    │   │   ├── 🍃 SAN Replication
+    │   │   ├── 🌿 Snapshots
+    │   │   │   ├── 🍃 Filesystem Snapshots
+    │   │   │   ├── 🍃 SAN Snapshots
+    │   │   │   └── 🍃 VM Snapshots
+    │   │   └── 🍃 VM Replication
+    │   ├── 🍃 Backup Frequency
+    │   ├── 🍃 Data Deduplication
+    │   ├── 🌿 Enterprise Backup Features
+    │   │   ├── 🍃 Data deduplication and compression
+    │   │   ├── 🍃 Granular restore options
+    │   │   ├── 🍃 Instant recovery and replication
+    │   │   ├── 🍃 Integration capabilities
+    │   │   ├── 🍃 Ransomware protection and encryption
+    │   │   ├── 🍃 Reporting, monitoring, and alerting tools
+    │   │   └── 🍃 Support for various environments
+    │   ├── 🍃 Off-site Backup
+    │   ├── 🍃 On-site Backup
+    │   └── 🍃 Recovery Validation
+    ├── 🌿 ITIL Configuration Management
+    │   ├── 🍃 Baseline configuration
+    │   ├── 🍃 Configuration Item (CI)
+    │   ├── 🍃 Configuration management system (CMS)
+    │   └── 🍃 Service assets
+    ├── 🌿 Monitoring / Asset Tracking
+    │   ├── 🍃 Asset Management Software
+    │   ├── 🍃 Cloud Asset Discovery
+    │   ├── 🍃 Configuration Management Database (CMDB)
+    │   ├── 🍃 Manual Inventory
+    │   ├── 🍃 Mobile Device Management (MDM)
+    │   └── 🍃 Network Scanning
+    ├── 🌿 Secure Data Destruction
+    │   ├── 🌿 Asset Disposal / Decommissioning
+    │   │   ├── 🍃 Certification
+    │   │   ├── 🍃 Destruction
+    │   │   └── 🍃 Sanitization
+    │   ├── 🍃 Hard Disk Drive (HDD)
+    │   └── 🍃 Solid-State Drives (SSD)
+    └── 🍃 Standard Naming Convention
 
 🪵 Attack Surface
 
@@ -211,17 +262,6 @@ Legend:
 
 🪵 Identification
 
-🌳 Industrial control systems (ICS)
-    ├── 🍃 Human-machine Interfaces (HMIs)
-    ├── 🌿 ICS/SCADA Applications
-    │   ├── 🍃 Energy
-    │   ├── 🍃 Fabrication and Manufacturing
-    │   ├── 🍃 Facilities
-    │   ├── 🍃 Industrial
-    │   └── 🍃 Logistics
-    ├── 🍃 Operational Technology (OT)
-    └── 🍃 Supervisory Control and Data Acquisition (SCADA)
-
 🌳 Identity and Access Management (IAM)
     ├── 🌿 Account Management
     │   ├── 🍃 Account Policies
@@ -252,19 +292,30 @@ Legend:
             ├── 🍃 Issuing Hardware and Software Assets
             └── 🍃 Teaching Policy Awareness
 
+🌳 Industrial control systems (ICS)
+    ├── 🍃 Human-machine Interfaces (HMIs)
+    ├── 🌿 ICS/SCADA Applications
+    │   ├── 🍃 Energy
+    │   ├── 🍃 Fabrication and Manufacturing
+    │   ├── 🍃 Facilities
+    │   ├── 🍃 Industrial
+    │   └── 🍃 Logistics
+    ├── 🍃 Operational Technology (OT)
+    └── 🍃 Supervisory Control and Data Acquisition (SCADA)
+
 🪵 Information Security
 
 🪵 Information Systems Security Officer (ISSO)
+
+🪵 Integrity
+
+🪵 Intentional Threat
 
 🌳 Internet of Things (IoT)
     ├── 🍃 Best Practice Guidance for IoT
     ├── 🍃 Factors Driving Adoption of IoT
     ├── 🍃 IoT Examples
     └── 🍃 Security Risks Associated with IoT
-
-🪵 Integrity
-
-🪵 Intentional Threat
 
 🪵 Level of sophistication/capability
 
@@ -370,19 +421,62 @@ Legend:
 
 🪵 Vulnerable Software
 
+🌳 Zero Trust Architecture (ZTA)
+    ├── 🌿 Benefits of a Zero Trust Architecture
+    │   ├── 🍃 Better access controls
+    │   ├── 🍃 Greater security
+    │   ├── 🍃 Improved governance and compliance
+    │   └── 🍃 Increased granularity
+    ├── 🌿 Components of a Zero Trust architecture
+    │   ├── 🍃 Cloud security
+    │   ├── 🍃 Data protection
+    │   ├── 🍃 Identity and access management (IAM)
+    │   ├── 🍃 Network and endpoint security
+    │   ├── 🍃 Network segmentation
+    │   ├── 🍃 Network visibility
+    │   ├── 🍃 Policy-based enforcement
+    │   └── 🍃 Threat detection and prevention
+    ├── 🌿 Control Plane and Data Plane
+    │   ├── 🌿 Control Plane
+    │   │   ├── 🍃 Policy Administrator / Policy Decision Point
+    │   │   └── 🍃 Policy Engine
+    │   └── 🌿 Data Plane
+    │       ├── 🍃 Client Systems
+    │       ├── 🍃 Implicit Trust Zone
+    │       ├── 🍃 Policy Enforcement Point
+    │       ├── 🍃 Session Management
+    │       └── 🍃 Subject Credentials
+    ├── 🍃 Deperimeterization
+    ├── 🍃 Goal of Zero Trust Architecture
+    ├── 🌿 Trends Driving Deperimeterization
+    │   ├── 🍃 Cloud
+    │   ├── 🍃 Mobile
+    │   ├── 🍃 Outsourcing and Contracting
+    │   ├── 🍃 Remote Work
+    │   └── 🍃 Wireless Networks (Wi-Fi)
+    ├── 🌿 Zero Trust Architecture Examples
+    │   ├── 🍃 Cisco Zero Trust Architecture
+    │   ├── 🍃 Google BeyondCorp
+    │   └── 🍃 Palo Alto Networks Prisma Access
+    └── 🌿 Zero Trust Security Concepts
+        ├── 🍃 Adaptive identity
+        ├── 🍃 Device posture
+        ├── 🍃 Policy-driven access control
+        └── 🍃 Threat scope reduction
+
 ================================================================================
 STATISTICS
 ================================================================================
-Total topics: 298
+Total topics: 390
 
-🌳 Trunks (Level 1 with children): 16
+🌳 Trunks (Level 1 with children): 18
 🪵 Roots (Level 1 standalone):      45
-🌿 Branches (Has children):         25
-🍃 Leaves (No children):            257
+🌿 Branches (Has children):         41
+🍃 Leaves (No children):            331
 
 By Level:
-  Level 1: 61
-  Level 2: 89
-  Level 3: 122
-  Level 4: 26
+  Level 1: 63
+  Level 2: 107
+  Level 3: 168
+  Level 4: 49
 ================================================================================
