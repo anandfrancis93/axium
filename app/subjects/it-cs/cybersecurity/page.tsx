@@ -399,6 +399,7 @@ export default function CybersecurityPage() {
                       <th className="text-left p-4 text-sm font-semibold text-gray-400">Topic</th>
                       <th className="text-center p-4 text-sm font-semibold text-gray-400">Attempts</th>
                       <th className="text-center p-4 text-sm font-semibold text-gray-400">Correct</th>
+                      <th className="text-center p-4 text-sm font-semibold text-gray-400">Calibration</th>
                       <th className="text-center p-4 text-sm font-semibold text-gray-400">Mastery</th>
                       <th className="text-right p-4 text-sm font-semibold text-gray-400">Last Practiced</th>
                     </tr>
@@ -431,6 +432,17 @@ export default function CybersecurityPage() {
                               {topic.correct_answers}
                               <span className="text-gray-600 ml-1">({accuracy}%)</span>
                             </span>
+                          </td>
+                          <td className="p-4 text-center">
+                            <div className={`text-lg font-bold ${
+                              (topic.calibration_mean ?? 0) >= 1.0 ? 'text-green-400' :
+                              (topic.calibration_mean ?? 0) >= 0.5 ? 'text-blue-400' :
+                              (topic.calibration_mean ?? 0) >= 0.0 ? 'text-yellow-400' :
+                              (topic.calibration_mean ?? 0) >= -0.5 ? 'text-orange-400' :
+                              'text-red-400'
+                            }`}>
+                              {(topic.calibration_mean ?? 0).toFixed(2)}
+                            </div>
                           </td>
                           <td className="p-4 text-center">
                             <div className="flex items-center justify-center gap-2">
@@ -473,6 +485,22 @@ export default function CybersecurityPage() {
                               : 0}%)
                           </span>
                         </span>
+                      </td>
+                      <td className="p-4 text-center">
+                        {(() => {
+                          const avgCalibration = filteredTopics.reduce((sum, topic) => sum + (topic.calibration_mean ?? 0), 0) / filteredTopics.length
+                          return (
+                            <div className={`text-lg font-bold ${
+                              avgCalibration >= 1.0 ? 'text-green-400' :
+                              avgCalibration >= 0.5 ? 'text-blue-400' :
+                              avgCalibration >= 0.0 ? 'text-yellow-400' :
+                              avgCalibration >= -0.5 ? 'text-orange-400' :
+                              'text-red-400'
+                            }`}>
+                              {avgCalibration.toFixed(2)}
+                            </div>
+                          )
+                        })()}
                       </td>
                       <td className="p-4 text-center">
                         {(() => {
