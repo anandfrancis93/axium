@@ -430,7 +430,6 @@ export default function CybersecurityPage() {
                           <td className="p-4 text-center">
                             <span className="text-gray-300">
                               {topic.correct_answers}
-                              <span className="text-gray-600 ml-1">({accuracy}%)</span>
                             </span>
                           </td>
                           <td className="p-4 text-center">
@@ -478,12 +477,6 @@ export default function CybersecurityPage() {
                       <td className="p-4 text-center">
                         <span className="font-semibold text-gray-200">
                           {filteredTopics.reduce((sum, topic) => sum + topic.correct_answers, 0)}
-                          <span className="text-gray-600 ml-1">
-                            ({filteredTopics.reduce((sum, topic) => sum + topic.total_attempts, 0) > 0
-                              ? Math.round((filteredTopics.reduce((sum, topic) => sum + topic.correct_answers, 0) /
-                                filteredTopics.reduce((sum, topic) => sum + topic.total_attempts, 0)) * 100)
-                              : 0}%)
-                          </span>
                         </span>
                       </td>
                       <td className="p-4 text-center">
