@@ -323,6 +323,9 @@ export async function POST(request: NextRequest) {
 You are REQUIRED to generate a question where the correct answer is **${targetTFAnswer}**.
 Target Answer: ${targetTFAnswer}
 ${targetTFAnswer === 'False' ? '-> You MUST take a true fact from the context and subtly alter it to make it FALSE. Do not generate a True statement.' : '-> Use a correct fact from the context.'}
+-> TRANSFORMATION EXAMPLE (How to make it False):
+   Fact: "TCP is a connection-oriented protocol."
+   False Question: "TCP is a connectionless protocol." (Swapped "connection-oriented" with "connectionless")
 -> You MUST set the "target_answer" field in the JSON to "${targetTFAnswer}".
 `
     }
@@ -380,12 +383,12 @@ ANTI-TELLTALE QUALITY CONTROLS (CRITICAL):
 These measures prevent obvious answer giveaways and test-taking tricks:
 
 a) Length Variation (ULTRA-STRICT UNIFORMITY):
-   - All 4 options MUST have nearly identical word counts (within +/- 2 words).
-   - NO option should be an outlier (significantly longer or shorter than the rest).
-   - The correct answer CAN be the longest, but only by a small margin (1-2 words).
+   - **MANDATORY:** All 4 options MUST have nearly identical word counts (within +/- 2 words).
+   - **PADDING RULE:** Identify the longest option first. Then, you MUST expand/pad the other 3 options with more detail/adjectives/context to match that length exactly.
+   - **FORCED CALCULATION:** You are required to output the word count for each option in the JSON.
    - Example: Options lengths: 12, 13, 12, 14 words. (✅ GOOD)
    - Example: Options lengths: 5, 5, 25, 6 words. (❌ BAD - 25 is an outlier)
-   - IF the correct answer requires a long explanation, YOU MUST lengthen the distractors to match it.
+   - IF the correct answer is long, the distractors MUST be equally long.
 
 b) Ontological Consistency (TYPE MATCHING - CRITICAL):
    - Distractors MUST be the same "Type of Thing" as the correct answer.
@@ -443,6 +446,11 @@ FORMAT YOUR RESPONSE AS VALID JSON:
         "A": "True",
         "B": "False"
       },
+      "option_word_counts": {
+        "A": 1,
+        "B": 1
+      },
+      "length_check_passed": true,
       "correct_answer": "${targetTFAnswer}",
       "explanation": "Brief explanation of why it is ${targetTFAnswer}"
     }
@@ -459,7 +467,7 @@ Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other 
       model: 'claude-sonnet-4-5',
       max_tokens: 4000,
       temperature: 0.7,
-      system: 'You are an expert educator. Always respond with valid JSON only, no markdown or other formatting.',
+      system: 'You are an expert educator. Always respond with valid JSON only. You MUST strictly adhere to the "Target Answer" for True/False questions.',
       messages: [
         {
           role: 'user',
