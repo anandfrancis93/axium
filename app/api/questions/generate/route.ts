@@ -353,14 +353,27 @@ REQUIREMENTS:
 
 EXPLANATION REQUIREMENTS:
 - Write explanations as a subject matter expert teaching the concept using FIRST PRINCIPLES THINKING.
-- NEVER mention "context chunks", "provided context", "course materials", or similar meta-references.
-- **CRITICAL: DO NOT use phrases like "According to the definition", "By definition", or "X is defined as".**
-- **CRITICAL: DO NOT just state what the term means. Explain the MECHANISM and CAUSE/EFFECT.**
-- Break the concept down to its fundamental truths (the 'Why' and 'How') and build up the logic.
-- Avoid circular reasoning. Instead of saying "X is Y because it's defined that way", say "X happens because [Fundamental Principle], which leads to Y."
-- Connect the core principle to the specific answer.
-- Explanations should be detailed and logical, not just brief definitions.
-- Example: "Encryption works by transforming readable data (plaintext) into unreadable data (ciphertext) using a mathematical algorithm and a key. This ensures confidentiality because even if an attacker intercepts the data, they cannot understand it without the corresponding key to reverse the process."
+- **CRITICAL BAN LIST (NEVER USE THESE PHRASES):**
+  - "The other options are..."
+  - "The other options are incorrect because..."
+  - "According to the definition..."
+  - "By definition..."
+  - "X is defined as..."
+  - "In this context..."
+  - "As mentioned in the text..."
+
+- **BAD EXAMPLE (DO NOT DO THIS):**
+  "Service assets are defined as things, processes, or people that contribute to delivering an IT service. The other options are narrower or unrelated aspects that do not fully capture this definition."
+  *(Why it's bad: Uses "defined as", mentions "other options", circular reasoning)*
+
+- **GOOD EXAMPLE (DO THIS):**
+  "Service assets act as the foundational resources because they provide the necessary capabilities to deliver value. By combining tangible resources (like servers) with intangible capabilities (like knowledge), an organization creates the capacity to perform services. Without these assets, the service lifecycle cannot function because there are no inputs to transform into value."
+  *(Why it's good: Explains the MECHANISM (combining resources), the PURPOSE (deliver value), and the CONSEQUENCE (no inputs = no value). No meta-references.)*
+
+- **INSTRUCTION:**
+  - Break the concept down to its fundamental truths (the 'Why' and 'How').
+  - Build up the logic from the ground up.
+  - Connect the core principle to the specific answer.
 
 
 ANTI-TELLTALE QUALITY CONTROLS (CRITICAL):
