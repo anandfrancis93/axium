@@ -320,7 +320,7 @@ export default function CybersecurityPage() {
               setShowProgress(!showProgress)
               if (showSpacedRepetition) setShowSpacedRepetition(false)
             }}
-            className={`neuro-btn px-6 py-2 font-semibold hover:bg-blue-500/10 transition-colors ${showProgress ? 'text-blue-400 bg-blue-500/20' : 'text-blue-400'
+            className={`neuro-btn px-6 py-2 font-semibold hover:bg-blue-500/10 hover:translate-y-0 transition-colors ${showProgress ? 'text-blue-400 bg-blue-500/20' : 'text-blue-400'
               }`}
           >
             My Progress
@@ -330,7 +330,7 @@ export default function CybersecurityPage() {
               setShowSpacedRepetition(!showSpacedRepetition)
               if (showProgress) setShowProgress(false)
             }}
-            className={`neuro-btn px-6 py-2 font-semibold hover:bg-blue-500/10 transition-colors ${showSpacedRepetition ? 'text-blue-400 bg-blue-500/20' : 'text-blue-400'
+            className={`neuro-btn px-6 py-2 font-semibold hover:bg-blue-500/10 hover:translate-y-0 transition-colors ${showSpacedRepetition ? 'text-blue-400 bg-blue-500/20' : 'text-blue-400'
               }`}
           >
             Spaced Repetition
@@ -433,13 +433,12 @@ export default function CybersecurityPage() {
                             </span>
                           </td>
                           <td className="p-4 text-center">
-                            <div className={`text-lg font-bold ${
-                              (topic.calibration_mean ?? 0) >= 1.0 ? 'text-green-400' :
-                              (topic.calibration_mean ?? 0) >= 0.5 ? 'text-yellow-400' :
-                              (topic.calibration_mean ?? 0) >= 0.0 ? 'text-yellow-400' :
-                              (topic.calibration_mean ?? 0) >= -0.5 ? 'text-yellow-400' :
-                              'text-red-400'
-                            }`}>
+                            <div className={`text-lg font-bold ${(topic.calibration_mean ?? 0) >= 1.0 ? 'text-green-400' :
+                                (topic.calibration_mean ?? 0) >= 0.5 ? 'text-yellow-400' :
+                                  (topic.calibration_mean ?? 0) >= 0.0 ? 'text-yellow-400' :
+                                    (topic.calibration_mean ?? 0) >= -0.5 ? 'text-yellow-400' :
+                                      'text-red-400'
+                              }`}>
                               {(topic.calibration_mean ?? 0).toFixed(2)}
                             </div>
                           </td>
@@ -483,13 +482,12 @@ export default function CybersecurityPage() {
                         {(() => {
                           const avgCalibration = filteredTopics.reduce((sum, topic) => sum + (topic.calibration_mean ?? 0), 0) / filteredTopics.length
                           return (
-                            <div className={`text-lg font-bold ${
-                              avgCalibration >= 1.0 ? 'text-green-400' :
-                              avgCalibration >= 0.5 ? 'text-yellow-400' :
-                              avgCalibration >= 0.0 ? 'text-yellow-400' :
-                              avgCalibration >= -0.5 ? 'text-yellow-400' :
-                              'text-red-400'
-                            }`}>
+                            <div className={`text-lg font-bold ${avgCalibration >= 1.0 ? 'text-green-400' :
+                                avgCalibration >= 0.5 ? 'text-yellow-400' :
+                                  avgCalibration >= 0.0 ? 'text-yellow-400' :
+                                    avgCalibration >= -0.5 ? 'text-yellow-400' :
+                                      'text-red-400'
+                              }`}>
                               {avgCalibration.toFixed(2)}
                             </div>
                           )
@@ -608,10 +606,10 @@ export default function CybersecurityPage() {
                             </td>
                             <td className="p-4 text-center">
                               <div className={`text-lg font-bold ${calibrationScore >= 1.0 ? 'text-green-400' :
-                                  calibrationScore >= 0.5 ? 'text-yellow-400' :
-                                    calibrationScore >= 0.0 ? 'text-yellow-400' :
-                                      calibrationScore >= -0.5 ? 'text-yellow-400' :
-                                        'text-red-400'
+                                calibrationScore >= 0.5 ? 'text-yellow-400' :
+                                  calibrationScore >= 0.0 ? 'text-yellow-400' :
+                                    calibrationScore >= -0.5 ? 'text-yellow-400' :
+                                      'text-red-400'
                                 }`}>
                                 {calibrationScore.toFixed(2)}
                               </div>
