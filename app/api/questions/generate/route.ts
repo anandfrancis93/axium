@@ -350,12 +350,13 @@ REQUIREMENTS:
 6. Include a brief, educational explanation for the correct answer
 
 EXPLANATION REQUIREMENTS:
-- Write explanations as a subject matter expert teaching the concept
-- NEVER mention "context chunks", "provided context", "course materials", or similar meta-references
-- Explain WHY the answer is correct using cybersecurity principles and real-world relevance
-- Keep explanations concise (1-3 sentences) but informative
-- Use authoritative, educational tone
-- Example: "Physical security protects tangible assets like hardware and facilities from unauthorized access, theft, and environmental threats, which is essential since physical breaches can lead to data compromise."
+- Write explanations as a subject matter expert teaching the concept using FIRST PRINCIPLES THINKING.
+- NEVER mention "context chunks", "provided context", "course materials", or similar meta-references.
+- Break the concept down to its fundamental truths (the 'Why' and 'How') and build up the logic.
+- Avoid circular reasoning (e.g., "It is correct because it is defined as...").
+- Connect the core principle to the specific answer.
+- Explanations should be detailed and logical, not just brief definitions.
+- Example: "Encryption works by transforming readable data (plaintext) into unreadable data (ciphertext) using a mathematical algorithm and a key. This ensures confidentiality because even if an attacker intercepts the data, they cannot understand it without the corresponding key to reverse the process."
 
 ${tfInstruction}
 
