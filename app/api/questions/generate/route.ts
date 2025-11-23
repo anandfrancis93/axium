@@ -319,9 +319,11 @@ export async function POST(request: NextRequest) {
     let tfInstruction = ''
     if (question_format === 'true_false') {
       tfInstruction = `
-**TRUE/FALSE TARGET:**
-Generate a question where the correct answer is **${targetTFAnswer}**.
-${targetTFAnswer === 'False' ? 'You MUST take a true fact and subtly alter it to make it False.' : 'Use a correct fact from the context.'}
+**TRUE/FALSE MANDATE (CRITICAL):**
+You are REQUIRED to generate a question where the correct answer is **${targetTFAnswer}**.
+Target Answer: ${targetTFAnswer}
+${targetTFAnswer === 'False' ? '-> You MUST take a true fact from the context and subtly alter it to make it FALSE. Do not generate a True statement.' : '-> Use a correct fact from the context.'}
+-> You MUST set the "target_answer" field in the JSON to "${targetTFAnswer}".
 `
     }
 
@@ -352,13 +354,14 @@ REQUIREMENTS:
 EXPLANATION REQUIREMENTS:
 - Write explanations as a subject matter expert teaching the concept using FIRST PRINCIPLES THINKING.
 - NEVER mention "context chunks", "provided context", "course materials", or similar meta-references.
+- **CRITICAL: DO NOT use phrases like "According to the definition", "By definition", or "X is defined as".**
+- **CRITICAL: DO NOT just state what the term means. Explain the MECHANISM and CAUSE/EFFECT.**
 - Break the concept down to its fundamental truths (the 'Why' and 'How') and build up the logic.
-- Avoid circular reasoning (e.g., "It is correct because it is defined as...").
+- Avoid circular reasoning. Instead of saying "X is Y because it's defined that way", say "X happens because [Fundamental Principle], which leads to Y."
 - Connect the core principle to the specific answer.
 - Explanations should be detailed and logical, not just brief definitions.
 - Example: "Encryption works by transforming readable data (plaintext) into unreadable data (ciphertext) using a mathematical algorithm and a key. This ensures confidentiality because even if an attacker intercepts the data, they cannot understand it without the corresponding key to reverse the process."
 
-${tfInstruction}
 
 ANTI-TELLTALE QUALITY CONTROLS (CRITICAL):
 These measures prevent obvious answer giveaways and test-taking tricks:
@@ -415,19 +418,20 @@ SELF-CORRECTION STEP (Perform this internally before outputting):
    -> IF YES: You MUST flip it to "False" by subtly altering a key fact.
    -> AIM FOR: 60% False answers to counterbalance your natural bias towards True.
 
+${tfInstruction}
+
 FORMAT YOUR RESPONSE AS VALID JSON:
 {
   "questions": [
     {
+      "target_answer": "${targetTFAnswer}",
       "question_text": "The question text here?",
       "options": {
-        "A": "First option",
-        "B": "Second option",
-        "C": "Third option",
-        "D": "Fourth option"
+        "A": "True",
+        "B": "False"
       },
-      "correct_answer": "B",
-      "explanation": "Brief explanation of why B is correct"
+      "correct_answer": "${targetTFAnswer}",
+      "explanation": "Brief explanation of why it is ${targetTFAnswer}"
     }
   ]
 }
