@@ -74,8 +74,17 @@ export function TextSelectionChat({ enabled, context }: TextSelectionChatProps) 
         const newX = e.clientX - dragStartRef.current.x
         const newY = e.clientY - dragStartRef.current.y
 
-        // Allow free movement (no clamping)
-        positionRef.current = { x: newX, y: newY }
+        // Keep modal on screen (at least 100px visible for dragging back)
+        const minVisible = 100
+        const maxX = window.innerWidth - minVisible
+        const maxY = window.innerHeight - minVisible
+        const minX = -(sizeRef.current.width - minVisible)
+        const minY = 0 // Keep header always on screen
+
+        positionRef.current = {
+          x: Math.max(minX, Math.min(newX, maxX)),
+          y: Math.max(minY, Math.min(newY, maxY))
+        }
 
         // Direct DOM update - no React re-render
         modalRef.current.style.left = `${positionRef.current.x}px`
@@ -113,14 +122,20 @@ export function TextSelectionChat({ enabled, context }: TextSelectionChatProps) 
           }
         }
 
+        // Keep resize within viewport
+        const maxWidth = window.innerWidth - newX
+        const maxHeight = window.innerHeight - newY
+        newWidth = Math.min(newWidth, maxWidth)
+        newHeight = Math.min(newHeight, maxHeight)
+
         sizeRef.current = { width: newWidth, height: newHeight }
-        positionRef.current = { x: newX, y: newY }
+        positionRef.current = { x: Math.max(0, newX), y: Math.max(0, newY) }
 
         // Direct DOM update - no React re-render
         modalRef.current.style.width = `${newWidth}px`
         modalRef.current.style.height = `${newHeight}px`
-        modalRef.current.style.left = `${newX}px`
-        modalRef.current.style.top = `${newY}px`
+        modalRef.current.style.left = `${positionRef.current.x}px`
+        modalRef.current.style.top = `${positionRef.current.y}px`
       }
     }
 
