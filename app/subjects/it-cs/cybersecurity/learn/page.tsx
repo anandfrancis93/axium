@@ -578,6 +578,40 @@ function LearnPageContent() {
                 </div>
               )}
 
+              {/* True/False Answer with Result */}
+              {currentQuestion.question_format === 'true_false' && (
+                <div className="space-y-4">
+                  <div className="flex gap-4">
+                    {['True', 'False'].map((option) => {
+                      const isUserAnswer = userAnswer === option
+                      const isCorrectAnswer = answerResult.correctAnswer === option
+
+                      return (
+                        <div
+                          key={option}
+                          className={`flex-1 py-4 px-6 text-center text-lg font-semibold transition-all ${
+                            isUserAnswer ? 'neuro-raised' : 'neuro-inset'
+                          }`}
+                        >
+                          <div className={`${
+                            isCorrectAnswer ? 'text-green-400' :
+                            isUserAnswer && !isCorrectAnswer ? 'text-red-400' :
+                            'text-gray-300'
+                          }`}>
+                            {option}
+                            {isUserAnswer && !isCorrectAnswer && (
+                              <span className="ml-2 text-sm">(Your answer)</span>
+                            )}
+                            {isCorrectAnswer && (
+                              <span className="ml-2 text-sm">(Correct)</span>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* Open Ended Answer with Result */}
               {currentQuestion.question_format === 'open_ended' && (
@@ -673,7 +707,8 @@ function LearnPageContent() {
                   <div className="flex items-center justify-between">
                     <span className="text-white text-sm font-semibold">Question Type:</span>
                     <span className="font-semibold text-sm text-white">
-                      {currentQuestion.question_format === 'mcq_single' ? 'Multiple Choice' :
+                      {currentQuestion.question_format === 'true_false' ? 'True/False' :
+                        currentQuestion.question_format === 'mcq_single' ? 'Multiple Choice' :
                         currentQuestion.question_format === 'mcq_multi' ? 'Multiple Select' :
                           currentQuestion.question_format === 'fill_blank' ? 'Fill in the Blank' :
                             currentQuestion.question_format === 'open_ended' ? 'Open Ended' : 'Question'}

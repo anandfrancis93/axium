@@ -147,6 +147,50 @@ export function QuestionCard({
           </div>
         )}
 
+        {/* True/False */}
+        {question.question_format === 'true_false' && (
+          <div className="space-y-2">
+            <p className="text-sm text-gray-500 mb-3">Is this statement true or false?</p>
+            <div className="flex gap-4">
+              {['True', 'False'].map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => handleAnswerChange(option)}
+                  disabled={disabled}
+                  className={`
+                    flex-1 py-4 px-6 text-lg font-semibold transition-all
+                    ${answer === option
+                      ? 'neuro-raised text-blue-400'
+                      : 'neuro-inset text-gray-300'
+                    }
+                    ${showCorrectAnswer && question.correct_answer === option
+                      ? 'text-green-400'
+                      : ''
+                    }
+                    ${showCorrectAnswer && answer === option && question.correct_answer !== option
+                      ? 'text-red-400'
+                      : ''
+                    }
+                    ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}
+                  `}
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    <Circle
+                      size={20}
+                      className={answer === option ? 'fill-current' : ''}
+                    />
+                    <span>{option}</span>
+                    {showCorrectAnswer && question.correct_answer === option && (
+                      <CheckCircle2 size={20} className="text-green-400" />
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Open Ended (essay-style answer) */}
         {question.question_format === 'open_ended' && (
           <div>
@@ -187,6 +231,7 @@ export function QuestionCard({
 
 function formatQuestionType(format: QuestionFormat): string {
   const types: Record<QuestionFormat, string> = {
+    true_false: 'True/False',
     mcq_single: 'Multiple Choice',
     mcq_multi: 'Multiple Select',
     fill_blank: 'Fill in the Blank',

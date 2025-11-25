@@ -5,6 +5,7 @@
  */
 
 export type QuestionFormat =
+  | 'true_false'
   | 'mcq_single'
   | 'mcq_multi'
   | 'fill_blank'
