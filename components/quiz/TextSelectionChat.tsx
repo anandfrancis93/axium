@@ -74,16 +74,13 @@ export function TextSelectionChat({ enabled, context }: TextSelectionChatProps) 
         const newX = e.clientX - dragStartRef.current.x
         const newY = e.clientY - dragStartRef.current.y
 
-        // Keep modal on screen (at least 100px visible for dragging back)
-        const minVisible = 100
-        const maxX = window.innerWidth - minVisible
-        const maxY = window.innerHeight - minVisible
-        const minX = -(sizeRef.current.width - minVisible)
-        const minY = 0 // Keep header always on screen
+        // Keep entire modal within screen
+        const maxX = window.innerWidth - sizeRef.current.width
+        const maxY = window.innerHeight - sizeRef.current.height
 
         positionRef.current = {
-          x: Math.max(minX, Math.min(newX, maxX)),
-          y: Math.max(minY, Math.min(newY, maxY))
+          x: Math.max(0, Math.min(newX, maxX)),
+          y: Math.max(0, Math.min(newY, maxY))
         }
 
         // Direct DOM update - no React re-render
