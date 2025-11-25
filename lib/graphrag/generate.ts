@@ -226,14 +226,14 @@ function parseClaudeResponse(responseText: string, format: QuestionFormat, conte
  * @param context - GraphRAG context for the topic
  * @param bloomLevel - Bloom taxonomy level (1-6)
  * @param format - Question format
- * @param model - Claude model to use (default: claude-haiku-4-5)
+ * @param model - Claude model to use (default: claude-opus-4-5-20251101)
  * @returns Generated question
  */
 export async function generateQuestion(
   context: GraphRAGContext,
   bloomLevel: number,
   format: QuestionFormat,
-  model: string = 'claude-haiku-4-5'
+  model: string = 'claude-opus-4-5-20251101'
 ): Promise<GeneratedQuestion> {
   const client = createAnthropicClient()
 

@@ -514,7 +514,7 @@ Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other 
     })
 
     const msg = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5',
+      model: 'claude-opus-4-5-20251101',
       max_tokens: 4000,
       temperature: 0.7,
       system: `You are an expert educator. Always respond with valid JSON only.
