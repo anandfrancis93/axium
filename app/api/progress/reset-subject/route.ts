@@ -113,7 +113,30 @@ export async function POST(request: NextRequest) {
       console.error('Error counting questions:', countQuestionsError)
     }
 
-    console.log(`Found ${progressCount || 0} progress records, ${responsesCount || 0} response records, and ${questionsCount || 0} questions to delete`)
+    // Get question IDs for counting user_question_reviews
+    const { data: questionIds } = await supabase
+      .from('questions')
+      .select('id')
+      .in('topic_id', topicIds)
+
+    const qIds = questionIds?.map((q: any) => q.id) || []
+
+    // Count user_question_reviews (spaced repetition data)
+    let reviewsCount = 0
+    if (qIds.length > 0) {
+      const { count, error: countReviewsError } = await supabase
+        .from('user_question_reviews')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .in('question_id', qIds)
+
+      if (countReviewsError && countReviewsError.message) {
+        console.error('Error counting user_question_reviews:', countReviewsError)
+      }
+      reviewsCount = count || 0
+    }
+
+    console.log(`Found ${progressCount || 0} progress records, ${responsesCount || 0} response records, ${reviewsCount} review records, and ${questionsCount || 0} questions to delete`)
 
     // Batch delete to avoid parameter limit (max 100 IDs per batch)
     const BATCH_SIZE = 100
@@ -157,6 +180,28 @@ export async function POST(request: NextRequest) {
         // Continue anyway - progress deletion is more important
       }
 
+      // Get question IDs for this batch of topics
+      const { data: batchQuestions } = await supabase
+        .from('questions')
+        .select('id')
+        .in('topic_id', batch)
+
+      const batchQIds = batchQuestions?.map((q: any) => q.id) || []
+
+      // Delete user_question_reviews for this batch (spaced repetition data)
+      if (batchQIds.length > 0) {
+        const { error: deleteReviewsError } = await supabase
+          .from('user_question_reviews')
+          .delete()
+          .eq('user_id', user.id)
+          .in('question_id', batchQIds)
+
+        if (deleteReviewsError) {
+          console.error(`Error deleting user_question_reviews batch ${i}-${i + batch.length}:`, deleteReviewsError)
+          // Continue anyway
+        }
+      }
+
       // Delete questions for this batch (not user-specific)
       const { error: deleteQuestionsError } = await supabase
         .from('questions')
@@ -187,7 +232,7 @@ export async function POST(request: NextRequest) {
       console.log('Successfully reset global question position to 1')
     }
 
-    const totalDeleted = (progressCount || 0) + (responsesCount || 0) + (questionsCount || 0)
+    const totalDeleted = (progressCount || 0) + (responsesCount || 0) + reviewsCount + (questionsCount || 0)
 
     // ============================================================
     // RECALCULATE GLOBAL PROGRESS
@@ -256,6 +301,7 @@ export async function POST(request: NextRequest) {
       deletedCount: totalDeleted,
       progressRecords: progressCount || 0,
       responseRecords: responsesCount || 0,
+      reviewRecords: reviewsCount,
       questionsRecords: questionsCount || 0,
       message: `Successfully deleted ${totalDeleted} records for ${subject}`
     })
