@@ -405,12 +405,25 @@ ANTI-TELLTALE QUALITY CONTROLS (CRITICAL):
 These measures prevent obvious answer giveaways and test-taking tricks:
 
 a) Length Variation (ULTRA-STRICT UNIFORMITY):
-   - **MANDATORY:** All 4 options MUST have nearly identical word counts (within +/- 2 words).
-   - **PADDING RULE:** Identify the longest option first. Then, you MUST expand/pad the other 3 options with more detail/adjectives/context to match that length exactly.
-   - **FORCED CALCULATION:** You are required to output the word count for each option in the JSON.
-   - Example: Options lengths: 12, 13, 12, 14 words. (✅ GOOD)
-   - Example: Options lengths: 5, 5, 25, 6 words. (❌ BAD - 25 is an outlier)
-   - IF the correct answer is long, the distractors MUST be equally long.
+   - **MANDATORY:** All 4 options MUST have nearly identical CHARACTER counts (within ±30%).
+   - **THE API WILL REJECT YOUR RESPONSE** if any option is >30% longer or shorter than others.
+   - **FORCED CALCULATION:** Count characters for each option. If imbalanced, REWRITE before outputting.
+
+   ❌ BAD EXAMPLE (WILL BE REJECTED - 227% length difference):
+   Question: "What is the 'Somewhere You Are' factor?"
+   A) "A location-based factor applied to an authentication decision that measures statistics about a user's location, such as geographic position via device location service or IP network address" (185 chars) ← CORRECT BUT WAY TOO LONG
+   B) "A biometric factor that identifies users based on physical characteristics" (74 chars)
+   C) "A knowledge factor involving passwords or security questions" (60 chars)
+   D) "A possession factor requiring a physical device like a smart card" (66 chars)
+   PROBLEM: Option A is 3x longer than others → REJECTED
+
+   ✅ GOOD EXAMPLE (BALANCED - all options 70-85 chars):
+   Question: "What is the 'Somewhere You Are' factor in authentication?"
+   A) "A location-based factor using geographic position or IP address data" (70 chars) ← CORRECT
+   B) "A biometric factor using physical characteristics like fingerprints" (68 chars)
+   C) "A knowledge factor using memorized secrets like passwords or PINs" (66 chars)
+   D) "A possession factor using physical tokens like smart cards or keys" (68 chars)
+   SOLUTION: Shortened correct answer, added detail to distractors → ALL BALANCED
 
 b) Ontological Consistency (TYPE MATCHING - CRITICAL):
    - Distractors MUST be the same "Type of Thing" as the correct answer.
@@ -552,6 +565,49 @@ CRITICAL FOR TRUE/FALSE: You have a bias toward generating TRUE statements. When
         { error: 'Invalid response format from AI', raw_response: responseText },
         { status: 500 }
       )
+    }
+
+    // QUALITY CONTROL: Validate option length balance for MCQ questions
+    if (question_format === 'mcq_single' || question_format === 'mcq_multi') {
+      for (const q of questionsData.questions) {
+        if (q.options && typeof q.options === 'object') {
+          const optionTexts = Object.values(q.options) as string[]
+          const optionLengths = optionTexts.map((text: string) => text.length)
+
+          const minLength = Math.min(...optionLengths)
+          const maxLength = Math.max(...optionLengths)
+          const lengthRatio = (maxLength - minLength) / minLength
+
+          // Enforce ±30% length constraint
+          if (lengthRatio > 0.30) {
+            const details = Object.entries(q.options)
+              .map(([key, text]) => `${key}) ${(text as string).length} chars`)
+              .join(', ')
+
+            return NextResponse.json(
+              {
+                error: `Option length imbalance detected (${Math.round(lengthRatio * 100)}% difference, max 30% allowed). ${details}. Please regenerate.`,
+                validation_failed: 'length_balance',
+                raw_response: responseText
+              },
+              { status: 422 }
+            )
+          }
+
+          // Check for overly short options (< 40 chars suggests vague distractors)
+          const shortOptions = optionLengths.filter(len => len < 40)
+          if (shortOptions.length > 0) {
+            return NextResponse.json(
+              {
+                error: `Options too short/vague (${shortOptions.length} options under 40 chars). Distractors must be specific definitions from related topics. Please regenerate.`,
+                validation_failed: 'short_options',
+                raw_response: responseText
+              },
+              { status: 422 }
+            )
+          }
+        }
+      }
     }
 
     // Step 5: Return questions for preview (NOT stored in database)
