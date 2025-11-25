@@ -690,6 +690,14 @@ ALL 4 options MUST be within ±30% length of each other (in characters).
 - ❌ NO "Both A and B" type options
 - ❌ NO obviously joke/absurd distractors
 
+**8. SIBLING TOPIC DISTRACTORS (CRITICAL):**
+- Incorrect options MUST be related concepts from the SAME domain/category
+- Use sibling topics, similar techniques, or closely related concepts as distractors
+- ❌ BAD: Question about "AES encryption" with distractors like "HTTP", "RAM", "Linux"
+- ✅ GOOD: Question about "AES encryption" with distractors like "RSA encryption", "DES encryption", "Blowfish cipher"
+- Distractors should be plausible to someone with partial knowledge
+- The goal is to test DISCRIMINATION between similar concepts, not random guessing
+
 **BAD EXAMPLE (will be rejected):**
 - A: "Using the same key for encryption and decryption" (47 chars)
 - B: "Uses public key" (15 chars) ❌ TOO SHORT
@@ -713,10 +721,17 @@ IMPORTANT: options array should contain ONLY the option text without any letter 
 4. ALL options must have identical grammatical structure
 5. NO hedging language ("typically", "often") only in correct answers
 6. NO "All of the above" or "None of the above"
+7. SIBLING DISTRACTORS: Incorrect options must be related concepts from the same domain (e.g., similar techniques, sibling topics) - NOT random unrelated terms
 
 Format: {"question": "Select all that apply: Which are X?", "options": ["First option text", "Second option text", "Third option text", "Fourth option text"], "correct_answer": ["A", "C"], "explanation": "..."}
 IMPORTANT: options array should contain ONLY the option text without any letter prefixes. The correct_answer should be an array of letters.`,
-    fill_blank: 'Generate a fill-in-the-blank question with 4 options. Format: {"question": "The process of _____ is...", "options": ["photosynthesis", "respiration", "osmosis", "diffusion"], "correct_answer": "photosynthesis", "explanation": "..."}',
+    fill_blank: `Generate a fill-in-the-blank question with 4 options.
+
+⚠️ **SIBLING DISTRACTORS:** All options must be related concepts from the same category.
+- ❌ BAD: "encryption" with options like "keyboard", "monitor", "cable"
+- ✅ GOOD: "encryption" with options like "hashing", "encoding", "obfuscation"
+
+Format: {"question": "The process of _____ is...", "options": ["photosynthesis", "respiration", "osmosis", "diffusion"], "correct_answer": "photosynthesis", "explanation": "..."}`,
     open_ended: 'Generate an open-ended question requiring a short paragraph answer. Format: {"question": "...", "correct_answer": "Key points: ...", "explanation": "..."}'
   }
 
