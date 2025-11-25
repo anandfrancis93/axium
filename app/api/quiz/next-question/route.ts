@@ -10,7 +10,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { selectNextTopic } from '@/lib/progression/rl-topic-selector'
-import OpenAI from 'openai'
+import Anthropic from '@anthropic-ai/sdk'
 import { getRecommendedFormats } from '@/lib/graphrag/prompts'
 import { getNextQuestionPosition, determineQuestionType } from '@/lib/utils/question-selection'
 import {
@@ -24,11 +24,27 @@ import {
   CognitiveDimension
 } from '@/lib/utils/cognitive-dimensions'
 
-// Initialize xAI client
-const xai = new OpenAI({
-  apiKey: process.env.XAI_API_KEY,
-  baseURL: 'https://api.x.ai/v1'
+// Initialize Anthropic client
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY
 })
+
+/**
+ * Validate MCQ option length balance
+ * Returns true if options are within 30% length of each other
+ */
+function validateMCQOptionBalance(options: string[]): { valid: boolean; ratio: number } {
+  if (!options || options.length < 2) return { valid: true, ratio: 0 }
+
+  const lengths = options.map((opt: string) => opt.length)
+  const minLen = Math.min(...lengths)
+  const maxLen = Math.max(...lengths)
+
+  if (minLen === 0) return { valid: false, ratio: Infinity }
+
+  const ratio = (maxLen - minLen) / minLen
+  return { valid: ratio <= 0.30, ratio }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -176,8 +192,33 @@ async function handleSpacedRepetitionQuestion(
     return await handleNewTopicQuestion(supabase, user, subject)
   }
 
-  // Return the first due question (already contains all metadata)
-  const question = dueQuestions[0]
+  // Filter out questions with option length imbalance and delete bad ones
+  let question = null
+  for (const q of dueQuestions) {
+    // Only validate MCQ questions
+    if (!q.question_format?.startsWith('mcq') || !q.options) {
+      question = q
+      break
+    }
+
+    const options = Array.isArray(q.options) ? q.options : Object.values(q.options)
+    const validation = validateMCQOptionBalance(options as string[])
+
+    if (validation.valid) {
+      question = q
+      break
+    } else {
+      // Delete question with bad quality from database
+      console.log(`[Quality Control] Deleting question ${q.id} due to option length imbalance (${Math.round(validation.ratio * 100)}%)`)
+      await supabase.from('questions').delete().eq('id', q.id)
+    }
+  }
+
+  // If all due questions failed validation, fall back to new topic
+  if (!question) {
+    console.log('[Spaced Repetition] All due questions failed quality validation, falling back to new topic')
+    return await handleNewTopicQuestion(supabase, user, subject)
+  }
 
 
 
@@ -370,7 +411,7 @@ async function handleNewTopicQuestion(
 
 
 
-  // Generate question using xAI Grok
+  // Generate question using Claude
   const question = await generateQuestion(
     selection.topicName,
     topicHierarchy?.description || null,
@@ -583,7 +624,8 @@ function getDefaultFormatForBloomLevel(bloomLevel: number): string {
 }
 
 /**
- * Generate question using xAI Grok
+ * Generate question using Claude with quality validation
+ * Retries up to 3 times if MCQ option length is imbalanced
  */
 async function generateQuestion(
   topicName: string,
@@ -609,8 +651,36 @@ async function generateQuestion(
   const dimensionInfo = COGNITIVE_DIMENSIONS[cognitiveDimension as keyof typeof COGNITIVE_DIMENSIONS]
 
   const formatInstructions: Record<string, string> = {
-    mcq_single: 'Generate a multiple-choice question with 4 options and ONE correct answer. Format: {"question": "What is X?", "options": ["First option text", "Second option text", "Third option text", "Fourth option text"], "correct_answer": "A", "explanation": "..."}. IMPORTANT: options array should contain ONLY the option text without any letter prefixes (A, B, C, D). The correct_answer should be just the letter (A, B, C, or D).',
-    mcq_multi: 'Generate a multiple-choice question with 4-6 options and MULTIPLE correct answers. Format: {"question": "Select all that apply: Which are X?", "options": ["First option text", "Second option text", "Third option text", "Fourth option text"], "correct_answer": ["A", "C"], "explanation": "..."}. IMPORTANT: options array should contain ONLY the option text without any letter prefixes. The correct_answer should be an array of letters.',
+    mcq_single: `Generate a multiple-choice question with 4 options and ONE correct answer.
+
+⚠️ **CRITICAL LENGTH BALANCE RULE:**
+ALL 4 options MUST be within ±30% length of each other (in characters).
+- Count the characters in each option
+- If one option is 50 chars, ALL others must be 35-65 chars
+- The correct answer must NOT be noticeably longer or shorter than distractors
+- Pad shorter options with specific details, or trim longer options
+
+**BAD EXAMPLE (will be rejected):**
+- Option A: "Using the same key for encryption and decryption" (47 chars)
+- Option B: "Uses public key" (15 chars) ❌ TOO SHORT
+- Option C: "Requires key exchange" (21 chars) ❌ TOO SHORT
+- Option D: "Symmetric method" (16 chars) ❌ TOO SHORT
+
+**GOOD EXAMPLE:**
+- Option A: "Using the same key for both encryption and decryption processes" (63 chars)
+- Option B: "Using different keys, one public and one private for security" (61 chars) ✓
+- Option C: "Requiring manual key exchange between all communicating parties" (64 chars) ✓
+- Option D: "Employing a symmetric method with periodic key rotation cycles" (63 chars) ✓
+
+Format: {"question": "What is X?", "options": ["First option text", "Second option text", "Third option text", "Fourth option text"], "correct_answer": "A", "explanation": "..."}
+IMPORTANT: options array should contain ONLY the option text without any letter prefixes (A, B, C, D). The correct_answer should be just the letter (A, B, C, or D).`,
+    mcq_multi: `Generate a multiple-choice question with 4-6 options and MULTIPLE correct answers.
+
+⚠️ **CRITICAL LENGTH BALANCE RULE:**
+ALL options MUST be within ±30% length of each other (in characters).
+
+Format: {"question": "Select all that apply: Which are X?", "options": ["First option text", "Second option text", "Third option text", "Fourth option text"], "correct_answer": ["A", "C"], "explanation": "..."}
+IMPORTANT: options array should contain ONLY the option text without any letter prefixes. The correct_answer should be an array of letters.`,
     fill_blank: 'Generate a fill-in-the-blank question with 4 options. Format: {"question": "The process of _____ is...", "options": ["photosynthesis", "respiration", "osmosis", "diffusion"], "correct_answer": "photosynthesis", "explanation": "..."}',
     open_ended: 'Generate an open-ended question requiring a short paragraph answer. Format: {"question": "...", "correct_answer": "Key points: ...", "explanation": "..."}'
   }
@@ -721,48 +791,72 @@ ${topicDescription ? `- [ ] If the topic name is vague (like "Local"), did I use
 
 Generate the question now:`
 
-  try {
-    const completion = await xai.chat.completions.create({
-      model: 'grok-4-fast-reasoning', // Use Grok 4 Fast reasoning model for better quality
-      messages: [
-        {
-          role: 'system',
-          content: 'You are an expert educator. Always respond with valid JSON only, no additional text or markdown.'
-        },
-        {
-          role: 'user',
-          content: prompt
-        }
-      ],
-      temperature: 0.7,
-      max_tokens: 2000,
-      stream: false
-    })
+  const maxRetries = 3
+  let lastError: Error | null = null
 
-    const responseText = completion.choices[0]?.message?.content?.trim()
-    if (!responseText) {
-      throw new Error('Empty response from xAI')
-    }
-
-    // Parse JSON response
-    let questionData
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      // Remove markdown code blocks if present
-      const cleanedResponse = responseText
-        .replace(/```json\n?/g, '')
-        .replace(/```\n?/g, '')
-        .trim()
+      const message = await anthropic.messages.create({
+        model: 'claude-opus-4-5-20251101',
+        max_tokens: 2048,
+        temperature: 0.7,
+        system: 'You are an expert educator. Always respond with valid JSON only, no additional text or markdown.',
+        messages: [
+          {
+            role: 'user',
+            content: prompt
+          }
+        ]
+      })
 
-      questionData = JSON.parse(cleanedResponse)
-    } catch (parseError) {
-      console.error('Failed to parse xAI response:', responseText)
-      throw new Error('Invalid JSON response from xAI')
+      const responseText = message.content[0].type === 'text' ? message.content[0].text.trim() : ''
+      if (!responseText) {
+        throw new Error('Empty response from Claude')
+      }
+
+      // Parse JSON response
+      let questionData
+      try {
+        // Remove markdown code blocks if present
+        const cleanedResponse = responseText
+          .replace(/```json\n?/g, '')
+          .replace(/```\n?/g, '')
+          .trim()
+
+        questionData = JSON.parse(cleanedResponse)
+      } catch (parseError) {
+        console.error(`[Attempt ${attempt}] Failed to parse Claude response:`, responseText)
+        throw new Error('Invalid JSON response from Claude')
+      }
+
+      // QUALITY VALIDATION: Check MCQ option length balance
+      if ((questionFormat === 'mcq_single' || questionFormat === 'mcq_multi') && questionData.options) {
+        const validation = validateMCQOptionBalance(questionData.options)
+        if (!validation.valid) {
+          const details = questionData.options.map((opt: string, i: number) =>
+            `${String.fromCharCode(65 + i)}) ${opt.length} chars`
+          ).join(', ')
+          console.error(`[Attempt ${attempt}] Option length imbalance (${Math.round(validation.ratio * 100)}%): ${details}`)
+
+          if (attempt < maxRetries) {
+            console.log(`Retrying question generation (attempt ${attempt + 1}/${maxRetries})...`)
+            continue // Retry
+          }
+          throw new Error(`Option length imbalance after ${maxRetries} attempts`)
+        }
+      }
+
+      return questionData
+
+    } catch (error) {
+      lastError = error as Error
+      console.error(`[Attempt ${attempt}] Error generating question:`, error)
+
+      if (attempt === maxRetries) {
+        throw new Error(`Failed to generate question after ${maxRetries} attempts: ${lastError.message}`)
+      }
     }
-
-    return questionData
-
-  } catch (error) {
-    console.error('Error calling xAI:', error)
-    throw new Error('Failed to generate question with xAI')
   }
+
+  throw lastError || new Error('Failed to generate question')
 }
