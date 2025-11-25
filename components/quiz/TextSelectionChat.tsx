@@ -356,13 +356,7 @@ Break it down to the fundamental concepts and build understanding from the groun
       {/* Chat Modal */}
       {showModal && (
         <div className="selection-chat-modal fixed inset-0 z-50 pointer-events-none">
-          {/* Backdrop - click to close */}
-          <div
-            className="absolute inset-0 bg-black/40 pointer-events-auto"
-            onClick={handleClose}
-          />
-
-          {/* Modal */}
+          {/* Modal - no backdrop, allows interaction with page behind */}
           <div
             ref={modalRef}
             className="neuro-card absolute flex flex-col overflow-hidden pointer-events-auto"
