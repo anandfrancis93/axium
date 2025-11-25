@@ -31,27 +31,40 @@ export function TextSelectionChat({ enabled, context }: TextSelectionChatProps) 
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const modalRef = useRef<HTMLDivElement>(null)
 
-  // Use refs for smooth dragging/resizing (no re-renders during movement)
+  // Use refs for smooth dragging/resizing
   const positionRef = useRef({ x: 0, y: 0 })
   const sizeRef = useRef({ width: 500, height: 600 })
   const isDraggingRef = useRef(false)
   const isResizingRef = useRef<string | null>(null)
-  const dragStartRef = useRef({ x: 0, y: 0 })
-  const initialPosRef = useRef({ x: 0, y: 0 })
+  const dragOffsetRef = useRef({ x: 0, y: 0 })
   const initialSizeRef = useRef({ width: 0, height: 0 })
+  const initialPosRef = useRef({ x: 0, y: 0 })
+  const startMouseRef = useRef({ x: 0, y: 0 })
+  const rafRef = useRef<number | null>(null)
+
+  // Apply position using transform (GPU accelerated)
+  const applyTransform = useCallback(() => {
+    if (!modalRef.current) return
+    modalRef.current.style.transform = `translate(${positionRef.current.x}px, ${positionRef.current.y}px)`
+  }, [])
+
+  // Apply size
+  const applySize = useCallback(() => {
+    if (!modalRef.current) return
+    modalRef.current.style.width = `${sizeRef.current.width}px`
+    modalRef.current.style.height = `${sizeRef.current.height}px`
+  }, [])
 
   // Center modal on open
   useEffect(() => {
     if (showModal && modalRef.current) {
-      const x = (window.innerWidth - sizeRef.current.width) / 2
-      const y = (window.innerHeight - sizeRef.current.height) / 2
-      positionRef.current = { x: Math.max(0, x), y: Math.max(0, y) }
-      modalRef.current.style.left = `${positionRef.current.x}px`
-      modalRef.current.style.top = `${positionRef.current.y}px`
-      modalRef.current.style.width = `${sizeRef.current.width}px`
-      modalRef.current.style.height = `${sizeRef.current.height}px`
+      const x = Math.max(0, (window.innerWidth - sizeRef.current.width) / 2)
+      const y = Math.max(0, (window.innerHeight - sizeRef.current.height) / 2)
+      positionRef.current = { x, y }
+      applyTransform()
+      applySize()
     }
-  }, [showModal])
+  }, [showModal, applyTransform, applySize])
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -65,75 +78,85 @@ export function TextSelectionChat({ enabled, context }: TextSelectionChatProps) 
     }
   }, [showModal])
 
-  // Handle drag and resize with direct DOM manipulation for smoothness
+  // Mouse move handler
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!modalRef.current) return
+      if (!isDraggingRef.current && !isResizingRef.current) return
 
-      if (isDraggingRef.current) {
-        const newX = e.clientX - dragStartRef.current.x
-        const newY = e.clientY - dragStartRef.current.y
-
-        // Keep entire modal within screen
-        const maxX = window.innerWidth - sizeRef.current.width
-        const maxY = window.innerHeight - sizeRef.current.height
-
-        positionRef.current = {
-          x: Math.max(0, Math.min(newX, maxX)),
-          y: Math.max(0, Math.min(newY, maxY))
-        }
-
-        // Direct DOM update - no React re-render
-        modalRef.current.style.left = `${positionRef.current.x}px`
-        modalRef.current.style.top = `${positionRef.current.y}px`
-      } else if (isResizingRef.current) {
-        const minWidth = 350
-        const minHeight = 400
-        const direction = isResizingRef.current
-
-        let newWidth = sizeRef.current.width
-        let newHeight = sizeRef.current.height
-        let newX = positionRef.current.x
-        let newY = positionRef.current.y
-
-        if (direction.includes('e')) {
-          newWidth = Math.max(minWidth, e.clientX - initialPosRef.current.x)
-        }
-        if (direction.includes('w')) {
-          const deltaX = e.clientX - dragStartRef.current.x
-          const potentialWidth = initialSizeRef.current.width - deltaX
-          if (potentialWidth >= minWidth) {
-            newWidth = potentialWidth
-            newX = initialPosRef.current.x + deltaX
-          }
-        }
-        if (direction.includes('s')) {
-          newHeight = Math.max(minHeight, e.clientY - initialPosRef.current.y)
-        }
-        if (direction.includes('n')) {
-          const deltaY = e.clientY - dragStartRef.current.y
-          const potentialHeight = initialSizeRef.current.height - deltaY
-          if (potentialHeight >= minHeight) {
-            newHeight = potentialHeight
-            newY = initialPosRef.current.y + deltaY
-          }
-        }
-
-        // Keep resize within viewport
-        const maxWidth = window.innerWidth - newX
-        const maxHeight = window.innerHeight - newY
-        newWidth = Math.min(newWidth, maxWidth)
-        newHeight = Math.min(newHeight, maxHeight)
-
-        sizeRef.current = { width: newWidth, height: newHeight }
-        positionRef.current = { x: Math.max(0, newX), y: Math.max(0, newY) }
-
-        // Direct DOM update - no React re-render
-        modalRef.current.style.width = `${newWidth}px`
-        modalRef.current.style.height = `${newHeight}px`
-        modalRef.current.style.left = `${positionRef.current.x}px`
-        modalRef.current.style.top = `${positionRef.current.y}px`
+      // Cancel any pending animation frame
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current)
       }
+
+      // Use requestAnimationFrame for smooth updates
+      rafRef.current = requestAnimationFrame(() => {
+        if (!modalRef.current) return
+
+        if (isDraggingRef.current) {
+          // Calculate new position
+          let newX = e.clientX - dragOffsetRef.current.x
+          let newY = e.clientY - dragOffsetRef.current.y
+
+          // Clamp to screen bounds
+          const maxX = window.innerWidth - sizeRef.current.width
+          const maxY = window.innerHeight - sizeRef.current.height
+          newX = Math.max(0, Math.min(newX, maxX))
+          newY = Math.max(0, Math.min(newY, maxY))
+
+          positionRef.current = { x: newX, y: newY }
+          applyTransform()
+        } else if (isResizingRef.current) {
+          const direction = isResizingRef.current
+          const deltaX = e.clientX - startMouseRef.current.x
+          const deltaY = e.clientY - startMouseRef.current.y
+
+          let newWidth = initialSizeRef.current.width
+          let newHeight = initialSizeRef.current.height
+          let newX = initialPosRef.current.x
+          let newY = initialPosRef.current.y
+
+          const minWidth = 350
+          const minHeight = 400
+
+          if (direction.includes('e')) {
+            newWidth = Math.max(minWidth, initialSizeRef.current.width + deltaX)
+          }
+          if (direction.includes('w')) {
+            const potentialWidth = initialSizeRef.current.width - deltaX
+            if (potentialWidth >= minWidth) {
+              newWidth = potentialWidth
+              newX = initialPosRef.current.x + deltaX
+            }
+          }
+          if (direction.includes('s')) {
+            newHeight = Math.max(minHeight, initialSizeRef.current.height + deltaY)
+          }
+          if (direction.includes('n')) {
+            const potentialHeight = initialSizeRef.current.height - deltaY
+            if (potentialHeight >= minHeight) {
+              newHeight = potentialHeight
+              newY = initialPosRef.current.y + deltaY
+            }
+          }
+
+          // Clamp to viewport
+          if (newX < 0) {
+            newWidth += newX
+            newX = 0
+          }
+          if (newY < 0) {
+            newHeight += newY
+            newY = 0
+          }
+          newWidth = Math.min(newWidth, window.innerWidth - newX)
+          newHeight = Math.min(newHeight, window.innerHeight - newY)
+
+          sizeRef.current = { width: newWidth, height: newHeight }
+          positionRef.current = { x: newX, y: newY }
+          applySize()
+          applyTransform()
+        }
+      })
     }
 
     const handleMouseUp = () => {
@@ -141,16 +164,24 @@ export function TextSelectionChat({ enabled, context }: TextSelectionChatProps) 
       isResizingRef.current = null
       document.body.style.cursor = ''
       document.body.style.userSelect = ''
+
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current)
+        rafRef.current = null
+      }
     }
 
-    document.addEventListener('mousemove', handleMouseMove)
-    document.addEventListener('mouseup', handleMouseUp)
+    window.addEventListener('mousemove', handleMouseMove, { passive: true })
+    window.addEventListener('mouseup', handleMouseUp)
 
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove)
-      document.removeEventListener('mouseup', handleMouseUp)
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mouseup', handleMouseUp)
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current)
+      }
     }
-  }, [])
+  }, [applyTransform, applySize])
 
   // Handle text selection
   const handleSelection = useCallback(() => {
@@ -206,11 +237,11 @@ export function TextSelectionChat({ enabled, context }: TextSelectionChatProps) 
   const handleDragStart = (e: React.MouseEvent) => {
     e.preventDefault()
     isDraggingRef.current = true
-    dragStartRef.current = {
+    dragOffsetRef.current = {
       x: e.clientX - positionRef.current.x,
       y: e.clientY - positionRef.current.y
     }
-    document.body.style.cursor = 'move'
+    document.body.style.cursor = 'grabbing'
     document.body.style.userSelect = 'none'
   }
 
@@ -219,14 +250,13 @@ export function TextSelectionChat({ enabled, context }: TextSelectionChatProps) 
     e.preventDefault()
     e.stopPropagation()
     isResizingRef.current = direction
-    dragStartRef.current = { x: e.clientX, y: e.clientY }
+    startMouseRef.current = { x: e.clientX, y: e.clientY }
     initialPosRef.current = { ...positionRef.current }
     initialSizeRef.current = { ...sizeRef.current }
 
-    // Set cursor based on direction
     const cursorMap: Record<string, string> = {
-      'n': 'n-resize', 's': 's-resize', 'e': 'e-resize', 'w': 'w-resize',
-      'ne': 'ne-resize', 'nw': 'nw-resize', 'se': 'se-resize', 'sw': 'sw-resize'
+      'n': 'ns-resize', 's': 'ns-resize', 'e': 'ew-resize', 'w': 'ew-resize',
+      'ne': 'nesw-resize', 'nw': 'nwse-resize', 'se': 'nwse-resize', 'sw': 'nesw-resize'
     }
     document.body.style.cursor = cursorMap[direction] || 'default'
     document.body.style.userSelect = 'none'
@@ -238,7 +268,6 @@ export function TextSelectionChat({ enabled, context }: TextSelectionChatProps) 
     setShowModal(true)
     setMessages([])
 
-    // Build context for the AI
     const contextParts = []
     if (context?.topicName) contextParts.push(`Topic: ${context.topicName}`)
     if (context?.bloomLevel) contextParts.push(`Bloom Level: ${context.bloomLevel}`)
@@ -249,7 +278,6 @@ export function TextSelectionChat({ enabled, context }: TextSelectionChatProps) 
       ? `\n\nContext from the learning session:\n${contextParts.join('\n')}`
       : ''
 
-    // Initial message asking for explanation using first principles
     const initialMessage = `Using first principles, explain this text: "${selectedText}"
 
 Break it down to the fundamental concepts and build understanding from the ground up. Explain WHY it works, not just WHAT it is.${systemContext}`
@@ -263,7 +291,7 @@ Break it down to the fundamental concepts and build understanding from the groun
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: initialMessage,
-          ephemeral: true // Signal this is not to be saved
+          ephemeral: true
         })
       })
 
@@ -292,7 +320,6 @@ Break it down to the fundamental concepts and build understanding from the groun
     setLoading(true)
 
     try {
-      // Build conversation history for context
       const conversationHistory = messages.map(m => `${m.role}: ${m.content}`).join('\n')
 
       const response = await fetch('/api/ai-chat', {
@@ -319,7 +346,7 @@ Break it down to the fundamental concepts and build understanding from the groun
     }
   }
 
-  // Close modal and clear chat
+  // Close modal
   const handleClose = () => {
     setShowModal(false)
     setMessages([])
@@ -357,52 +384,30 @@ Break it down to the fundamental concepts and build understanding from the groun
 
       {/* Chat Modal */}
       {showModal && (
-        <div className="selection-chat-modal fixed inset-0 z-50 pointer-events-none">
-          {/* Modal - no backdrop, allows interaction with page behind */}
+        <div className="selection-chat-modal fixed inset-0 z-50 pointer-events-none overflow-hidden">
+          {/* Modal */}
           <div
             ref={modalRef}
-            className="neuro-card absolute flex flex-col overflow-hidden pointer-events-auto"
+            className="neuro-card absolute top-0 left-0 flex flex-col overflow-hidden pointer-events-auto"
             style={{
-              willChange: 'left, top, width, height',
+              width: `${sizeRef.current.width}px`,
+              height: `${sizeRef.current.height}px`,
+              willChange: 'transform',
             }}
           >
             {/* Resize handles */}
-            <div
-              className="absolute top-0 left-0 w-4 h-4 cursor-nw-resize z-10"
-              onMouseDown={(e) => handleResizeStart(e, 'nw')}
-            />
-            <div
-              className="absolute top-0 right-0 w-4 h-4 cursor-ne-resize z-10"
-              onMouseDown={(e) => handleResizeStart(e, 'ne')}
-            />
-            <div
-              className="absolute bottom-0 left-0 w-4 h-4 cursor-sw-resize z-10"
-              onMouseDown={(e) => handleResizeStart(e, 'sw')}
-            />
-            <div
-              className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-10"
-              onMouseDown={(e) => handleResizeStart(e, 'se')}
-            />
-            <div
-              className="absolute top-0 left-4 right-4 h-2 cursor-n-resize z-10"
-              onMouseDown={(e) => handleResizeStart(e, 'n')}
-            />
-            <div
-              className="absolute bottom-0 left-4 right-4 h-2 cursor-s-resize z-10"
-              onMouseDown={(e) => handleResizeStart(e, 's')}
-            />
-            <div
-              className="absolute left-0 top-4 bottom-4 w-2 cursor-w-resize z-10"
-              onMouseDown={(e) => handleResizeStart(e, 'w')}
-            />
-            <div
-              className="absolute right-0 top-4 bottom-4 w-2 cursor-e-resize z-10"
-              onMouseDown={(e) => handleResizeStart(e, 'e')}
-            />
+            <div className="absolute top-0 left-0 w-4 h-4 cursor-nwse-resize z-10" onMouseDown={(e) => handleResizeStart(e, 'nw')} />
+            <div className="absolute top-0 right-0 w-4 h-4 cursor-nesw-resize z-10" onMouseDown={(e) => handleResizeStart(e, 'ne')} />
+            <div className="absolute bottom-0 left-0 w-4 h-4 cursor-nesw-resize z-10" onMouseDown={(e) => handleResizeStart(e, 'sw')} />
+            <div className="absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize z-10" onMouseDown={(e) => handleResizeStart(e, 'se')} />
+            <div className="absolute top-0 left-4 right-4 h-2 cursor-ns-resize z-10" onMouseDown={(e) => handleResizeStart(e, 'n')} />
+            <div className="absolute bottom-0 left-4 right-4 h-2 cursor-ns-resize z-10" onMouseDown={(e) => handleResizeStart(e, 's')} />
+            <div className="absolute left-0 top-4 bottom-4 w-2 cursor-ew-resize z-10" onMouseDown={(e) => handleResizeStart(e, 'w')} />
+            <div className="absolute right-0 top-4 bottom-4 w-2 cursor-ew-resize z-10" onMouseDown={(e) => handleResizeStart(e, 'e')} />
 
             {/* Header - draggable */}
             <div
-              className="flex items-center justify-between p-4 border-b border-gray-800 cursor-move select-none"
+              className="flex items-center justify-between p-4 border-b border-gray-800 cursor-grab active:cursor-grabbing select-none"
               onMouseDown={handleDragStart}
             >
               <div className="flex items-center gap-3">
