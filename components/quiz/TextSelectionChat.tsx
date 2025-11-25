@@ -74,14 +74,8 @@ export function TextSelectionChat({ enabled, context }: TextSelectionChatProps) 
         const newX = e.clientX - dragStartRef.current.x
         const newY = e.clientY - dragStartRef.current.y
 
-        // Keep modal within viewport
-        const maxX = window.innerWidth - sizeRef.current.width
-        const maxY = window.innerHeight - sizeRef.current.height
-
-        positionRef.current = {
-          x: Math.max(0, Math.min(newX, maxX)),
-          y: Math.max(0, Math.min(newY, maxY))
-        }
+        // Allow free movement (no clamping)
+        positionRef.current = { x: newX, y: newY }
 
         // Direct DOM update - no React re-render
         modalRef.current.style.left = `${positionRef.current.x}px`
@@ -118,10 +112,6 @@ export function TextSelectionChat({ enabled, context }: TextSelectionChatProps) 
             newY = initialPosRef.current.y + deltaY
           }
         }
-
-        // Clamp to viewport
-        newWidth = Math.min(newWidth, window.innerWidth - newX)
-        newHeight = Math.min(newHeight, window.innerHeight - newY)
 
         sizeRef.current = { width: newWidth, height: newHeight }
         positionRef.current = { x: newX, y: newY }
