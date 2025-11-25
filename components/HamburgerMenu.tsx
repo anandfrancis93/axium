@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { MenuIcon, LogOutIcon, UserIcon, MessageSquareIcon } from '@/components/icons'
+import { MenuIcon, LogOutIcon, UserIcon } from '@/components/icons'
 
 export default function HamburgerMenu() {
   const [isOpen, setIsOpen] = useState(false)
@@ -112,44 +112,6 @@ export default function HamburgerMenu() {
         
 
                                         <div className="space-y-2">
-
-        
-
-                                          <Link
-
-        
-
-                                            href="/ai-chat"
-
-        
-
-                                            onClick={() => setIsOpen(false)}
-
-        
-
-                                            className="neuro-btn w-full flex items-center justify-center gap-2 text-blue-400 group"
-
-        
-
-                                          >
-
-        
-
-                                            <MessageSquareIcon size={18} className="transition-transform group-hover:-translate-x-1" />
-
-        
-
-                                            <span>AI Chat</span>
-
-        
-
-                                          </Link>
-
-        
-
-                    
-
-        
 
                                           <button
 
