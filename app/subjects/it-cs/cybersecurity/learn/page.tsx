@@ -12,6 +12,7 @@ import { QuestionCard } from '@/components/quiz/QuestionCard'
 import { ConfidenceSlider } from '@/components/quiz/ConfidenceSlider'
 import { RecognitionMethodSelector } from '@/components/quiz/RecognitionMethodSelector'
 import { AnswerFeedback } from '@/components/quiz/AnswerFeedback'
+import { TextSelectionChat } from '@/components/quiz/TextSelectionChat'
 import { QuizSession, QuizQuestion, AnswerResult, RecognitionMethod } from '@/lib/types/quiz'
 import { BLOOM_LEVEL_NAMES, BloomLevel } from '@/lib/types/database'
 import { Loader2, Circle, Square } from 'lucide-react'
@@ -825,6 +826,17 @@ function LearnPageContent() {
           Your progress has been saved. Are you sure you want to end this quiz session?
         </p>
       </Modal>
+
+      {/* Text Selection Chat - enabled after submission */}
+      <TextSelectionChat
+        enabled={currentStep === 'results' && !!answerResult}
+        context={{
+          topicName: currentQuestion?.hierarchy?.topic,
+          bloomLevel: currentQuestion?.bloom_level,
+          questionText: currentQuestion?.question_text,
+          explanation: answerResult?.explanation
+        }}
+      />
     </div>
   )
 }

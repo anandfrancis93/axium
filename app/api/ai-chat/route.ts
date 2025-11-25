@@ -20,13 +20,34 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { message, sessionId } = body
+    const { message, sessionId, ephemeral } = body
 
     if (!message) {
       return NextResponse.json(
         { error: 'Message is required' },
         { status: 400 }
       )
+    }
+
+    // Ephemeral mode: don't save to database, just get AI response
+    if (ephemeral) {
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
+
+      const chat = model.startChat({
+        history: [],
+        systemInstruction: {
+          role: 'system',
+          parts: [{ text: 'You are a helpful AI tutor for the Axium learning platform. You explain concepts clearly and concisely. When explaining text, break it down into simple terms and provide examples when helpful. Keep responses focused and educational.' }]
+        }
+      })
+
+      const result = await chat.sendMessage(message)
+      const aiResponse = result.response.text() || 'Sorry, I could not generate a response.'
+
+      return NextResponse.json({
+        success: true,
+        response: aiResponse
+      })
     }
 
     let currentSessionId = sessionId
@@ -69,13 +90,6 @@ export async function POST(request: NextRequest) {
       .order('created_at', { ascending: true })
       .limit(20)
 
-    // Prepare history for Gemini
-    // Exclude the very last message we just inserted (it will be sent as the new message)
-    // Filter out the current message from history if it was returned (depends on timing/consistency, safer to just filter by content or take all except last if it matches)
-    // Actually, simpler: We just inserted it. We should send it as the `sendMessage` argument.
-    // So history should be everything *before* this new message.
-    // Since we just inserted it, we can fetch everything and pop the last one, or just exclude it.
-    
     // Let's format the history correctly
     const geminiHistory = (history || [])
       .filter((msg: any) => msg.content !== message) // Simple dedup for the current message
