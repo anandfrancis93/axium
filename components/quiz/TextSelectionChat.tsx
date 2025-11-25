@@ -109,8 +109,10 @@ export function TextSelectionChat({ enabled, context }: TextSelectionChatProps) 
       ? `\n\nContext from the learning session:\n${contextParts.join('\n')}`
       : ''
 
-    // Initial message asking for explanation
-    const initialMessage = `Please explain this text in simple terms: "${selectedText}"${systemContext}`
+    // Initial message asking for explanation using first principles
+    const initialMessage = `Using first principles, explain this text: "${selectedText}"
+
+Break it down to the fundamental concepts and build understanding from the ground up. Explain WHY it works, not just WHAT it is.${systemContext}`
 
     setMessages([{ role: 'user', content: `Explain: "${selectedText}"` }])
     setLoading(true)
