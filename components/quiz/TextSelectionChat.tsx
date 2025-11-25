@@ -200,7 +200,7 @@ export function TextSelectionChat({ enabled, context }: TextSelectionChatProps) 
       {/* Floating "Explain" button */}
       {showButton && (
         <button
-          className="selection-chat-button fixed z-50 flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-blue-400 bg-gray-900 border border-gray-700 rounded-full shadow-lg hover:bg-gray-800 transition-all"
+          className="selection-chat-button neuro-btn fixed z-50 flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-blue-400"
           style={{
             left: `${buttonPosition.x}px`,
             top: `${buttonPosition.y}px`,
@@ -216,25 +216,29 @@ export function TextSelectionChat({ enabled, context }: TextSelectionChatProps) 
       {/* Chat Modal */}
       {showModal && (
         <div className="selection-chat-modal fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-lg mx-4 bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl flex flex-col max-h-[80vh]">
+          <div className="w-full max-w-lg mx-4 neuro-card flex flex-col max-h-[80vh] overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-700">
-              <div className="flex items-center gap-2">
-                <Sparkles size={20} className="text-blue-400" />
-                <h3 className="font-semibold text-gray-200">AI Explanation</h3>
+            <div className="flex items-center justify-between p-4 border-b border-gray-800">
+              <div className="flex items-center gap-3">
+                <div className="neuro-inset w-10 h-10 rounded-xl flex items-center justify-center">
+                  <Sparkles size={18} className="text-blue-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-200">AI Explanation</h3>
               </div>
               <button
                 onClick={handleClose}
-                className="p-1 text-gray-400 hover:text-gray-200 transition-colors"
+                className="neuro-btn p-2 text-gray-400 hover:text-gray-200"
               >
-                <X size={20} />
+                <X size={18} />
               </button>
             </div>
 
             {/* Selected Text */}
-            <div className="px-4 py-2 bg-gray-800/50 border-b border-gray-700">
-              <p className="text-xs text-gray-500 mb-1">Selected text:</p>
-              <p className="text-sm text-gray-300 italic line-clamp-2">"{selectedText}"</p>
+            <div className="mx-4 mt-4">
+              <div className="neuro-inset p-3 rounded-lg">
+                <p className="text-xs text-gray-500 mb-1">Selected text:</p>
+                <p className="text-sm text-gray-300 italic line-clamp-2">"{selectedText}"</p>
+              </div>
             </div>
 
             {/* Messages */}
@@ -245,10 +249,10 @@ export function TextSelectionChat({ enabled, context }: TextSelectionChatProps) 
                   className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-[85%] px-4 py-2 rounded-2xl ${
+                    className={`max-w-[85%] px-4 py-3 rounded-xl ${
                       message.role === 'user'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-800 text-gray-200'
+                        ? 'neuro-raised text-blue-400'
+                        : 'neuro-inset text-gray-200'
                     }`}
                   >
                     {message.role === 'user' ? (
@@ -263,7 +267,7 @@ export function TextSelectionChat({ enabled, context }: TextSelectionChatProps) 
               ))}
               {loading && (
                 <div className="flex justify-start">
-                  <div className="bg-gray-800 text-gray-400 px-4 py-2 rounded-2xl">
+                  <div className="neuro-inset text-gray-400 px-4 py-3 rounded-xl">
                     <Loader2 size={16} className="animate-spin" />
                   </div>
                 </div>
@@ -272,8 +276,8 @@ export function TextSelectionChat({ enabled, context }: TextSelectionChatProps) 
             </div>
 
             {/* Input */}
-            <div className="p-4 border-t border-gray-700">
-              <div className="flex gap-2">
+            <div className="p-4 border-t border-gray-800">
+              <div className="flex gap-3">
                 <textarea
                   ref={inputRef}
                   value={input}
@@ -281,17 +285,17 @@ export function TextSelectionChat({ enabled, context }: TextSelectionChatProps) 
                   onKeyDown={handleKeyDown}
                   placeholder="Ask a follow-up question..."
                   rows={1}
-                  className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-xl text-gray-200 placeholder-gray-500 resize-none focus:outline-none focus:border-blue-500"
+                  className="neuro-input flex-1 resize-none"
                 />
                 <button
                   onClick={handleSend}
                   disabled={!input.trim() || loading}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="neuro-btn px-4 text-blue-400 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Send size={18} />
                 </button>
               </div>
-              <p className="text-xs text-gray-500 mt-2 text-center">
+              <p className="text-xs text-gray-500 mt-3 text-center">
                 Chat will not be saved when closed
               </p>
             </div>
