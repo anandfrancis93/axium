@@ -650,7 +650,40 @@ async function generateQuestion(
   const { COGNITIVE_DIMENSIONS } = await import('@/lib/utils/cognitive-dimensions')
   const dimensionInfo = COGNITIVE_DIMENSIONS[cognitiveDimension as keyof typeof COGNITIVE_DIMENSIONS]
 
+  // Generate a random boolean to determine if T/F answer should be True or False (50-50 split)
+  const trueFalseAnswer = Math.random() < 0.5
+
   const formatInstructions: Record<string, string> = {
+    true_false: `Generate a True/False question.
+
+⚠️ **CRITICAL 50-50 RULE:**
+The correct answer for this question MUST be: **${trueFalseAnswer ? 'True' : 'False'}**
+
+You MUST generate a statement that is ${trueFalseAnswer ? 'TRUE and accurate' : 'FALSE and contains a specific error'}.
+
+${trueFalseAnswer
+  ? `**GENERATING A TRUE STATEMENT:**
+- Create a factually accurate statement about the topic
+- The statement must be definitively true based on the topic definition and context
+- Avoid statements that are "mostly true" or "true in some cases" - must be unambiguously TRUE`
+  : `**GENERATING A FALSE STATEMENT:**
+- Create a statement that contains a SPECIFIC, CLEAR ERROR
+- The error should be subtle enough to require knowledge, but clear once understood
+- Common techniques for false statements:
+  - Swap a key term (e.g., "symmetric" instead of "asymmetric")
+  - Invert a relationship (e.g., "increases" instead of "decreases")
+  - Use wrong numbers/values (e.g., "128-bit" instead of "256-bit")
+  - Attribute to wrong category (e.g., "is a type of malware" when it's an attack vector)
+- ❌ Do NOT use obviously wrong statements that don't require topic knowledge
+- ❌ Do NOT use trick questions or wordplay`}
+
+**ANTI-TELL-TALE RULES:**
+- Statement length should be similar whether true or false (40-100 words)
+- Avoid hedging language ("usually", "often", "typically") that hints at truth
+- Avoid absolute qualifiers ("always", "never", "all") that hint at falsehood
+- The statement should sound equally confident whether true or false
+
+Format: {"question": "Statement to evaluate as true or false", "correct_answer": "${trueFalseAnswer ? 'True' : 'False'}", "explanation": "Explanation of why it is ${trueFalseAnswer ? 'true' : 'false'}..."}`,
     mcq_single: `Generate a multiple-choice question with 4 options and ONE correct answer.
 
 ⚠️ **ANTI-TELL-TALE RULES (CRITICAL - questions will be rejected if violated):**

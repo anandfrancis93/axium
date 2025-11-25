@@ -1,6 +1,7 @@
 // Question Format utilities and constants
 
 export type QuestionFormat =
+  | 'true_false'
   | 'mcq_single'
   | 'mcq_multi'
   | 'open_ended'
@@ -17,6 +18,15 @@ export interface QuestionFormatInfo {
 }
 
 export const QUESTION_FORMATS: Record<QuestionFormat, QuestionFormatInfo> = {
+  true_false: {
+    key: 'true_false',
+    name: 'True/False',
+    description: 'Determine if a statement is true or false',
+    color: 'text-emerald-400',
+    icon: '◐',
+    idealBloomLevels: [1, 2],  // Remember, Understand
+    complexity: 'low'
+  },
   mcq_single: {
     key: 'mcq_single',
     name: 'MCQ - Single Select',
