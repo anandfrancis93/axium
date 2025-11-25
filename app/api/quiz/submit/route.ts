@@ -179,8 +179,8 @@ export async function POST(request: NextRequest) {
       const currentFormatIndex = recommendedFormats.indexOf(question.question_format)
 
       if (currentFormatIndex !== -1) {
-        // Calculate next index (simple increment)
-        const nextFormatIndex = (currentFormatIndex + 1) % recommendedFormats.length
+        // Store CURRENT index - getNextFormatRoundRobin will add 1 when selecting next
+        // This fixes the double-increment bug that caused formats to get stuck
 
         // Fetch current state to merge
         const [settingsResult, progressResult] = await Promise.all([
@@ -188,18 +188,18 @@ export async function POST(request: NextRequest) {
           supabase.from('user_progress').select('rl_metadata').eq('user_id', user.id).eq('topic_id', responseTopicId).single()
         ])
 
-        // Update GLOBAL state
+        // Update GLOBAL state with CURRENT index
         const updatedGlobalRoundRobin = {
           ...(settingsResult.data?.format_round_robin || {}),
-          [`bloom_${question.bloom_level}`]: nextFormatIndex
+          [`bloom_${question.bloom_level}`]: currentFormatIndex
         }
 
-        // Update PER-TOPIC state
+        // Update PER-TOPIC state with CURRENT index
         const updatedTopicMetadata = {
           ...(progressResult.data?.rl_metadata || {}),
           format_round_robin: {
             ...(progressResult.data?.rl_metadata?.format_round_robin || {}),
-            [`bloom_${question.bloom_level}`]: nextFormatIndex
+            [`bloom_${question.bloom_level}`]: currentFormatIndex
           }
         }
 
@@ -216,7 +216,8 @@ export async function POST(request: NextRequest) {
           }, { onConflict: 'user_id,topic_id' })
         ])
 
-        console.log(`Advanced format rotation for Bloom ${question.bloom_level} to index ${nextFormatIndex}`)
+        const nextIndex = (currentFormatIndex + 1) % recommendedFormats.length
+        console.log(`Format rotation: stored ${currentFormatIndex} (${question.question_format}), next will be ${nextIndex} (${recommendedFormats[nextIndex]})`)
       }
     } catch (rotationError) {
       console.error('Error updating format rotation:', rotationError)
