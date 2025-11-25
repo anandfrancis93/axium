@@ -170,7 +170,7 @@ export function QuestionCard({
         )}
 
         {/* Fill in Blank (text input) - only show if NO options provided */}
-        {question.question_format === 'fill_blank' && !question.options && (
+        {question.question_format === 'fill_blank' && (!question.options || question.options.length === 0) && (
           <textarea
             value={answer as string}
             onChange={(e) => handleAnswerChange(e.target.value)}
