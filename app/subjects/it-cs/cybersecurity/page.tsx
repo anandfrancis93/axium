@@ -133,12 +133,18 @@ export default function CybersecurityPage() {
       // Refresh the page to show empty state
       await fetchTopicsProgress()
 
-      // Show clean message
+      // Show clean message with stats
       let message = ''
       if (result.deletedCount === 0) {
         message = 'No data to reset. You haven\'t started learning yet.'
       } else {
-        message = 'Your progress has been reset.\n\nYou can now start fresh with a clean slate.'
+        const stats = []
+        if (result.progressRecords > 0) stats.push(`${result.progressRecords} topic${result.progressRecords > 1 ? 's' : ''}`)
+        if (result.responseRecords > 0) stats.push(`${result.responseRecords} answer${result.responseRecords > 1 ? 's' : ''}`)
+        if (result.reviewRecords > 0) stats.push(`${result.reviewRecords} review${result.reviewRecords > 1 ? 's' : ''}`)
+        if (result.questionsRecords > 0) stats.push(`${result.questionsRecords} question${result.questionsRecords > 1 ? 's' : ''}`)
+
+        message = `Your progress has been reset.\n\nCleared: ${stats.join(', ')}`
       }
 
       setSuccessMessage(message)
