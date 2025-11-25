@@ -14,7 +14,7 @@ import { QuestionFormat } from '@/lib/graphrag/prompts'
  *   entityId?: string,           // UUID of curriculum entity
  *   entityName?: string,          // Name to search for (returns first match)
  *   bloomLevel: number,           // 1-6
- *   format: QuestionFormat,       // mcq_single, mcq_multi, fill_blank, matching, open_ended
+ *   format: QuestionFormat,       // mcq_single, mcq_multi, fill_blank, open_ended
  *   count?: number,               // Number of questions to generate (default: 1)
  *   store?: boolean,              // Store in database (default: true)
  *   topicId?: string,             // Optional Supabase topic ID
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
 
     if (!body.format) {
       return NextResponse.json(
-        { error: 'format is required (mcq_single, mcq_multi, fill_blank, matching, open_ended)' },
+        { error: 'format is required (mcq_single, mcq_multi, fill_blank, open_ended)' },
         { status: 400 }
       )
     }

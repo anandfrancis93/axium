@@ -24,7 +24,6 @@ export function getAvailableRecognitionMethods(format: QuestionFormat): Recognit
     case 'mcq_single':
     case 'mcq_multi':
     case 'fill_blank':
-    case 'matching':
       // These formats have options/choices that can be recognized
       return ['memory', 'recognition', 'educated_guess', 'random_guess']
 
@@ -57,7 +56,6 @@ export function getDefaultRecognitionMethod(format: QuestionFormat): Recognition
     case 'mcq_multi':
       return 'recognition'  // Most common for MCQ-style
     case 'fill_blank':
-    case 'matching':
       return 'memory'  // Most common for recall-based
     default:
       return 'recognition'

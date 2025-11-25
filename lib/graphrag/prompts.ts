@@ -11,7 +11,6 @@ export type QuestionFormat =
   | 'mcq_single'      // Multiple choice - single answer
   | 'mcq_multi'       // Multiple choice - multiple answers ("select all that apply")
   | 'fill_blank'      // Fill in the blank
-  | 'matching'        // Matching pairs
   | 'open_ended'      // Essay/short answer
 
 export interface QuestionFormatInfo {
@@ -43,13 +42,6 @@ export const QUESTION_FORMATS: Record<QuestionFormat, QuestionFormatInfo> = {
     icon: '▭',
     idealBloomLevels: [1, 2, 3],
     complexity: 'low'
-  },
-  matching: {
-    name: 'Matching',
-    description: 'Match items from two columns',
-    icon: '⋈',
-    idealBloomLevels: [2, 3],
-    complexity: 'medium'
   },
   open_ended: {
     name: 'Open-Ended',
@@ -87,7 +79,7 @@ export const BLOOM_LEVELS: Record<number, BloomLevelInfo> = {
     description: 'Explain ideas or concepts',
     cognitiveSkills: ['Interpret', 'Summarize', 'Paraphrase', 'Classify', 'Explain'],
     actionVerbs: ['describe', 'explain', 'summarize', 'paraphrase', 'classify', 'compare', 'interpret'],
-    recommendedFormats: ['mcq_single', 'mcq_multi', 'matching']
+    recommendedFormats: ['mcq_single', 'mcq_multi']
   },
   3: {
     level: 3,
@@ -95,7 +87,7 @@ export const BLOOM_LEVELS: Record<number, BloomLevelInfo> = {
     description: 'Use information in new situations',
     cognitiveSkills: ['Execute', 'Implement', 'Solve', 'Use', 'Demonstrate'],
     actionVerbs: ['apply', 'demonstrate', 'solve', 'use', 'implement', 'execute', 'operate'],
-    recommendedFormats: ['mcq_multi', 'matching', 'fill_blank']
+    recommendedFormats: ['mcq_multi', 'fill_blank']
   },
   4: {
     level: 4,
@@ -653,9 +645,6 @@ export function generateQuestionPrompt(
       return generateFillBlankPrompt(context, bloomLevel)
     case 'open_ended':
       return generateOpenEndedPrompt(context, bloomLevel)
-    case 'matching':
-      // TODO: Implement matching prompt
-      throw new Error('Matching format not yet implemented')
     default:
       throw new Error(`Unsupported format: ${format}`)
   }

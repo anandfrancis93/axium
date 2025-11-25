@@ -20,14 +20,9 @@ Axium's Question Format Personalization system enables the RL-based learning eng
 - **Create** → Produce original work
 
 ### Dimension 2: HOW to Learn (Question Format)
-- **MCQ** → Multiple choice with 4 options
-- **True/False** → Binary choice questions
+- **MCQ Single** → Multiple choice with one correct answer
+- **MCQ Multi** → Multiple choice with multiple correct answers
 - **Fill in the Blank** → Complete missing parts
-- **Matching** → Connect related concepts
-- **Code Writing** → Implement solutions
-- **Code Trace** → Predict execution output
-- **Code Debug** → Find and fix bugs
-- **Diagram** → Visual/spatial reasoning
 - **Open Ended** → Essay/explanation with rubric
 
 ---
@@ -38,14 +33,9 @@ Different formats work best at different cognitive levels:
 
 | Format | Bloom Levels | Complexity | Best For |
 |--------|--------------|------------|----------|
-| **True/False** | 1-2 | Low | Quick recall, concept validation |
-| **MCQ** | 1-2 | Low | Factual knowledge, understanding |
+| **MCQ Single** | 1-2 | Low | Factual knowledge, understanding |
+| **MCQ Multi** | 2-4 | Medium | Multiple concepts, deeper understanding |
 | **Fill in Blank** | 1-3 | Low | Term recall, application |
-| **Matching** | 2-3 | Medium | Relationship understanding |
-| **Code Trace** | 3-4 | Medium | Execution understanding, analysis |
-| **Diagram** | 2-4, 6 | Medium | Visual learners, system design |
-| **Code Debug** | 4-5 | High | Problem-solving, evaluation |
-| **Code Writing** | 3-6 | High | Implementation, creation |
 | **Open Ended** | 4-6 | High | Deep analysis, synthesis |
 
 ---
@@ -61,7 +51,7 @@ ADD COLUMN format_metadata JSONB DEFAULT '{}'::jsonb;
 -- Enum type
 CREATE TYPE question_format AS ENUM (
   'mcq_single', 'mcq_multi', 'open_ended',
-  'fill_blank', 'matching'
+  'fill_blank'
 );
 ```
 
@@ -178,13 +168,13 @@ import { getRecommendedFormats } from '@/lib/utils/question-format'
 
 const bloomLevel = 3
 const formats = getRecommendedFormats(bloomLevel)
-// Returns: [fill_blank, matching, mcq_multi, ...]
+// Returns: [fill_blank, mcq_multi, ...]
 
 // Generate question
 await generateQuestion({
   topic: 'SQL Injection',
   bloom_level: 3,
-  question_format: 'matching'
+  question_format: 'mcq_multi'
 })
 ```
 
@@ -193,11 +183,11 @@ await generateQuestion({
 import { QuestionFormatBadge } from '@/components/QuestionFormatBadge'
 
 <QuestionFormatBadge
-  format="matching"
+  format="mcq_single"
   showIcon={true}
   showDescription={true}
 />
-// Shows: ⋈ Matching - "Match related concepts or terms"
+// Shows: ◻ MCQ - Single Select - "Multiple choice with one correct answer"
 ```
 
 ### Query: Get Best Format for User
@@ -254,8 +244,8 @@ User struggles with:
 - System can tune difficulty without changing cognitive level
 - Example: Bloom 3 (Apply)
   - Easy: Fill in blank (70% avg accuracy)
-  - Medium: Matching (60% avg accuracy)
-  - Hard: Code writing (45% avg accuracy)
+  - Medium: MCQ Multi (60% avg accuracy)
+  - Hard: Open ended (45% avg accuracy)
 
 ---
 

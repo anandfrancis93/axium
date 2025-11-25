@@ -169,20 +169,16 @@ export function QuestionCard({
           </div>
         )}
 
-        {/* Matching (simplified - TODO: enhance) */}
-        {question.question_format === 'matching' && (
-          <div className="p-4 neuro-inset rounded-lg text-center text-gray-500">
-            <p>Matching questions coming soon!</p>
-            <p className="text-sm mt-2">For now, please describe your matches below:</p>
-            <textarea
-              value={answer as string}
-              onChange={(e) => handleAnswerChange(e.target.value)}
-              disabled={disabled}
-              placeholder="Example: A-1, B-2, C-3"
-              rows={4}
-              className="neuro-input w-full mt-3"
-            />
-          </div>
+        {/* Fill in Blank (text input) */}
+        {question.question_format === 'fill_blank' && (
+          <textarea
+            value={answer as string}
+            onChange={(e) => handleAnswerChange(e.target.value)}
+            disabled={disabled}
+            placeholder="Enter your answer..."
+            rows={4}
+            className="neuro-input w-full mt-3"
+          />
         )}
       </div>
     </div>
@@ -194,7 +190,6 @@ function formatQuestionType(format: QuestionFormat): string {
     mcq_single: 'Multiple Choice',
     mcq_multi: 'Multiple Select',
     fill_blank: 'Fill in the Blank',
-    matching: 'Matching',
     open_ended: 'Open Ended'
   }
   return types[format] || format

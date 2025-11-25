@@ -1271,7 +1271,6 @@ const formats = getRecommendedFormats(3)  // Returns formats ideal for Apply lev
 | **MCQ - Single** | ◻ | 1-2 | Low | Factual knowledge, one correct answer |
 | **MCQ - Multi** | ☑ | 2-4 | Medium | Multiple correct answers, deeper understanding |
 | **Fill in Blank** | ▭ | 1-3 | Low | Term completion |
-| **Matching** | ⋈ | 2-3 | Medium | Relationships |
 | **Open Ended** | ≡ | 4-6 | High | Essay/analysis |
 
 #### Format Selection Strategy
@@ -1305,15 +1304,15 @@ The RL system uses format performance to personalize learning:
 ```typescript
 // Display format badge
 <QuestionFormatBadge
-  format="matching"
+  format="mcq_single"
   showIcon={true}
   showDescription={true}
 />
 
 // Display format indicator with ideal level check
 <QuestionFormatIndicator
-  format="matching"
-  bloomLevel={3}  // Shows "Ideal for this level" if match
+  format="mcq_single"
+  bloomLevel={2}  // Shows "Ideal for this level" if match
 />
 ```
 
@@ -1358,13 +1357,11 @@ User Profile (Bloom Level 3 - Apply):
   ✅ MCQ Single: 85% accuracy → High effectiveness
   ✅ Fill in Blank: 80% accuracy → Good effectiveness
   ⚠️ MCQ Multi: 65% accuracy → Medium effectiveness
-  ⚠️ Matching: 62% accuracy → Medium effectiveness
 
 System Decision:
-  1. Build confidence with MCQ Single/Fill Blank (65% of questions)
-  2. Challenge with MCQ Multi (20% of questions)
-  3. Introduce Matching (15% of questions)
-  4. Monitor and adjust based on performance
+  1. Build confidence with MCQ Single/Fill Blank (70% of questions)
+  2. Challenge with MCQ Multi (30% of questions)
+  3. Monitor and adjust based on performance
 
 Note: MCQ Multi serves as a "stepping stone" - harder than MCQ Single but tests deeper understanding.
 ```

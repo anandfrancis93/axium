@@ -450,8 +450,8 @@ export async function batchGenerateQuestions(
 function getRecommendedFormatsForBloom(bloomLevel: number): QuestionFormat[] {
   const formatMap: Record<number, QuestionFormat[]> = {
     1: ['mcq_single', 'fill_blank'],
-    2: ['mcq_single', 'mcq_multi', 'matching'],
-    3: ['mcq_multi', 'matching', 'fill_blank'],
+    2: ['mcq_single', 'mcq_multi'],
+    3: ['mcq_multi', 'fill_blank'],
     4: ['mcq_multi', 'open_ended'],
     5: ['mcq_multi', 'open_ended'],
     6: ['open_ended']

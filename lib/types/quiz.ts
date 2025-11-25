@@ -8,7 +8,6 @@ export type QuestionFormat =
   | 'mcq_single'
   | 'mcq_multi'
   | 'fill_blank'
-  | 'matching'
   | 'open_ended'
 
 export type RecognitionMethod =

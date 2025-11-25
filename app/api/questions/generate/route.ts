@@ -95,12 +95,6 @@ const FORMAT_INSTRUCTIONS: Record<string, string> = {
 - Provide 4 possible answers to complete the blank
 - The correct answer should fit naturally in the sentence`,
 
-  matching: `QUESTION FORMAT: Matching
-- Present the question as "Match the following:"
-- Provide 4 items that need to be matched
-- Options should be the correct matches labeled A, B, C, D
-- Indicate all correct pairings in the explanation`,
-
   code: `QUESTION FORMAT: Code Writing
 - Ask student to write or complete code
 - Provide 4 different code solutions (some correct, some with subtle bugs)

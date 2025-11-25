@@ -172,8 +172,6 @@ function mapFormatToType(format: QuestionFormat): string {
       return 'multiple_choice'
     case 'fill_blank':
       return 'fill_in_blank'
-    case 'matching':
-      return 'matching'
     case 'open_ended':
       return 'short_answer'
     default:

@@ -5,7 +5,6 @@ export type QuestionFormat =
   | 'mcq_multi'
   | 'open_ended'
   | 'fill_blank'
-  | 'matching'
 
 export interface QuestionFormatInfo {
   key: QuestionFormat
@@ -44,15 +43,6 @@ export const QUESTION_FORMATS: Record<QuestionFormat, QuestionFormatInfo> = {
     icon: '▭',
     idealBloomLevels: [1, 2, 3],  // Remember, Understand, Apply
     complexity: 'low'
-  },
-  matching: {
-    key: 'matching',
-    name: 'Matching',
-    description: 'Match related concepts or terms',
-    color: 'text-green-400',
-    icon: '⋈',
-    idealBloomLevels: [2, 3],  // Understand, Apply
-    complexity: 'medium'
   },
   open_ended: {
     key: 'open_ended',
