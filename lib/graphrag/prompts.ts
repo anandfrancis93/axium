@@ -528,11 +528,52 @@ VALIDATION CHECKLIST (review before submitting):
 4. Does the statement test understanding, not just careful reading?
 5. Could a knowledgeable student confidently answer without hesitation?
 
-Return ONLY valid JSON in this exact format (no markdown, no code blocks):
+⚠️ CRITICAL: TRUE/FALSE BALANCE REQUIREMENT ⚠️
+You MUST generate False answers approximately 50% of the time.
+To ensure balance, use this decision rule:
+- Roll a mental coin: if heads, create a TRUE statement; if tails, create a FALSE statement
+- For FALSE statements: Take a true fact and ALTER ONE KEY ELEMENT to make it false
+- The false statement must still sound plausible (not obviously wrong)
+
+FEW-SHOT EXAMPLES (study these carefully):
+
+EXAMPLE 1 - TRUE STATEMENT:
+Topic: "Symmetric Encryption"
 {
-  "question": "Statement about the topic.",
+  "question": "Symmetric encryption uses the same key for both encryption and decryption.",
   "correctAnswer": "True",
-  "explanation": "This statement is true/false because..."
+  "explanation": "Symmetric encryption algorithms like AES use a single shared key for both encrypting and decrypting data. This is what distinguishes symmetric from asymmetric encryption, where different keys are used."
+}
+
+EXAMPLE 2 - FALSE STATEMENT (key term altered):
+Topic: "Firewall"
+{
+  "question": "A firewall operates at the application layer only.",
+  "correctAnswer": "False",
+  "explanation": "This statement is false because firewalls can operate at multiple layers of the OSI model. While application-layer firewalls exist, traditional packet-filtering firewalls operate at the network layer (Layer 3), and stateful firewalls operate at the transport layer (Layer 4)."
+}
+
+EXAMPLE 3 - FALSE STATEMENT (relationship reversed):
+Topic: "Public Key Infrastructure"
+{
+  "question": "In PKI, the private key is shared with all communication partners.",
+  "correctAnswer": "False",
+  "explanation": "This statement is false because in PKI, the PRIVATE key must be kept secret and never shared. It is the PUBLIC key that is shared with communication partners. The private key is used to decrypt data encrypted with the corresponding public key."
+}
+
+EXAMPLE 4 - FALSE STATEMENT (wrong attribute):
+Topic: "Hashing"
+{
+  "question": "Hashing is a reversible process that allows original data to be recovered.",
+  "correctAnswer": "False",
+  "explanation": "This statement is false because hashing is a ONE-WAY function. By design, cryptographic hash functions cannot be reversed to recover the original input. This irreversibility is what makes hashing useful for password storage and integrity verification."
+}
+
+Now generate YOUR question. Return ONLY valid JSON in this exact format (no markdown, no code blocks):
+{
+  "question": "Your statement here.",
+  "correctAnswer": "True or False",
+  "explanation": "Why this is true/false..."
 }`
 }
 

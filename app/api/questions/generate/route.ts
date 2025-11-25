@@ -95,19 +95,41 @@ const FORMAT_INSTRUCTIONS: Record<string, string> = {
 - The statement should be clearly true or false based on the context
 - Avoid ambiguous wording
 
-CRITICAL BALANCE REQUIREMENT:
-- RANDOMLY decide if the answer should be True or False - DO NOT default to True
-- If generating multiple questions, ensure roughly 50/50 split between True and False answers
-- Track your answers: aim for equal distribution (e.g., if you've generated 3 True, next should be False)
+⚠️ CRITICAL: YOU MUST GENERATE FALSE ANSWERS 50% OF THE TIME ⚠️
+Claude has a strong bias toward generating TRUE statements. You MUST actively counteract this.
+
+FEW-SHOT EXAMPLES (study these - 3 out of 4 are FALSE to counteract your bias):
+
+EXAMPLE 1 - FALSE (key term altered):
+Topic: "Symmetric Encryption"
+Statement: "Symmetric encryption uses different keys for encryption and decryption."
+Correct Answer: False
+Explanation: "This is false. Symmetric encryption uses the SAME key for both encryption and decryption - that's what makes it 'symmetric'. Asymmetric encryption uses different keys."
+
+EXAMPLE 2 - FALSE (relationship reversed):
+Topic: "Public Key Infrastructure"
+Statement: "In PKI, the private key is distributed to all communication partners."
+Correct Answer: False
+Explanation: "This is false. The PRIVATE key must be kept secret. It is the PUBLIC key that is shared with partners."
+
+EXAMPLE 3 - FALSE (wrong attribute):
+Topic: "Hashing"
+Statement: "Hashing is a reversible process that allows recovery of original data."
+Correct Answer: False
+Explanation: "This is false. Hashing is a ONE-WAY function by design - it cannot be reversed."
+
+EXAMPLE 4 - TRUE:
+Topic: "Firewall"
+Statement: "A firewall monitors and controls incoming and outgoing network traffic."
+Correct Answer: True
+Explanation: "This is true. A firewall's core function is to monitor network traffic and enforce security policies."
 
 HOW TO CREATE FALSE STATEMENTS:
-- Take a true fact from the context and subtly alter ONE key element (e.g., swap a term, reverse a relationship, change a number)
-- Make it plausible but incorrect (not obviously absurd)
-- Examples of good alterations:
-  * "Encryption ensures availability" (changed CIA triad component)
-  * "Firewalls operate at Layer 2" (changed OSI layer)
-  * "AES uses asymmetric encryption" (changed encryption type)
-- Avoid: completely made-up terms, nonsensical statements, or mixing unrelated domains`,
+- Take a true fact from the context and subtly alter ONE key element:
+  * Swap a term: "confidentiality" → "availability"
+  * Reverse a relationship: "encrypts" → "decrypts"
+  * Change a number/layer: "Layer 3" → "Layer 2"
+- Make it plausible but incorrect (not obviously absurd)`,
 
   fill_blank: `QUESTION FORMAT: Fill in the Blank
 - Create a statement with a missing key term or concept (use _____)
@@ -437,11 +459,18 @@ SELF-CORRECTION STEP (Perform this internally before outputting):
 ${tfInstruction}
 
 FORMAT YOUR RESPONSE AS VALID JSON:
+${question_format === 'true_false' ? `
+⚠️ REMINDER: You are REQUIRED to generate a ${targetTFAnswer} statement.
+${targetTFAnswer === 'False' ?
+`To make it FALSE: Take a true fact and ALTER one element (swap terms, reverse relationships, change numbers).
+Example: If the true fact is "AES uses symmetric encryption", make it FALSE by saying "AES uses asymmetric encryption".` :
+`State a correct fact from the context.`}
+
 {
   "questions": [
     {
       "target_answer": "${targetTFAnswer}",
-      "question_text": "The question text here?",
+      "question_text": "A statement that is ${targetTFAnswer}.",
       "options": {
         "A": "True",
         "B": "False"
@@ -452,10 +481,31 @@ FORMAT YOUR RESPONSE AS VALID JSON:
       },
       "length_check_passed": true,
       "correct_answer": "${targetTFAnswer}",
-      "explanation": "Brief explanation of why it is ${targetTFAnswer}"
+      "explanation": "This is ${targetTFAnswer.toLowerCase()} because..."
     }
   ]
-}
+}` : `{
+  "questions": [
+    {
+      "question_text": "The question text here?",
+      "options": {
+        "A": "Option A text",
+        "B": "Option B text",
+        "C": "Option C text",
+        "D": "Option D text"
+      },
+      "option_word_counts": {
+        "A": 5,
+        "B": 5,
+        "C": 5,
+        "D": 5
+      },
+      "length_check_passed": true,
+      "correct_answer": "A",
+      "explanation": "Brief explanation"
+    }
+  ]
+}`}
 
 Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other text.`
 
@@ -467,7 +517,8 @@ Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other 
       model: 'claude-sonnet-4-5',
       max_tokens: 4000,
       temperature: 0.7,
-      system: 'You are an expert educator. Always respond with valid JSON only. You MUST strictly adhere to the "Target Answer" for True/False questions.',
+      system: `You are an expert educator. Always respond with valid JSON only.
+CRITICAL FOR TRUE/FALSE: You have a bias toward generating TRUE statements. When the target_answer is "False", you MUST create a FALSE statement by altering a true fact. Do NOT generate a true statement when False is required.`,
       messages: [
         {
           role: 'user',
