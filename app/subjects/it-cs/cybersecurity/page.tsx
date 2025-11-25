@@ -133,25 +133,12 @@ export default function CybersecurityPage() {
       // Refresh the page to show empty state
       await fetchTopicsProgress()
 
-      // Show detailed message
-      const hasUserData = (result.progressRecords || 0) > 0 || (result.responseRecords || 0) > 0
-      const hasQuestions = (result.questionsRecords || 0) > 0
-
+      // Show clean message
       let message = ''
       if (result.deletedCount === 0) {
-        message = 'No records found to delete. You haven\'t started any quizzes yet for Cybersecurity topics.'
-      } else if (!hasUserData && hasQuestions) {
-        // Only questions deleted, no user progress/responses
-        message = `Deleted ${result.questionsRecords} generated question(s).\n\nNote: You generated questions but didn't answer any yet.`
+        message = 'No data to reset. You haven\'t started learning yet.'
       } else {
-        // Has user data (and possibly questions)
-        const details = [
-          result.progressRecords > 0 ? `${result.progressRecords} progress record(s)` : null,
-          result.responseRecords > 0 ? `${result.responseRecords} response(s)` : null,
-          result.questionsRecords > 0 ? `${result.questionsRecords} generated question(s)` : null
-        ].filter(Boolean).join(', ')
-
-        message = `Successfully deleted ${details}.`
+        message = 'Your progress has been reset.\n\nYou can now start fresh with a clean slate.'
       }
 
       setSuccessMessage(message)
