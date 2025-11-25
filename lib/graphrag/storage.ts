@@ -51,7 +51,7 @@ export interface StorageResult {
  * Calculate difficulty level based on Bloom level and format
  */
 function calculateDifficultyLevel(bloomLevel: number, format: QuestionFormat): string {
-  if (bloomLevel <= 2 && (format === 'mcq_single' || format === 'true_false')) {
+  if (bloomLevel <= 2 && format === 'mcq_single') {
     return 'easy'
   } else if (bloomLevel <= 3 || format === 'mcq_multi' || format === 'fill_blank') {
     return 'medium'
@@ -170,8 +170,6 @@ function mapFormatToType(format: QuestionFormat): string {
     case 'mcq_single':
     case 'mcq_multi':
       return 'multiple_choice'
-    case 'true_false':
-      return 'true_false'
     case 'fill_blank':
       return 'fill_in_blank'
     case 'matching':

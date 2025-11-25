@@ -87,7 +87,6 @@ Generate a question using GraphRAG context from Neo4j knowledge graph.
 **Question Formats:**
 - `mcq_single` - Multiple choice, single correct answer
 - `mcq_multi` - Multiple choice, multiple correct answers
-- `true_false` - True/False question
 - `fill_blank` - Fill in the blank
 - `open_ended` - Open-ended essay question
 - `matching` - Matching (not yet implemented)
@@ -513,7 +512,7 @@ for (let i = 0; i < 5; i++) {
 
 | Bloom Level | Recommended Formats |
 |-------------|---------------------|
-| 1-2 (Lower) | `mcq_single`, `true_false`, `fill_blank` |
+| 1-2 (Lower) | `mcq_single`, `fill_blank` |
 | 3-4 (Middle) | `mcq_multi`, `matching` |
 | 5-6 (Higher) | `open_ended`, `mcq_multi` |
 

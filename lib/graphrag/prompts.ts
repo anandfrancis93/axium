@@ -10,7 +10,6 @@ import { GraphRAGContext } from './context'
 export type QuestionFormat =
   | 'mcq_single'      // Multiple choice - single answer
   | 'mcq_multi'       // Multiple choice - multiple answers ("select all that apply")
-  | 'true_false'      // True/False
   | 'fill_blank'      // Fill in the blank
   | 'matching'        // Matching pairs
   | 'open_ended'      // Essay/short answer
@@ -37,13 +36,6 @@ export const QUESTION_FORMATS: Record<QuestionFormat, QuestionFormatInfo> = {
     icon: '☑',
     idealBloomLevels: [2, 3, 4],
     complexity: 'medium'
-  },
-  true_false: {
-    name: 'True/False',
-    description: 'Binary true or false question',
-    icon: '◐',
-    idealBloomLevels: [1, 2],
-    complexity: 'low'
   },
   fill_blank: {
     name: 'Fill in the Blank',
@@ -87,7 +79,7 @@ export const BLOOM_LEVELS: Record<number, BloomLevelInfo> = {
     description: 'Recall facts and basic concepts',
     cognitiveSkills: ['Recognize', 'Recall', 'Identify', 'Define', 'List'],
     actionVerbs: ['define', 'identify', 'list', 'name', 'recall', 'recognize', 'state'],
-    recommendedFormats: ['mcq_single', 'true_false', 'fill_blank']
+    recommendedFormats: ['mcq_single', 'fill_blank']
   },
   2: {
     level: 2,
@@ -462,122 +454,6 @@ Return ONLY valid JSON in this exact format (no markdown, no code blocks):
 }
 
 /**
- * Generate True/False prompt
- */
-function generateTrueFalsePrompt(context: GraphRAGContext, bloomLevel: number): string {
-  const bloomInfo = BLOOM_LEVELS[bloomLevel]
-
-  return `You are an expert cybersecurity educator creating a true/false question.
-
-CONTEXT:
-${formatContext(context)}
-
-REQUIREMENTS:
-- Bloom Taxonomy Level: ${bloomLevel} - ${bloomInfo.name} (${bloomInfo.description})
-- Question Format: True or False
-- Cognitive Skills: ${bloomInfo.cognitiveSkills.join(', ')}
-
-INSTRUCTIONS:
-1. Create a statement that defines, describes, or characterizes "${context.name}"
-2. The statement should be definitively true OR false about "${context.name}" itself
-3. The statement should test ${bloomInfo.name.toLowerCase()} skills about "${context.name}"
-4. Avoid ambiguous wording
-5. Provide a clear explanation
-
-CRITICAL RULE - TEST THE TOPIC:
-- The statement must be ABOUT "${context.name}" itself
-- Acceptable: "${context.name} is a type of..." (tests if student knows what it is)
-- Acceptable: "${context.name} provides protection for..." (tests if student knows its purpose)
-- AVOID: Mentioning "${context.name}" but making a statement about something else
-
-QUALITY CONTROLS - ANTI-TELL-TALE RULES:
-❌ NEVER use these patterns (they give away answers):
-- Absolute terms ("always", "never", "only", "all", "none", "every") ONLY in false statements
-- Complex multi-part statements ONLY for false statements (making them easier to disprove)
-- Vague or ambiguous language that could be interpreted either way
-- Overly long statements (>25 words) that signal false answers
-- Double negatives that confuse rather than test understanding
-- Statements with multiple conditions joined by "and" (easier to make false)
-
-❌ NEVER reference source materials in questions OR explanations:
-- Do NOT include "in the context of [source]" (e.g., "CompTIA Security+ SY0-701")
-- Do NOT mention textbook names, certification exams, or course codes
-- Do NOT reference learning objectives or domains by name
-- Do NOT say "as defined in the [curriculum]" or "according to [certification]"
-- Write questions AND explanations as if they are standalone educational content
-- Focus on the TOPIC and CONCEPTS, not the source they came from
-
-✅ EXPLANATION QUALITY:
-- Explain WHY the correct answer is right using clear reasoning
-- Do NOT cite external sources, curriculums, or certifications
-- Use phrases like "This is correct because..." not "According to [source]..."
-- Focus on conceptual understanding, not memorization of source material
-
-✅ REQUIRED quality standards:
-- Statement must be unambiguously true or false (no edge cases)
-- Use absolute terms ("always", "never") equally in both true and false statements
-- Statement should be similar complexity whether true or false (10-20 words)
-- Test understanding of core concepts, not tricky wording
-- Avoid negatives if possible (test positive knowledge)
-- If using negatives, use them equally in true and false statements
-
-VALIDATION CHECKLIST (review before submitting):
-1. Is the statement definitively true/false with no exceptions?
-2. Does the statement use neutral language without absolute-term bias?
-3. Would the statement length/complexity give away the answer?
-4. Does the statement test understanding, not just careful reading?
-5. Could a knowledgeable student confidently answer without hesitation?
-
-⚠️ CRITICAL: TRUE/FALSE BALANCE REQUIREMENT ⚠️
-You MUST generate False answers approximately 50% of the time.
-To ensure balance, use this decision rule:
-- Roll a mental coin: if heads, create a TRUE statement; if tails, create a FALSE statement
-- For FALSE statements: Take a true fact and ALTER ONE KEY ELEMENT to make it false
-- The false statement must still sound plausible (not obviously wrong)
-
-FEW-SHOT EXAMPLES (study these carefully):
-
-EXAMPLE 1 - TRUE STATEMENT:
-Topic: "Symmetric Encryption"
-{
-  "question": "Symmetric encryption uses the same key for both encryption and decryption.",
-  "correctAnswer": "True",
-  "explanation": "Symmetric encryption algorithms like AES use a single shared key for both encrypting and decrypting data. This is what distinguishes symmetric from asymmetric encryption, where different keys are used."
-}
-
-EXAMPLE 2 - FALSE STATEMENT (key term altered):
-Topic: "Firewall"
-{
-  "question": "A firewall operates at the application layer only.",
-  "correctAnswer": "False",
-  "explanation": "This statement is false because firewalls can operate at multiple layers of the OSI model. While application-layer firewalls exist, traditional packet-filtering firewalls operate at the network layer (Layer 3), and stateful firewalls operate at the transport layer (Layer 4)."
-}
-
-EXAMPLE 3 - FALSE STATEMENT (relationship reversed):
-Topic: "Public Key Infrastructure"
-{
-  "question": "In PKI, the private key is shared with all communication partners.",
-  "correctAnswer": "False",
-  "explanation": "This statement is false because in PKI, the PRIVATE key must be kept secret and never shared. It is the PUBLIC key that is shared with communication partners. The private key is used to decrypt data encrypted with the corresponding public key."
-}
-
-EXAMPLE 4 - FALSE STATEMENT (wrong attribute):
-Topic: "Hashing"
-{
-  "question": "Hashing is a reversible process that allows original data to be recovered.",
-  "correctAnswer": "False",
-  "explanation": "This statement is false because hashing is a ONE-WAY function. By design, cryptographic hash functions cannot be reversed to recover the original input. This irreversibility is what makes hashing useful for password storage and integrity verification."
-}
-
-Now generate YOUR question. Return ONLY valid JSON in this exact format (no markdown, no code blocks):
-{
-  "question": "Your statement here.",
-  "correctAnswer": "True or False",
-  "explanation": "Why this is true/false..."
-}`
-}
-
-/**
  * Generate Fill in the Blank prompt
  */
 function generateFillBlankPrompt(context: GraphRAGContext, bloomLevel: number): string {
@@ -773,8 +649,6 @@ export function generateQuestionPrompt(
       return generateMCQSinglePrompt(context, bloomLevel)
     case 'mcq_multi':
       return generateMCQMultiPrompt(context, bloomLevel)
-    case 'true_false':
-      return generateTrueFalsePrompt(context, bloomLevel)
     case 'fill_blank':
       return generateFillBlankPrompt(context, bloomLevel)
     case 'open_ended':

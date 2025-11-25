@@ -61,7 +61,7 @@ ADD COLUMN format_metadata JSONB DEFAULT '{}'::jsonb;
 -- Enum type
 CREATE TYPE question_format AS ENUM (
   'mcq_single', 'mcq_multi', 'open_ended',
-  'fill_blank', 'true_false', 'matching'
+  'fill_blank', 'matching'
 );
 ```
 
@@ -76,7 +76,7 @@ CREATE TYPE question_format AS ENUM (
         "correct": 8,
         "avg_confidence": 0.75
       },
-      "true_false": {
+      "fill_blank": {
         "attempts": 5,
         "correct": 4,
         "avg_confidence": 0.80
@@ -85,7 +85,7 @@ CREATE TYPE question_format AS ENUM (
     "2": { /* ... */ }
   },
   "format_preferences": {
-    "most_effective": ["mcq_single", "true_false"],
+    "most_effective": ["mcq_single", "fill_blank"],
     "least_effective": ["open_ended"],
     "confidence_by_format": {
       "mcq_single": 0.75,

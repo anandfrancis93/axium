@@ -23,7 +23,6 @@ export function getAvailableRecognitionMethods(format: QuestionFormat): Recognit
 
     case 'mcq_single':
     case 'mcq_multi':
-    case 'true_false':
     case 'fill_blank':
     case 'matching':
       // These formats have options/choices that can be recognized
@@ -56,7 +55,6 @@ export function getDefaultRecognitionMethod(format: QuestionFormat): Recognition
       return 'educated_guess'  // Most common for open-ended
     case 'mcq_single':
     case 'mcq_multi':
-    case 'true_false':
       return 'recognition'  // Most common for MCQ-style
     case 'fill_blank':
     case 'matching':

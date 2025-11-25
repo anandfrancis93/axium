@@ -218,7 +218,7 @@ CREATE TABLE user_responses (
   is_correct BOOLEAN NOT NULL,
 
   -- Question format
-  question_format TEXT,  -- 'mcq_single', 'mcq_multi', 'true_false', 'fill_blank', 'matching', 'open_ended'
+  question_format TEXT,  -- 'mcq_single', 'mcq_multi', 'fill_blank', 'matching', 'open_ended'
 
   -- User's self-reported confidence (1-3 scale: Low=1, Medium=2, High=3)
   confidence INTEGER CHECK (confidence IN (1, 2, 3)),

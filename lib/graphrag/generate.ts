@@ -124,12 +124,6 @@ function parseClaudeResponse(responseText: string, format: QuestionFormat, conte
       }
       break
 
-    case 'true_false':
-      if (!parsed.correctAnswer || !['True', 'False'].includes(parsed.correctAnswer)) {
-        throw new QuestionGenerationError('True/False must have correctAnswer "True" or "False"', null, true)
-      }
-      break
-
     case 'fill_blank':
       if (!parsed.correctAnswer || typeof parsed.correctAnswer !== 'string') {
         throw new QuestionGenerationError('Fill blank must have correctAnswer string', null, true)
@@ -293,8 +287,6 @@ export async function generateQuestion(
     } else if (format === 'mcq_multi') {
       questionResult.options = parsed.options
       questionResult.correctAnswers = parsed.correctAnswers
-    } else if (format === 'true_false') {
-      questionResult.correctAnswer = parsed.correctAnswer
     } else if (format === 'fill_blank') {
       questionResult.correctAnswer = parsed.correctAnswer
       questionResult.acceptableAnswers = parsed.acceptableAnswers || [parsed.correctAnswer]
@@ -457,7 +449,7 @@ export async function batchGenerateQuestions(
  */
 function getRecommendedFormatsForBloom(bloomLevel: number): QuestionFormat[] {
   const formatMap: Record<number, QuestionFormat[]> = {
-    1: ['mcq_single', 'true_false', 'fill_blank'],
+    1: ['mcq_single', 'fill_blank'],
     2: ['mcq_single', 'mcq_multi', 'matching'],
     3: ['mcq_multi', 'matching', 'fill_blank'],
     4: ['mcq_multi', 'open_ended'],

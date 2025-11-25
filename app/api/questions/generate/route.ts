@@ -90,47 +90,6 @@ const FORMAT_INSTRUCTIONS: Record<string, string> = {
 - Indicate in correct_answer field as array: ["B", "D"] or comma-separated: "B,D"
 - This tests deeper understanding - students must identify ALL correct options`,
 
-  true_false: `QUESTION FORMAT: True/False
-- Provide exactly 2 options: "True" and "False"
-- The statement should be clearly true or false based on the context
-- Avoid ambiguous wording
-
-⚠️ CRITICAL: YOU MUST GENERATE FALSE ANSWERS 50% OF THE TIME ⚠️
-Claude has a strong bias toward generating TRUE statements. You MUST actively counteract this.
-
-FEW-SHOT EXAMPLES (study these - 3 out of 4 are FALSE to counteract your bias):
-
-EXAMPLE 1 - FALSE (key term altered):
-Topic: "Symmetric Encryption"
-Statement: "Symmetric encryption uses different keys for encryption and decryption."
-Correct Answer: False
-Explanation: "This is false. Symmetric encryption uses the SAME key for both encryption and decryption - that's what makes it 'symmetric'. Asymmetric encryption uses different keys."
-
-EXAMPLE 2 - FALSE (relationship reversed):
-Topic: "Public Key Infrastructure"
-Statement: "In PKI, the private key is distributed to all communication partners."
-Correct Answer: False
-Explanation: "This is false. The PRIVATE key must be kept secret. It is the PUBLIC key that is shared with partners."
-
-EXAMPLE 3 - FALSE (wrong attribute):
-Topic: "Hashing"
-Statement: "Hashing is a reversible process that allows recovery of original data."
-Correct Answer: False
-Explanation: "This is false. Hashing is a ONE-WAY function by design - it cannot be reversed."
-
-EXAMPLE 4 - TRUE:
-Topic: "Firewall"
-Statement: "A firewall monitors and controls incoming and outgoing network traffic."
-Correct Answer: True
-Explanation: "This is true. A firewall's core function is to monitor network traffic and enforce security policies."
-
-HOW TO CREATE FALSE STATEMENTS:
-- Take a true fact from the context and subtly alter ONE key element:
-  * Swap a term: "confidentiality" → "availability"
-  * Reverse a relationship: "encrypts" → "decrypts"
-  * Change a number/layer: "Layer 3" → "Layer 2"
-- Make it plausible but incorrect (not obviously absurd)`,
-
   fill_blank: `QUESTION FORMAT: Fill in the Blank
 - Create a statement with a missing key term or concept (use _____)
 - Provide 4 possible answers to complete the blank
@@ -335,23 +294,6 @@ export async function POST(request: NextRequest) {
 
     const dimensionInstructions = COGNITIVE_DIMENSIONS[cognitive_dimension]
 
-    // Quality Control 1: True/False Balance
-    // Randomly decide if we want a True or False question to ensure 50/50 distribution
-    const targetTFAnswer = Math.random() < 0.5 ? 'True' : 'False'
-    let tfInstruction = ''
-    if (question_format === 'true_false') {
-      tfInstruction = `
-**TRUE/FALSE MANDATE (CRITICAL):**
-You are REQUIRED to generate a question where the correct answer is **${targetTFAnswer}**.
-Target Answer: ${targetTFAnswer}
-${targetTFAnswer === 'False' ? '-> You MUST take a true fact from the context and subtly alter it to make it FALSE. Do not generate a True statement.' : '-> Use a correct fact from the context.'}
--> TRANSFORMATION EXAMPLE (How to make it False):
-   Fact: "TCP is a connection-oriented protocol."
-   False Question: "TCP is a connectionless protocol." (Swapped "connection-oriented" with "connectionless")
--> You MUST set the "target_answer" field in the JSON to "${targetTFAnswer}".
-`
-    }
-
     const prompt = `You are an expert educator creating assessment questions for students studying cybersecurity.
 
 BLOOM'S TAXONOMY LEVEL: ${bloomLevelNum} - ${bloomDescription}
@@ -465,39 +407,9 @@ SELF-CORRECTION STEP (Perform this internally before outputting):
    -> IF YES: Rewrite the question.
 3. Check distractors: Are they plausible concepts?
    -> IF NO: Replace with better related terms.
-4. Check True/False Balance: If generating True/False questions, did you default to "True"?
-   -> IF YES: You MUST flip it to "False" by subtly altering a key fact.
-   -> AIM FOR: 60% False answers to counterbalance your natural bias towards True.
-
-${tfInstruction}
 
 FORMAT YOUR RESPONSE AS VALID JSON:
-${question_format === 'true_false' ? `
-⚠️ REMINDER: You are REQUIRED to generate a ${targetTFAnswer} statement.
-${targetTFAnswer === 'False' ?
-`To make it FALSE: Take a true fact and ALTER one element (swap terms, reverse relationships, change numbers).
-Example: If the true fact is "AES uses symmetric encryption", make it FALSE by saying "AES uses asymmetric encryption".` :
-`State a correct fact from the context.`}
-
 {
-  "questions": [
-    {
-      "target_answer": "${targetTFAnswer}",
-      "question_text": "A statement that is ${targetTFAnswer}.",
-      "options": {
-        "A": "True",
-        "B": "False"
-      },
-      "option_word_counts": {
-        "A": 1,
-        "B": 1
-      },
-      "length_check_passed": true,
-      "correct_answer": "${targetTFAnswer}",
-      "explanation": "This is ${targetTFAnswer.toLowerCase()} because..."
-    }
-  ]
-}` : `{
   "questions": [
     {
       "question_text": "The question text here?",
@@ -518,7 +430,7 @@ Example: If the true fact is "AES uses symmetric encryption", make it FALSE by s
       "explanation": "Brief explanation"
     }
   ]
-}`}
+}
 
 Generate exactly ${num_questions} question(s). Return ONLY valid JSON, no other text.`
 

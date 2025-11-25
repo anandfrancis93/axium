@@ -5,7 +5,6 @@ export type QuestionFormat =
   | 'mcq_multi'
   | 'open_ended'
   | 'fill_blank'
-  | 'true_false'
   | 'matching'
 
 export interface QuestionFormatInfo {
@@ -36,15 +35,6 @@ export const QUESTION_FORMATS: Record<QuestionFormat, QuestionFormatInfo> = {
     icon: '☑',
     idealBloomLevels: [2, 3, 4],  // Understand, Apply, Analyze - requires deeper understanding
     complexity: 'medium'
-  },
-  true_false: {
-    key: 'true_false',
-    name: 'True/False',
-    description: 'Binary choice questions for quick assessment',
-    color: 'text-gray-400',
-    icon: '◐',
-    idealBloomLevels: [1, 2],  // Remember, Understand
-    complexity: 'low'
   },
   fill_blank: {
     key: 'fill_blank',

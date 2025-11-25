@@ -147,30 +147,6 @@ export function QuestionCard({
           </div>
         )}
 
-        {/* True/False */}
-        {question.question_format === 'true_false' && (
-          <div className="flex gap-4">
-            {['True', 'False'].map((option) => (
-              <button
-                key={option}
-                type="button"
-                onClick={() => handleAnswerChange(option)}
-                disabled={disabled}
-                className={`
-                  flex-1 transition-all
-                  ${answer === option
-                    ? 'neuro-raised text-blue-400'
-                    : 'neuro-inset text-gray-300'
-                  }
-                  ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}
-                `}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
-        )}
-
         {/* Open Ended (essay-style answer) */}
         {question.question_format === 'open_ended' && (
           <div>
@@ -215,7 +191,6 @@ export function QuestionCard({
 
 function formatQuestionType(format: QuestionFormat): string {
   const types: Record<QuestionFormat, string> = {
-    true_false: 'True/False',
     mcq_single: 'Multiple Choice',
     mcq_multi: 'Multiple Select',
     fill_blank: 'Fill in the Blank',
