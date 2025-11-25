@@ -142,12 +142,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Save question permanently for spaced repetition (if not already saved)
-    // Calculate and get next review date
-    const nextReviewDate = calculateNextReviewDate(calibrationScore)
-
-    await saveQuestionForSpacedRepetition(
+    // Save question and user-specific review date for spaced repetition
+    const nextReviewDate = await saveQuestionForSpacedRepetition(
       supabase,
+      user.id,
       questionId,
       question,
       calibrationScore
@@ -679,39 +677,30 @@ async function updateUserProgress(
 }
 
 /**
- * Save question permanently for spaced repetition
- * Calculates next_review_date based on calibration score
+ * Save question and user-specific review date for spaced repetition
+ *
+ * 1. Ensures question exists in questions table (for reference)
+ * 2. Upserts user_question_reviews with per-user next_review_date
  */
 async function saveQuestionForSpacedRepetition(
   supabase: any,
+  userId: string,
   questionId: string,
   question: any,
   calibrationScore: number
-) {
+): Promise<Date> {
+  const nextReviewDate = calculateNextReviewDate(calibrationScore)
+
   try {
-    // Check if question already exists
+    // Step 1: Ensure question exists in questions table
     const { data: existingQuestion } = await supabase
       .from('questions')
       .select('id')
       .eq('id', questionId)
       .single()
 
-    const nextReviewDate = calculateNextReviewDate(calibrationScore)
-
-    if (existingQuestion) {
-      // Update existing question's next_review_date
-      const { error: updateError } = await supabase
-        .from('questions')
-        .update({ next_review_date: nextReviewDate.toISOString() })
-        .eq('id', questionId)
-
-      if (updateError) {
-        console.error('[Spaced Repetition] Error updating next_review_date:', updateError)
-      } else {
-        // Log removed
-      }
-    } else {
-      // Insert new question
+    if (!existingQuestion) {
+      // Insert question (without user-specific review date)
       const { error: insertError } = await supabase
         .from('questions')
         .insert({
@@ -725,18 +714,58 @@ async function saveQuestionForSpacedRepetition(
           correct_answer: question.correct_answer,
           explanation: question.explanation || null,
           rag_context: question.rag_context || null,
-          source_type: 'ai_generated_realtime',
-          next_review_date: nextReviewDate.toISOString()
+          source_type: 'ai_generated_realtime'
         })
 
       if (insertError) {
         console.error('[Spaced Repetition] Error saving question:', insertError)
-      } else {
-        // Log removed
+        return nextReviewDate // Still return the date even if save failed
+      }
+    }
+
+    // Step 2: Upsert user-specific review date
+    const { data: existingReview } = await supabase
+      .from('user_question_reviews')
+      .select('id, review_count')
+      .eq('user_id', userId)
+      .eq('question_id', questionId)
+      .single()
+
+    if (existingReview) {
+      // Update existing review
+      const { error: updateError } = await supabase
+        .from('user_question_reviews')
+        .update({
+          next_review_date: nextReviewDate.toISOString(),
+          review_count: (existingReview.review_count || 0) + 1,
+          last_reviewed_at: new Date().toISOString()
+        })
+        .eq('user_id', userId)
+        .eq('question_id', questionId)
+
+      if (updateError) {
+        console.error('[Spaced Repetition] Error updating user review:', updateError)
+      }
+    } else {
+      // Insert new review
+      const { error: insertError } = await supabase
+        .from('user_question_reviews')
+        .insert({
+          user_id: userId,
+          question_id: questionId,
+          next_review_date: nextReviewDate.toISOString(),
+          review_count: 1,
+          last_reviewed_at: new Date().toISOString()
+        })
+
+      if (insertError) {
+        console.error('[Spaced Repetition] Error inserting user review:', insertError)
       }
     }
   } catch (error) {
     console.error('[Spaced Repetition] Error in saveQuestionForSpacedRepetition:', error)
     // Don't throw - this is non-critical, shouldn't block submission
   }
+
+  return nextReviewDate
 }

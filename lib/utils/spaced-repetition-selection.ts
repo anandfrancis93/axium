@@ -7,7 +7,9 @@
 import { CognitiveDimension } from './cognitive-dimensions'
 
 /**
- * Fetch spaced repetition questions that are due for review
+ * Fetch spaced repetition questions that are due for review FOR THIS USER
+ *
+ * Uses user_question_reviews table for per-user review tracking
  *
  * @param supabase - Supabase client
  * @param userId - User ID
@@ -21,38 +23,38 @@ export async function fetchDueSpacedRepetitionQuestions(
   subject?: string,
   limit: number = 10
 ) {
+  // Query user_question_reviews joined with questions
   let query = supabase
-    .from('questions')
+    .from('user_question_reviews')
     .select(`
-      id,
-      topic_id,
-      bloom_level,
-      question_format,
-      cognitive_dimension,
-      question_text,
-      options,
-      correct_answer,
-      explanation,
+      question_id,
       next_review_date,
-      topics!inner(
+      review_count,
+      questions!inner(
         id,
-        name,
-        description,
-        hierarchy_level,
-        parent_topic_id,
-        subject_id,
-        subjects(name)
+        topic_id,
+        bloom_level,
+        question_format,
+        cognitive_dimension,
+        question_text,
+        options,
+        correct_answer,
+        explanation,
+        topics!inner(
+          id,
+          name,
+          description,
+          hierarchy_level,
+          parent_topic_id,
+          subject_id,
+          subjects(name)
+        )
       )
     `)
-    .not('next_review_date', 'is', null)
+    .eq('user_id', userId)
     .lte('next_review_date', new Date().toISOString())
     .order('next_review_date', { ascending: true })
     .limit(limit)
-
-  // Filter by subject if provided
-  if (subject) {
-    query = query.eq('topics.subjects.name', subject)
-  }
 
   const { data, error } = await query
 
@@ -61,8 +63,38 @@ export async function fetchDueSpacedRepetitionQuestions(
     return []
   }
 
-  console.log(`[Spaced Repetition] Found ${data?.length || 0} questions due for review`)
-  return data || []
+  if (!data || data.length === 0) {
+    console.log(`[Spaced Repetition] No questions due for review for user ${userId}`)
+    return []
+  }
+
+  // Filter by subject if provided (post-query filtering)
+  let filteredData = data
+  if (subject) {
+    filteredData = data.filter((review: any) => {
+      const subjectName = review.questions?.topics?.subjects?.name
+      return subjectName?.toLowerCase() === subject.toLowerCase()
+    })
+  }
+
+  // Flatten the structure to match expected format
+  const questions = filteredData.map((review: any) => ({
+    id: review.questions.id,
+    topic_id: review.questions.topic_id,
+    bloom_level: review.questions.bloom_level,
+    question_format: review.questions.question_format,
+    cognitive_dimension: review.questions.cognitive_dimension,
+    question_text: review.questions.question_text,
+    options: review.questions.options,
+    correct_answer: review.questions.correct_answer,
+    explanation: review.questions.explanation,
+    next_review_date: review.next_review_date,
+    review_count: review.review_count,
+    topics: review.questions.topics
+  }))
+
+  console.log(`[Spaced Repetition] Found ${questions.length} questions due for review for user ${userId}`)
+  return questions
 }
 
 /**
