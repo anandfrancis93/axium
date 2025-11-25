@@ -653,31 +653,66 @@ async function generateQuestion(
   const formatInstructions: Record<string, string> = {
     mcq_single: `Generate a multiple-choice question with 4 options and ONE correct answer.
 
-⚠️ **CRITICAL LENGTH BALANCE RULE:**
+⚠️ **ANTI-TELL-TALE RULES (CRITICAL - questions will be rejected if violated):**
+
+**1. LENGTH BALANCE:**
 ALL 4 options MUST be within ±30% length of each other (in characters).
-- Count the characters in each option
 - If one option is 50 chars, ALL others must be 35-65 chars
 - The correct answer must NOT be noticeably longer or shorter than distractors
-- Pad shorter options with specific details, or trim longer options
+
+**2. SPECIFICITY BALANCE:**
+- ALL options must have EQUAL levels of detail and specificity
+- ❌ BAD: Correct answer has technical details while distractors are vague
+- ✅ GOOD: All options include specific technical terms or examples
+
+**3. NO ABSOLUTE QUALIFIER PATTERNS:**
+- ❌ NEVER put "always", "never", "all", "none", "only", "every" exclusively in wrong answers
+- If using absolutes, distribute them across correct AND incorrect options
+- Test-takers know "always/never" options are usually wrong
+
+**4. GRAMMATICAL CONSISTENCY:**
+- ALL options must have identical grammatical structure
+- If correct answer starts with a verb, ALL options start with verbs
+- If correct answer is a noun phrase, ALL options are noun phrases
+- ❌ BAD: A) "Encrypting data" B) "Data encryption" C) "To encrypt" D) "Encrypted"
+
+**5. NO HEDGING LANGUAGE BIAS:**
+- ❌ NEVER put hedging words ("typically", "generally", "often", "may") only in correct answer
+- Test-takers know hedged answers are often correct
+- Either use hedging in ALL options or NONE
+
+**6. RANDOMIZE CORRECT ANSWER POSITION:**
+- Vary the correct answer position (A, B, C, or D) randomly
+- Do NOT default to B or C
+
+**7. FORBIDDEN PATTERNS:**
+- ❌ NO "All of the above" or "None of the above"
+- ❌ NO "Both A and B" type options
+- ❌ NO obviously joke/absurd distractors
 
 **BAD EXAMPLE (will be rejected):**
-- Option A: "Using the same key for encryption and decryption" (47 chars)
-- Option B: "Uses public key" (15 chars) ❌ TOO SHORT
-- Option C: "Requires key exchange" (21 chars) ❌ TOO SHORT
-- Option D: "Symmetric method" (16 chars) ❌ TOO SHORT
+- A: "Using the same key for encryption and decryption" (47 chars)
+- B: "Uses public key" (15 chars) ❌ TOO SHORT
+- C: "Requires key exchange" (21 chars) ❌ TOO SHORT
+- D: "Symmetric method" (16 chars) ❌ TOO SHORT
 
 **GOOD EXAMPLE:**
-- Option A: "Using the same key for both encryption and decryption processes" (63 chars)
-- Option B: "Using different keys, one public and one private for security" (61 chars) ✓
-- Option C: "Requiring manual key exchange between all communicating parties" (64 chars) ✓
-- Option D: "Employing a symmetric method with periodic key rotation cycles" (63 chars) ✓
+- A: "Using the same key for both encryption and decryption processes" (63 chars)
+- B: "Using different keys, one public and one private for security" (61 chars) ✓
+- C: "Requiring manual key exchange between all communicating parties" (64 chars) ✓
+- D: "Employing a symmetric method with periodic key rotation cycles" (63 chars) ✓
 
 Format: {"question": "What is X?", "options": ["First option text", "Second option text", "Third option text", "Fourth option text"], "correct_answer": "A", "explanation": "..."}
 IMPORTANT: options array should contain ONLY the option text without any letter prefixes (A, B, C, D). The correct_answer should be just the letter (A, B, C, or D).`,
     mcq_multi: `Generate a multiple-choice question with 4-6 options and MULTIPLE correct answers.
 
-⚠️ **CRITICAL LENGTH BALANCE RULE:**
-ALL options MUST be within ±30% length of each other (in characters).
+⚠️ **ANTI-TELL-TALE RULES (CRITICAL):**
+1. ALL options MUST be within ±30% length of each other
+2. ALL options must have EQUAL specificity and detail level
+3. NO absolute qualifiers ("always", "never") only in wrong answers
+4. ALL options must have identical grammatical structure
+5. NO hedging language ("typically", "often") only in correct answers
+6. NO "All of the above" or "None of the above"
 
 Format: {"question": "Select all that apply: Which are X?", "options": ["First option text", "Second option text", "Third option text", "Fourth option text"], "correct_answer": ["A", "C"], "explanation": "..."}
 IMPORTANT: options array should contain ONLY the option text without any letter prefixes. The correct_answer should be an array of letters.`,
