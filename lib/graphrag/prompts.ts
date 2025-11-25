@@ -8,6 +8,7 @@
 import { GraphRAGContext } from './context'
 
 export type QuestionFormat =
+  | 'true_false'      // True/False question
   | 'mcq_single'      // Multiple choice - single answer
   | 'mcq_multi'       // Multiple choice - multiple answers ("select all that apply")
   | 'fill_blank'      // Fill in the blank
@@ -22,6 +23,13 @@ export interface QuestionFormatInfo {
 }
 
 export const QUESTION_FORMATS: Record<QuestionFormat, QuestionFormatInfo> = {
+  true_false: {
+    name: 'True/False',
+    description: 'Determine if a statement is true or false',
+    icon: '◐',
+    idealBloomLevels: [1, 2],
+    complexity: 'low'
+  },
   mcq_single: {
     name: 'MCQ - Single Select',
     description: 'Multiple choice question with one correct answer',
@@ -71,7 +79,7 @@ export const BLOOM_LEVELS: Record<number, BloomLevelInfo> = {
     description: 'Recall facts and basic concepts',
     cognitiveSkills: ['Recognize', 'Recall', 'Identify', 'Define', 'List'],
     actionVerbs: ['define', 'identify', 'list', 'name', 'recall', 'recognize', 'state'],
-    recommendedFormats: ['mcq_single', 'fill_blank']
+    recommendedFormats: ['true_false', 'mcq_single', 'fill_blank']
   },
   2: {
     level: 2,
@@ -79,7 +87,7 @@ export const BLOOM_LEVELS: Record<number, BloomLevelInfo> = {
     description: 'Explain ideas or concepts',
     cognitiveSkills: ['Interpret', 'Summarize', 'Paraphrase', 'Classify', 'Explain'],
     actionVerbs: ['describe', 'explain', 'summarize', 'paraphrase', 'classify', 'compare', 'interpret'],
-    recommendedFormats: ['mcq_single', 'mcq_multi']
+    recommendedFormats: ['true_false', 'mcq_single', 'mcq_multi']
   },
   3: {
     level: 3,
