@@ -145,14 +145,15 @@ export async function findTopicsWithUncoveredDimensions(
     return []
   }
 
-  // Filter topics that have uncovered dimensions at their current Bloom level
-  // AND have less than 80% overall mastery (topics with 80%+ are handled by spaced repetition)
+  // Filter topics eligible for dimension practice
+  // Exclude only if BOTH: all 6 dimensions covered AND 80%+ overall mastery
   const topicsWithUncovered = data.filter((progress: any) => {
     const currentLevel = progress.current_bloom_level
     const coverage = progress.dimension_coverage || {}
     const coveredDimensions = coverage[currentLevel] || []
 
-    // Check if dimensions are uncovered
+    // Check dimension coverage
+    const allDimensionsCovered = coveredDimensions.length >= 6
     const hasUncoveredDimensions = coveredDimensions.length < 6
 
     // Calculate overall mastery (average of all Bloom level mastery scores)
@@ -162,14 +163,25 @@ export async function findTopicsWithUncoveredDimensions(
       ? masteryValues.reduce((sum: number, val: number) => sum + val, 0) / masteryValues.length
       : 0
 
-    // Exclude topics with 80%+ overall mastery - spaced repetition handles those
-    const needsDimensionPractice = overallMastery < 80
+    const hasMastery80Plus = overallMastery >= 80
 
-    if (!needsDimensionPractice && hasUncoveredDimensions) {
-      console.log(`[Dimension Practice] Skipping "${progress.topics?.name}" - mastery ${overallMastery.toFixed(0)}% >= 80%, spaced repetition will handle it`)
+    // Exclude ONLY if both conditions met: all dimensions covered AND 80%+ mastery
+    // This means spaced repetition takes over only when topic is fully practiced and mastered
+    const fullyMastered = allDimensionsCovered && hasMastery80Plus
+
+    if (fullyMastered) {
+      console.log(`[Dimension Practice] Skipping "${progress.topics?.name}" - all 6 dimensions covered AND mastery ${overallMastery.toFixed(0)}% >= 80%, spaced repetition will handle it`)
+      return false
     }
 
-    return hasUncoveredDimensions && needsDimensionPractice
+    // Include if there are uncovered dimensions (regardless of mastery)
+    // This ensures all dimensions get practiced at least once
+    if (hasUncoveredDimensions) {
+      console.log(`[Dimension Practice] Including "${progress.topics?.name}" - ${coveredDimensions.length}/6 dimensions covered, mastery ${overallMastery.toFixed(0)}%`)
+      return true
+    }
+
+    return false
   })
 
   console.log(`[Dimension Practice] Found ${topicsWithUncovered.length} topics with uncovered dimensions (excluding 80%+ mastery)`)
