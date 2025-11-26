@@ -32,11 +32,22 @@ export default function Modal({ isOpen, onClose, title, children, type = 'info',
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0, 0, 0, 0.8)' }}>
-      <div className="neuro-card max-w-lg w-full relative animate-fade-in">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: 'rgba(0, 0, 0, 0.8)' }}
+      onClick={onClose}
+    >
+      <div
+        className="neuro-card max-w-lg w-full relative animate-fade-in"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Close button */}
         <button
-          onClick={onClose}
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation()
+            onClose()
+          }}
           className="absolute top-4 right-4 neuro-btn p-2 text-gray-400 hover:text-gray-200 transition-colors"
         >
           <XIcon size={20} />
@@ -72,7 +83,11 @@ export default function Modal({ isOpen, onClose, title, children, type = 'info',
               return (
                 <button
                   key={idx}
-                  onClick={action.onClick}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    action.onClick()
+                  }}
                   className={`neuro-btn px-6 py-3 font-medium transition-colors ${variantClasses[action.variant || 'secondary']}`}
                 >
                   {action.label}
