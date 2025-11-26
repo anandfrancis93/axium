@@ -266,12 +266,25 @@ export default function TopicDetailPage() {
 
       if (!topicData) return
 
-      // Fetch questions with next_review_date for this topic
-      const { data: questions, error } = await supabase
-        .from('questions')
-        .select('id, question_text, bloom_level, cognitive_dimension, next_review_date, question_format')
-        .eq('topic_id', topicData.id)
-        .not('next_review_date', 'is', null)
+      // Fetch from user_question_reviews (per-user spaced repetition tracking)
+      // joined with questions to get question details
+      const { data: reviews, error } = await supabase
+        .from('user_question_reviews')
+        .select(`
+          question_id,
+          next_review_date,
+          review_count,
+          questions!inner(
+            id,
+            question_text,
+            bloom_level,
+            cognitive_dimension,
+            question_format,
+            topic_id
+          )
+        `)
+        .eq('user_id', user.id)
+        .eq('questions.topic_id', topicData.id)
         .order('next_review_date', { ascending: true })
 
       if (error) {
@@ -279,7 +292,17 @@ export default function TopicDetailPage() {
         return
       }
 
-      setSpacedRepQuestions(questions || [])
+      // Transform the data to match expected format
+      const questions = (reviews || []).map((review: any) => ({
+        id: review.questions.id,
+        question_text: review.questions.question_text,
+        bloom_level: review.questions.bloom_level,
+        cognitive_dimension: review.questions.cognitive_dimension,
+        question_format: review.questions.question_format,
+        next_review_date: review.next_review_date
+      }))
+
+      setSpacedRepQuestions(questions)
     } catch (error) {
       console.error('Error in fetchSpacedRepetitionQuestions:', error)
     }

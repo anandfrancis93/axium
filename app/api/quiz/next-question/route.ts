@@ -867,13 +867,19 @@ ${formatInstruction}
 9. **Detailed Explanation:** Explain WHY the correct answer is right using clear reasoning
 10. **Return ONLY valid JSON:** No additional text or markdown
 
-**❌ NEVER reference source materials in questions OR explanations:**
+**❌ NEVER use context-prefixing phrases in questions OR explanations:**
+- ❌ "In the context of cybersecurity..." - FORBIDDEN
+- ❌ "In the context of [any domain]..." - FORBIDDEN
+- ❌ "Within the field of..." - FORBIDDEN
+- ❌ "In [domain] terms..." - FORBIDDEN
+- ❌ "From a [domain] perspective..." - FORBIDDEN
 - Do NOT include "in the context of [source]" (e.g., "CompTIA Security+ SY0-701")
 - Do NOT mention "as covered in [certification]" or "as defined in [curriculum]"
 - Do NOT reference textbook names, certification exams, or course codes
 - Do NOT mention learning objectives or domains by name
-- Write questions AND explanations as if they are standalone educational content
-- Focus on the TOPIC and CONCEPTS, not the source they came from
+- Write questions AND explanations as DIRECT, STANDALONE content
+- START questions directly with the actual question (e.g., "What is...", "Which of the following...", "How does...")
+- Focus on the TOPIC and CONCEPTS, not framing or context-setting phrases
 
 **✅ QUESTION QUALITY CHECKLIST:**
 Before finalizing your question, verify:
@@ -883,6 +889,7 @@ ${topicDescription ? `- [ ] Does this question test the EXACT concept from the T
 - [ ] Does this test Bloom Level ${bloomLevel} (${bloom.name})?
 - [ ] Would a student need to understand the topic's SPECIFIC details to answer correctly?
 - [ ] Is the correct answer clearly supported by the ${topicDescription ? 'topic definition and' : ''} learning context?
+- [ ] Does the question start DIRECTLY without "In the context of..." or similar framing phrases?
 ${topicDescription ? `- [ ] If the topic name is vague (like "Local"), did I use the definition to clarify what it means?` : ''}
 
 Generate the question now:`
