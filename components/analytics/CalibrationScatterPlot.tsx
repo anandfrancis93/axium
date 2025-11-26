@@ -7,6 +7,8 @@
 
 'use client'
 
+import { normalizeCalibration } from '@/lib/utils/calibration'
+
 interface ScatterPoint {
   attempt: number
   calibration: number
@@ -45,8 +47,14 @@ export function CalibrationScatterPlot({
   // Calculate bounds
   const minX = 1
   const maxX = Math.max(...points.map(p => p.attempt))
-  const minY = -1.5
-  const maxY = 1.5
+  const minY = 0
+  const maxY = 1
+
+  // Normalize calibration values for plotting
+  const normalizedPoints = points.map(p => ({
+    ...p,
+    calibration: normalizeCalibration(p.calibration)
+  }))
 
   // Scale functions
   const scaleX = (x: number) => {
@@ -57,13 +65,18 @@ export function CalibrationScatterPlot({
     return height - padding - ((y - minY) / (maxY - minY)) * (height - 2 * padding)
   }
 
-  // Trend line points
-  const trendLineStart = { x: minX, y: slope * minX + intercept }
-  const trendLineEnd = { x: maxX, y: slope * maxX + intercept }
+  // Normalize trend line parameters (raw values are in -1.5 to +1.5 range)
+  const normalizedSlope = slope / 3
+  const normalizedIntercept = (intercept + 1.5) / 3
+  const normalizedStddev = stddev / 3
+
+  // Trend line points (using normalized values)
+  const trendLineStart = { x: minX, y: normalizedSlope * minX + normalizedIntercept }
+  const trendLineEnd = { x: maxX, y: normalizedSlope * maxX + normalizedIntercept }
 
   // Confidence bands (±1 stddev)
-  const upperBand = (x: number) => slope * x + intercept + stddev
-  const lowerBand = (x: number) => slope * x + intercept - stddev
+  const upperBand = (x: number) => normalizedSlope * x + normalizedIntercept + normalizedStddev
+  const lowerBand = (x: number) => normalizedSlope * x + normalizedIntercept - normalizedStddev
 
   // Generate confidence band path
   const confidenceBandPath = `
@@ -103,7 +116,7 @@ export function CalibrationScatterPlot({
         {/* Grid lines */}
         <g className="opacity-10">
           {/* Horizontal grid */}
-          {[-1.5, -1, -0.5, 0, 0.5, 1, 1.5].map(y => (
+          {[0, 0.25, 0.5, 0.75, 1].map(y => (
             <line
               key={`h-${y}`}
               x1={padding}
@@ -185,7 +198,7 @@ export function CalibrationScatterPlot({
         />
 
         {/* Y-axis labels */}
-        {[-1.5, -1, -0.5, 0, 0.5, 1, 1.5].map(y => (
+        {[0, 0.25, 0.5, 0.75, 1].map(y => (
           <text
             key={`label-y-${y}`}
             x={padding - 10}
@@ -195,7 +208,7 @@ export function CalibrationScatterPlot({
             className="text-gray-400 text-xs"
             fill="currentColor"
           >
-            {y.toFixed(1)}
+            {y.toFixed(2)}
           </text>
         ))}
 
@@ -235,7 +248,7 @@ export function CalibrationScatterPlot({
         </text>
 
         {/* Scatter points */}
-        {points.map((point, index) => {
+        {normalizedPoints.map((point, index) => {
           const cx = scaleX(point.attempt)
           const cy = scaleY(point.calibration)
           const methodClass = methodColors[point.recognitionMethod as keyof typeof methodColors] || 'text-gray-400'
@@ -264,8 +277,8 @@ export function CalibrationScatterPlot({
               >
                 <title>
                   Attempt #{point.attempt}
-                  Calibration: {point.calibration > 0 ? '+' : ''}{point.calibration.toFixed(2)}
-                  Result: {point.isCorrect ? 'Correct ✓' : 'Incorrect ✗'}
+                  Calibration: {point.calibration.toFixed(2)}
+                  Result: {point.isCorrect ? 'Correct' : 'Incorrect'}
                   Confidence: {point.confidence}/3
                   Method: {point.recognitionMethod.replace('_', ' ')}
                 </title>

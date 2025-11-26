@@ -511,14 +511,16 @@ export default function CybersecurityPage() {
                             </span>
                           </td>
                           <td className="p-4 text-center">
-                            <div className={`text-lg font-bold ${(topic.calibration_mean ?? 0) >= 1.0 ? 'text-green-400' :
-                                (topic.calibration_mean ?? 0) >= 0.5 ? 'text-yellow-400' :
-                                  (topic.calibration_mean ?? 0) >= 0.0 ? 'text-yellow-400' :
-                                    (topic.calibration_mean ?? 0) >= -0.5 ? 'text-yellow-400' :
-                                      'text-red-400'
-                              }`}>
-                              {(topic.calibration_mean ?? 0).toFixed(2)}
-                            </div>
+                            {(() => {
+                              const normalized = normalizeCalibration(topic.calibration_mean)
+                              return (
+                                <div className={`text-lg font-bold ${normalized >= 0.67 ? 'text-green-400' :
+                                    normalized >= 0.33 ? 'text-yellow-400' : 'text-red-400'
+                                  }`}>
+                                  {normalized.toFixed(2)}
+                                </div>
+                              )
+                            })()}
                           </td>
                           <td className="p-4 text-center">
                             <div className="flex items-center justify-center gap-2">
@@ -664,10 +666,11 @@ export default function CybersecurityPage() {
                     <tbody>
                       {sortedTopics.map((topic) => {
                         const overallMastery = calculateOverallMastery(topic.mastery_scores)
-                        const calibrationScore = topic.calibration_mean ?? 0
+                        const rawCalibration = topic.calibration_mean ?? 0
+                        const normalizedCalibration = normalizeCalibration(topic.calibration_mean)
 
-                        // Calculate when topic is due for review
-                        const dueInfo = calculateDueIn(topic.last_practiced_at, calibrationScore)
+                        // Calculate when topic is due for review (uses raw score for interval logic)
+                        const dueInfo = calculateDueIn(topic.last_practiced_at, rawCalibration)
 
                         return (
                           <tr
@@ -683,13 +686,10 @@ export default function CybersecurityPage() {
                               </a>
                             </td>
                             <td className="p-4 text-center">
-                              <div className={`text-lg font-bold ${calibrationScore >= 1.0 ? 'text-green-400' :
-                                calibrationScore >= 0.5 ? 'text-yellow-400' :
-                                  calibrationScore >= 0.0 ? 'text-yellow-400' :
-                                    calibrationScore >= -0.5 ? 'text-yellow-400' :
-                                      'text-red-400'
+                              <div className={`text-lg font-bold ${normalizedCalibration >= 0.67 ? 'text-green-400' :
+                                normalizedCalibration >= 0.33 ? 'text-yellow-400' : 'text-red-400'
                                 }`}>
-                                {calibrationScore.toFixed(2)}
+                                {normalizedCalibration.toFixed(2)}
                               </div>
                             </td>
                             <td className="p-4 text-center">

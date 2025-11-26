@@ -17,6 +17,7 @@ import { QuizSession, QuizQuestion, AnswerResult, RecognitionMethod } from '@/li
 import { BLOOM_LEVEL_NAMES, BloomLevel } from '@/lib/types/database'
 import { formatTimeUntilReview } from '@/lib/utils/spaced-repetition'
 import { getAvailableRecognitionMethods } from '@/lib/utils/recognition-method'
+import { normalizeCalibration } from '@/lib/utils/calibration'
 import { Loader2, Circle, Square } from 'lucide-react'
 import Modal from '@/components/Modal'
 
@@ -757,12 +758,16 @@ function LearnPageContent() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-white text-sm font-semibold">Calibration Score:</span>
-                    <span className={`font-semibold text-sm ${answerResult.calibrationScore > 0 ? 'text-green-400' :
-                        answerResult.calibrationScore < 0 ? 'text-red-400' :
-                          'text-yellow-400'
-                      }`}>
-                      {answerResult.calibrationScore > 0 ? '+' : ''}{answerResult.calibrationScore.toFixed(2)}
-                    </span>
+                    {(() => {
+                      const normalized = normalizeCalibration(answerResult.calibrationScore)
+                      return (
+                        <span className={`font-semibold text-sm ${normalized >= 0.67 ? 'text-green-400' :
+                            normalized >= 0.33 ? 'text-yellow-400' : 'text-red-400'
+                          }`}>
+                          {normalized.toFixed(2)}
+                        </span>
+                      )
+                    })()}
                   </div>
                   {answerResult.nextReviewDate && (
                     <div className="flex items-center justify-between">
