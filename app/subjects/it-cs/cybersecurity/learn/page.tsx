@@ -539,37 +539,39 @@ function LearnPageContent() {
                     return (
                       <div
                         key={idx}
-                        className={`transition-all ${isUserAnswer
+                        className={`transition-all p-4 ${isUserAnswer
                             ? 'neuro-raised'
                             : 'neuro-inset'
                           }`}
                       >
-                        <div className="flex items-center gap-3 flex-1">
-                          {currentQuestion.question_format === 'mcq_multi' ? (
-                            <Square
-                              size={20}
-                              className={`${isUserAnswer
-                                  ? isCorrectAnswer
-                                    ? 'fill-current text-green-400'
-                                    : 'fill-current text-red-400'
-                                  : isCorrectAnswer
-                                    ? 'text-green-400'
-                                    : 'text-gray-300'
-                                }`}
-                            />
-                          ) : (
-                            <Circle
-                              size={20}
-                              className={`${isUserAnswer
-                                  ? isCorrectAnswer
-                                    ? 'fill-current text-green-400'
-                                    : 'fill-current text-red-400'
-                                  : isCorrectAnswer
-                                    ? 'text-green-400'
-                                    : 'text-gray-300'
-                                }`}
-                            />
-                          )}
+                        <div className="flex items-start gap-3">
+                          <div className="flex-shrink-0 w-5 h-5 mt-0.5">
+                            {currentQuestion.question_format === 'mcq_multi' ? (
+                              <Square
+                                size={20}
+                                className={`${isUserAnswer
+                                    ? isCorrectAnswer
+                                      ? 'fill-current text-green-400'
+                                      : 'fill-current text-red-400'
+                                    : isCorrectAnswer
+                                      ? 'text-green-400'
+                                      : 'text-gray-300'
+                                  }`}
+                              />
+                            ) : (
+                              <Circle
+                                size={20}
+                                className={`${isUserAnswer
+                                    ? isCorrectAnswer
+                                      ? 'fill-current text-green-400'
+                                      : 'fill-current text-red-400'
+                                    : isCorrectAnswer
+                                      ? 'text-green-400'
+                                      : 'text-gray-300'
+                                  }`}
+                              />
+                            )}
+                          </div>
                           <div className="flex-1">
                             <div className={`${isUserAnswer || isCorrectAnswer ? 'font-semibold' : ''
                               } ${isCorrectAnswer ? 'text-green-400' :

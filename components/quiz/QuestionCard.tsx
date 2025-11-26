@@ -108,7 +108,7 @@ export function QuestionCard({
                   onClick={() => handleMultipleChoice(submissionValue)}
                   disabled={disabled}
                   className={`
-                    w-full text-left transition-all
+                    w-full text-left transition-all p-4
                     ${isOptionSelected(submissionValue)
                       ? 'neuro-raised text-blue-400'
                       : 'neuro-inset text-gray-300'
@@ -124,21 +124,23 @@ export function QuestionCard({
                     ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}
                   `}
                 >
-                  <div className="flex items-center gap-3">
-                    {question.question_format === 'mcq_multi' ? (
-                      <Square
-                        size={20}
-                        className={isOptionSelected(submissionValue) ? 'fill-current' : ''}
-                      />
-                    ) : (
-                      <Circle
-                        size={20}
-                        className={isOptionSelected(submissionValue) ? 'fill-current' : ''}
-                      />
-                    )}
-                    <span>{capitalizeFirst(option)}</span>
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-5 h-5 mt-0.5">
+                      {question.question_format === 'mcq_multi' ? (
+                        <Square
+                          size={20}
+                          className={isOptionSelected(submissionValue) ? 'fill-current' : ''}
+                        />
+                      ) : (
+                        <Circle
+                          size={20}
+                          className={isOptionSelected(submissionValue) ? 'fill-current' : ''}
+                        />
+                      )}
+                    </div>
+                    <span className="flex-1">{capitalizeFirst(option)}</span>
                     {showCorrectAnswer && isCorrectOption(option) && (
-                      <CheckCircle2 size={20} className="ml-auto text-green-400" />
+                      <CheckCircle2 size={20} className="ml-auto text-green-400 flex-shrink-0" />
                     )}
                   </div>
                 </button>
