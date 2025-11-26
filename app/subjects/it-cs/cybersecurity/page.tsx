@@ -34,12 +34,13 @@ export default function CybersecurityPage() {
 
   const [showProgress, setShowProgress] = useState(false)
   const [showSpacedRepetition, setShowSpacedRepetition] = useState(false)
+  const [showSecurityPlus, setShowSecurityPlus] = useState(false)
 
   useEffect(() => {
-    if (showProgress || showSpacedRepetition) {
+    if (showProgress || showSpacedRepetition || showSecurityPlus) {
       fetchTopicsProgress()
     }
-  }, [showProgress, showSpacedRepetition])
+  }, [showProgress, showSpacedRepetition, showSecurityPlus])
 
   async function fetchTopicsProgress() {
     try {
@@ -204,6 +205,76 @@ export default function CybersecurityPage() {
     })
   }
 
+  // Predict Security+ exam score based on performance data
+  const predictSecurityPlusScore = (topics: TopicProgress[]) => {
+    if (topics.length === 0) {
+      return null
+    }
+
+    // Calculate aggregate metrics
+    const totalAttempts = topics.reduce((sum, t) => sum + t.total_attempts, 0)
+    const totalCorrect = topics.reduce((sum, t) => sum + t.correct_answers, 0)
+    const overallAccuracy = totalAttempts > 0 ? totalCorrect / totalAttempts : 0
+
+    // Average mastery across all topics
+    const masteryValues = topics.map(t => {
+      const scores = Object.values(t.mastery_scores).filter(s => s > 0)
+      return scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0
+    })
+    const avgMastery = masteryValues.reduce((a, b) => a + b, 0) / masteryValues.length / 100
+
+    // Average calibration (-1.5 to +1.5, normalize to 0-1)
+    const calibrationValues = topics.map(t => t.calibration_mean ?? 0)
+    const avgCalibration = calibrationValues.reduce((a, b) => a + b, 0) / calibrationValues.length
+    const normalizedCalibration = (avgCalibration + 1.5) / 3 // 0 to 1
+
+    // Weighted score calculation (0-1 scale)
+    // 50% mastery, 30% accuracy, 20% calibration
+    const compositeScore = (avgMastery * 0.5) + (overallAccuracy * 0.3) + (normalizedCalibration * 0.2)
+
+    // Map to Security+ scale (100-900)
+    // Composite 0 = 100, Composite 1 = 900
+    const predictedScore = 100 + (compositeScore * 800)
+
+    // Calculate standard error for 95% CI
+    // More attempts and more topics = lower uncertainty
+    const topicCoverage = Math.min(topics.length / 30, 1) // Assume ~30 Security+ domains/topics
+    const attemptFactor = Math.min(totalAttempts / 100, 1) // More attempts = more confidence
+    const confidenceFactor = (topicCoverage * 0.6) + (attemptFactor * 0.4)
+
+    // Base standard error (higher when less data)
+    // At minimum data: SE ~150, at maximum data: SE ~30
+    const baseStandardError = 150 - (confidenceFactor * 120)
+
+    // Calculate variance in mastery scores
+    const masteryVariance = masteryValues.length > 1
+      ? masteryValues.reduce((sum, m) => sum + Math.pow(m - avgMastery * 100, 2), 0) / masteryValues.length
+      : 0
+    const masteryStdDev = Math.sqrt(masteryVariance)
+
+    // Adjust SE based on performance variance
+    const adjustedSE = baseStandardError + (masteryStdDev * 0.5)
+
+    // 95% CI uses z = 1.96
+    const marginOfError = 1.96 * adjustedSE
+
+    // Calculate bounds (clamp to 100-900)
+    const lowerBound = Math.max(100, Math.round(predictedScore - marginOfError))
+    const upperBound = Math.min(900, Math.round(predictedScore + marginOfError))
+
+    return {
+      predicted: Math.round(predictedScore),
+      lower: lowerBound,
+      upper: upperBound,
+      topicsCovered: topics.length,
+      totalAttempts,
+      accuracy: Math.round(overallAccuracy * 100),
+      avgMastery: Math.round(avgMastery * 100),
+      avgCalibration: avgCalibration.toFixed(2),
+      confidenceLevel: Math.round(confidenceFactor * 100)
+    }
+  }
+
   // Calculate when a topic is due for review based on calibration score
   const calculateDueIn = (lastPracticedAt: string, calibrationScore: number) => {
     const lastPracticed = new Date(lastPracticedAt)
@@ -307,11 +378,12 @@ export default function CybersecurityPage() {
         </div>
 
         {/* Toggle Buttons */}
-        <div className="flex gap-3">
+        <div className="flex gap-3 flex-wrap">
           <button
             onClick={() => {
               setShowProgress(!showProgress)
               if (showSpacedRepetition) setShowSpacedRepetition(false)
+              if (showSecurityPlus) setShowSecurityPlus(false)
             }}
             className={`neuro-btn px-6 py-2 font-semibold hover:bg-blue-500/10 hover:translate-y-0 transition-colors ${showProgress ? 'text-blue-400 bg-blue-500/20' : 'text-blue-400'
               }`}
@@ -322,11 +394,23 @@ export default function CybersecurityPage() {
             onClick={() => {
               setShowSpacedRepetition(!showSpacedRepetition)
               if (showProgress) setShowProgress(false)
+              if (showSecurityPlus) setShowSecurityPlus(false)
             }}
             className={`neuro-btn px-6 py-2 font-semibold hover:bg-blue-500/10 hover:translate-y-0 transition-colors ${showSpacedRepetition ? 'text-blue-400 bg-blue-500/20' : 'text-blue-400'
               }`}
           >
             Spaced Repetition
+          </button>
+          <button
+            onClick={() => {
+              setShowSecurityPlus(!showSecurityPlus)
+              if (showProgress) setShowProgress(false)
+              if (showSpacedRepetition) setShowSpacedRepetition(false)
+            }}
+            className={`neuro-btn px-6 py-2 font-semibold hover:bg-green-500/10 hover:translate-y-0 transition-colors ${showSecurityPlus ? 'text-green-400 bg-green-500/20' : 'text-green-400'
+              }`}
+          >
+            Security+
           </button>
         </div>
 
@@ -638,6 +722,133 @@ export default function CybersecurityPage() {
                   </div>
                   <div className="text-sm text-gray-600">
                     No topics are due for review right now. Check back later!
+                  </div>
+                </div>
+              )
+            })()}
+          </div>
+        )}
+
+        {/* Security+ Score Prediction */}
+        {showSecurityPlus && (
+          <div className="neuro-card overflow-hidden">
+            <div className="p-6 border-b border-gray-800/50">
+              <h3 className="text-xl font-semibold text-gray-200">Security+ Score Prediction</h3>
+              <p className="text-sm text-gray-500 mt-1">Estimated exam score based on your learning performance</p>
+            </div>
+
+            {/* Loading State */}
+            {loading && (
+              <div className="p-8 text-center">
+                <div className="text-gray-400">Calculating prediction...</div>
+              </div>
+            )}
+
+            {/* Empty State */}
+            {!loading && topicsProgress.length === 0 && (
+              <div className="p-8 text-center">
+                <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <ShieldIcon size={40} className="text-gray-600" />
+                </div>
+                <div className="text-gray-400 text-lg font-semibold mb-2">
+                  Not enough data
+                </div>
+                <div className="text-sm text-gray-600 mb-6">
+                  Start practicing to see your predicted Security+ score
+                </div>
+              </div>
+            )}
+
+            {/* Prediction Display */}
+            {!loading && topicsProgress.length > 0 && (() => {
+              const prediction = predictSecurityPlusScore(topicsProgress)
+              if (!prediction) return null
+
+              const passingScore = 750
+              const isLikelyPass = prediction.lower >= passingScore
+              const isPossiblePass = prediction.upper >= passingScore && prediction.lower < passingScore
+              const isLikelyFail = prediction.upper < passingScore
+
+              return (
+                <div className="p-6 space-y-6">
+                  {/* Main Score Display */}
+                  <div className="text-center">
+                    <div className="text-sm text-gray-500 mb-2">95% Confidence Interval</div>
+                    <div className="flex items-center justify-center gap-4">
+                      <div className="text-4xl font-bold text-gray-400">{prediction.lower}</div>
+                      <div className="text-2xl text-gray-600">-</div>
+                      <div className="text-4xl font-bold text-gray-400">{prediction.upper}</div>
+                    </div>
+                    <div className="text-sm text-gray-600 mt-2">out of 900</div>
+                  </div>
+
+                  {/* Pass/Fail Indicator */}
+                  <div className="text-center">
+                    <div className={`inline-block px-4 py-2 rounded-lg ${
+                      isLikelyPass ? 'bg-green-500/20 text-green-400' :
+                      isPossiblePass ? 'bg-yellow-500/20 text-yellow-400' :
+                      'bg-red-500/20 text-red-400'
+                    }`}>
+                      {isLikelyPass && 'Likely to Pass'}
+                      {isPossiblePass && 'Borderline - Keep Practicing'}
+                      {isLikelyFail && 'More Practice Needed'}
+                    </div>
+                    <div className="text-xs text-gray-600 mt-2">Passing score: 750</div>
+                  </div>
+
+                  {/* Score Bar Visualization */}
+                  <div className="neuro-inset p-4 rounded-lg">
+                    <div className="relative h-8 bg-gray-800 rounded-full overflow-hidden">
+                      {/* Score range bar */}
+                      <div
+                        className="absolute h-full bg-gradient-to-r from-blue-600 to-blue-400 rounded-full"
+                        style={{
+                          left: `${((prediction.lower - 100) / 800) * 100}%`,
+                          width: `${((prediction.upper - prediction.lower) / 800) * 100}%`
+                        }}
+                      />
+                      {/* Passing line */}
+                      <div
+                        className="absolute top-0 bottom-0 w-0.5 bg-green-400"
+                        style={{ left: `${((750 - 100) / 800) * 100}%` }}
+                        title="Passing score: 750"
+                      />
+                    </div>
+                    <div className="flex justify-between text-xs text-gray-600 mt-2">
+                      <span>100</span>
+                      <span className="text-green-400">750 (Pass)</span>
+                      <span>900</span>
+                    </div>
+                  </div>
+
+                  {/* Performance Metrics */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="neuro-inset p-4 rounded-lg text-center">
+                      <div className="text-2xl font-bold text-gray-200">{prediction.topicsCovered}</div>
+                      <div className="text-xs text-gray-500">Topics Covered</div>
+                    </div>
+                    <div className="neuro-inset p-4 rounded-lg text-center">
+                      <div className="text-2xl font-bold text-gray-200">{prediction.totalAttempts}</div>
+                      <div className="text-xs text-gray-500">Total Attempts</div>
+                    </div>
+                    <div className="neuro-inset p-4 rounded-lg text-center">
+                      <div className={`text-2xl font-bold ${prediction.avgMastery >= 80 ? 'text-green-400' : prediction.avgMastery >= 60 ? 'text-yellow-400' : 'text-red-400'}`}>
+                        {prediction.avgMastery}%
+                      </div>
+                      <div className="text-xs text-gray-500">Avg Mastery</div>
+                    </div>
+                    <div className="neuro-inset p-4 rounded-lg text-center">
+                      <div className={`text-2xl font-bold ${prediction.accuracy >= 80 ? 'text-green-400' : prediction.accuracy >= 60 ? 'text-yellow-400' : 'text-red-400'}`}>
+                        {prediction.accuracy}%
+                      </div>
+                      <div className="text-xs text-gray-500">Accuracy</div>
+                    </div>
+                  </div>
+
+                  {/* Disclaimer */}
+                  <div className="text-xs text-gray-600 text-center">
+                    This prediction is based on your Axium learning data and is not a guarantee of actual exam performance.
+                    The confidence interval narrows as you practice more topics and questions.
                   </div>
                 </div>
               )
