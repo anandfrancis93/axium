@@ -867,10 +867,11 @@ export default function CybersecurityPage() {
                         title="Passing score: 750"
                       />
                     </div>
-                    <div className="flex justify-between text-xs text-gray-600 mt-2">
-                      <span>100</span>
-                      <span className="text-green-400">750 (Pass)</span>
-                      <span>900</span>
+                    <div className="relative text-xs mt-2 h-4">
+                      <span className="absolute text-gray-600" style={{ left: '0%', transform: 'translateX(0)' }}>100</span>
+                      <span className="absolute text-red-400" style={{ left: `${((600 - 100) / 800) * 100}%`, transform: 'translateX(-50%)' }}>600</span>
+                      <span className="absolute text-green-400" style={{ left: `${((750 - 100) / 800) * 100}%`, transform: 'translateX(-50%)' }}>750</span>
+                      <span className="absolute text-gray-600" style={{ left: '100%', transform: 'translateX(-100%)' }}>900</span>
                     </div>
                   </div>
 
