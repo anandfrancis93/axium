@@ -15,6 +15,7 @@ import { AnswerFeedback } from '@/components/quiz/AnswerFeedback'
 import { TextSelectionChat } from '@/components/quiz/TextSelectionChat'
 import { QuizSession, QuizQuestion, AnswerResult, RecognitionMethod } from '@/lib/types/quiz'
 import { BLOOM_LEVEL_NAMES, BloomLevel } from '@/lib/types/database'
+import { formatTimeUntilReview } from '@/lib/utils/spaced-repetition'
 import { Loader2, Circle, Square } from 'lucide-react'
 import Modal from '@/components/Modal'
 
@@ -756,21 +757,7 @@ function LearnPageContent() {
                     <div className="flex items-center justify-between">
                       <span className="text-white text-sm font-semibold">Next Review:</span>
                       <span className="font-semibold text-sm text-white">
-                        {(() => {
-                          const reviewDate = new Date(answerResult.nextReviewDate)
-                          const now = new Date()
-                          const timeDiff = reviewDate.getTime() - now.getTime()
-                          const hoursUntil = Math.ceil(timeDiff / (1000 * 60 * 60))
-                          const daysUntil = Math.ceil(timeDiff / (1000 * 60 * 60 * 24))
-
-                          if (hoursUntil < 1) {
-                            return 'Due now'
-                          } else if (hoursUntil < 24) {
-                            return `In ${hoursUntil} ${hoursUntil === 1 ? 'hour' : 'hours'}`
-                          } else {
-                            return `In ${daysUntil} ${daysUntil === 1 ? 'day' : 'days'}`
-                          }
-                        })()}
+                        {formatTimeUntilReview(answerResult.nextReviewDate)}
                       </span>
                     </div>
                   )}

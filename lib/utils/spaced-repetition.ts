@@ -75,3 +75,36 @@ export function getReviewIntervalDescription(calibrationScore: number): string {
   if (score >= -1.0) return '12 hours'
   return '4 hours'
 }
+
+/**
+ * Format time until review for UI display
+ * Single source of truth for consistent time formatting across pages
+ *
+ * @param nextReviewDate - The scheduled review date (string or Date)
+ * @returns Human-readable time until review (e.g., "Due now", "In 2 hours", "In 3 days")
+ */
+export function formatTimeUntilReview(nextReviewDate: string | Date): string {
+  const reviewDate = typeof nextReviewDate === 'string'
+    ? new Date(nextReviewDate)
+    : nextReviewDate
+  const now = new Date()
+  const timeDiff = reviewDate.getTime() - now.getTime()
+
+  // If overdue or due now (within 1 minute)
+  if (timeDiff <= 60 * 1000) {
+    return 'Due now'
+  }
+
+  const hoursUntil = timeDiff / (1000 * 60 * 60)
+
+  if (hoursUntil < 1) {
+    const minutesUntil = Math.ceil(timeDiff / (1000 * 60))
+    return `In ${minutesUntil} ${minutesUntil === 1 ? 'minute' : 'minutes'}`
+  } else if (hoursUntil < 24) {
+    const hours = Math.ceil(hoursUntil)
+    return `In ${hours} ${hours === 1 ? 'hour' : 'hours'}`
+  } else {
+    const days = Math.ceil(hoursUntil / 24)
+    return `In ${days} ${days === 1 ? 'day' : 'days'}`
+  }
+}

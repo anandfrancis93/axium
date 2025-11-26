@@ -12,6 +12,7 @@ import {
   parseDimensionCoverage,
   getCoverageForLevel
 } from '@/lib/utils/cognitive-dimensions'
+import { formatTimeUntilReview } from '@/lib/utils/spaced-repetition'
 
 interface TopicDetail {
   topic_id: string
@@ -539,21 +540,8 @@ export default function TopicDetailPage() {
             ) : (
               <div className="space-y-4">
                 {spacedRepQuestions.map((question, index) => {
-                  const reviewDate = new Date(question.next_review_date)
-                  const now = new Date()
-                  const isDue = reviewDate <= now
-                  const timeDiff = reviewDate.getTime() - now.getTime()
-                  const daysUntil = Math.ceil(timeDiff / (1000 * 60 * 60 * 24))
-                  const hoursUntil = Math.ceil(timeDiff / (1000 * 60 * 60))
-
-                  let timeText = ''
-                  if (isDue) {
-                    timeText = 'Due now'
-                  } else if (hoursUntil < 24) {
-                    timeText = `In ${hoursUntil} ${hoursUntil === 1 ? 'hour' : 'hours'}`
-                  } else {
-                    timeText = `In ${daysUntil} ${daysUntil === 1 ? 'day' : 'days'}`
-                  }
+                  const timeText = formatTimeUntilReview(question.next_review_date)
+                  const isDue = timeText === 'Due now'
 
                   const bloomLevel = BLOOM_LEVELS.find(bl => bl.level === question.bloom_level)
                   const dimension = COGNITIVE_DIMENSIONS[question.cognitive_dimension as CognitiveDimension]
@@ -588,7 +576,7 @@ export default function TopicDetailPage() {
                             {timeText}
                           </div>
                           <div className="text-xs text-gray-600">
-                            {reviewDate.toLocaleDateString()}
+                            {new Date(question.next_review_date).toLocaleDateString()}
                           </div>
                         </div>
                       </div>
