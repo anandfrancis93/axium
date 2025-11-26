@@ -16,6 +16,7 @@ import { TextSelectionChat } from '@/components/quiz/TextSelectionChat'
 import { QuizSession, QuizQuestion, AnswerResult, RecognitionMethod } from '@/lib/types/quiz'
 import { BLOOM_LEVEL_NAMES, BloomLevel } from '@/lib/types/database'
 import { formatTimeUntilReview } from '@/lib/utils/spaced-repetition'
+import { getAvailableRecognitionMethods } from '@/lib/utils/recognition-method'
 import { Loader2, Circle, Square } from 'lucide-react'
 import Modal from '@/components/Modal'
 
@@ -443,44 +444,52 @@ function LearnPageContent() {
         )}
 
         {/* Step 3: Recognition Method Selection */}
-        {currentStep === 'recognition' && (
+        {currentStep === 'recognition' && currentQuestion && (
           <>
-            {/* Recognition Method Selection */}
+            {/* Recognition Method Selection - filtered by question format */}
             <div className="neuro-card p-6">
               <h3 className="text-lg font-semibold text-gray-200 mb-4">How did you arrive at your answer?</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <button
-                  onClick={() => handleRecognitionSelect('memory')}
-                  disabled={submitting}
-                  className="neuro-btn text-green-400 p-6 text-left disabled:opacity-50"
-                >
-                  <div className="text-lg font-bold mb-1">Recalled from Memory</div>
-                  <div className="text-sm text-gray-400">I remembered this from studying</div>
-                </button>
-                <button
-                  onClick={() => handleRecognitionSelect('recognition')}
-                  disabled={submitting}
-                  className="neuro-btn text-yellow-400 p-6 text-left disabled:opacity-50"
-                >
-                  <div className="text-lg font-bold mb-1">Recognized from Options</div>
-                  <div className="text-sm text-gray-400">I recognized the correct answer when I saw it</div>
-                </button>
-                <button
-                  onClick={() => handleRecognitionSelect('educated_guess')}
-                  disabled={submitting}
-                  className="neuro-btn text-yellow-400 p-6 text-left disabled:opacity-50"
-                >
-                  <div className="text-lg font-bold mb-1">Made an Educated Guess</div>
-                  <div className="text-sm text-gray-400">I used logic/reasoning to narrow it down</div>
-                </button>
-                <button
-                  onClick={() => handleRecognitionSelect('random_guess')}
-                  disabled={submitting}
-                  className="neuro-btn text-red-400 p-6 text-left disabled:opacity-50"
-                >
-                  <div className="text-lg font-bold mb-1">Made a Random Guess</div>
-                  <div className="text-sm text-gray-400">I had no idea and guessed randomly</div>
-                </button>
+                {getAvailableRecognitionMethods(currentQuestion.question_format).includes('memory') && (
+                  <button
+                    onClick={() => handleRecognitionSelect('memory')}
+                    disabled={submitting}
+                    className="neuro-btn text-green-400 p-6 text-left disabled:opacity-50"
+                  >
+                    <div className="text-lg font-bold mb-1">Recalled from Memory</div>
+                    <div className="text-sm text-gray-400">I remembered this from studying</div>
+                  </button>
+                )}
+                {getAvailableRecognitionMethods(currentQuestion.question_format).includes('recognition') && (
+                  <button
+                    onClick={() => handleRecognitionSelect('recognition')}
+                    disabled={submitting}
+                    className="neuro-btn text-yellow-400 p-6 text-left disabled:opacity-50"
+                  >
+                    <div className="text-lg font-bold mb-1">Recognized from Options</div>
+                    <div className="text-sm text-gray-400">I recognized the correct answer when I saw it</div>
+                  </button>
+                )}
+                {getAvailableRecognitionMethods(currentQuestion.question_format).includes('educated_guess') && (
+                  <button
+                    onClick={() => handleRecognitionSelect('educated_guess')}
+                    disabled={submitting}
+                    className="neuro-btn text-yellow-400 p-6 text-left disabled:opacity-50"
+                  >
+                    <div className="text-lg font-bold mb-1">Made an Educated Guess</div>
+                    <div className="text-sm text-gray-400">I used logic/reasoning to narrow it down</div>
+                  </button>
+                )}
+                {getAvailableRecognitionMethods(currentQuestion.question_format).includes('random_guess') && (
+                  <button
+                    onClick={() => handleRecognitionSelect('random_guess')}
+                    disabled={submitting}
+                    className="neuro-btn text-red-400 p-6 text-left disabled:opacity-50"
+                  >
+                    <div className="text-lg font-bold mb-1">Made a Random Guess</div>
+                    <div className="text-sm text-gray-400">I had no idea and guessed randomly</div>
+                  </button>
+                )}
               </div>
               {submitting && (
                 <div className="mt-4 text-center">
