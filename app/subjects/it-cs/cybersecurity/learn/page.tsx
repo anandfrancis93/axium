@@ -527,8 +527,18 @@ function LearnPageContent() {
 
                     // Convert letter-based correct answers (A, B, C) to actual option text
                     let correctOptionText = answerResult.correctAnswer
-                    if (typeof correctOptionText === 'string' && correctOptionText.length === 1 && /^[A-Z]$/.test(correctOptionText) && currentQuestion.options) {
-                      // It's a letter (A, B, C, D), convert to index
+
+                    // Handle array of letters for mcq_multi (e.g., ["A", "B", "C"])
+                    if (Array.isArray(correctOptionText) && currentQuestion.options) {
+                      correctOptionText = correctOptionText.map(ans => {
+                        if (typeof ans === 'string' && ans.length === 1 && /^[A-Z]$/.test(ans)) {
+                          const idx = ans.charCodeAt(0) - 65
+                          return currentQuestion.options![idx]
+                        }
+                        return ans
+                      })
+                    } else if (typeof correctOptionText === 'string' && correctOptionText.length === 1 && /^[A-Z]$/.test(correctOptionText) && currentQuestion.options) {
+                      // Single letter (A, B, C, D), convert to index
                       const correctIdx = correctOptionText.charCodeAt(0) - 65
                       correctOptionText = currentQuestion.options[correctIdx]
                     }
