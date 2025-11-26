@@ -1,11 +1,14 @@
 /**
- * Priority-Based Topic Selection Algorithm
+ * Topic Selection Algorithm (7-2-1 Pattern)
  *
- * 80-20 SPLIT:
- * - 80% of questions: Priority-based (calibration, spacing, mastery gaps, variance)
- * - 20% of questions: Spaced repetition (time-based review)
+ * 10-QUESTION CYCLE:
+ * - Positions 1-7: NEW TOPICS (never practiced before)
+ *   - Primary: Random selection from unpracticed topics
+ *   - Fallback: Priority-based if all topics practiced
+ * - Positions 8-9: SPACED REPETITION (saved questions due for review)
+ * - Position 10: DIMENSION PRACTICE (practiced topic, new cognitive dimension)
  *
- * PRIORITY COMPONENTS:
+ * PRIORITY COMPONENTS (used as fallback when all topics practiced):
  * - Calibration mean (40%): Lower calibration = higher priority
  * - Time since practice (30%): Longer time = higher priority
  * - Mastery gaps (20%): Lower mastery = higher priority
@@ -56,7 +59,9 @@ interface TopicPriority {
 }
 
 /**
- * Main RL topic selection function with 80-20 RL/SR split
+ * Main topic selection function (7-2-1 pattern)
+ *
+ * Positions 1-7: New topics → Positions 8-9: Spaced repetition → Position 10: Dimension practice
  *
  * @param userId - User ID
  * @param subject - Optional subject slug (e.g., 'it-cs', 'physics') to filter topics
@@ -285,7 +290,10 @@ async function selectSpacedRepetitionTopic(
 }
 
 /**
- * Select topic using RL optimization
+ * Select topic for positions 1-7 (New Topic Selection)
+ *
+ * PRIMARY: Select from NEW topics (never practiced by user)
+ * FALLBACK: If all topics practiced, use priority-based selection
  */
 async function selectRLTopic(
   eligibleTopics: any[],
@@ -294,84 +302,37 @@ async function selectRLTopic(
   supabase?: any,
   userId?: string
 ): Promise<TopicSelection> {
-  // Filter progress to only eligible topics
-  let eligibleProgress = progress.filter(p =>
-    eligibleTopics.some(t => t.id === p.topic_id)
-  )
-
-  // COOLDOWN: Exclude topics practiced in last 5 questions to force variety
-  if (supabase && userId && eligibleProgress.length > 1) {
-    try {
-      const { data: recentResponses } = await supabase
-        .from('user_responses')
-        .select('questions(topic_id)')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(5)
-
-      if (recentResponses && recentResponses.length > 0) {
-        const recentTopicIds = new Set(
-          recentResponses
-            .map((r: any) => r.questions?.topic_id)
-            .filter((id: any) => id)
-        )
-
-        // Only exclude if we'd still have topics left
-        const filteredProgress = eligibleProgress.filter(p => !recentTopicIds.has(p.topic_id))
-        if (filteredProgress.length > 0) {
-          console.log(`[RL] Cooldown: Excluded ${eligibleProgress.length - filteredProgress.length} recently practiced topics`)
-          eligibleProgress = filteredProgress
-        }
-      }
-    } catch (error) {
-      console.error('[RL] Error fetching recent responses for cooldown:', error)
-    }
-  }
-
   // Find topics user hasn't practiced yet
   const practicedTopicIds = new Set(progress.map(p => p.topic_id))
   const newTopics = eligibleTopics.filter(t => !practicedTopicIds.has(t.id))
 
-  // Cold start: Random selection when user has < 10 total attempts
-  if (totalAttempts < 10 || eligibleProgress.length === 0) {
-    // Prefer new topics during cold start
-    const topicsToChooseFrom = newTopics.length > 0 ? newTopics : eligibleTopics
-    const randomIndex = Math.floor(Math.random() * topicsToChooseFrom.length)
-    const selected = topicsToChooseFrom[randomIndex]
-
-    return {
-      topicId: selected.id,
-      topicName: selected.name,
-      bloomLevel: 1,
-      selectionReason: 'Cold start: Random exploration from eligible topics',
-      priority: 0,
-      selectionMethod: 'rl'
-    }
-  }
-
-  // EXPLORATION: 30% chance to introduce a new topic if available
-  // This ensures we don't just cycle through the same topics forever
-  if (newTopics.length > 0 && Math.random() < 0.3) {
+  // PRIMARY: Select from NEW topics (positions 1-7 should always be new topics)
+  if (newTopics.length > 0) {
     const randomIndex = Math.floor(Math.random() * newTopics.length)
     const selected = newTopics[randomIndex]
 
-    console.log(`[RL] Exploration: Introducing new topic "${selected.name}" (${newTopics.length} new topics available)`)
+    console.log(`[Topic Selection] New topic: "${selected.name}" (${newTopics.length} new topics remaining)`)
 
     return {
       topicId: selected.id,
       topicName: selected.name,
       bloomLevel: 1,
-      selectionReason: `Exploration: Introducing new topic (${newTopics.length} untried topics)`,
-      priority: 0.5,
+      selectionReason: `New topic (${newTopics.length} remaining)`,
+      priority: 1,
       selectionMethod: 'rl'
     }
   }
 
-  // Calculate priority for each topic with progress
-  let priorities = calculateTopicPriorities(eligibleProgress)
+  // FALLBACK: All topics have been practiced at least once
+  // Use priority-based selection for reinforcement
+  console.log(`[Topic Selection] All ${eligibleTopics.length} topics practiced, using priority-based selection`)
 
-  if (priorities.length === 0) {
-    // Fallback to cold start
+  const eligibleProgress = progress.filter(p =>
+    eligibleTopics.some(t => t.id === p.topic_id)
+  )
+
+  if (eligibleProgress.length === 0) {
+    // Edge case: No progress data, random selection
     const randomIndex = Math.floor(Math.random() * eligibleTopics.length)
     const selected = eligibleTopics[randomIndex]
 
@@ -379,20 +340,21 @@ async function selectRLTopic(
       topicId: selected.id,
       topicName: selected.name,
       bloomLevel: 1,
-      selectionReason: 'Fallback: No priority scores available',
+      selectionReason: 'Fallback: Random selection',
       priority: 0,
       selectionMethod: 'rl'
     }
   }
 
+  // Calculate priority for practiced topics
+  let priorities = calculateTopicPriorities(eligibleProgress)
+
   // Apply keystone scoring (prioritize high-impact topics in graph)
   try {
     const { applyKeystoneScoring } = await import('./keystone-scoring')
     priorities = await applyKeystoneScoring(priorities)
-    // Log removed
   } catch (error) {
-    console.error('[RL] Error applying keystone scoring:', error)
-    // Continue without keystone scoring
+    console.error('[Topic Selection] Error applying keystone scoring:', error)
   }
 
   // Select highest priority topic
@@ -403,7 +365,7 @@ async function selectRLTopic(
     topicId: selected.topicId,
     topicName: selected.topicName,
     bloomLevel: selected.recommendedBloomLevel,
-    selectionReason: `Priority-based: ${selected.reason}`,
+    selectionReason: `Reinforcement: ${selected.reason}`,
     priority: selected.priority,
     selectionMethod: 'rl'
   }
