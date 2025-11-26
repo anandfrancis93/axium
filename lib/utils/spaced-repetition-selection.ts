@@ -117,6 +117,7 @@ export async function findTopicsWithUncoveredDimensions(
       topic_id,
       current_bloom_level,
       dimension_coverage,
+      mastery_scores,
       topics!inner(
         id,
         name,
@@ -145,16 +146,33 @@ export async function findTopicsWithUncoveredDimensions(
   }
 
   // Filter topics that have uncovered dimensions at their current Bloom level
+  // AND have less than 80% overall mastery (topics with 80%+ are handled by spaced repetition)
   const topicsWithUncovered = data.filter((progress: any) => {
     const currentLevel = progress.current_bloom_level
     const coverage = progress.dimension_coverage || {}
     const coveredDimensions = coverage[currentLevel] || []
 
-    // If less than 6 dimensions covered, this topic has uncovered dimensions
-    return coveredDimensions.length < 6
+    // Check if dimensions are uncovered
+    const hasUncoveredDimensions = coveredDimensions.length < 6
+
+    // Calculate overall mastery (average of all Bloom level mastery scores)
+    const masteryScores = progress.mastery_scores || {}
+    const masteryValues = Object.values(masteryScores).filter((v): v is number => typeof v === 'number' && v > 0)
+    const overallMastery = masteryValues.length > 0
+      ? masteryValues.reduce((sum: number, val: number) => sum + val, 0) / masteryValues.length
+      : 0
+
+    // Exclude topics with 80%+ overall mastery - spaced repetition handles those
+    const needsDimensionPractice = overallMastery < 80
+
+    if (!needsDimensionPractice && hasUncoveredDimensions) {
+      console.log(`[Dimension Practice] Skipping "${progress.topics?.name}" - mastery ${overallMastery.toFixed(0)}% >= 80%, spaced repetition will handle it`)
+    }
+
+    return hasUncoveredDimensions && needsDimensionPractice
   })
 
-  console.log(`[Dimension Practice] Found ${topicsWithUncovered.length} topics with uncovered dimensions`)
+  console.log(`[Dimension Practice] Found ${topicsWithUncovered.length} topics with uncovered dimensions (excluding 80%+ mastery)`)
   return topicsWithUncovered
 }
 
