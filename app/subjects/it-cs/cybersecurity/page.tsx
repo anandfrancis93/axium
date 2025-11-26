@@ -6,6 +6,7 @@ import Image from 'next/image'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import Modal from '@/components/Modal'
 import { createClient } from '@/lib/supabase/client'
+import { normalizeCalibration, getCalibrationStatus } from '@/lib/utils/calibration'
 
 
 interface TopicProgress {
@@ -226,11 +227,11 @@ export default function CybersecurityPage() {
     // Average calibration (-1.5 to +1.5, normalize to 0-1)
     const calibrationValues = topics.map(t => t.calibration_mean ?? 0)
     const avgCalibration = calibrationValues.reduce((a, b) => a + b, 0) / calibrationValues.length
-    const normalizedCalibration = (avgCalibration + 1.5) / 3 // 0 to 1
+    const normalizedCalibrationScore = normalizeCalibration(avgCalibration)
 
     // Weighted score calculation (0-1 scale)
     // 50% mastery, 30% accuracy, 20% calibration
-    const compositeScore = (avgMastery * 0.5) + (overallAccuracy * 0.3) + (normalizedCalibration * 0.2)
+    const compositeScore = (avgMastery * 0.5) + (overallAccuracy * 0.3) + (normalizedCalibrationScore * 0.2)
 
     // Map to Security+ scale (100-900)
     // Composite 0 = 100, Composite 1 = 900

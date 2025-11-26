@@ -22,6 +22,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { createSession } from '@/lib/neo4j/client'
+import { calibrationToPriority } from '@/lib/utils/calibration'
 
 export interface TopicSelection {
   topicId: string
@@ -384,10 +385,9 @@ function calculateTopicPriorities(
     const reasons: string[] = []
 
     // Component 1: Calibration mean (lower = higher priority) - 40% weight
-    const calibrationMean = p.calibration_mean ?? 0
-    const calibrationPriority = (1.5 - calibrationMean) / 3
-    priority += calibrationPriority * 0.4
-    if (calibrationMean < 0.5) {
+    const calPriority = calibrationToPriority(p.calibration_mean)
+    priority += calPriority * 0.4
+    if ((p.calibration_mean ?? 0) < 0.5) {
       reasons.push('low calibration')
     }
 
