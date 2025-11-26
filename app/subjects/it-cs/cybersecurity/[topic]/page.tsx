@@ -437,7 +437,7 @@ export default function TopicDetailPage() {
                             <div className="text-xs text-gray-500">mastery</div>
                           </div>
                           <div className={`neuro-inset w-8 h-8 rounded-lg flex items-center justify-center transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>
-                            <ChevronDownIcon size={16} className="text-gray-400" />
+                            <ChevronDownIcon size={18} className="text-gray-300" />
                           </div>
                         </div>
                       </div>
