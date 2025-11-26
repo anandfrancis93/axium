@@ -839,24 +839,30 @@ Format: {"question": "Select all that apply: Which are X?", "options": ["First o
 IMPORTANT: options array should contain ONLY the option text without any letter prefixes. The correct_answer should be an array of letters.`,
     fill_blank: `Generate a fill-in-the-blank question with 4 options.
 
-⚠️ **CRITICAL ANTI-GIVEAWAY RULES:**
+⚠️ **CRITICAL: SINGLE WORD ANSWERS ONLY**
+- The blank MUST be filled with exactly ONE WORD
+- ❌ BAD: "Public and private" (phrase)
+- ❌ BAD: "two-factor authentication" (multiple words)
+- ✅ GOOD: "encryption", "hashing", "firewall", "authentication"
+
+**ANTI-GIVEAWAY RULES:**
 
 **1. NO ANSWER LEAKAGE:**
 - The question text must NOT contain words that appear in the correct answer
 - The question must NOT hint at the answer through synonyms or related terms
-- ❌ BAD: "Asymmetric encryption uses _____ key pairs where the private key cannot be derived from the public key" with answer "Public and private" (GIVEAWAY - "private key" and "public key" already in question!)
-- ✅ GOOD: "Asymmetric encryption uses _____ key pairs that are mathematically linked but computationally infeasible to derive from each other" with answer "Public and private"
+- ❌ BAD: "The process of converting plaintext to ciphertext is called _____" with answer "encryption" when "ciphertext" already hints at it
+- ✅ GOOD: "The process of securing data so only authorized parties can read it is called _____" with answer "encryption"
 
 **2. SIBLING DISTRACTORS:**
 - All options must be related concepts from the same category
+- All options must be SINGLE WORDS
 - ❌ BAD: "encryption" with options like "keyboard", "monitor", "cable"
 - ✅ GOOD: "encryption" with options like "hashing", "encoding", "obfuscation"
 
 **3. SIMILAR OPTION STRUCTURE:**
-- All options should have similar grammatical structure and length
-- If correct answer is two words, distractors should be two words
+- All options should be single words of similar length and complexity
 
-Format: {"question": "The process of _____ is...", "options": ["photosynthesis", "respiration", "osmosis", "diffusion"], "correct_answer": "photosynthesis", "explanation": "..."}`,
+Format: {"question": "The process of _____ is...", "options": ["encryption", "hashing", "encoding", "obfuscation"], "correct_answer": "encryption", "explanation": "..."}`,
     open_ended: 'Generate an open-ended question requiring a short paragraph answer. Format: {"question": "...", "correct_answer": "Key points: ...", "explanation": "..."}'
   }
 
