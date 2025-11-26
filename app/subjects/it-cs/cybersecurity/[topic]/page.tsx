@@ -435,8 +435,8 @@ export default function TopicDetailPage() {
                             </div>
                             <div className="text-xs text-gray-500">mastery</div>
                           </div>
-                          <span className="text-gray-400 text-xl">
-                            {isExpanded ? '▼' : '▶'}
+                          <span className="text-gray-400 text-sm font-mono">
+                            {isExpanded ? 'v' : '>'}
                           </span>
                         </div>
                       </div>

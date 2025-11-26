@@ -35,7 +35,7 @@ export const COGNITIVE_DIMENSIONS: Record<CognitiveDimension, DimensionInfo> = {
       'What defines [topic]?',
       'What constitutes [topic]?'
     ],
-    icon: '❓'
+    icon: '?'
   },
   [CognitiveDimension.WHY]: {
     dimension: CognitiveDimension.WHY,
@@ -47,7 +47,7 @@ export const COGNITIVE_DIMENSIONS: Record<CognitiveDimension, DimensionInfo> = {
       'What is the purpose of [topic]?',
       'What problem does [topic] solve?'
     ],
-    icon: '🎯'
+    icon: '*'
   },
   [CognitiveDimension.WHEN]: {
     dimension: CognitiveDimension.WHEN,
@@ -59,7 +59,7 @@ export const COGNITIVE_DIMENSIONS: Record<CognitiveDimension, DimensionInfo> = {
       'What is the lifecycle of [topic]?',
       'At what stage does [topic] apply?'
     ],
-    icon: '⏰'
+    icon: '@'
   },
   [CognitiveDimension.WHERE]: {
     dimension: CognitiveDimension.WHERE,
@@ -71,7 +71,7 @@ export const COGNITIVE_DIMENSIONS: Record<CognitiveDimension, DimensionInfo> = {
       'What is the scope of [topic]?',
       'In what context is [topic] relevant?'
     ],
-    icon: '📍'
+    icon: '^'
   },
   [CognitiveDimension.HOW]: {
     dimension: CognitiveDimension.HOW,
@@ -83,7 +83,7 @@ export const COGNITIVE_DIMENSIONS: Record<CognitiveDimension, DimensionInfo> = {
       'What is the mechanism of [topic]?',
       'What are the steps in [topic]?'
     ],
-    icon: '⚙️'
+    icon: '#'
   },
   [CognitiveDimension.CHARACTERISTICS]: {
     dimension: CognitiveDimension.CHARACTERISTICS,
@@ -95,7 +95,7 @@ export const COGNITIVE_DIMENSIONS: Record<CognitiveDimension, DimensionInfo> = {
       'How does [topic] relate to other concepts?',
       'What attributes define [topic]?'
     ],
-    icon: '🔍'
+    icon: '~'
   }
 }
 
