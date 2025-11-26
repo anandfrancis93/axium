@@ -23,6 +23,7 @@ export function TextSelectionChat({ enabled, context }: TextSelectionChatProps) 
   const [selectedText, setSelectedText] = useState('')
   const [showButton, setShowButton] = useState(false)
   const [buttonPosition, setButtonPosition] = useState({ x: 0, y: 0 })
+  const [isMobile, setIsMobile] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -41,6 +42,11 @@ export function TextSelectionChat({ enabled, context }: TextSelectionChatProps) 
   const initialPosRef = useRef({ x: 0, y: 0 })
   const startMouseRef = useRef({ x: 0, y: 0 })
   const rafRef = useRef<number | null>(null)
+
+  // Detect mobile on mount
+  useEffect(() => {
+    setIsMobile('ontouchstart' in window || navigator.maxTouchPoints > 0)
+  }, [])
 
   // Apply position using transform (GPU accelerated)
   const applyTransform = useCallback(() => {
@@ -196,27 +202,50 @@ export function TextSelectionChat({ enabled, context }: TextSelectionChatProps) 
 
       if (rect) {
         setSelectedText(text)
+        // Position button above selection on desktop, below on mobile (to avoid finger)
         setButtonPosition({
           x: rect.left + rect.width / 2,
-          y: rect.top - 10
+          y: isMobile ? rect.bottom + 10 : rect.top - 10
         })
         setShowButton(true)
       }
     } else {
       setShowButton(false)
     }
-  }, [enabled, showModal])
+  }, [enabled, showModal, isMobile])
 
-  // Add selection listener
+  // Add selection listener - support both desktop and mobile
   useEffect(() => {
     if (!enabled) return
 
+    // Desktop events
     document.addEventListener('mouseup', handleSelection)
     document.addEventListener('keyup', handleSelection)
+
+    // Mobile: Use selectionchange event (fires when selection changes on touch devices)
+    let selectionTimeout: NodeJS.Timeout | null = null
+    const handleSelectionChange = () => {
+      // Debounce to avoid firing too frequently during selection
+      if (selectionTimeout) clearTimeout(selectionTimeout)
+      selectionTimeout = setTimeout(() => {
+        handleSelection()
+      }, 300)
+    }
+    document.addEventListener('selectionchange', handleSelectionChange)
+
+    // Mobile: Also handle touchend for immediate feedback after selection
+    const handleTouchEnd = () => {
+      // Small delay to let selection finalize
+      setTimeout(handleSelection, 100)
+    }
+    document.addEventListener('touchend', handleTouchEnd)
 
     return () => {
       document.removeEventListener('mouseup', handleSelection)
       document.removeEventListener('keyup', handleSelection)
+      document.removeEventListener('selectionchange', handleSelectionChange)
+      document.removeEventListener('touchend', handleTouchEnd)
+      if (selectionTimeout) clearTimeout(selectionTimeout)
     }
   }, [enabled, handleSelection])
 
@@ -369,16 +398,16 @@ Break it down to the fundamental concepts and build understanding from the groun
       {/* Floating "Explain" button */}
       {showButton && (
         <button
-          className="selection-chat-button neuro-btn fixed z-50 flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-blue-400"
+          className="selection-chat-button neuro-btn fixed z-50 flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-400"
           style={{
             left: `${buttonPosition.x}px`,
             top: `${buttonPosition.y}px`,
-            transform: 'translate(-50%, -100%)'
+            transform: `translate(-50%, ${isMobile ? '0' : '-100%'})`
           }}
           onClick={handleExplain}
         >
-          <Sparkles size={14} />
-          <span>Explain</span>
+          <Sparkles size={16} />
+          <span>Explain with AI</span>
         </button>
       )}
 
