@@ -807,29 +807,16 @@ function LearnPageContent() {
           },
           {
             label: 'OK',
-            onClick: async () => {
-              console.log('[Exit Modal] OK button clicked')
-
+            onClick: () => {
               // Close modal first
               setShowExitModal(false)
-              console.log('[Exit Modal] Modal closed')
 
               // Clear quiz state and authorization from sessionStorage
-              console.log('[Exit Modal] Clearing sessionStorage...')
               sessionStorage.removeItem(STORAGE_KEY)
               sessionStorage.removeItem('quiz_authorized')
-              console.log('[Exit Modal] SessionStorage cleared')
 
-              // Navigate back to chapter page
-              console.log('[Exit Modal] Navigating to:', chapterPageUrl)
-              try {
-                await router.push(chapterPageUrl)
-                console.log('[Exit Modal] router.push completed')
-              } catch (error) {
-                console.error('[Exit Modal] router.push failed:', error)
-                // Fallback to window.location
-                window.location.href = chapterPageUrl
-              }
+              // Use window.location directly - more reliable than router.push
+              window.location.href = chapterPageUrl
             },
             variant: 'primary'
           }
