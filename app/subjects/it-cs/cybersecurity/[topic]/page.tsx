@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { ShieldIcon, ArrowLeftIcon } from '@/components/icons'
+import { ShieldIcon, ArrowLeftIcon, ChevronDownIcon } from '@/components/icons'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import {
@@ -436,9 +436,9 @@ export default function TopicDetailPage() {
                             </div>
                             <div className="text-xs text-gray-500">mastery</div>
                           </div>
-                          <span className="text-gray-400 text-sm font-mono">
-                            {isExpanded ? 'v' : '>'}
-                          </span>
+                          <div className={`neuro-inset w-8 h-8 rounded-lg flex items-center justify-center transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>
+                            <ChevronDownIcon size={16} className="text-gray-400" />
+                          </div>
                         </div>
                       </div>
 
