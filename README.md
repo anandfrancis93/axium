@@ -70,7 +70,7 @@ axium/
 │   ├── db/                    # Database utilities
 │   │   └── questions.ts       # Question persistence
 │   ├── progression/           # Learning progression logic
-│   │   ├── rl-topic-selector.ts       # Priority-based topic selection
+│   │   ├── priority-topic-selector.ts # Priority-based topic selection
 │   │   ├── format-selection.ts        # Format recommendation
 │   │   ├── confidence-calibration.ts  # Calibration tracking
 │   │   ├── adaptive-difficulty.ts     # Difficulty adjustment

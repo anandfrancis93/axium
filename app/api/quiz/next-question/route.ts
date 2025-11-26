@@ -9,7 +9,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
-import { selectNextTopic } from '@/lib/progression/rl-topic-selector'
+import { selectNextTopic } from '@/lib/progression/priority-topic-selector'
 import Anthropic from '@anthropic-ai/sdk'
 import { getRecommendedFormats } from '@/lib/graphrag/prompts'
 import { getNextQuestionPosition, determineQuestionType } from '@/lib/utils/question-selection'

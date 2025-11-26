@@ -580,23 +580,24 @@ export function shouldAdvanceBloomLevel(
 }
 ```
 
-#### RL State - Prepare for Future
+#### Priority-Based Topic Selection
 ```typescript
-// lib/progression/rl.ts
-export interface RLConfig {
-  explorationRate: number      // epsilon for epsilon-greedy
-  learningRate: number         // alpha
-  discountFactor: number       // gamma
-  strategy: 'random' | 'ucb' | 'thompson' | 'epsilon-greedy'
+// lib/progression/priority-topic-selector.ts
+export interface TopicSelection {
+  topicId: string
+  topicName: string
+  bloomLevel: number
+  selectionReason: string
+  priority: number
+  selectionMethod: 'rl' | 'spaced_repetition'
 }
 
-// For now, use rule-based, but structure allows easy RL integration
+// Priority-based selection with 4 weighted components
 export async function selectNextTopic(
   userId: string,
-  config: RLConfig
-): Promise<{ topicId: string, bloomLevel: number }> {
-  // Currently: rule-based
-  // Future: RL-based selection
+  subject?: string
+): Promise<TopicSelection> {
+  // Components: calibration (40%), spacing (30%), mastery (20%), variance (10%)
 }
 ```
 
@@ -1180,65 +1181,7 @@ Max 4 cards per row (1→2→4 scaling)
 
 ---
 
-### 18. RL Phase Tracking
-
-**Track learning progression through distinct Reinforcement Learning phases.**
-
-Axium tracks each user's learning journey through 6 distinct RL phases for each topic:
-
-#### Phase Overview
-```typescript
-import { RLPhaseBadge, RLPhaseIndicator } from '@/components/RLPhaseBadge'
-import { getRLPhaseInfo } from '@/lib/utils/rl-phase'
-
-// Display phase badge
-<RLPhaseBadge phase={userProgress.rl_phase} showDescription={true} />
-
-// Get phase information
-const phaseInfo = getRLPhaseInfo(userProgress.rl_phase)
-console.log(phaseInfo.name)         // "Exploration"
-console.log(phaseInfo.description)  // Full description
-console.log(phaseInfo.color)        // "text-blue-400"
-```
-
-#### The 6 Phases
-
-1. **Cold Start** (< 10 attempts) - Gray ○
-   - No prior knowledge, gathering initial data
-   - Random exploration
-
-2. **Exploration** (10-50 attempts) - Blue ◐
-   - Testing different strategies
-   - Finding what works
-
-3. **Optimization** (50-150 attempts) - Cyan ◑
-   - Focusing on high-value actions
-   - Refining approach
-
-4. **Stabilization** (150+ attempts, low variance) - Green ●
-   - Stable, consistent performance
-   - Converged policy
-
-5. **Adaptation** (150+ attempts, changing) - Yellow ◉
-   - Responding to performance changes
-   - Continuous adjustment
-
-6. **Meta-Learning** (500+ attempts, excellent) - Purple ◈
-   - Learning how to learn
-   - Self-optimization
-
-#### Automatic Phase Calculation
-
-Phases are automatically calculated based on:
-- `total_attempts` - Experience level
-- `mastery_variance` - Performance consistency
-- `confidence_calibration_error` - Self-assessment accuracy
-
-See `docs/RL_PHASE_TRACKING.md` for complete documentation.
-
----
-
-### 19. Question Format Personalization
+### 18. Question Format Personalization
 
 **Personalize HOW students learn, not just WHAT they learn.**
 
@@ -1275,10 +1218,10 @@ const formats = getRecommendedFormats(3)  // Returns formats ideal for Apply lev
 
 #### Format Selection Strategy
 
-The RL system uses format performance to personalize learning:
+The system uses format performance to personalize learning:
 
 ```typescript
-// Stored in user_progress.rl_metadata
+// Stored in user_progress metadata
 {
   "format_performance": {
     "3": {  // Bloom level 3
@@ -1295,9 +1238,9 @@ The RL system uses format performance to personalize learning:
 ```
 
 **Selection Algorithm:**
-- **Cold Start Phase** → Uniform random (gather baseline)
-- **Exploration Phase** → Epsilon-greedy (ε=0.3)
-- **Optimization Phase** → Exploit best formats (ε=0.1)
+- **Cold Start** (< 10 attempts) → Uniform random (gather baseline)
+- **Exploration** (10+ attempts) → 30% new topics, 70% priority-based
+- **Priority Selection** → Highest priority topic based on calibration, spacing, mastery, variance
 
 #### UI Components
 
