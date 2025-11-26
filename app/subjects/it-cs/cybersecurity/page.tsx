@@ -407,7 +407,7 @@ export default function CybersecurityPage() {
               if (showProgress) setShowProgress(false)
               if (showSpacedRepetition) setShowSpacedRepetition(false)
             }}
-            className={`neuro-btn px-6 py-2 font-semibold hover:bg-green-500/10 hover:translate-y-0 transition-colors ${showSecurityPlus ? 'text-green-400 bg-green-500/20' : 'text-green-400'
+            className={`neuro-btn px-6 py-2 font-semibold hover:bg-blue-500/10 hover:translate-y-0 transition-colors ${showSecurityPlus ? 'text-blue-400 bg-blue-500/20' : 'text-blue-400'
               }`}
           >
             Security+
