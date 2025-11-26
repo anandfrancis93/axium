@@ -152,9 +152,9 @@ export async function selectNextTopic(
 
   // Determine selection method
   if (isSpacedRepetition) {
-    return await selectSpacedRepetitionTopic(eligibleTopics, progress)
+    return await selectSpacedRepetitionTopic(eligibleTopics, progress, supabase, userId)
   } else {
-    return await selectRLTopic(eligibleTopics, progress, questionCount)
+    return await selectRLTopic(eligibleTopics, progress, questionCount, supabase, userId)
   }
 }
 
@@ -226,7 +226,9 @@ async function filterByPrerequisites(
  */
 async function selectSpacedRepetitionTopic(
   eligibleTopics: any[],
-  progress: UserProgressRow[]
+  progress: UserProgressRow[],
+  supabase?: any,
+  userId?: string
 ): Promise<TopicSelection> {
   const now = new Date()
 
@@ -238,7 +240,7 @@ async function selectSpacedRepetitionTopic(
   if (practicedTopics.length === 0) {
     // No practiced topics yet - fall back to RL for cold start
     // Log removed
-    return await selectRLTopic(eligibleTopics, progress, 0)
+    return await selectRLTopic(eligibleTopics, progress, 0, supabase, userId)
   }
 
   // Calculate time since last practice for each topic
@@ -269,7 +271,7 @@ async function selectSpacedRepetitionTopic(
 
   if (!selected) {
     // Fallback
-    return await selectRLTopic(eligibleTopics, progress, 0)
+    return await selectRLTopic(eligibleTopics, progress, 0, supabase, userId)
   }
 
   return {
@@ -288,12 +290,43 @@ async function selectSpacedRepetitionTopic(
 async function selectRLTopic(
   eligibleTopics: any[],
   progress: UserProgressRow[],
-  totalAttempts: number
+  totalAttempts: number,
+  supabase?: any,
+  userId?: string
 ): Promise<TopicSelection> {
   // Filter progress to only eligible topics
-  const eligibleProgress = progress.filter(p =>
+  let eligibleProgress = progress.filter(p =>
     eligibleTopics.some(t => t.id === p.topic_id)
   )
+
+  // COOLDOWN: Exclude topics practiced in last 5 questions to force variety
+  if (supabase && userId && eligibleProgress.length > 1) {
+    try {
+      const { data: recentResponses } = await supabase
+        .from('user_responses')
+        .select('questions(topic_id)')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(5)
+
+      if (recentResponses && recentResponses.length > 0) {
+        const recentTopicIds = new Set(
+          recentResponses
+            .map((r: any) => r.questions?.topic_id)
+            .filter((id: any) => id)
+        )
+
+        // Only exclude if we'd still have topics left
+        const filteredProgress = eligibleProgress.filter(p => !recentTopicIds.has(p.topic_id))
+        if (filteredProgress.length > 0) {
+          console.log(`[RL] Cooldown: Excluded ${eligibleProgress.length - filteredProgress.length} recently practiced topics`)
+          eligibleProgress = filteredProgress
+        }
+      }
+    } catch (error) {
+      console.error('[RL] Error fetching recent responses for cooldown:', error)
+    }
+  }
 
   // Find topics user hasn't practiced yet
   const practicedTopicIds = new Set(progress.map(p => p.topic_id))
