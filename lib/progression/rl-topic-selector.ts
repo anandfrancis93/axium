@@ -295,10 +295,16 @@ async function selectRLTopic(
     eligibleTopics.some(t => t.id === p.topic_id)
   )
 
+  // Find topics user hasn't practiced yet
+  const practicedTopicIds = new Set(progress.map(p => p.topic_id))
+  const newTopics = eligibleTopics.filter(t => !practicedTopicIds.has(t.id))
+
   // Cold start: Random selection when user has < 10 total attempts
   if (totalAttempts < 10 || eligibleProgress.length === 0) {
-    const randomIndex = Math.floor(Math.random() * eligibleTopics.length)
-    const selected = eligibleTopics[randomIndex]
+    // Prefer new topics during cold start
+    const topicsToChooseFrom = newTopics.length > 0 ? newTopics : eligibleTopics
+    const randomIndex = Math.floor(Math.random() * topicsToChooseFrom.length)
+    const selected = topicsToChooseFrom[randomIndex]
 
     return {
       topicId: selected.id,
@@ -306,6 +312,24 @@ async function selectRLTopic(
       bloomLevel: 1,
       selectionReason: 'Cold start: Random exploration from eligible topics',
       priority: 0,
+      selectionMethod: 'rl'
+    }
+  }
+
+  // EXPLORATION: 30% chance to introduce a new topic if available
+  // This ensures we don't just cycle through the same topics forever
+  if (newTopics.length > 0 && Math.random() < 0.3) {
+    const randomIndex = Math.floor(Math.random() * newTopics.length)
+    const selected = newTopics[randomIndex]
+
+    console.log(`[RL] Exploration: Introducing new topic "${selected.name}" (${newTopics.length} new topics available)`)
+
+    return {
+      topicId: selected.id,
+      topicName: selected.name,
+      bloomLevel: 1,
+      selectionReason: `Exploration: Introducing new topic (${newTopics.length} untried topics)`,
+      priority: 0.5,
       selectionMethod: 'rl'
     }
   }
