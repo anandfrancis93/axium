@@ -46,6 +46,76 @@ function validateMCQOptionBalance(options: string[]): { valid: boolean; ratio: n
   return { valid: ratio <= 0.30, ratio }
 }
 
+/**
+ * Shuffle MCQ options and update correct_answer accordingly
+ * Uses Fisher-Yates shuffle algorithm
+ */
+function shuffleMCQOptions(question: any): any {
+  if (!question.options || !Array.isArray(question.options)) {
+    return question
+  }
+
+  const options = [...question.options]
+  const correctAnswer = question.correct_answer
+
+  // For mcq_single: correct_answer is a letter like "A", "B", "C", "D"
+  // For mcq_multi: correct_answer is an array like ["A", "C"]
+  // For fill_blank: correct_answer is the actual text
+
+  // Determine correct option indices before shuffling
+  let correctIndices: number[] = []
+  if (Array.isArray(correctAnswer)) {
+    // mcq_multi: ["A", "C"] -> [0, 2]
+    correctIndices = correctAnswer.map((letter: string) => letter.charCodeAt(0) - 65)
+  } else if (typeof correctAnswer === 'string' && correctAnswer.length === 1 && correctAnswer >= 'A' && correctAnswer <= 'Z') {
+    // mcq_single: "A" -> [0]
+    correctIndices = [correctAnswer.charCodeAt(0) - 65]
+  } else {
+    // fill_blank or other: correct_answer is the text itself, find its index
+    const idx = options.findIndex((opt: string) => opt === correctAnswer)
+    if (idx !== -1) {
+      correctIndices = [idx]
+    } else {
+      // Can't find correct answer in options, return as-is
+      return question
+    }
+  }
+
+  // Create index mapping for shuffle
+  const indices = options.map((_, i) => i)
+
+  // Fisher-Yates shuffle
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]]
+  }
+
+  // Apply shuffle to options
+  const shuffledOptions = indices.map(i => options[i])
+
+  // Find new positions of correct answers
+  const newCorrectIndices = correctIndices.map(oldIdx => indices.indexOf(oldIdx))
+
+  // Update correct_answer
+  let newCorrectAnswer: string | string[]
+  if (Array.isArray(correctAnswer)) {
+    // mcq_multi
+    newCorrectAnswer = newCorrectIndices.map(idx => String.fromCharCode(65 + idx)).sort()
+  } else if (typeof correctAnswer === 'string' && correctAnswer.length === 1 && correctAnswer >= 'A' && correctAnswer <= 'Z') {
+    // mcq_single
+    newCorrectAnswer = String.fromCharCode(65 + newCorrectIndices[0])
+  } else {
+    // fill_blank: keep the text as correct_answer
+    newCorrectAnswer = correctAnswer
+  }
+
+  return {
+    ...question,
+    options: shuffledOptions,
+    correct_answer: newCorrectAnswer
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
@@ -222,22 +292,25 @@ async function handleSpacedRepetitionQuestion(
 
 
 
+  // Shuffle MCQ options before returning
+  const shuffledQuestion = shuffleMCQOptions({
+    id: question.id,
+    topic_id: question.topic_id,
+    topic_name: question.topics.name,
+    bloom_level: question.bloom_level,
+    question_format: question.question_format,
+    cognitive_dimension: question.cognitive_dimension,
+    question_text: question.question_text,
+    options: question.options,
+    correct_answer: question.correct_answer,
+    explanation: question.explanation,
+    selection_reason: 'Spaced repetition review',
+    selection_method: 'spaced_repetition'
+  })
+
   return NextResponse.json({
     success: true,
-    question: {
-      id: question.id,
-      topic_id: question.topic_id,
-      topic_name: question.topics.name,
-      bloom_level: question.bloom_level,
-      question_format: question.question_format,
-      cognitive_dimension: question.cognitive_dimension,
-      question_text: question.question_text,
-      options: question.options,
-      correct_answer: question.correct_answer,
-      explanation: question.explanation,
-      selection_reason: 'Spaced repetition review',
-      selection_method: 'spaced_repetition'
-    },
+    question: shuffledQuestion,
     metadata: {
       selectionReason: 'Spaced repetition review',
       questionType: 'spaced_repetition'
@@ -317,11 +390,14 @@ async function handleDimensionPracticeQuestion(
     question_text: question.question || question.question_text
   }
 
+  // Shuffle MCQ options before returning
+  const shuffledQuestion = shuffleMCQOptions(enrichedQuestion)
+
   return NextResponse.json({
     success: true,
-    question: enrichedQuestion,
+    question: shuffledQuestion,
     metadata: {
-      selectionReason: enrichedQuestion.selection_reason,
+      selectionReason: shuffledQuestion.selection_reason,
       questionType: 'dimension_practice'
     }
   })
@@ -444,9 +520,12 @@ async function handleNewTopicQuestion(
     } : null
   }
 
+  // Shuffle MCQ options before returning
+  const shuffledQuestion = shuffleMCQOptions(enrichedQuestion)
+
   return NextResponse.json({
     success: true,
-    question: enrichedQuestion,
+    question: shuffledQuestion,
     metadata: {
       selectionReason: selection.selectionReason,
       priority: selection.priority
