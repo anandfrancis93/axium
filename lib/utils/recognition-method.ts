@@ -21,6 +21,11 @@ export function getAvailableRecognitionMethods(format: QuestionFormat): Recognit
       // Open-ended has no options to recognize
       return ['memory', 'educated_guess']
 
+    case 'true_false':
+      // True/False: "recognition" doesn't apply since True/False aren't
+      // recognizable answers - you either know it, reason it, or guess 50/50
+      return ['memory', 'educated_guess', 'random_guess']
+
     case 'mcq_single':
     case 'mcq_multi':
     case 'fill_blank':
@@ -52,6 +57,8 @@ export function getDefaultRecognitionMethod(format: QuestionFormat): Recognition
   switch (format) {
     case 'open_ended':
       return 'educated_guess'  // Most common for open-ended
+    case 'true_false':
+      return 'educated_guess'  // Most common for true/false (reasoning about the statement)
     case 'mcq_single':
     case 'mcq_multi':
       return 'recognition'  // Most common for MCQ-style
@@ -69,6 +76,8 @@ export function getUnavailableMethodExplanation(format: QuestionFormat): string 
   switch (format) {
     case 'open_ended':
       return 'For open-ended questions, you cannot recognize from options or guess randomly, so only memory recall and educated reasoning are available.'
+    case 'true_false':
+      return 'For true/false questions, "recognition" does not apply since True and False are not recognizable answers - you either know it, reason it out, or guess.'
     default:
       return null  // All methods available
   }
