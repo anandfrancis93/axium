@@ -799,17 +799,70 @@ export default function CybersecurityPage() {
                   {/* Score Bar Visualization */}
                   <div className="neuro-inset p-4 rounded-lg">
                     <div className="relative h-8 bg-gray-800 rounded-full overflow-hidden">
-                      {/* Score range bar */}
-                      <div
-                        className="absolute h-full bg-gradient-to-r from-blue-600 to-blue-400 rounded-full"
-                        style={{
-                          left: `${((prediction.lower - 100) / 800) * 100}%`,
-                          width: `${((prediction.upper - prediction.lower) / 800) * 100}%`
-                        }}
-                      />
+                      {/* Zone thresholds: Red < 600, Yellow 600-750, Green >= 750 */}
+                      {(() => {
+                        const lower = prediction.lower
+                        const upper = prediction.upper
+                        const redEnd = 600
+                        const yellowEnd = 750
+
+                        // Calculate segments for each zone the range overlaps
+                        const segments: { left: number; width: number; color: string }[] = []
+
+                        // Red zone (100-600)
+                        if (lower < redEnd) {
+                          const segStart = Math.max(lower, 100)
+                          const segEnd = Math.min(upper, redEnd)
+                          if (segStart < segEnd) {
+                            segments.push({
+                              left: ((segStart - 100) / 800) * 100,
+                              width: ((segEnd - segStart) / 800) * 100,
+                              color: 'bg-red-500'
+                            })
+                          }
+                        }
+
+                        // Yellow zone (600-750)
+                        if (lower < yellowEnd && upper > redEnd) {
+                          const segStart = Math.max(lower, redEnd)
+                          const segEnd = Math.min(upper, yellowEnd)
+                          if (segStart < segEnd) {
+                            segments.push({
+                              left: ((segStart - 100) / 800) * 100,
+                              width: ((segEnd - segStart) / 800) * 100,
+                              color: 'bg-yellow-500'
+                            })
+                          }
+                        }
+
+                        // Green zone (750-900)
+                        if (upper > yellowEnd) {
+                          const segStart = Math.max(lower, yellowEnd)
+                          const segEnd = Math.min(upper, 900)
+                          if (segStart < segEnd) {
+                            segments.push({
+                              left: ((segStart - 100) / 800) * 100,
+                              width: ((segEnd - segStart) / 800) * 100,
+                              color: 'bg-green-500'
+                            })
+                          }
+                        }
+
+                        return segments.map((seg, i) => (
+                          <div
+                            key={i}
+                            className={`absolute h-full ${seg.color}`}
+                            style={{
+                              left: `${seg.left}%`,
+                              width: `${seg.width}%`,
+                              borderRadius: i === 0 ? '9999px 0 0 9999px' : i === segments.length - 1 ? '0 9999px 9999px 0' : '0'
+                            }}
+                          />
+                        ))
+                      })()}
                       {/* Passing line */}
                       <div
-                        className="absolute top-0 bottom-0 w-0.5 bg-green-400"
+                        className="absolute top-0 bottom-0 w-0.5 bg-white/50"
                         style={{ left: `${((750 - 100) / 800) * 100}%` }}
                         title="Passing score: 750"
                       />
