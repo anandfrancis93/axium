@@ -837,32 +837,28 @@ IMPORTANT: options array should contain ONLY the option text without any letter 
 
 Format: {"question": "Select all that apply: Which are X?", "options": ["First option text", "Second option text", "Third option text", "Fourth option text"], "correct_answer": ["A", "C"], "explanation": "..."}
 IMPORTANT: options array should contain ONLY the option text without any letter prefixes. The correct_answer should be an array of letters.`,
-    fill_blank: `Generate a fill-in-the-blank question with 4 options.
+    fill_blank: `Generate a fill-in-the-blank question where THE TOPIC NAME IS THE ANSWER.
 
-⚠️ **CRITICAL: SINGLE WORD ANSWERS ONLY**
-- The blank MUST be filled with exactly ONE WORD
-- ❌ BAD: "Public and private" (phrase)
-- ❌ BAD: "two-factor authentication" (multiple words)
-- ✅ GOOD: "encryption", "hashing", "firewall", "authentication"
+⚠️ **CRITICAL RULE: THE BLANK MUST BE THE TOPIC NAME**
+- The correct answer MUST be the topic name: "${topicName}"
+- Create a definition/description where the topic name fills the blank
+- The blank should be at the START of the sentence (defining the term)
 
-**ANTI-GIVEAWAY RULES:**
+**CORRECT FORMAT:**
+- "_____ is a framework of certificate authorities, digital certificates, and cryptographic components." → Answer: "PKI"
+- "_____ is the process of converting plaintext into unreadable ciphertext." → Answer: "Encryption"
+- "_____ is a type of malware that demands payment to restore access." → Answer: "Ransomware"
 
-**1. NO ANSWER LEAKAGE:**
-- The question text must NOT contain words that appear in the correct answer
-- The question must NOT hint at the answer through synonyms or related terms
-- ❌ BAD: "The process of converting plaintext to ciphertext is called _____" with answer "encryption" when "ciphertext" already hints at it
-- ✅ GOOD: "The process of securing data so only authorized parties can read it is called _____" with answer "encryption"
+**WRONG FORMAT (DO NOT DO THIS):**
+- ❌ "PKI is a _____ of certificate authorities..." → Answer: "framework" (BAD - blank is not the topic)
+- ❌ "The _____ process converts data..." → Answer: "encryption" (BAD - topic should be at the blank position)
 
-**2. SIBLING DISTRACTORS:**
-- All options must be related concepts from the same category
-- All options must be SINGLE WORDS
-- ❌ BAD: "encryption" with options like "keyboard", "monitor", "cable"
-- ✅ GOOD: "encryption" with options like "hashing", "encoding", "obfuscation"
+**DISTRACTOR OPTIONS:**
+- Provide 3 other topic names from the same domain as distractors
+- All options should be real concepts/terms, not generic words
+- Options should be similar in structure to the topic name
 
-**3. SIMILAR OPTION STRUCTURE:**
-- All options should be single words of similar length and complexity
-
-Format: {"question": "The process of _____ is...", "options": ["encryption", "hashing", "encoding", "obfuscation"], "correct_answer": "encryption", "explanation": "..."}`,
+Format: {"question": "_____ is [definition of ${topicName}]...", "options": ["${topicName}", "SimilarTopic1", "SimilarTopic2", "SimilarTopic3"], "correct_answer": "${topicName}", "explanation": "..."}`,
     open_ended: 'Generate an open-ended question requiring a short paragraph answer. Format: {"question": "...", "correct_answer": "Key points: ...", "explanation": "..."}'
   }
 
