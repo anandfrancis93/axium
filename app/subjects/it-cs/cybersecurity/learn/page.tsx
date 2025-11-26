@@ -799,11 +799,16 @@ function LearnPageContent() {
           {
             label: 'OK',
             onClick: () => {
+              console.log('[Exit Modal] OK button clicked')
+              console.log('[Exit Modal] Clearing sessionStorage...')
               // Clear quiz state and authorization from sessionStorage
               sessionStorage.removeItem(STORAGE_KEY)
               sessionStorage.removeItem('quiz_authorized')
+              console.log('[Exit Modal] SessionStorage cleared')
+              console.log('[Exit Modal] Navigating to:', chapterPageUrl)
               // Navigate back to chapter page
               router.push(chapterPageUrl)
+              console.log('[Exit Modal] router.push called')
             },
             variant: 'primary'
           }

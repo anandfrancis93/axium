@@ -35,16 +35,23 @@ export default function Modal({ isOpen, onClose, title, children, type = 'info',
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background: 'rgba(0, 0, 0, 0.8)' }}
-      onClick={onClose}
+      onClick={() => {
+        console.log('[Modal] Backdrop clicked, closing modal')
+        onClose()
+      }}
     >
       <div
         className="neuro-card max-w-lg w-full relative animate-fade-in"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          console.log('[Modal] Modal card clicked, stopping propagation')
+          e.stopPropagation()
+        }}
       >
         {/* Close button */}
         <button
           type="button"
           onClick={(e) => {
+            console.log('[Modal] X button clicked')
             e.stopPropagation()
             onClose()
           }}
@@ -85,8 +92,11 @@ export default function Modal({ isOpen, onClose, title, children, type = 'info',
                   key={idx}
                   type="button"
                   onClick={(e) => {
+                    console.log(`[Modal] Button "${action.label}" clicked`)
                     e.stopPropagation()
+                    console.log(`[Modal] Calling onClick handler for "${action.label}"`)
                     action.onClick()
+                    console.log(`[Modal] onClick handler completed for "${action.label}"`)
                   }}
                   className={`neuro-btn px-6 py-3 font-medium transition-colors ${variantClasses[action.variant || 'secondary']}`}
                 >
