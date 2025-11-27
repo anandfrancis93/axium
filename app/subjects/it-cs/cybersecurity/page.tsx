@@ -1063,26 +1063,26 @@ export default function CybersecurityPage() {
                           key={topic.id}
                           className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors group"
                         >
-                          <td className="p-4">
+                          <td className="p-4 align-top">
                             {editingTopicId === topic.id ? (
-                              <input
-                                type="text"
+                              <textarea
                                 value={editedName}
                                 onChange={(e) => setEditedName(e.target.value)}
-                                className="neuro-input w-full py-1 px-2 text-sm"
+                                className="neuro-input w-full py-1 px-2 text-sm resize-y min-h-[32px]"
+                                rows={1}
                                 autoFocus
                               />
                             ) : (
                               <span className="font-medium text-gray-200">{topic.name}</span>
                             )}
                           </td>
-                          <td className="p-4">
+                          <td className="p-4 align-top">
                             {editingTopicId === topic.id ? (
-                              <input
-                                type="text"
+                              <textarea
                                 value={editedDescription}
                                 onChange={(e) => setEditedDescription(e.target.value)}
-                                className="neuro-input w-full py-1 px-2 text-sm"
+                                className="neuro-input w-full py-1 px-2 text-sm resize-y min-h-[60px]"
+                                rows={2}
                                 placeholder="No description"
                               />
                             ) : (
