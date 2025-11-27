@@ -1042,10 +1042,38 @@ export default function CybersecurityPage() {
 
             {/* Topics Table */}
             {!topicListLoading && allTopics.length > 0 && (() => {
-              const filteredAllTopics = allTopics.filter(topic =>
-                topic.name.toLowerCase().includes(topicSearchQuery.toLowerCase()) ||
-                (topic.description && topic.description.toLowerCase().includes(topicSearchQuery.toLowerCase()))
-              )
+              const query = topicSearchQuery.toLowerCase()
+              const filteredAllTopics = allTopics
+                .filter(topic =>
+                  topic.name.toLowerCase().includes(query) ||
+                  (topic.description && topic.description.toLowerCase().includes(query))
+                )
+                .sort((a, b) => {
+                  if (!query) return 0 // Keep alphabetical when no search
+
+                  const aNameMatch = a.name.toLowerCase().includes(query)
+                  const bNameMatch = b.name.toLowerCase().includes(query)
+
+                  // Prioritize name matches over description-only matches
+                  if (aNameMatch && !bNameMatch) return -1
+                  if (!aNameMatch && bNameMatch) return 1
+
+                  // If both match name, prioritize exact match, then starts-with
+                  if (aNameMatch && bNameMatch) {
+                    const aExact = a.name.toLowerCase() === query
+                    const bExact = b.name.toLowerCase() === query
+                    if (aExact && !bExact) return -1
+                    if (!aExact && bExact) return 1
+
+                    const aStartsWith = a.name.toLowerCase().startsWith(query)
+                    const bStartsWith = b.name.toLowerCase().startsWith(query)
+                    if (aStartsWith && !bStartsWith) return -1
+                    if (!aStartsWith && bStartsWith) return 1
+                  }
+
+                  // Otherwise keep alphabetical
+                  return a.name.localeCompare(b.name)
+                })
 
               return filteredAllTopics.length > 0 ? (
                 <div className="overflow-y-auto max-h-[600px]">
