@@ -51,6 +51,8 @@ export default function CybersecurityPage() {
   const [editedName, setEditedName] = useState('')
   const [editedDescription, setEditedDescription] = useState('')
   const [savingTopic, setSavingTopic] = useState(false)
+  const [deletingTopic, setDeletingTopic] = useState<Topic | null>(null)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   useEffect(() => {
     if (showProgress || showSpacedRepetition || showSecurityPlus) {
@@ -136,6 +138,40 @@ export default function CybersecurityPage() {
       setShowErrorModal(true)
     } finally {
       setSavingTopic(false)
+    }
+  }
+
+  function confirmDeleteTopic(topic: Topic) {
+    setDeletingTopic(topic)
+    setShowDeleteModal(true)
+  }
+
+  async function deleteTopic() {
+    if (!deletingTopic) return
+
+    try {
+      const supabase = createClient()
+
+      const { error } = await supabase
+        .from('topics')
+        .delete()
+        .eq('id', deletingTopic.id)
+
+      if (error) {
+        console.error('Error deleting topic:', error)
+        setErrorMessage('Failed to delete topic. Please try again.')
+        setShowErrorModal(true)
+        return
+      }
+
+      // Update local state
+      setAllTopics(prev => prev.filter(topic => topic.id !== deletingTopic.id))
+      setShowDeleteModal(false)
+      setDeletingTopic(null)
+    } catch (error) {
+      console.error('Error in deleteTopic:', error)
+      setErrorMessage('Failed to delete topic. Please try again.')
+      setShowErrorModal(true)
     }
   }
 
@@ -1140,13 +1176,22 @@ export default function CybersecurityPage() {
                                 </button>
                               </div>
                             ) : (
-                              <button
-                                onClick={() => startEditingTopic(topic)}
-                                className="neuro-btn p-1.5 text-gray-400 hover:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity"
-                                title="Edit"
-                              >
-                                <EditIcon size={16} />
-                              </button>
+                              <div className="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                  onClick={() => startEditingTopic(topic)}
+                                  className="neuro-btn p-1.5 text-gray-400 hover:text-blue-400"
+                                  title="Edit"
+                                >
+                                  <EditIcon size={16} />
+                                </button>
+                                <button
+                                  onClick={() => confirmDeleteTopic(topic)}
+                                  className="neuro-btn p-1.5 text-gray-400 hover:text-red-400"
+                                  title="Delete"
+                                >
+                                  <TrashIcon size={16} />
+                                </button>
+                              </div>
                             )}
                           </td>
                         </tr>
@@ -1253,6 +1298,49 @@ export default function CybersecurityPage() {
       >
         <div className="text-gray-300">
           {errorMessage}
+        </div>
+      </Modal>
+
+      {/* Delete Topic Confirmation Modal */}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false)
+          setDeletingTopic(null)
+        }}
+        title="Delete Topic"
+        type="warning"
+        actions={[
+          {
+            label: 'Cancel',
+            onClick: () => {
+              setShowDeleteModal(false)
+              setDeletingTopic(null)
+            },
+            variant: 'secondary'
+          },
+          {
+            label: 'Delete',
+            onClick: deleteTopic,
+            variant: 'danger'
+          }
+        ]}
+      >
+        <div className="space-y-4">
+          <p className="text-gray-300">
+            Are you sure you want to delete this topic?
+          </p>
+          {deletingTopic && (
+            <div className="neuro-inset p-3 rounded-lg">
+              <div className="font-medium text-gray-200">{deletingTopic.name}</div>
+              {deletingTopic.description && (
+                <div className="text-sm text-gray-400 mt-1">{deletingTopic.description}</div>
+              )}
+            </div>
+          )}
+          <p className="text-red-400 text-sm">
+            This action cannot be undone.
+          </p>
         </div>
       </Modal>
     </div>
