@@ -25,7 +25,9 @@ export function normalizeCalibration(calibration: number | null): number {
   const value = calibration ?? 0
   // Clamp to valid range before normalizing
   const clamped = Math.max(-1.5, Math.min(1.5, value))
-  return (clamped + 1.5) / 3
+  // Round to 2 decimal places to avoid floating point precision issues
+  // e.g., (0.90 + 1.5) / 3 = 0.7999999999999999 instead of 0.8
+  return Math.round((clamped + 1.5) / 3 * 100) / 100
 }
 
 /**
