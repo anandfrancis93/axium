@@ -552,14 +552,12 @@ export default function CybersecurityPage() {
                       <td className="p-4 text-center">
                         {(() => {
                           const avgCalibration = filteredTopics.reduce((sum, topic) => sum + (topic.calibration_mean ?? 0), 0) / filteredTopics.length
+                          const normalized = normalizeCalibration(avgCalibration)
                           return (
-                            <div className={`text-lg font-bold ${avgCalibration >= 1.0 ? 'text-green-400' :
-                                avgCalibration >= 0.5 ? 'text-yellow-400' :
-                                  avgCalibration >= 0.0 ? 'text-yellow-400' :
-                                    avgCalibration >= -0.5 ? 'text-yellow-400' :
-                                      'text-red-400'
+                            <div className={`text-lg font-bold ${normalized >= 0.67 ? 'text-green-400' :
+                                normalized >= 0.33 ? 'text-yellow-400' : 'text-red-400'
                               }`}>
-                              {avgCalibration.toFixed(2)}
+                              {normalized.toFixed(2)}
                             </div>
                           )
                         })()}
