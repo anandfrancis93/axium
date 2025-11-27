@@ -467,52 +467,53 @@ function calculateCalibrationScore(
   confidence: number,
   recognitionMethod: string
 ): number {
-  // 3D Calibration Matrix
+  // 3D Calibration Matrix - 24 unique values (2×3×4 = 24 combinations)
+  // Range: -1.5 to +1.5, normalized to 0-1 for spaced repetition intervals
   const calibrationMatrix: Record<string, Record<number, Record<string, number>>> = {
-    // CORRECT ANSWERS
+    // CORRECT ANSWERS (12 unique positive values)
     correct: {
       // High Confidence + Correct
       3: {
         memory: 1.5,          // Perfect: recalled from memory with high confidence
-        recognition: 1.2,     // Good: recognized correctly with confidence
-        educated_guess: 0.8,  // Okay: lucky educated guess, overconfident
+        recognition: 1.2,     // Great: recognized correctly with confidence
+        educated_guess: 0.8,  // Okay: educated guess worked, slightly overconfident
         random_guess: 0.3     // Lucky: random guess correct, poor calibration
       },
       // Medium Confidence + Correct
       2: {
-        memory: 1.2,          // Good: recall but underconfident
+        memory: 1.1,          // Good: recall but slightly underconfident
         recognition: 1.0,     // Good: appropriate confidence for recognition
         educated_guess: 0.9,  // Good: reasonable calibration for educated guess
-        random_guess: 0.4     // Lucky: random guess, poor calibration
+        random_guess: 0.4     // Lucky: random guess worked, acknowledged uncertainty
       },
       // Low Confidence + Correct
       1: {
-        memory: 0.9,          // Underconfident: recall but very uncertain
-        recognition: 0.8,     // Underconfident but appropriate for uncertain recognition
+        memory: 0.85,         // Underconfident: recall but very uncertain
+        recognition: 0.75,    // Underconfident: recognized but doubted yourself
         educated_guess: 0.7,  // Good calibration: uncertain educated guess that worked
-        random_guess: 0.5     // Best calibration: knew it was random, got lucky
+        random_guess: 0.5     // Best for luck: knew it was random, got lucky
       }
     },
-    // INCORRECT ANSWERS
+    // INCORRECT ANSWERS (12 unique negative values)
     incorrect: {
       // High Confidence + Incorrect
       3: {
         memory: -1.5,         // Worst: false memory with high confidence
-        recognition: -1.2,    // Bad: misrecognition with high confidence
+        recognition: -1.2,    // Very bad: misrecognition with high confidence
         educated_guess: -0.8, // Bad: overconfident wrong guess
-        random_guess: -0.5    // Odd: why high confidence on random guess?
+        random_guess: -0.5    // Poor: why high confidence on random guess?
       },
       // Medium Confidence + Incorrect
       2: {
         memory: -1.0,         // Bad: false memory with moderate confidence
-        recognition: -0.8,    // Bad: misrecognition
+        recognition: -0.75,   // Bad: misrecognition with some doubt
         educated_guess: -0.6, // Reasonable: moderate confidence on failed logic
         random_guess: -0.4    // Poor calibration: random with medium confidence
       },
       // Low Confidence + Incorrect
       1: {
-        memory: -0.6,         // Good calibration: uncertain false memory
-        recognition: -0.4,    // Good calibration: uncertain misrecognition
+        memory: -0.55,        // Fair: uncertain about false memory
+        recognition: -0.35,   // Good calibration: uncertain misrecognition
         educated_guess: -0.3, // Good calibration: knew logic was shaky
         random_guess: -0.2    // Excellent calibration: knew it was random, was wrong
       }
