@@ -13,6 +13,7 @@ interface ModalProps {
     label: string
     onClick: () => void
     variant?: 'primary' | 'danger' | 'secondary'
+    disabled?: boolean
   }[]
 }
 
@@ -91,14 +92,16 @@ export default function Modal({ isOpen, onClose, title, children, type = 'info',
                 <button
                   key={idx}
                   type="button"
+                  disabled={action.disabled}
                   onClick={(e) => {
+                    if (action.disabled) return
                     console.log(`[Modal] Button "${action.label}" clicked`)
                     e.stopPropagation()
                     console.log(`[Modal] Calling onClick handler for "${action.label}"`)
                     action.onClick()
                     console.log(`[Modal] onClick handler completed for "${action.label}"`)
                   }}
-                  className={`neuro-btn px-6 py-3 font-medium transition-colors ${variantClasses[action.variant || 'secondary']}`}
+                  className={`neuro-btn px-6 py-3 font-medium transition-colors ${variantClasses[action.variant || 'secondary']} ${action.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   {action.label}
                 </button>

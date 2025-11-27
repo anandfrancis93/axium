@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ShieldIcon, SearchIcon, TrashIcon, EditIcon, CheckIcon, XIcon } from '@/components/icons'
+import { ShieldIcon, SearchIcon, TrashIcon, EditIcon, CheckIcon, XIcon, PlusIcon } from '@/components/icons'
 import Image from 'next/image'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import Modal from '@/components/Modal'
@@ -53,6 +53,10 @@ export default function CybersecurityPage() {
   const [savingTopic, setSavingTopic] = useState(false)
   const [deletingTopic, setDeletingTopic] = useState<Topic | null>(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [showAddModal, setShowAddModal] = useState(false)
+  const [newTopicName, setNewTopicName] = useState('')
+  const [newTopicDescription, setNewTopicDescription] = useState('')
+  const [addingTopic, setAddingTopic] = useState(false)
 
   useEffect(() => {
     if (showProgress || showSpacedRepetition || showSecurityPlus) {
@@ -172,6 +176,46 @@ export default function CybersecurityPage() {
       console.error('Error in deleteTopic:', error)
       setErrorMessage('Failed to delete topic. Please try again.')
       setShowErrorModal(true)
+    }
+  }
+
+  async function addTopic() {
+    if (!newTopicName.trim()) return
+
+    try {
+      setAddingTopic(true)
+      const supabase = createClient()
+
+      const { data, error } = await supabase
+        .from('topics')
+        .insert({
+          name: newTopicName.trim(),
+          description: newTopicDescription.trim() || null,
+          subject_id: 'c1f9b907-9f8e-41d8-aef4-0ea1e42f57e9', // Cybersecurity
+          hierarchy_level: 4, // Leaf level
+          available_bloom_levels: [1, 2, 3, 4, 5, 6]
+        })
+        .select('id, name, description')
+        .single()
+
+      if (error) {
+        console.error('Error adding topic:', error)
+        setErrorMessage('Failed to add topic. Please try again.')
+        setShowErrorModal(true)
+        return
+      }
+
+      // Update local state and sort alphabetically
+      setAllTopics(prev => [...prev, data].sort((a, b) => a.name.localeCompare(b.name)))
+      setShowAddModal(false)
+      setNewTopicName('')
+      setNewTopicDescription('')
+    } catch (error) {
+      console.error('Error in addTopic:', error)
+      setErrorMessage('Failed to add topic. Please try again.')
+      setShowErrorModal(true)
+    } finally {
+      setAddingTopic(false)
     }
   }
 
@@ -1057,15 +1101,24 @@ export default function CybersecurityPage() {
                 </p>
               </div>
 
-              <div className="relative w-full md:w-64">
-                <SearchIcon size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-                <input
-                  type="text"
-                  placeholder="Search topics..."
-                  value={topicSearchQuery}
-                  onChange={(e) => setTopicSearchQuery(e.target.value)}
-                  className="neuro-input w-full pl-10 py-2 text-sm"
-                />
+              <div className="flex items-center gap-3 w-full md:w-auto">
+                <div className="relative flex-grow md:w-64">
+                  <SearchIcon size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                  <input
+                    type="text"
+                    placeholder="Search topics..."
+                    value={topicSearchQuery}
+                    onChange={(e) => setTopicSearchQuery(e.target.value)}
+                    className="neuro-input w-full pl-10 py-2 text-sm"
+                  />
+                </div>
+                <button
+                  onClick={() => setShowAddModal(true)}
+                  className="neuro-btn p-2 text-green-400 hover:text-green-300"
+                  title="Add Topic"
+                >
+                  <PlusIcon size={20} />
+                </button>
               </div>
             </div>
 
@@ -1341,6 +1394,63 @@ export default function CybersecurityPage() {
           <p className="text-red-400 text-sm">
             This action cannot be undone.
           </p>
+        </div>
+      </Modal>
+
+      {/* Add Topic Modal */}
+      <Modal
+        isOpen={showAddModal}
+        onClose={() => {
+          setShowAddModal(false)
+          setNewTopicName('')
+          setNewTopicDescription('')
+        }}
+        title="Add New Topic"
+        type="info"
+        actions={[
+          {
+            label: 'Cancel',
+            onClick: () => {
+              setShowAddModal(false)
+              setNewTopicName('')
+              setNewTopicDescription('')
+            },
+            variant: 'secondary'
+          },
+          {
+            label: addingTopic ? 'Adding...' : 'Add Topic',
+            onClick: addTopic,
+            variant: 'primary',
+            disabled: addingTopic || !newTopicName.trim()
+          }
+        ]}
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Topic Name <span className="text-red-400">*</span>
+            </label>
+            <input
+              type="text"
+              value={newTopicName}
+              onChange={(e) => setNewTopicName(e.target.value)}
+              className="neuro-input w-full py-2 px-3"
+              placeholder="Enter topic name"
+              autoFocus
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Description
+            </label>
+            <textarea
+              value={newTopicDescription}
+              onChange={(e) => setNewTopicDescription(e.target.value)}
+              className="neuro-input w-full py-2 px-3 resize-y min-h-[100px]"
+              rows={4}
+              placeholder="Enter topic description (optional)"
+            />
+          </div>
         </div>
       </Modal>
     </div>
