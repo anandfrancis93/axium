@@ -20,6 +20,12 @@ interface TopicProgress {
   calibration_mean: number | null
 }
 
+interface Topic {
+  id: string
+  name: string
+  description: string | null
+}
+
 
 
 export default function CybersecurityPage() {
@@ -37,12 +43,46 @@ export default function CybersecurityPage() {
   const [showProgress, setShowProgress] = useState(false)
   const [showSpacedRepetition, setShowSpacedRepetition] = useState(false)
   const [showSecurityPlus, setShowSecurityPlus] = useState(false)
+  const [showTopicList, setShowTopicList] = useState(false)
+  const [allTopics, setAllTopics] = useState<Topic[]>([])
+  const [topicListLoading, setTopicListLoading] = useState(false)
+  const [topicSearchQuery, setTopicSearchQuery] = useState('')
 
   useEffect(() => {
     if (showProgress || showSpacedRepetition || showSecurityPlus) {
       fetchTopicsProgress()
     }
   }, [showProgress, showSpacedRepetition, showSecurityPlus])
+
+  useEffect(() => {
+    if (showTopicList && allTopics.length === 0) {
+      fetchAllTopics()
+    }
+  }, [showTopicList])
+
+  async function fetchAllTopics() {
+    try {
+      setTopicListLoading(true)
+      const supabase = createClient()
+
+      const { data, error } = await supabase
+        .from('topics')
+        .select('id, name, description')
+        .eq('subject_id', 'c1f9b907-9f8e-41d8-aef4-0ea1e42f57e9') // Cybersecurity subject
+        .order('name', { ascending: true })
+
+      if (error) {
+        console.error('Error fetching topics:', error)
+        return
+      }
+
+      setAllTopics(data || [])
+    } catch (error) {
+      console.error('Error in fetchAllTopics:', error)
+    } finally {
+      setTopicListLoading(false)
+    }
+  }
 
   async function fetchTopicsProgress() {
     try {
@@ -376,6 +416,7 @@ export default function CybersecurityPage() {
               setShowProgress(!showProgress)
               if (showSpacedRepetition) setShowSpacedRepetition(false)
               if (showSecurityPlus) setShowSecurityPlus(false)
+              if (showTopicList) setShowTopicList(false)
             }}
             className={`neuro-btn px-6 py-2 font-semibold hover:bg-blue-500/10 hover:translate-y-0 transition-colors ${showProgress ? 'text-blue-400 bg-blue-500/20' : 'text-blue-400'
               }`}
@@ -387,6 +428,7 @@ export default function CybersecurityPage() {
               setShowSpacedRepetition(!showSpacedRepetition)
               if (showProgress) setShowProgress(false)
               if (showSecurityPlus) setShowSecurityPlus(false)
+              if (showTopicList) setShowTopicList(false)
             }}
             className={`neuro-btn px-6 py-2 font-semibold hover:bg-blue-500/10 hover:translate-y-0 transition-colors ${showSpacedRepetition ? 'text-blue-400 bg-blue-500/20' : 'text-blue-400'
               }`}
@@ -398,11 +440,24 @@ export default function CybersecurityPage() {
               setShowSecurityPlus(!showSecurityPlus)
               if (showProgress) setShowProgress(false)
               if (showSpacedRepetition) setShowSpacedRepetition(false)
+              if (showTopicList) setShowTopicList(false)
             }}
             className={`neuro-btn px-6 py-2 font-semibold hover:bg-blue-500/10 hover:translate-y-0 transition-colors ${showSecurityPlus ? 'text-blue-400 bg-blue-500/20' : 'text-blue-400'
               }`}
           >
             Security+
+          </button>
+          <button
+            onClick={() => {
+              setShowTopicList(!showTopicList)
+              if (showProgress) setShowProgress(false)
+              if (showSpacedRepetition) setShowSpacedRepetition(false)
+              if (showSecurityPlus) setShowSecurityPlus(false)
+            }}
+            className={`neuro-btn px-6 py-2 font-semibold hover:bg-blue-500/10 hover:translate-y-0 transition-colors ${showTopicList ? 'text-blue-400 bg-blue-500/20' : 'text-blue-400'
+              }`}
+          >
+            Topic List
           </button>
         </div>
 
@@ -897,6 +952,100 @@ export default function CybersecurityPage() {
                 </div>
               )
             })()}
+          </div>
+        )}
+
+        {/* Topic List Section */}
+        {showTopicList && (
+          <div className="neuro-card overflow-hidden">
+            <div className="p-6 border-b border-gray-800/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-xl font-semibold text-gray-200">All Topics</h3>
+                <p className="text-sm text-gray-500 mt-1">
+                  {allTopics.length} topics in Cybersecurity
+                </p>
+              </div>
+
+              <div className="relative w-full md:w-64">
+                <SearchIcon size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                <input
+                  type="text"
+                  placeholder="Search topics..."
+                  value={topicSearchQuery}
+                  onChange={(e) => setTopicSearchQuery(e.target.value)}
+                  className="neuro-input w-full pl-10 py-2 text-sm"
+                />
+              </div>
+            </div>
+
+            {/* Loading State */}
+            {topicListLoading && (
+              <div className="p-8 text-center">
+                <div className="text-gray-400">Loading topics...</div>
+              </div>
+            )}
+
+            {/* Topics Table */}
+            {!topicListLoading && allTopics.length > 0 && (() => {
+              const filteredAllTopics = allTopics.filter(topic =>
+                topic.name.toLowerCase().includes(topicSearchQuery.toLowerCase()) ||
+                (topic.description && topic.description.toLowerCase().includes(topicSearchQuery.toLowerCase()))
+              )
+
+              return filteredAllTopics.length > 0 ? (
+                <div className="overflow-y-auto max-h-[600px]">
+                  <table className="w-full">
+                    <thead className="sticky top-0 bg-gray-900/95 backdrop-blur-sm">
+                      <tr className="border-b border-gray-800">
+                        <th className="text-left p-4 text-sm font-semibold text-gray-400 w-1/4">Topic</th>
+                        <th className="text-left p-4 text-sm font-semibold text-gray-400">Description</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredAllTopics.map((topic) => (
+                        <tr
+                          key={topic.id}
+                          className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors"
+                        >
+                          <td className="p-4">
+                            <span className="font-medium text-gray-200">{topic.name}</span>
+                          </td>
+                          <td className="p-4">
+                            <span className="text-sm text-gray-400">
+                              {topic.description || 'No description'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="p-8 text-center">
+                  <div className="text-gray-400 text-lg font-semibold mb-2">
+                    No topics found
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Try a different search term
+                  </div>
+                </div>
+              )
+            })()}
+
+            {/* Empty State */}
+            {!topicListLoading && allTopics.length === 0 && (
+              <div className="p-8 text-center">
+                <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <ShieldIcon size={40} className="text-gray-600" />
+                </div>
+                <div className="text-gray-400 text-lg font-semibold mb-2">
+                  No topics available
+                </div>
+                <div className="text-sm text-gray-600">
+                  Topics will appear here once they are added to the database
+                </div>
+              </div>
+            )}
           </div>
         )}
       </main>
