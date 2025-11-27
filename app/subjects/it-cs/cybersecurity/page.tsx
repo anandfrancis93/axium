@@ -7,6 +7,7 @@ import HamburgerMenu from '@/components/HamburgerMenu'
 import Modal from '@/components/Modal'
 import { createClient } from '@/lib/supabase/client'
 import { normalizeCalibration, getCalibrationStatus } from '@/lib/utils/calibration'
+import { calculateNextReviewDate } from '@/lib/utils/spaced-repetition'
 
 
 interface TopicProgress {
@@ -277,33 +278,23 @@ export default function CybersecurityPage() {
   }
 
   // Calculate when a topic is due for review based on calibration score
+  // Uses centralized spaced repetition intervals (18 unique scores → 18 unique intervals)
   const calculateDueIn = (lastPracticedAt: string, calibrationScore: number) => {
     const lastPracticed = new Date(lastPracticedAt)
     const now = new Date()
 
-    // Determine interval based on calibration score
-    // -1.5 to -1.0: Critical (4 hours)
-    // -1.0 to -0.5: High (12 hours)
-    // -0.5 to 0.0:  Medium (1 day)
-    //  0.0 to 0.5:  Medium-Low (2 days)
-    //  0.5 to 1.0:  Low (4 days)
-    //  1.0+:        Very Low (7 days)
-    let intervalHours = 168 // Default: 7 days
+    // Get the interval from the centralized utility (uses normalized scores)
+    // We pass a "fake" current time to get the interval duration
+    const baseDate = new Date(0) // epoch
+    const reviewDate = calculateNextReviewDate(calibrationScore)
+    // The interval is encoded in calculateNextReviewDate relative to "now"
+    // So we need to calculate from lastPracticed instead
+    const tempNow = new Date()
+    const tempReview = calculateNextReviewDate(calibrationScore)
+    const intervalMs = tempReview.getTime() - tempNow.getTime()
 
-    if (calibrationScore <= -1.0) {
-      intervalHours = 4
-    } else if (calibrationScore <= -0.5) {
-      intervalHours = 12
-    } else if (calibrationScore <= 0.0) {
-      intervalHours = 24
-    } else if (calibrationScore <= 0.5) {
-      intervalHours = 48
-    } else if (calibrationScore <= 1.0) {
-      intervalHours = 96
-    }
-
-    // Calculate due date
-    const dueDate = new Date(lastPracticed.getTime() + intervalHours * 60 * 60 * 1000)
+    // Calculate due date from last practiced
+    const dueDate = new Date(lastPracticed.getTime() + intervalMs)
     const timeUntilDue = dueDate.getTime() - now.getTime()
 
     // Convert to hours/days
