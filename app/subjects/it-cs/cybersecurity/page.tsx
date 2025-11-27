@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ShieldIcon, SearchIcon, TrashIcon } from '@/components/icons'
+import { ShieldIcon, SearchIcon, TrashIcon, EditIcon, CheckIcon, XIcon } from '@/components/icons'
 import Image from 'next/image'
 import HamburgerMenu from '@/components/HamburgerMenu'
 import Modal from '@/components/Modal'
@@ -47,6 +47,10 @@ export default function CybersecurityPage() {
   const [allTopics, setAllTopics] = useState<Topic[]>([])
   const [topicListLoading, setTopicListLoading] = useState(false)
   const [topicSearchQuery, setTopicSearchQuery] = useState('')
+  const [editingTopicId, setEditingTopicId] = useState<string | null>(null)
+  const [editedName, setEditedName] = useState('')
+  const [editedDescription, setEditedDescription] = useState('')
+  const [savingTopic, setSavingTopic] = useState(false)
 
   useEffect(() => {
     if (showProgress || showSpacedRepetition || showSecurityPlus) {
@@ -81,6 +85,57 @@ export default function CybersecurityPage() {
       console.error('Error in fetchAllTopics:', error)
     } finally {
       setTopicListLoading(false)
+    }
+  }
+
+  function startEditingTopic(topic: Topic) {
+    setEditingTopicId(topic.id)
+    setEditedName(topic.name)
+    setEditedDescription(topic.description || '')
+  }
+
+  function cancelEditingTopic() {
+    setEditingTopicId(null)
+    setEditedName('')
+    setEditedDescription('')
+  }
+
+  async function saveTopicChanges() {
+    if (!editingTopicId) return
+
+    try {
+      setSavingTopic(true)
+      const supabase = createClient()
+
+      const { error } = await supabase
+        .from('topics')
+        .update({
+          name: editedName.trim(),
+          description: editedDescription.trim() || null
+        })
+        .eq('id', editingTopicId)
+
+      if (error) {
+        console.error('Error updating topic:', error)
+        setErrorMessage('Failed to update topic. Please try again.')
+        setShowErrorModal(true)
+        return
+      }
+
+      // Update local state
+      setAllTopics(prev => prev.map(topic =>
+        topic.id === editingTopicId
+          ? { ...topic, name: editedName.trim(), description: editedDescription.trim() || null }
+          : topic
+      ).sort((a, b) => a.name.localeCompare(b.name)))
+
+      cancelEditingTopic()
+    } catch (error) {
+      console.error('Error in saveTopicChanges:', error)
+      setErrorMessage('Failed to update topic. Please try again.')
+      setShowErrorModal(true)
+    } finally {
+      setSavingTopic(false)
     }
   }
 
@@ -999,21 +1054,72 @@ export default function CybersecurityPage() {
                       <tr className="border-b border-gray-800">
                         <th className="text-left p-4 text-sm font-semibold text-gray-400 w-1/4">Topic</th>
                         <th className="text-left p-4 text-sm font-semibold text-gray-400">Description</th>
+                        <th className="text-center p-4 text-sm font-semibold text-gray-400 w-24">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {filteredAllTopics.map((topic) => (
                         <tr
                           key={topic.id}
-                          className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors"
+                          className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors group"
                         >
                           <td className="p-4">
-                            <span className="font-medium text-gray-200">{topic.name}</span>
+                            {editingTopicId === topic.id ? (
+                              <input
+                                type="text"
+                                value={editedName}
+                                onChange={(e) => setEditedName(e.target.value)}
+                                className="neuro-input w-full py-1 px-2 text-sm"
+                                autoFocus
+                              />
+                            ) : (
+                              <span className="font-medium text-gray-200">{topic.name}</span>
+                            )}
                           </td>
                           <td className="p-4">
-                            <span className="text-sm text-gray-400">
-                              {topic.description || 'No description'}
-                            </span>
+                            {editingTopicId === topic.id ? (
+                              <input
+                                type="text"
+                                value={editedDescription}
+                                onChange={(e) => setEditedDescription(e.target.value)}
+                                className="neuro-input w-full py-1 px-2 text-sm"
+                                placeholder="No description"
+                              />
+                            ) : (
+                              <span className="text-sm text-gray-400">
+                                {topic.description || 'No description'}
+                              </span>
+                            )}
+                          </td>
+                          <td className="p-4 text-center">
+                            {editingTopicId === topic.id ? (
+                              <div className="flex items-center justify-center gap-2">
+                                <button
+                                  onClick={saveTopicChanges}
+                                  disabled={savingTopic || !editedName.trim()}
+                                  className="neuro-btn p-1.5 text-green-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                                  title="Save"
+                                >
+                                  <CheckIcon size={16} />
+                                </button>
+                                <button
+                                  onClick={cancelEditingTopic}
+                                  disabled={savingTopic}
+                                  className="neuro-btn p-1.5 text-red-400 disabled:opacity-50"
+                                  title="Cancel"
+                                >
+                                  <XIcon size={16} />
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => startEditingTopic(topic)}
+                                className="neuro-btn p-1.5 text-gray-400 hover:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                                title="Edit"
+                              >
+                                <EditIcon size={16} />
+                              </button>
+                            )}
                           </td>
                         </tr>
                       ))}
