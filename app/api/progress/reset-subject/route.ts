@@ -83,63 +83,72 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Count records before deletion
-    const { count: progressCount, error: countProgressError } = await supabase
-      .from('user_progress')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id)
-      .in('topic_id', topicIds)
-
-    if (countProgressError && countProgressError.message) {
-      console.error('Error counting user_progress:', countProgressError)
-    }
-
-    const { count: responsesCount, error: countResponsesError } = await supabase
-      .from('user_responses')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id)
-      .in('topic_id', topicIds)
-
-    if (countResponsesError && countResponsesError.message) {
-      console.error('Error counting user_responses:', countResponsesError)
-    }
-
-    const { count: questionsCount, error: countQuestionsError } = await supabase
-      .from('questions')
-      .select('*', { count: 'exact', head: true })
-      .in('topic_id', topicIds)
-
-    if (countQuestionsError && countQuestionsError.message) {
-      console.error('Error counting questions:', countQuestionsError)
-    }
-
-    // Get question IDs for counting user_question_reviews
-    const { data: questionIds } = await supabase
-      .from('questions')
-      .select('id')
-      .in('topic_id', topicIds)
-
-    const qIds = questionIds?.map((q: any) => q.id) || []
-
-    // Count user_question_reviews (spaced repetition data)
+    // Count records before deletion using batched queries (Supabase has parameter limits)
+    const BATCH_SIZE = 100
+    let progressCount = 0
+    let responsesCount = 0
+    let questionsCount = 0
     let reviewsCount = 0
-    if (qIds.length > 0) {
-      const { count, error: countReviewsError } = await supabase
+
+    // Batch count for user_progress
+    for (let i = 0; i < topicIds.length; i += BATCH_SIZE) {
+      const batch = topicIds.slice(i, i + BATCH_SIZE)
+      const { count, error } = await supabase
+        .from('user_progress')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .in('topic_id', batch)
+      if (!error && count) progressCount += count
+    }
+
+    // Batch count for user_responses
+    for (let i = 0; i < topicIds.length; i += BATCH_SIZE) {
+      const batch = topicIds.slice(i, i + BATCH_SIZE)
+      const { count, error } = await supabase
+        .from('user_responses')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .in('topic_id', batch)
+      if (!error && count) responsesCount += count
+    }
+
+    // Batch count for questions
+    for (let i = 0; i < topicIds.length; i += BATCH_SIZE) {
+      const batch = topicIds.slice(i, i + BATCH_SIZE)
+      const { count, error } = await supabase
+        .from('questions')
+        .select('*', { count: 'exact', head: true })
+        .in('topic_id', batch)
+      if (!error && count) questionsCount += count
+    }
+
+    // Get all question IDs for counting user_question_reviews (also batched)
+    const allQuestionIds: string[] = []
+    for (let i = 0; i < topicIds.length; i += BATCH_SIZE) {
+      const batch = topicIds.slice(i, i + BATCH_SIZE)
+      const { data: batchQuestions } = await supabase
+        .from('questions')
+        .select('id')
+        .in('topic_id', batch)
+      if (batchQuestions) {
+        allQuestionIds.push(...batchQuestions.map((q: any) => q.id))
+      }
+    }
+
+    // Batch count for user_question_reviews
+    for (let i = 0; i < allQuestionIds.length; i += BATCH_SIZE) {
+      const batch = allQuestionIds.slice(i, i + BATCH_SIZE)
+      const { count, error } = await supabase
         .from('user_question_reviews')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id)
-        .in('question_id', qIds)
-
-      if (countReviewsError && countReviewsError.message) {
-        console.error('Error counting user_question_reviews:', countReviewsError)
-      }
-      reviewsCount = count || 0
+        .in('question_id', batch)
+      if (!error && count) reviewsCount += count
     }
 
-    console.log(`Found ${progressCount || 0} progress records, ${responsesCount || 0} response records, ${reviewsCount} review records, and ${questionsCount || 0} questions to delete`)
+    console.log(`Found ${progressCount} progress records, ${responsesCount} response records, ${reviewsCount} review records, and ${questionsCount} questions to delete`)
 
-    // Batch delete to avoid parameter limit (max 100 IDs per batch)
-    const BATCH_SIZE = 100
+    // Batch delete (using same BATCH_SIZE defined above)
     let totalProgressDeleted = 0
     let totalResponsesDeleted = 0
 
