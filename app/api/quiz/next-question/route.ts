@@ -822,16 +822,26 @@ ALL 4 options MUST be within ±30% length of each other (in characters).
 - C: "Requiring manual key exchange between all communicating parties" (64 chars) ✓
 - D: "Employing a symmetric method with periodic key rotation cycles" (63 chars) ✓
 
-**EXPLANATION FORMAT (CRITICAL):**
-The explanation MUST have each option explained on its own separate line with a blank line between them:
-- First paragraph: Explain why the correct answer is correct
-- Then a blank line
-- Then explain why each incorrect option is wrong (one paragraph per option, separated by blank lines)
+**EXPLANATION FORMAT (MANDATORY - STRICTLY ENFORCED):**
+⚠️ You MUST format the explanation with LITERAL NEWLINE CHARACTERS (\\n) between each option's explanation.
+DO NOT write one continuous paragraph. Each option MUST be on its own line.
 
-Example explanation format:
-"[Correct answer] is correct because [detailed explanation of why it's right].\\n\\n[First wrong option] is incorrect because [explanation].\\n\\n[Second wrong option] is incorrect because [explanation].\\n\\n[Third wrong option] is incorrect because [explanation]."
+The explanation field in JSON MUST use \\n\\n (two newlines) to separate each option:
+1. First: Why correct answer is correct
+2. \\n\\n (literal newline characters in JSON)
+3. Why first wrong option is wrong
+4. \\n\\n
+5. Why second wrong option is wrong
+6. \\n\\n
+7. Why third wrong option is wrong
 
-Format: {"question": "What is X?", "options": ["First option text", "Second option text", "Third option text", "Fourth option text"], "correct_answer": "A", "explanation": "Correct answer explanation.\\n\\nWrong option 1 explanation.\\n\\nWrong option 2 explanation.\\n\\nWrong option 3 explanation."}
+❌ WRONG (will be rejected - one continuous paragraph):
+"explanation": "Option A is correct because X. Option B is incorrect because Y. Option C is incorrect because Z. Option D is incorrect because W."
+
+✅ CORRECT (each option separated by \\n\\n):
+"explanation": "Option A is correct because X.\\n\\nOption B is incorrect because Y.\\n\\nOption C is incorrect because Z.\\n\\nOption D is incorrect because W."
+
+Format: {"question": "What is X?", "options": ["A text", "B text", "C text", "D text"], "correct_answer": "A", "explanation": "A is correct because [reason].\\n\\nB is incorrect because [reason].\\n\\nC is incorrect because [reason].\\n\\nD is incorrect because [reason]."}
 IMPORTANT: options array should contain ONLY the option text without any letter prefixes (A, B, C, D). The correct_answer should be just the letter (A, B, C, or D).`,
     mcq_multi: `Generate a multiple-choice question with 4-6 options and MULTIPLE correct answers.
 
@@ -844,13 +854,14 @@ IMPORTANT: options array should contain ONLY the option text without any letter 
 6. NO "All of the above" or "None of the above"
 7. SIBLING DISTRACTORS: Incorrect options must be related concepts from the same domain (e.g., similar techniques, sibling topics) - NOT random unrelated terms
 
-**EXPLANATION FORMAT (CRITICAL):**
-The explanation MUST have each option explained on its own separate line with a blank line between them:
-- First: Explain why each correct answer is correct (one paragraph per correct option)
-- Then a blank line
-- Then explain why each incorrect option is wrong (one paragraph per wrong option)
+**EXPLANATION FORMAT (MANDATORY - STRICTLY ENFORCED):**
+⚠️ You MUST use LITERAL \\n\\n (newline characters) between each option's explanation.
+DO NOT write one continuous paragraph.
 
-Format: {"question": "Select all that apply: Which are X?", "options": ["First option text", "Second option text", "Third option text", "Fourth option text"], "correct_answer": ["A", "C"], "explanation": "Option A is correct because...\\n\\nOption C is correct because...\\n\\nOption B is incorrect because...\\n\\nOption D is incorrect because..."}
+❌ WRONG: "A is correct because X. C is correct because Y. B is incorrect because Z."
+✅ CORRECT: "A is correct because X.\\n\\nC is correct because Y.\\n\\nB is incorrect because Z.\\n\\nD is incorrect because W."
+
+Format: {"question": "Select all that apply: Which are X?", "options": ["A text", "B text", "C text", "D text"], "correct_answer": ["A", "C"], "explanation": "A is correct because [reason].\\n\\nC is correct because [reason].\\n\\nB is incorrect because [reason].\\n\\nD is incorrect because [reason]."}
 IMPORTANT: options array should contain ONLY the option text without any letter prefixes. The correct_answer should be an array of letters.`,
     fill_blank: `Generate a fill-in-the-blank question where THE TOPIC NAME IS THE ANSWER.
 
@@ -873,13 +884,14 @@ IMPORTANT: options array should contain ONLY the option text without any letter 
 - All options should be real concepts/terms, not generic words
 - Options should be similar in structure to the topic name
 
-**EXPLANATION FORMAT (CRITICAL):**
-The explanation MUST have each option explained on its own separate line with a blank line between them:
-- First paragraph: Explain why the correct answer fits the blank
-- Then a blank line between each
-- Then explain why each distractor option is incorrect
+**EXPLANATION FORMAT (MANDATORY - STRICTLY ENFORCED):**
+⚠️ You MUST use LITERAL \\n\\n (newline characters) between each option's explanation.
+DO NOT write one continuous paragraph.
 
-Format: {"question": "_____ is [definition of ${topicName}]...", "options": ["${topicName}", "SimilarTopic1", "SimilarTopic2", "SimilarTopic3"], "correct_answer": "${topicName}", "explanation": "${topicName} is correct because...\\n\\nSimilarTopic1 is incorrect because...\\n\\nSimilarTopic2 is incorrect because...\\n\\nSimilarTopic3 is incorrect because..."}`,
+❌ WRONG: "${topicName} is correct because X. Option2 is incorrect because Y. Option3 is incorrect because Z."
+✅ CORRECT: "${topicName} is correct because X.\\n\\nOption2 is incorrect because Y.\\n\\nOption3 is incorrect because Z.\\n\\nOption4 is incorrect because W."
+
+Format: {"question": "_____ is [definition]...", "options": ["${topicName}", "Similar1", "Similar2", "Similar3"], "correct_answer": "${topicName}", "explanation": "${topicName} is correct because [reason].\\n\\nSimilar1 is incorrect because [reason].\\n\\nSimilar2 is incorrect because [reason].\\n\\nSimilar3 is incorrect because [reason]."}`,
     open_ended: 'Generate an open-ended question requiring a short paragraph answer. Format: {"question": "...", "correct_answer": "Key points: ...", "explanation": "..."}'
   }
 
