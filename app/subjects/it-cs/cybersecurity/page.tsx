@@ -317,7 +317,7 @@ export default function CybersecurityPage() {
         message = 'No data to reset. You haven\'t started learning yet.'
       } else {
         const stats = []
-        if (result.progressRecords > 0) stats.push(`${result.progressRecords} topic${result.progressRecords > 1 ? 's' : ''}`)
+        if (result.progressRecords > 0) stats.push(`${result.progressRecords} topic progress record${result.progressRecords > 1 ? 's' : ''}`)
         if (result.responseRecords > 0) stats.push(`${result.responseRecords} answer${result.responseRecords > 1 ? 's' : ''}`)
         if (result.reviewRecords > 0) stats.push(`${result.reviewRecords} review${result.reviewRecords > 1 ? 's' : ''}`)
         if (result.questionsRecords > 0) stats.push(`${result.questionsRecords} question${result.questionsRecords > 1 ? 's' : ''}`)
