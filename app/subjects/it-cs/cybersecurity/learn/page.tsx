@@ -666,7 +666,7 @@ function LearnPageContent() {
               </h3>
 
               <div className="prose prose-invert max-w-none">
-                <p className="text-gray-300 leading-relaxed">{answerResult.explanation}</p>
+                <p className="text-gray-300 leading-relaxed whitespace-pre-line">{answerResult.explanation}</p>
               </div>
             </div>
 
