@@ -665,8 +665,76 @@ function LearnPageContent() {
                 Answer Explanation
               </h3>
 
-              <div className="prose prose-invert max-w-none">
-                <p className="text-gray-300 leading-relaxed whitespace-pre-line">{answerResult.explanation}</p>
+              <div className="prose prose-invert max-w-none space-y-4">
+                {(() => {
+                  const explanation = answerResult.explanation
+
+                  // Check if explanation is structured (object) or string
+                  if (typeof explanation === 'object' && explanation !== null) {
+                    // Get correct answer letter (e.g., "A", "B", "C", "D")
+                    const correctAnswer = answerResult.correctAnswer
+                    const correctLetter = typeof correctAnswer === 'string'
+                      ? correctAnswer.charAt(0)
+                      : (Array.isArray(correctAnswer) && correctAnswer[0]?.charAt(0)) || ''
+
+                    // Get user's answer letter
+                    const userLetter = typeof userAnswer === 'string'
+                      ? userAnswer.charAt(0)
+                      : (Array.isArray(userAnswer) && userAnswer[0]?.charAt(0)) || ''
+
+                    // Build ordered list of option letters
+                    const allLetters = Object.keys(explanation).sort()
+                    const orderedLetters: string[] = []
+
+                    // 1. Correct answer first
+                    if (correctLetter && explanation[correctLetter]) {
+                      orderedLetters.push(correctLetter)
+                    }
+
+                    // 2. User's choice second (if wrong and different from correct)
+                    if (userLetter && userLetter !== correctLetter && explanation[userLetter]) {
+                      orderedLetters.push(userLetter)
+                    }
+
+                    // 3. Remaining letters in alphabetical order
+                    allLetters.forEach(letter => {
+                      if (!orderedLetters.includes(letter)) {
+                        orderedLetters.push(letter)
+                      }
+                    })
+
+                    return orderedLetters.map((letter, idx) => {
+                      const isCorrect = letter === correctLetter
+                      const isUserChoice = letter === userLetter
+                      const text = explanation[letter]
+
+                      return (
+                        <div key={letter} className="flex gap-3">
+                          <div className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold ${
+                            isCorrect
+                              ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                              : isUserChoice
+                                ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                                : 'bg-gray-700/50 text-gray-400 border border-gray-600/30'
+                          }`}>
+                            {letter}
+                          </div>
+                          <div className="flex-1">
+                            <span className={`text-sm font-medium ${
+                              isCorrect ? 'text-green-400' : isUserChoice ? 'text-red-400' : 'text-gray-400'
+                            }`}>
+                              {isCorrect ? '(Correct)' : isUserChoice ? '(Your Answer)' : ''}
+                            </span>
+                            <p className="text-gray-300 leading-relaxed mt-1">{text}</p>
+                          </div>
+                        </div>
+                      )
+                    })
+                  } else {
+                    // Fallback for string format (backwards compatibility)
+                    return <p className="text-gray-300 leading-relaxed whitespace-pre-line">{explanation}</p>
+                  }
+                })()}
               </div>
             </div>
 

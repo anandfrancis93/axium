@@ -822,32 +822,37 @@ ALL 4 options MUST be within ±30% length of each other (in characters).
 - C: "Requiring manual key exchange between all communicating parties" (64 chars) ✓
 - D: "Employing a symmetric method with periodic key rotation cycles" (63 chars) ✓
 
-**EXPLANATION FORMAT (MANDATORY - STRICTLY ENFORCED):**
-⚠️ You MUST format the explanation with LITERAL NEWLINE CHARACTERS (\\n) between each option's explanation.
-DO NOT write one continuous paragraph. Each option MUST be on its own line.
+**EXPLANATION FORMAT (MANDATORY - STRUCTURED JSON OBJECT):**
+⚠️ The "explanation" field MUST be a JSON OBJECT (not a string) with keys A, B, C, D.
+Each key contains the explanation for that specific option.
 
-**CRITICAL: Use the ACTUAL option letters (A, B, C, D) that match the options array order.**
-- Option A = first option in array (index 0)
-- Option B = second option in array (index 1)
-- Option C = third option in array (index 2)
-- Option D = fourth option in array (index 3)
+**Format for explanation field:**
+"explanation": {
+  "A": "Explanation for option A (why correct or why incorrect)",
+  "B": "Explanation for option B (why correct or why incorrect)",
+  "C": "Explanation for option C (why correct or why incorrect)",
+  "D": "Explanation for option D (why correct or why incorrect)"
+}
 
-**Start with the CORRECT answer letter, then explain wrong options in A, B, C, D order (skipping the correct one).**
+**Rules:**
+- The correct answer's explanation should explain WHY it is correct
+- Wrong answers' explanations should explain WHY they are incorrect
+- Each explanation should be 1-2 sentences
+- Do NOT include "Option X is correct/incorrect" prefix - just the reason
 
-Example if correct_answer is "C":
-"Option C is correct because [reason].\\n\\nOption A is incorrect because [reason].\\n\\nOption B is incorrect because [reason].\\n\\nOption D is incorrect because [reason]."
+❌ WRONG (string format):
+"explanation": "Option A is correct because X. Option B is incorrect because Y."
 
-Example if correct_answer is "A":
-"Option A is correct because [reason].\\n\\nOption B is incorrect because [reason].\\n\\nOption C is incorrect because [reason].\\n\\nOption D is incorrect because [reason]."
+✅ CORRECT (object format):
+"explanation": {
+  "A": "This defines the exact concept of privileged access management including policies and controls.",
+  "B": "This describes intrusion detection systems, not account management.",
+  "C": "This relates to encryption hardware, not credential management.",
+  "D": "This describes VPN technology, not administrative access controls."
+}
 
-❌ WRONG (mislabeled - says A is correct but correct_answer is D):
-{"correct_answer": "D", "explanation": "Option A is correct because..."}
-
-✅ CORRECT (labels match correct_answer):
-{"correct_answer": "D", "explanation": "Option D is correct because...\\n\\nOption A is incorrect because...\\n\\nOption B is incorrect because...\\n\\nOption C is incorrect because..."}
-
-Format: {"question": "What is X?", "options": ["A text", "B text", "C text", "D text"], "correct_answer": "B", "explanation": "Option B is correct because [reason].\\n\\nOption A is incorrect because [reason].\\n\\nOption C is incorrect because [reason].\\n\\nOption D is incorrect because [reason]."}
-IMPORTANT: options array should contain ONLY the option text without any letter prefixes (A, B, C, D). The correct_answer should be just the letter (A, B, C, or D).`,
+Format: {"question": "What is X?", "options": ["A text", "B text", "C text", "D text"], "correct_answer": "A", "explanation": {"A": "reason why A is correct", "B": "reason why B is wrong", "C": "reason why C is wrong", "D": "reason why D is wrong"}}
+IMPORTANT: options array should contain ONLY the option text without any letter prefixes (A, B, C, D). The correct_answer should be just the letter (A, B, C, or D). The explanation MUST be an object with A, B, C, D keys.`,
     mcq_multi: `Generate a multiple-choice question with 4-6 options and MULTIPLE correct answers.
 
 ⚠️ **ANTI-TELL-TALE RULES (CRITICAL):**
@@ -859,20 +864,19 @@ IMPORTANT: options array should contain ONLY the option text without any letter 
 6. NO "All of the above" or "None of the above"
 7. SIBLING DISTRACTORS: Incorrect options must be related concepts from the same domain (e.g., similar techniques, sibling topics) - NOT random unrelated terms
 
-**EXPLANATION FORMAT (MANDATORY - STRICTLY ENFORCED):**
-⚠️ You MUST use LITERAL \\n\\n (newline characters) between each option's explanation.
-DO NOT write one continuous paragraph.
+**EXPLANATION FORMAT (MANDATORY - STRUCTURED JSON OBJECT):**
+⚠️ The "explanation" field MUST be a JSON OBJECT with keys A, B, C, D (or more if more options).
+Each key contains the explanation for that specific option.
 
-**CRITICAL: Use ACTUAL option letters that match correct_answer array.**
-- First explain ALL correct answers (letters in correct_answer array)
-- Then explain ALL incorrect answers
-- Option A = first in array, B = second, C = third, D = fourth
+"explanation": {
+  "A": "Explanation for option A",
+  "B": "Explanation for option B",
+  "C": "Explanation for option C",
+  "D": "Explanation for option D"
+}
 
-Example if correct_answer is ["A", "C"]:
-"Option A is correct because [reason].\\n\\nOption C is correct because [reason].\\n\\nOption B is incorrect because [reason].\\n\\nOption D is incorrect because [reason]."
-
-Format: {"question": "Select all that apply: Which are X?", "options": ["A text", "B text", "C text", "D text"], "correct_answer": ["A", "C"], "explanation": "Option A is correct because [reason].\\n\\nOption C is correct because [reason].\\n\\nOption B is incorrect because [reason].\\n\\nOption D is incorrect because [reason]."}
-IMPORTANT: options array should contain ONLY the option text without any letter prefixes. The correct_answer should be an array of letters.`,
+Format: {"question": "Select all that apply: Which are X?", "options": ["A text", "B text", "C text", "D text"], "correct_answer": ["A", "C"], "explanation": {"A": "why A is correct", "B": "why B is wrong", "C": "why C is correct", "D": "why D is wrong"}}
+IMPORTANT: options array should contain ONLY the option text without any letter prefixes. The correct_answer should be an array of letters. The explanation MUST be an object.`,
     fill_blank: `Generate a fill-in-the-blank question where THE TOPIC NAME IS THE ANSWER.
 
 ⚠️ **CRITICAL RULE: THE BLANK MUST BE THE TOPIC NAME**
@@ -894,14 +898,17 @@ IMPORTANT: options array should contain ONLY the option text without any letter 
 - All options should be real concepts/terms, not generic words
 - Options should be similar in structure to the topic name
 
-**EXPLANATION FORMAT (MANDATORY - STRICTLY ENFORCED):**
-⚠️ You MUST use LITERAL \\n\\n (newline characters) between each option's explanation.
-DO NOT write one continuous paragraph.
+**EXPLANATION FORMAT (MANDATORY - STRUCTURED JSON OBJECT):**
+⚠️ The "explanation" field MUST be a JSON OBJECT with keys A, B, C, D.
 
-❌ WRONG: "${topicName} is correct because X. Option2 is incorrect because Y. Option3 is incorrect because Z."
-✅ CORRECT: "${topicName} is correct because X.\\n\\nOption2 is incorrect because Y.\\n\\nOption3 is incorrect because Z.\\n\\nOption4 is incorrect because W."
+"explanation": {
+  "A": "Explanation for option A",
+  "B": "Explanation for option B",
+  "C": "Explanation for option C",
+  "D": "Explanation for option D"
+}
 
-Format: {"question": "_____ is [definition]...", "options": ["${topicName}", "Similar1", "Similar2", "Similar3"], "correct_answer": "${topicName}", "explanation": "${topicName} is correct because [reason].\\n\\nSimilar1 is incorrect because [reason].\\n\\nSimilar2 is incorrect because [reason].\\n\\nSimilar3 is incorrect because [reason]."}`,
+Format: {"question": "_____ is [definition]...", "options": ["${topicName}", "Similar1", "Similar2", "Similar3"], "correct_answer": "${topicName}", "explanation": {"A": "why correct", "B": "why wrong", "C": "why wrong", "D": "why wrong"}}`,
     open_ended: 'Generate an open-ended question requiring a short paragraph answer. Format: {"question": "...", "correct_answer": "Key points: ...", "explanation": "..."}'
   }
 
