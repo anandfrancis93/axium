@@ -826,22 +826,27 @@ ALL 4 options MUST be within ±30% length of each other (in characters).
 ⚠️ You MUST format the explanation with LITERAL NEWLINE CHARACTERS (\\n) between each option's explanation.
 DO NOT write one continuous paragraph. Each option MUST be on its own line.
 
-The explanation field in JSON MUST use \\n\\n (two newlines) to separate each option:
-1. First: Why correct answer is correct
-2. \\n\\n (literal newline characters in JSON)
-3. Why first wrong option is wrong
-4. \\n\\n
-5. Why second wrong option is wrong
-6. \\n\\n
-7. Why third wrong option is wrong
+**CRITICAL: Use the ACTUAL option letters (A, B, C, D) that match the options array order.**
+- Option A = first option in array (index 0)
+- Option B = second option in array (index 1)
+- Option C = third option in array (index 2)
+- Option D = fourth option in array (index 3)
 
-❌ WRONG (will be rejected - one continuous paragraph):
-"explanation": "Option A is correct because X. Option B is incorrect because Y. Option C is incorrect because Z. Option D is incorrect because W."
+**Start with the CORRECT answer letter, then explain wrong options in A, B, C, D order (skipping the correct one).**
 
-✅ CORRECT (each option separated by \\n\\n):
-"explanation": "Option A is correct because X.\\n\\nOption B is incorrect because Y.\\n\\nOption C is incorrect because Z.\\n\\nOption D is incorrect because W."
+Example if correct_answer is "C":
+"Option C is correct because [reason].\\n\\nOption A is incorrect because [reason].\\n\\nOption B is incorrect because [reason].\\n\\nOption D is incorrect because [reason]."
 
-Format: {"question": "What is X?", "options": ["A text", "B text", "C text", "D text"], "correct_answer": "A", "explanation": "A is correct because [reason].\\n\\nB is incorrect because [reason].\\n\\nC is incorrect because [reason].\\n\\nD is incorrect because [reason]."}
+Example if correct_answer is "A":
+"Option A is correct because [reason].\\n\\nOption B is incorrect because [reason].\\n\\nOption C is incorrect because [reason].\\n\\nOption D is incorrect because [reason]."
+
+❌ WRONG (mislabeled - says A is correct but correct_answer is D):
+{"correct_answer": "D", "explanation": "Option A is correct because..."}
+
+✅ CORRECT (labels match correct_answer):
+{"correct_answer": "D", "explanation": "Option D is correct because...\\n\\nOption A is incorrect because...\\n\\nOption B is incorrect because...\\n\\nOption C is incorrect because..."}
+
+Format: {"question": "What is X?", "options": ["A text", "B text", "C text", "D text"], "correct_answer": "B", "explanation": "Option B is correct because [reason].\\n\\nOption A is incorrect because [reason].\\n\\nOption C is incorrect because [reason].\\n\\nOption D is incorrect because [reason]."}
 IMPORTANT: options array should contain ONLY the option text without any letter prefixes (A, B, C, D). The correct_answer should be just the letter (A, B, C, or D).`,
     mcq_multi: `Generate a multiple-choice question with 4-6 options and MULTIPLE correct answers.
 
@@ -858,10 +863,15 @@ IMPORTANT: options array should contain ONLY the option text without any letter 
 ⚠️ You MUST use LITERAL \\n\\n (newline characters) between each option's explanation.
 DO NOT write one continuous paragraph.
 
-❌ WRONG: "A is correct because X. C is correct because Y. B is incorrect because Z."
-✅ CORRECT: "A is correct because X.\\n\\nC is correct because Y.\\n\\nB is incorrect because Z.\\n\\nD is incorrect because W."
+**CRITICAL: Use ACTUAL option letters that match correct_answer array.**
+- First explain ALL correct answers (letters in correct_answer array)
+- Then explain ALL incorrect answers
+- Option A = first in array, B = second, C = third, D = fourth
 
-Format: {"question": "Select all that apply: Which are X?", "options": ["A text", "B text", "C text", "D text"], "correct_answer": ["A", "C"], "explanation": "A is correct because [reason].\\n\\nC is correct because [reason].\\n\\nB is incorrect because [reason].\\n\\nD is incorrect because [reason]."}
+Example if correct_answer is ["A", "C"]:
+"Option A is correct because [reason].\\n\\nOption C is correct because [reason].\\n\\nOption B is incorrect because [reason].\\n\\nOption D is incorrect because [reason]."
+
+Format: {"question": "Select all that apply: Which are X?", "options": ["A text", "B text", "C text", "D text"], "correct_answer": ["A", "C"], "explanation": "Option A is correct because [reason].\\n\\nOption C is correct because [reason].\\n\\nOption B is incorrect because [reason].\\n\\nOption D is incorrect because [reason]."}
 IMPORTANT: options array should contain ONLY the option text without any letter prefixes. The correct_answer should be an array of letters.`,
     fill_blank: `Generate a fill-in-the-blank question where THE TOPIC NAME IS THE ANSWER.
 
