@@ -728,24 +728,21 @@ function LearnPageContent() {
                       const text = explanation[letter]
 
                       return (
-                        <div key={letter} className="flex gap-3">
-                          <div className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold ${
-                            isCorrect
-                              ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                              : isUserChoice
-                                ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-                                : 'bg-gray-700/50 text-gray-400 border border-gray-600/30'
-                          }`}>
-                            {letter}
-                          </div>
-                          <div className="flex-1">
-                            <span className={`text-sm font-medium ${
-                              isCorrect ? 'text-green-400' : isUserChoice ? 'text-red-400' : 'text-gray-400'
+                        <div key={letter} className={`p-3 rounded-lg ${
+                          isCorrect
+                            ? 'bg-green-500/10 border border-green-500/20'
+                            : isUserChoice
+                              ? 'bg-red-500/10 border border-red-500/20'
+                              : 'bg-gray-800/30'
+                        }`}>
+                          {(isCorrect || isUserChoice) && (
+                            <span className={`text-sm font-medium block mb-1 ${
+                              isCorrect ? 'text-green-400' : 'text-red-400'
                             }`}>
-                              {isCorrect ? '(Correct)' : isUserChoice ? '(Your Answer)' : ''}
+                              {isCorrect ? 'Correct Answer' : 'Your Answer'}
                             </span>
-                            <p className="text-gray-300 leading-relaxed mt-1">{text}</p>
-                          </div>
+                          )}
+                          <p className="text-gray-300 leading-relaxed">{text}</p>
                         </div>
                       )
                     })
