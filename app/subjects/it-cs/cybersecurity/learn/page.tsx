@@ -671,16 +671,35 @@ function LearnPageContent() {
 
                   // Check if explanation is structured (object) or string
                   if (typeof explanation === 'object' && explanation !== null) {
-                    // Get correct answer letter (e.g., "A", "B", "C", "D")
-                    const correctAnswer = answerResult.correctAnswer
-                    const correctLetter = typeof correctAnswer === 'string'
-                      ? correctAnswer.charAt(0)
-                      : (Array.isArray(correctAnswer) && correctAnswer[0]?.charAt(0)) || ''
+                    // Helper to convert answer to letter (handles both letter and text formats)
+                    const answerToLetter = (answer: string | string[] | undefined, options: string[] | undefined): string => {
+                      if (!answer) return ''
+
+                      // Handle array (mcq_multi)
+                      const singleAnswer = Array.isArray(answer) ? answer[0] : answer
+                      if (!singleAnswer) return ''
+
+                      // If it's already a single letter A-Z, return it
+                      if (singleAnswer.length === 1 && singleAnswer >= 'A' && singleAnswer <= 'Z') {
+                        return singleAnswer
+                      }
+
+                      // Otherwise it's text (fill_blank) - find its index in options
+                      if (options) {
+                        const idx = options.findIndex(opt => opt === singleAnswer)
+                        if (idx !== -1) {
+                          return String.fromCharCode(65 + idx) // Convert 0->A, 1->B, etc.
+                        }
+                      }
+
+                      return ''
+                    }
+
+                    // Get correct answer letter
+                    const correctLetter = answerToLetter(answerResult.correctAnswer, currentQuestion?.options)
 
                     // Get user's answer letter
-                    const userLetter = typeof userAnswer === 'string'
-                      ? userAnswer.charAt(0)
-                      : (Array.isArray(userAnswer) && userAnswer[0]?.charAt(0)) || ''
+                    const userLetter = answerToLetter(userAnswer, currentQuestion?.options)
 
                     // Build ordered list of option letters
                     const allLetters = Object.keys(explanation).sort()
