@@ -109,10 +109,27 @@ function shuffleMCQOptions(question: any): any {
     newCorrectAnswer = correctAnswer
   }
 
+  // Shuffle explanation object to match new option positions
+  // indices[i] tells us which original index is now at position i
+  // So new key at position i should get the explanation from original key at indices[i]
+  let newExplanation = question.explanation
+  if (typeof question.explanation === 'object' && question.explanation !== null) {
+    newExplanation = {}
+    for (let i = 0; i < indices.length; i++) {
+      const newLetter = String.fromCharCode(65 + i)  // A, B, C, D for positions 0, 1, 2, 3
+      const oldIndex = indices[i]
+      const oldLetter = String.fromCharCode(65 + oldIndex)
+      if (question.explanation[oldLetter]) {
+        newExplanation[newLetter] = question.explanation[oldLetter]
+      }
+    }
+  }
+
   return {
     ...question,
     options: shuffledOptions,
-    correct_answer: newCorrectAnswer
+    correct_answer: newCorrectAnswer,
+    explanation: newExplanation
   }
 }
 
