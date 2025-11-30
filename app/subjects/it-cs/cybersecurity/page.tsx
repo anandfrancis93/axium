@@ -423,11 +423,17 @@ export default function CybersecurityPage() {
     // At minimum data: SE ~150, at maximum data: SE ~30
     const baseStandardError = 150 - (confidenceFactor * 120)
 
-    // Calculate variance in mastery scores
-    const masteryVariance = masteryValues.length > 1
-      ? masteryValues.reduce((sum, m) => sum + Math.pow(m - avgMastery * 100, 2), 0) / masteryValues.length
+    // Calculate weighted variance in mastery scores
+    // Weight each topic's contribution by its number of attempts
+    // Topics with more attempts are more reliable indicators of true ability
+    const weightedMasteryVariance = totalAttempts > 0
+      ? topics.reduce((sum, t) => {
+          const weight = t.total_attempts / totalAttempts
+          const topicMastery = calculateOverallMastery(t.mastery_scores)
+          return sum + weight * Math.pow(topicMastery - avgMastery * 100, 2)
+        }, 0)
       : 0
-    const masteryStdDev = Math.sqrt(masteryVariance)
+    const masteryStdDev = Math.sqrt(weightedMasteryVariance)
 
     // Adjust SE based on performance variance
     const adjustedSE = baseStandardError + (masteryStdDev * 0.5)
