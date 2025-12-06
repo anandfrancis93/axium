@@ -128,8 +128,11 @@ export default function TopicQuizPage() {
                 const mappedQuestions = dueQuestions.map(q => {
                     // Fix: Force true_false type if text starts with "True or False" (handles data inconsistencies)
                     let questionType = q.question_format
-                    if (q.question_text.toLowerCase().trim().startsWith('true or false') ||
-                        q.question_text.toLowerCase().trim().startsWith('true/false')) {
+                    const cleanText = q.question_text.toLowerCase().replace(/[^a-z]/g, '')
+
+                    if (cleanText.startsWith('trueorfalse') ||
+                        cleanText.startsWith('truefalse') ||
+                        (q.question_format === 'mcq_single' && (!q.options || q.options.length === 0))) {
                         questionType = 'true_false'
                     }
 
