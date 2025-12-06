@@ -1,0 +1,27 @@
+﻿[dotenv@17.2.3] injecting env (13) from .env.local -- tip: ≡ƒöÉ prevent building .env in docker: https://dotenvx.com/prebuild
+
+≡ƒöì Fetching topic: 802.1X / Port-based Network Access Control (PNAC)
+
+≡ƒô¥ Description: 379 words
+
+--- Description Preview ---
+A standard for encapsulating EAP communications over a LAN (EAPoL) or WLAN (EAPoW) to implement port-based authentication.
+
+Restricting access by MAC address is difficult to manage and still prone to spoofing. Better security is obtained by forcing computers and/or users to authenticate before full network access is granted. The IEEE 802.1X Port-based Network Access Control (PNAC) standard allows a switch to require authentication when a host connects to one of its ports. 802.1X uses authenticat...
+---
+
+≡ƒñû Generating comprehensive questions (this may take a moment)...
+
+Γ£à Generated 28 questions
+
+≡ƒôè Question Distribution:
+   Formats: { mcq_single: 15, fill_blank: 7, true_false: 6 }
+   Bloom Levels: { '1': 8, '2': 10, '3': 6, '4': 1, '5': 2, '6': 1 }
+
+≡ƒùæ∩╕Å Deleting 33 existing questions...
+
+≡ƒôÑ Inserting 28 questions...
+
+≡ƒôä Updated generated-questions.txt
+
+Γ£à Done! 28 questions generated for "802.1X / Port-based Network Access Control (PNAC)"
