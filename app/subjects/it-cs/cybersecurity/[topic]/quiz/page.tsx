@@ -43,6 +43,9 @@ export default function TopicQuizPage() {
     const params = useParams()
     const topicName = decodeURIComponent(params.topic as string)
 
+    // Session storage key for this topic
+    const STORAGE_KEY = `quiz_state_${topicName}`
+
     const [questions, setQuestions] = useState<TopicQuestion[]>([])
     const [currentIndex, setCurrentIndex] = useState(0)
     const [currentStep, setCurrentStep] = useState<QuizStep>('confidence')
@@ -56,6 +59,31 @@ export default function TopicQuizPage() {
     const [topicId, setTopicId] = useState<string | null>(null)
     const [answerResult, setAnswerResult] = useState<AnswerResult | null>(null)
     const [showExitModal, setShowExitModal] = useState(false)
+
+    // Save quiz state to sessionStorage
+    const saveState = (questionsToSave: TopicQuestion[], index: number, step: QuizStep, correct: number) => {
+        try {
+            const state = {
+                questionIds: questionsToSave.map(q => q.id),
+                currentIndex: index,
+                currentStep: step,
+                correctCount: correct,
+                timestamp: Date.now()
+            }
+            sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+        } catch (e) {
+            console.error('Failed to save quiz state:', e)
+        }
+    }
+
+    // Clear quiz state
+    const clearState = () => {
+        try {
+            sessionStorage.removeItem(STORAGE_KEY)
+        } catch (e) {
+            console.error('Failed to clear quiz state:', e)
+        }
+    }
 
     useEffect(() => {
         loadQuestions()
@@ -152,8 +180,47 @@ export default function TopicQuizPage() {
                     }
                 })
 
-                const shuffled = [...mappedQuestions].sort(() => Math.random() - 0.5)
-                setQuestions(shuffled)
+                // Try to restore saved state
+                let savedState = null
+                try {
+                    const saved = sessionStorage.getItem(STORAGE_KEY)
+                    if (saved) {
+                        savedState = JSON.parse(saved)
+                        // Only use saved state if it's less than 2 hours old
+                        const twoHoursAgo = Date.now() - (2 * 60 * 60 * 1000)
+                        if (savedState.timestamp < twoHoursAgo) {
+                            savedState = null
+                            sessionStorage.removeItem(STORAGE_KEY)
+                        }
+                    }
+                } catch (e) {
+                    console.error('Failed to restore quiz state:', e)
+                }
+
+                if (savedState && savedState.questionIds) {
+                    // Restore question order from saved state
+                    const orderedQuestions: TopicQuestion[] = []
+                    for (const id of savedState.questionIds) {
+                        const q = mappedQuestions.find(mq => mq.id === id)
+                        if (q) orderedQuestions.push(q)
+                    }
+                    // Add any new questions that weren't in the saved state
+                    for (const q of mappedQuestions) {
+                        if (!orderedQuestions.find(oq => oq.id === q.id)) {
+                            orderedQuestions.push(q)
+                        }
+                    }
+                    setQuestions(orderedQuestions)
+                    setCurrentIndex(savedState.currentIndex || 0)
+                    setCurrentStep(savedState.currentStep || 'confidence')
+                    setCorrectCount(savedState.correctCount || 0)
+                } else {
+                    // Shuffle questions for new quiz session
+                    const shuffled = [...mappedQuestions].sort(() => Math.random() - 0.5)
+                    setQuestions(shuffled)
+                    // Save initial state
+                    saveState(shuffled, 0, 'confidence', 0)
+                }
             }
         } catch (error) {
             console.error('Error:', error)
@@ -243,6 +310,9 @@ export default function TopicQuizPage() {
             }
 
             setCurrentStep('results')
+            // Save state with updated correct count
+            const newCorrectCount = correct ? correctCount + 1 : correctCount
+            saveState(questions, currentIndex, 'results', newCorrectCount)
         } catch (error) {
             console.error('Error submitting:', error)
         } finally {
@@ -253,14 +323,19 @@ export default function TopicQuizPage() {
     function handleNextQuestion() {
         if (currentIndex + 1 >= questions.length) {
             setCurrentStep('summary')
+            // Clear saved state when quiz completes
+            clearState()
         } else {
-            setCurrentIndex(prev => prev + 1)
+            const newIndex = currentIndex + 1
+            setCurrentIndex(newIndex)
             setCurrentStep('confidence')
             setUserAnswer('')
             setConfidence(null)
             setRecognitionMethod(null)
             setIsCorrect(null)
             setAnswerResult(null)
+            // Save state for next question
+            saveState(questions, newIndex, 'confidence', correctCount)
         }
     }
 
