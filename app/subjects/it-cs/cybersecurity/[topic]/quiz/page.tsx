@@ -785,8 +785,11 @@ export default function TopicQuizPage() {
 
                                         return orderedKeys.map((optionKey, idx) => {
                                             const text = explanation[optionKey as keyof typeof explanation] as string
-                                            const isCorrect = text?.startsWith('CORRECT:') || optionKey === correctAnswer
-                                            const isUserChoice = optionKey === userAnswerStr
+                                            // Handle both single answer and array of answers (mcq_multi)
+                                            const correctAnswerArr = Array.isArray(correctAnswer) ? correctAnswer : [correctAnswer]
+                                            const userAnswerArr = Array.isArray(userAnswer) ? userAnswer : [userAnswer]
+                                            const isCorrect = text?.startsWith('CORRECT:') || correctAnswerArr.includes(optionKey)
+                                            const isUserChoice = userAnswerArr.some(ua => ua === optionKey || ua?.includes(optionKey))
 
                                             // Get letter for display (A, B, C, D)
                                             const optionIndex = options.findIndex((opt: string) => opt === optionKey)

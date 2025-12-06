@@ -713,8 +713,11 @@ function LearnPageContent() {
 
                     return orderedKeys.map((optionKey) => {
                       const text = (explanation as Record<string, string>)[optionKey]
-                      const isCorrect = text?.startsWith('CORRECT:') || optionKey === correctAnswer
-                      const isUserChoice = optionKey === userAnswerStr
+                      // Handle both single answer and array of answers (mcq_multi)
+                      const correctAnswerArr = Array.isArray(correctAnswer) ? correctAnswer : [correctAnswer]
+                      const userAnswerArr = Array.isArray(userAnswer) ? userAnswer : [userAnswer]
+                      const isCorrect = text?.startsWith('CORRECT:') || correctAnswerArr.includes(optionKey)
+                      const isUserChoice = userAnswerArr.some(ua => ua === optionKey || ua?.includes(optionKey))
 
                       // Get letter for display (A, B, C, D)
                       const optionIndex = options.findIndex((opt: string) => opt === optionKey)
