@@ -470,29 +470,7 @@ export default function TopicDetailPage() {
           </div>
         )}
 
-        {/* Empty State */}
-        {topicDetail.total_attempts === 0 && (
-          <div className="neuro-inset p-12 rounded-lg text-center">
-            <div className="neuro-inset w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <ShieldIcon size={40} className="text-gray-600" />
-            </div>
-            <div className="text-gray-400 text-lg font-semibold mb-2">
-              No attempts yet
-            </div>
-            <div className="text-sm text-gray-600 mb-6">
-              Start practicing to see your Bloom level performance
-            </div>
-            <button
-              onClick={() => {
-                sessionStorage.setItem('quiz_authorized', 'true')
-                router.push('/subjects/it-cs/cybersecurity/learn')
-              }}
-              className="neuro-btn text-blue-400 px-6 py-3"
-            >
-              Start Quiz
-            </button>
-          </div>
-        )}
+
       </main>
     </div>
   )
