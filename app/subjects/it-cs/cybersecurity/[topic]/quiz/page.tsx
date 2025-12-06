@@ -57,9 +57,58 @@ export default function TopicQuizPage() {
     const [answerResult, setAnswerResult] = useState<AnswerResult | null>(null)
     const [showExitModal, setShowExitModal] = useState(false)
 
+    // Session storage key
+    const STORAGE_KEY = `axium_topic_quiz_${topicName}`
+
     useEffect(() => {
+        // Try to load from session storage first
+        const savedState = sessionStorage.getItem(STORAGE_KEY)
+        if (savedState) {
+            try {
+                const parsed = JSON.parse(savedState)
+                setQuestions(parsed.questions || [])
+                setCurrentIndex(parsed.currentIndex || 0)
+                setCurrentStep(parsed.currentStep || 'confidence')
+                setUserAnswer(parsed.userAnswer || '')
+                setConfidence(parsed.confidence)
+                setRecognitionMethod(parsed.recognitionMethod)
+                setCorrectCount(parsed.correctCount || 0)
+                setIsCorrect(parsed.isCorrect)
+                setTopicId(parsed.topicId)
+                setAnswerResult(parsed.answerResult)
+                setLoading(false)
+
+                // If we have questions, we don't need to fetch
+                if (parsed.questions && parsed.questions.length > 0) {
+                    return
+                }
+            } catch (e) {
+                console.error('Error parsing saved state', e)
+                sessionStorage.removeItem(STORAGE_KEY)
+            }
+        }
+
         loadQuestions()
     }, [])
+
+    // Save state whenever it changes
+    useEffect(() => {
+        if (questions.length > 0) {
+            const state = {
+                questions,
+                currentIndex,
+                currentStep,
+                userAnswer,
+                confidence,
+                recognitionMethod,
+                correctCount,
+                isCorrect,
+                topicId,
+                answerResult
+            }
+            sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+        }
+    }, [questions, currentIndex, currentStep, userAnswer, confidence, recognitionMethod, correctCount, isCorrect, topicId, answerResult])
 
     async function loadQuestions() {
         try {
@@ -303,7 +352,10 @@ export default function TopicQuizPage() {
                                 Try Again
                             </button>
                             <button
-                                onClick={() => router.back()}
+                                onClick={() => {
+                                    sessionStorage.removeItem(STORAGE_KEY)
+                                    router.back()
+                                }}
                                 className="neuro-btn text-gray-400 px-6 py-3"
                             >
                                 Back to Topic
@@ -765,7 +817,10 @@ export default function TopicQuizPage() {
                         },
                         {
                             label: 'Exit',
-                            onClick: () => router.back(),
+                            onClick: () => {
+                                sessionStorage.removeItem(STORAGE_KEY)
+                                router.back()
+                            },
                             variant: 'primary'
                         }
                     ]}
