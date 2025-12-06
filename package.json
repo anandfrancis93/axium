@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run sbom && next build",
+    "sbom": "cyclonedx-npm --output-file public/sbom.json",
     "start": "next start",
     "lint": "next lint",
     "seed:test": "tsx scripts/seed-test-data.ts",
@@ -51,6 +52,7 @@
     "remark-math": "^6.0.0"
   },
   "devDependencies": {
+    "@cyclonedx/cyclonedx-npm": "^4.1.2",
     "@types/node": "^24.10.0",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",

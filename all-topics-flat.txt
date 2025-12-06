@@ -1,0 +1,931 @@
+802.1X / Port-based Network Access Control (PNAC)
+Acceptable Use Policy (AUP)
+Access Badges
+Access Control List (ACL)
+Access Control Models
+Access Control Vestibule / Mantrap
+Account Lockout
+Account Management
+Account Policies
+Account Restrictions
+Accounting (AAA)
+Active Reconnaissance (Penetration Testing)
+Active Security Control
+Ad Hoc Network
+Address Resolution Protocol (ARP)
+Advanced / Enterprise Authentication
+Advanced Data Protection
+Advanced Persistent Threat (APT)
+Adware
+AES Galois Counter Mode (GCM)
+Agent-Based Filtering
+Agentless Scanning
+Air-gap
+Alarm Systems and Sensors
+Alert Tuning
+Alerting and Monitoring Activities
+Allow List
+Allowed and Blocked Changes
+Amplification Attack (DDoS)
+Annualized Loss Expectancy (ALE)
+Annualized Rate of Occurrence (ARO)
+Anomalous Behavior Recognition
+Antivirus
+Antivirus Scan
+Anything as a Service (XaaS)
+Appliance Firewall
+Application and Endpoint Logs
+Application Attacks
+Application Logs
+Application Protections
+Application Security
+Application Virtualization
+Application Vulnerabilities
+Arbitrary Code Execution
+ARP Poisoning
+Asset Acquisition / Procurement
+Asset Disposal / Decommissioning
+Asset Management
+Asset Monitoring / Tracking
+Asset Ownership Assignment / Accounting
+Asset Protection
+Asymmetric Algorithm
+Asymmetric Encryption
+Attack Surface
+Attestation (Cryptography)
+Attestation and Assessments (Governance & Compliance)
+Attribute-based Access Control (ABAC)
+Attributes of Threat Actors
+Auditing (Vulnerability Assessment)
+Authentication (AAA)
+Authentication Design
+Authentication Factor
+Authentication Header (AH)
+Authentication Methods
+Authentication Protocols
+Authentication, Authorization, and Accounting (AAA)
+Authorization (AAA)
+Authorized Hacker
+Automation and Orchestration Implementation
+Automation and Scripting
+Availability
+Availability (Authentication)
+Backdoor
+Backdoors and Remote Access Trojans (RAT)
+Backout Plans (Change Management)
+Backup Power Generator
+Baseline configuration
+Beacon
+Behavioral-based Detection
+Benchmarks
+Benchmarks and Secure Configuration Guides
+Biometric Authentication
+Birthday Attack
+Blackmail
+Block List
+Blockchain
+Blocked Content
+Bluejacking
+Bluesnarfing
+Bluetooth
+Bluetooth Network (Network Vector)
+Bollards
+Botnet
+Brand Impersonation
+Bring Your Own Device (BYOD)
+Brute Force Attack (Physical)
+Brute Force Password Attack
+Buffer Overflow
+Bug Bounty
+Business Continuity
+Business Continuity Documentation
+Business Email Compromise
+Business Impact Analysis (BIA)
+Business Partner
+Business Partnership Agreement (BPA)
+Cable Locks
+Call List
+Canonicalization Attack
+Capacity Planning
+Card Cloning (RFID)
+Cellular
+Centralized Computing Architecture
+Centralized Web Filtering
+Certificate Authority (CA)
+Certificate Chaining / Chain of Trust
+Certificate Revocation List (CRL)
+Certificate Signing Request (CSR)
+Certificate-Based Authentication
+Change Control
+Change Management
+Chaotic Motivation
+Chief Information Officer (CIO)
+Chief Security Officer (CSO)
+Chief Technology Officer (CTO)
+chmod
+Choose Your Own Device (CYOD)
+Cipher Suite
+Ciphertext
+Clean Desk Policy
+Client-Based Scanning
+Client-Side / Server- Side Validation
+Closed / Proprietary
+Cloud Access (Network Vector)
+Cloud Access Security Brokers (CASB)
+Cloud Architecture Features
+Cloud Automation Technologies
+Cloud Computing
+Cloud Deployment Model
+Cloud Models Security
+Cloud Responsibility Matrix
+Cloud Responsiveness
+Cloud Security
+Cloud Service Customer Responsibility
+Cloud Service Model
+Cloud Service Provider (CSP)
+Cloud Service Provider Responsibility
+Cloud-based Application Attacks
+Clustering
+Code of Conduct
+Code Signing
+Cold Site
+Collision Attack
+Command and Control (C2 or C&C)
+Command Injection Attack
+Common Name (CN)
+Common Vulnerabilities and Exposures (CVE)
+Common Vulnerability Scoring System (CVSS)
+Community Cloud
+Compensating Security Control
+Compliance Monitoring
+Computer Incident Response Team (CIRT)
+Computer-based Training (CBT)
+Concurrent Session Usage
+Conduct Policies
+Confidential Data
+Confidentiality
+Confidentiality (Authentication)
+Configuration Baselines
+Configuration Item (CI)
+Configuration Management
+Configuration management system (CMS)
+Conflict of Interest
+Containerization / Container Virtualization
+Continuity of Operations (COOP)
+Continuous Penetration Testing
+Cookies
+Corporate Owned, Business Only (COBO)
+Corporate Owned, Personally Enabled (COPE)
+Corrective Security Control
+Correlation
+Covert Channel
+Credential Dumping
+Credential Harvesting
+Credential Replay Attack
+Credentialed Scan
+Critical Elements for Security Awareness Training
+Cross-Site Request Forgery (CSRF)
+Cross-Site Scripting (XSS)
+Crossover Error Rate (CER)
+Cryptanalysis
+Crypto-mining
+Crypto-Ransomware
+Cryptographic Algorithm
+Cryptographic Attacks
+Cryptographic Key
+Cryptographic Primitive
+Cryptographic Vulnerabilities
+Cryptography
+Cryptojacking Malware
+Cyber Threat Intelligence (CTI)
+Cybersecurity Frameworks (CSF)
+Cybersecurity Incident
+Dark Net
+Dark Web
+Data / Privacy Breach
+Data at Rest
+Data Backup
+Data Classification
+Data Classifications
+Data Controller
+Data Custodian
+Data Destruction
+Data exfiltration
+Data Exposure
+Data Governance Roles
+Data Historian
+Data in Transit / Motion
+Data in Use / Processing
+Data Inventories
+Data Loss Prevention (DLP)
+Data Masking
+Data Owner
+Data Processor
+Data Protection
+Data Protection Methods
+Data Replication (Cloud)
+Data Retention
+Data Sanitization
+Data Sanitization / Destruction Certification
+Data Sources, Dashboards, and Reports
+Data Sovereignty
+Data Sovereignty and Geographical Considerations
+Data Subject
+Data Types
+Database Encryption
+dd command
+Decentralized Computing Architecture
+Deception Technologies
+Deep and Dark Web
+Deep Web
+Default Credentials (Network Vector)
+Defense in Depth
+Defensive Penetration Testing
+Denial of service (DoS)
+Dependencies
+Deperimeterization
+Detection
+Detective Security Control
+Deterrent Security Control
+Development and operations (DevOps)
+Device Placement
+DevSecOps
+Dictionary Attack
+Diffie-Hellman (D-H)
+Digital Certificate
+Digital Forensics
+Digital Forensics - Chain of Custody
+Digital Forensics - Data Acquisition
+Digital Forensics - Disk Image Acquisition
+Digital Forensics - Due Process
+Digital Forensics - Legal Hold
+Digital Forensics - Preservation
+Digital Forensics - Provenance
+Digital Forensics - Reporting
+Digital Forensics - System Memory Acquisition
+Digital Forensics - Timeline
+Digital Forensics - Write Blocker
+Digital Signature
+Direct Access (Network Vector)
+Directive Security Control
+Directory Service
+Directory Traversal
+Directory Traversal Attack
+Disassociation Attack (Wireless DoS)
+Disaster Recovery
+Discretionary Access Control (DAC)
+Disinformation
+Distinguished Name (DN)
+Distributed Denial of Service (DDoS) Attacks
+Distributed DoS (DDoS)
+Distributed Reflected DoS (DRDoS)
+DNS Attack Indicators
+DNS Client Cache Poisoning
+DNS Filtering
+DNS Poisoning
+DNS Security Extensions (DNSSEC)
+DNS Server Cache Poisoning
+DNS Sinkhole
+DNS-Based On-Path Attacks
+Document Files (Lure-Based Vector)
+Documentation and Version Control
+Domain Name System (DNS) Attacks
+Domain-based Message Authentication, Reporting & Conformance (DMARC)
+DomainKeys Identified Mail (DKIM)
+Downgrade Attack
+Due Diligence
+Dynamic Analysis
+E-discovery
+EAP over LAN (EAPoL)
+Email (Message-Based Vector)
+Email Data Loss Prevention
+Email Gateway
+Email Security
+Email Services
+Embedded Systems
+Encapsulating Security Payload (ESP)
+Encryption
+Encryption Fundamentals
+Endpoint Detection and Response (EDR)
+Endpoint Logs
+Endpoint Security
+Enterprise Authentication
+Enterprise Risk Management (ERM)
+Entropy
+Environmental Attack
+Environmental Variables (Vulnerability Assessment)
+Ephemeral Session Key
+Error Handling
+Escalation (Incident Response)
+Evaluation Scope
+Event Viewer
+Evidence of Internal Audits (Vendor Assessment Method)
+Evil Twin
+Executable File (Lure-Based Vector)
+Exercise Types (Penetration Testing)
+Explicit TLS (FTPES)
+Exposure Factor
+Extensible Authentication Protocol (EAP)
+Extensible Markup Language (XML)
+Extensible Markup Language (XML) Injection
+External Assessments (Governance & Compliance)
+External Threat Actor
+Extortion
+Fail-Closed
+Fail-Open
+Failover
+Failover Tests
+Failure to Enroll Rate (FER)
+Fake Telemetry
+False Acceptance Rate (FAR)
+False Negative
+False Positive
+False Positives, False Negatives, and Log Review
+False Rejection Rate (FRR)
+Fast Identity Online (FIDO) Universal 2nd Factor (U2F)
+Fault Tolerant
+Federation
+Fencing
+File Integrity Monitoring (FIM)
+File Transfer Protocol (FTP)
+File Transfer Services
+Fileless Malware
+Financial Data
+Financial Motivation
+Firewall Logs
+Firmware Vulnerabilities
+First Responder
+Forgery Attacks
+Forward Proxy Server
+Fraud
+Function as a Service (FaaS)
+Gap analysis
+Gateways and Locks
+General Data Protection Regulation (GDPR)
+Geofencing
+Geographic Dispersion
+Geolocation
+Global Positioning System (GPS)
+Governance
+Governance and Accountability
+Governance Boards
+Governance Committees
+Governance, Risk, and Compliance
+Government Entities and Groups
+GPS Tagging
+Group Account
+Group Policy Objects (GPOs)
+Guidelines
+Hacker
+Hacktivist
+Hard Authentication Token
+Hardening
+Hardware Security Module (HSM)
+Hash-based Message Authentication Code (HMAC)
+Hashing
+Hashing Algorithm
+Health Insurance Portability and Accountability Act (HIPAA)
+Heat Map (Risk)
+Heat Map Risk Matrix
+Heuristics
+High Availability
+High Availability Across Zones (Cloud)
+Honeypots
+Host Operating System Logs
+Host-based Firewalls
+Host-based Intrusion Detection (HIDS)
+Host-based Intrusion Prevention (HIPS)
+Hot Site
+HTML5 VPN
+Human Vector
+Human-readable Data
+Human-Readable Data
+Hybrid Cloud
+Hybrid Password Attack
+Identification (IAM)
+Identity and Access Management (IAM)
+Identity Provider (IdP)
+IDS and IPS Detection Methods
+IM (Message-Based Vector)
+Image Files (Lure-Based Vector)
+Impact Analysis (Change Management)
+Impersonation
+Implicit Deny
+Implicit TLS (FTPS)
+Impossible Travel
+In-Band Management
+Incident Response - Analysis
+Incident Response - Containment
+Incident Response - Detection
+Incident Response - Eradication and Recovery
+Incident Response - Lessons Learned
+Incident Response - Preparation
+Incident Response - Testing
+Incident Response - Training
+Incident Response Lifecycle
+Incident Response Plan (IRP)
+Incident Response Policy
+Independent Assessments (Vendor Assessment Method)
+Indicator of Compromise (IoC)
+Indoor Positioning System (IPS)
+Industrial Camouflage
+Industrial Control System (ICS)
+Information Security
+Information Security Policies
+Information Sharing and Analysis Centers (ISACs)
+Information Systems Security Officer (ISSO)
+Information-Sharing Organizations
+Infrastructure as a Service (IaaS)
+Infrastructure as Code (IaC)
+Inherent Risk
+Injection Attack
+Injection Attacks
+Inline Device
+Input Validation
+Insider Threat / Internal Threat Actor
+Integrated Penetration Testing
+Integrity
+Integrity (Authentication)
+Intelligence Fusion - Threat Hunting
+Intentional Threat
+Internal / External Compliance Reporting
+Internal Assessments (Governance & Compliance)
+Internet Header
+Internet Key Exchange (IKE)
+Internet Message Access Protocol (IMAP)
+Internet of Things (IoT)
+Internet Protocol Security (IPsec)
+Internet Relay Chat (IRC)
+Intrusion Detection and Prevention Systems
+Intrusion Detection System (IDS)
+Intrusion Prevention System (IPS)
+IP Flow Information Export (IPFIX)
+IPS/IDS Logs
+Isolation
+ITIL Configuration Management
+Jailbreaking
+Journaling
+Jump Server
+Just-in-time (JIT) Permission
+Kerberos
+Key Distribution Center (KDC)
+Key Encryption Key (KEK)
+Key Escrow
+Key Exchange
+Key Length
+Key Management System
+Key Risk Indicators (KRIs)
+Key Stretching
+Keylogger
+Kill Chain
+Lateral Movement
+Layer 4 Firewall
+Layer 4 Load Balancer
+Layer 7 Firewall
+Layer 7 Load Balancer
+LDAP Secure (LDAPS)
+Least Privilege
+Legacy and End-of-Life (EOL) System Vulnerabilities
+Legal Agreements
+Legal Data
+Legal Environment
+Lessons Learned Report (LLR)
+Level of Sophistication / Capability
+Lighting
+Lightweight Directory Access Protocol (LDAP)
+Lightweight Directory Access Protocol (LDAP) Injection
+Linux Authentication
+Linux Logs
+Listener / Collector
+Load Balancer
+Local Network Vector
+Log Aggregation
+Log Data
+Logic Bomb
+Logs
+Lure-Based Vectors
+M of N Control
+MAC Filtering
+macOS Logs
+Maintenance Windows (Change Management)
+Malicious Activity Indicators
+Malicious Code Indicators
+Malicious Process
+Malicious Update
+Malware
+Malware & Threats
+Malware Classification
+Managed Service Provider (MSP)
+Managerial Security Control
+Mandatory Access Control (MAC)
+Maneuver - Threat Hunting
+Master Service Agreement (MSA)
+Maximum Tolerable Downtime (MTD)
+Mean Time Between Failures (MTBF)
+Mean Time To Repair (MTTR)
+Memorandum of Agreement (MOA)
+Memorandum of Understanding (MOU)
+Memory Dump
+Memory Injection
+Message Digest Algorithm #5 (MD5)
+Metadata
+Microservices
+Misconfiguration Vulnerabilities
+Missing Logs
+Mission Essential Functions (MEF)
+Monitoring Infrastructure
+Monitoring Systems and Applications
+Motivations of Threat Actors
+Multi-cloud Architecture
+Multi-Cloud Strategy
+Multifactor Authentication (MFA)
+Nation-state
+National Institute of Standards and Technology (NIST)
+Near-field Communication (NFC)
+NetFlow
+Network Access Control (NAC)
+Network Architecture
+Network Architecture Weaknesses
+Network Attack Surface
+Network Attacks
+Network Behavior and Anomaly Detection (NBAD)
+Network Data Sources
+Network Logs
+Network Monitor
+Network Security
+Next-Generation Firewall (NGFW)
+NIST Cybersecurity Framework
+Non-Credentialed Scan
+Non-Human-Readable Data
+Non-repudiation
+Nondisclosure Agreement (NDA)
+NT LAN Manager (NTLM) Authentication
+Obfuscation
+Off-site Backup
+Offboarding
+Offensive Penetration Testing
+Offline Password Attack
+On-Path Attack / Man-in-the-Middle Attack (MiTM)
+On-premises Network
+On-site Backup
+Onboarding
+Online Certificate Status Protocol (OCSP)
+Online Password Attack
+Opal
+Open Authorization (OAuth)
+Open Public Ledger
+Open Service Port (Network Vector)
+Open-Source Intelligence (OSINT)
+Operating System Vulnerabilities
+Operational Security Control
+Order of Volatility
+Organized crime
+Out-of-Band Management
+Out-of-cycle Logging
+Package Monitoring
+Packet Analysis
+Packet Captures
+Packet Filtering Firewall
+Parallel Processing Test
+Passive Reconnaissance (Penetration Testing)
+Passive Security Control
+Password Attacks
+Password Best Practices
+Password Manager
+Password Spraying
+Passwordless
+Patch
+Patch Management
+Payload
+Payment Card Industry Data Security Standard (PCI DSS)
+Penetration Testing (How)
+Penetration Testing (Why / Who)
+Percent Encoding (URL)
+Perfect Forward Secrecy (PFS)
+Permissions
+Personal Area Networks (PANs)
+Personal Identification Number (PIN)
+Pharming
+Phishing
+Physical Attacks
+Physical Penetration Testing
+Physical Security
+Physical Security Control
+Pivoting
+Plaintext / Cleartext
+Platform as a Service (PaaS)
+Platform Diversity
+Platform Diversity and Defense in Depth
+Playbook
+Pluggable Authentication Module (PAM)
+Point-to-Point Tunneling Protocol (PPTP)
+Policies
+Political Motivation
+Port Security
+Post Office Protocol v3 (POP3)
+Potentially Unwanted Programs (PUPs) / Potentially Unwanted Applications (PUAs)
+Power Distribution Unit (PDU)
+Power Redundancy
+Pre-shared Key (PSK)
+Preparation
+Pretexting
+Preventive Security Control
+Privacy Data
+Private / Personal Data
+Private Cloud
+Private Key
+Privilege Escalation
+Privileged access management (PAM)
+Procedures
+Proprietary Data
+Proprietary Information
+Proximity Reader
+Proxy Server
+Pseudo Random Number Generator (PRNG)
+Public (or Multi-tenant) Cloud
+Public /  Unclassified Data
+Public Key
+Public Key Cryptography Standards (PKCS)
+Public Key Infrastructure (PKI)
+Qualitative Risk Analysis
+Quantitative Risk Analysis
+Questionnaires (Vendor Management)
+Race Condition and TOCTOU
+Radio Frequency ID (RFID)
+Ransomware
+Reaction Time
+Real-Time Operating Systems (RTOS)
+Recognizing Risky Behaviors
+Reconnaissance
+Recovery Point Objective (RPO)
+Recovery Time Objective (RTO)
+Redundancy
+Regulated Data
+Remote Access
+Remote Access Trojan (RAT)
+Remote and Wireless Network (Network Vector)
+Remote Authentication Dial-In User Service (RADIUS)
+Remote Code Execution
+Remote Desktop Protocol (RDP)
+Remote Network Vector
+Removable Device (Lure-Based Vector)
+Replay Attack
+Replication
+Reporting
+Representational State Transfer (REST)
+Reputational Threat Intelligence
+Residual Risk
+Resilient Cloud Architecture
+Resource Consumption
+Resource Inaccessibility
+Resources / Funding
+Responsible Disclosure Programs
+Restarts, Dependencies, and Downtime
+Restricted Data
+Reverse Proxy Server
+RFID Cloning
+Right-to-Audit Clause (Vendor Assessment Method)
+Risk
+Risk Acceptance / Risk Tolerance
+Risk Analysis
+Risk Appetite
+Risk Assessment
+Risk Avoidance
+Risk Deterrence / Risk Reduction
+Risk Exception
+Risk Exemption
+Risk Identification
+Risk Impact
+Risk Likelihood
+Risk Management
+Risk Management Processes
+Risk Management Strategies
+Risk Mitigation / Risk Remediation
+Risk Owner
+Risk Probability
+Risk Register
+Risk Reporting
+Risk Threshold
+Risk Tolerance
+Risk Transference / Risk Sharing
+Rogue Access Point (AP) Attack
+Role-based Access Control (RBAC)
+Root Cause Analysis
+Root Certificate
+Root of Trust
+Rooting
+Rootkit
+Router Firewall
+Rule-based Access Control
+Rules of Engagement (RoE)
+Salting
+Sandbox Execution
+Sarbanes-Oxley Act (SOX)
+Scareware
+Screened Subnet
+Secret Data
+Secure Access Service Edge (SASE)
+Secure Administrative Workstation (SAW)
+Secure Baseline
+Secure Coding Techniques
+Secure Data Destruction
+Secure Directory Services
+Secure Enclave
+Secure File Transfer Protocol (SFTP)
+Secure Hash Algorithm (SHA)
+Secure IMAP (IMAPS)
+Secure POP (POP3S)
+Secure Protocols
+Secure Shell (SSH)
+Secure SMTP (SMTPS)
+Secure/Multipurpose Internet Mail Extensions (S/MIME)
+Security Assertion Markup Language (SAML)
+Security Awareness Training Lifecycle
+Security Compliance
+Security Content Automation Protocol (SCAP)
+Security Control
+Security Guards and Cameras
+Security Identifier (SID)
+Security Information and Event Management (SIEM)
+Security Logs
+Security Operations Center (SOC)
+Self-encrypting Drives (SED)
+Self-signed Certificate
+SELinux
+Sender Policy Framework (SPF)
+Sensitive Data
+Server-Side Request Forgery (SSRF)
+Serverless Computing
+Service Assets
+Service Disruption
+Service Set Identifier (SSID)
+Service-level Agreement (SLA)
+Shadow IT
+Shellcode
+Sideloading
+Sideloading, Rooting, and Jailbreaking
+Signature-Based Detection
+Simple Authentication and Security Layer (SASL)
+Simple Mail Transfer Protocol (SMTP)
+Simple Network Management Protocol Security
+Simple Object Access Protocol (SOAP)
+Simulation Testing/Experiment
+Simultaneous Authentication of Equals (SAE)
+Single Certificate Authority (CA)
+Single Loss Expectancy (SLE)
+Single Point of Failure
+Single Sign-on (SSO)
+Sinkhole
+Site Layout, Fencing, and Lighting
+Site Survey
+Skimming (RFID)
+SMiShing
+SMS (Message-Based Vector)
+Snapshot
+Social Engineering
+Soft Authentication Token
+Software as a Service (SaaS)
+Software Composition Analysis (SCA)
+Software Defined Networking (SDN)
+Software Development Life Cycle (SDLC)
+Software Sandboxing
+Software-Defined Wide Area Network (SD-WAN)
+Something You Are
+Something You Have
+Something You Know
+Somewhere You Are
+SPAN (Switched Port Analyzer) / Mirror Port
+Spyware
+SQL Injection (SQLi)
+SSH FTP (SFTP) and FTP Over SSL (FTPS)
+SSL/TLS Versions
+Stakeholders
+Standard Configurations
+Standard Naming Convention
+Standard Operating Procedures (SOPs) (Change Management)
+Standards
+Stateful Firewall
+Stateless Firewall
+Statement of Work (SOW) / Work Order (WO)
+Static Analysis
+Static Code Analysis
+Steganography
+Structured Exception Handler (SEH)
+Subject Alternative Name (SAN)
+Substitution Algorithm
+Supercookie
+Supervisory Control and Data Acquisition (SCADA)
+Supplier
+Supply Chain
+Supply Chain Analysis (Vendor Assessment Method)
+Supply Chain Attacks
+Symmetric Algorithm
+Symmetric Encryption / Algorithm
+SYN Flood Attack
+Syslog
+System Monitor
+Tabletop Exercise
+Tactics, Techniques, and Procedures (TTPs)
+Technical Debt
+Technical Security Control
+Temporal Key Integrity Protocol (TKIP)
+Test Access Point (TAP)
+Test Results (Change Management)
+Testing Resiliency
+Tethering
+TGS session Key
+Third Party Certificate Authority (CA)
+Third-Party Cloud Vendor
+Threat
+Threat Actor
+Threat Feeds
+Threat Hunting
+Threat Vector
+Throughput (Speed)
+Ticket Granting Ticket (TGT)
+Token Generation
+Tokenization
+Top Secret Data
+Tracking Cookie
+Trade Secret
+Trade Secrets
+Training Topics and Techniques
+Transport Layer Security
+Transport Layer Security (TLS) VPN
+Transposition Algorithm
+Trend Analysis (IPS / IDS)
+Trojan
+True Negative
+True Positive
+True Random Number Generator (TRNG)
+Trusted Platform Module (TPM)
+Type-safe Programming Language
+Typosquatting
+Unauthorized Hacker
+Unified Threat Management (UTM)
+Uniform Resource Locator (URL)
+Unintentional or Inadvertent Insider Threat
+Unintentional Threat
+Uninterruptible Power Supply (UPS)
+Unsecure Network
+Unskilled attacker
+Unsupported Systems / Applications
+URL Analysis
+User Account Deprovisioning
+User Account Lifecycle
+User Account Provisioning
+User and Role-Based Training
+Vendor
+Vendor Assessment Methods
+Vendor Diversity
+Vendor Monitoring (Vendor Assessment Method)
+Vendor Selection
+Version Control
+Video Surveillance
+Virtual Network Computing (VNC)
+Virtual Private Cloud (VPC)
+Virtual Private Network (VPN)
+Virtualization
+Virtualization Vulnerabilities
+Virus
+Vishing
+Vulnerability
+Vulnerability Analysis
+Vulnerability Assessment Methods
+Vulnerability Feed
+Vulnerability Response and Remediation
+Vulnerability Scanning
+Vulnerability Types
+Vulnerable Software
+Warm Site
+Watering Hole Attack
+Web and Social Media (Message-Based Vector)
+Web Application Attacks
+Web Application Firewall (WAF)
+Web Filtering
+Web Server Logs
+Whistleblower
+Wi-Fi Authentication Methods
+Wi-Fi Protected Access (WPA)
+Wi-Fi Protected Access 3 (WPA3)
+Wi-Fi Protected Setup (WPS)
+WiFi Heat Map
+Wildcard Domain
+Windows Authentication
+Windows Logs
+Wired Equivalent Privacy (WEP)
+Wired Network (Network Vector)
+Wireless Attacks
+Wireless Denial of Service (DoS) Attack
+Wireless Encryption
+Wireless Network Installation Considerations
+Wireless Replay and Key Recovery Attack
+Work Recovery Time (WRT)
+Workforce Multiplier
+Worm
+WPA2 Pre-Shared Key Authentication
+WPA3 Personal Authentication
+Zero Standing Privileges (ZSP)
+Zero Trust Architecture (ZTA)
+Zero-click (Message-Based Vector)
+Zero-Day Vulnerabilities

@@ -1,0 +1,1685 @@
+======================================================================
+TOPIC HIERARCHY TREE
+======================================================================
+
+[L4] 802.1X / Port-based Network Access Control (PNAC)
+
+[L4] Acceptable Use Policy (AUP)
+
+[L4] Access Badges
+
+[L4] Access Control List (ACL)
+
+[L4] Access Control Vestibule / Mantrap
+
+[L4] Account Lockout
+
+[L1] Accounting (AAA)
+
+[L4] Active Reconnaissance (Penetration Testing)
+
+[L4] Active Security Control
+
+[L4] Ad Hoc Network
+
+[L4] Address Resolution Protocol (ARP)
+
+[L4] Advanced / Enterprise Authentication
+
+[L4] Advanced Data Protection
+
+[L1] Advanced Persistent Threat (APT)
+
+[L4] Adware
+
+[L4] AES Galois Counter Mode (GCM)
+
+[L4] Agent-Based Filtering
+
+[L1] Agentless Scanning
+
+[L4] Air-gap
+
+[L4] Alarm Systems and Sensors
+
+[L4] Alert Tuning
+
+[L4] Alerting and Monitoring Activities
+
+[L4] Allow List
+
+[L4] Allowed and Blocked Changes
+
+[L4] Amplification Attack (DDoS)
+
+[L4] Annualized Loss Expectancy (ALE)
+
+[L4] Annualized Rate of Occurrence (ARO)
+
+[L4] Anomalous Behavior Recognition
+
+[L4] Antivirus
+
+[L4] Antivirus Scan
+
+[L4] Anything as a Service (XaaS)
+
+[L4] Appliance Firewall
+
+[L4] Application and Endpoint Logs
+
+[L4] Application Attacks
+
+[L4] Application Logs
+
+[L4] Application Protections
+
+[L4] Application Virtualization
+
+[L4] Application Vulnerabilities
+
+[L4] Arbitrary Code Execution
+
+[L4] ARP Poisoning
+
+[L4] Asset Acquisition / Procurement
+
+[L4] Asset Disposal / Decommissioning
+
+[L1] Asset Management
+    └── [L2] ITIL Configuration Management
+        ├── [L3] Baseline configuration
+        ├── [L3] Configuration Item (CI)
+        ├── [L3] Configuration management system (CMS)
+        └── [L3] Service assets
+
+[L4] Asset Monitoring / Tracking
+
+[L4] Asset Ownership Assignment / Accounting
+
+[L4] Asset Protection
+
+[L4] Asymmetric Algorithm
+
+[L1] Attack Surface
+
+[L4] Attestation and Assessments (Governance & Compliance)
+
+[L1] Attributes of Threat Actors
+
+[L4] Auditing (Vulnerability Assessment)
+
+[L1] Authentication (AAA)
+    ├── [L2] Authentication Design
+    │   ├── [L3] Availability (Authentication)
+    │   ├── [L3] Confidentiality (Authentication)
+    │   └── [L3] Integrity (Authentication)
+    ├── [L2] Authentication Factor
+    │   ├── [L3] Something You Are
+    │   ├── [L3] Something You Have
+    │   ├── [L3] Something You Know
+    │   └── [L3] Somewhere You Are
+    ├── [L2] Authentication Methods
+    │   ├── [L3] Attestation (Cryptography)
+    │   ├── [L3] Biometric Authentication
+    │   │   ├── [L4] Crossover Error Rate (CER)
+    │   │   ├── [L4] Failure to Enroll Rate (FER)
+    │   │   ├── [L4] False Acceptance Rate (FAR)
+    │   │   ├── [L4] False Rejection Rate (FRR)
+    │   │   └── [L4] Throughput (Speed)
+    │   ├── [L3] Hard Authentication Token
+    │   ├── [L3] Multifactor Authentication (MFA)
+    │   ├── [L3] Password Manager
+    │   ├── [L3] Passwordless
+    │   ├── [L3] Personal Identification Number (PIN)
+    │   ├── [L3] Soft Authentication Token
+    │   └── [L3] Token Generation
+    │       ├── [L4] Certificate-Based Authentication
+    │       └── [L4] Fast Identity Online (FIDO) Universal 2nd Factor (U2F)
+    ├── [L2] Authentication Protocols
+    │   ├── [L3] Directory Service
+    │   ├── [L3] Distinguished Name (DN)
+    │   ├── [L3] Kerberos
+    │   │   ├── [L4] Key Distribution Center (KDC)
+    │   │   ├── [L4] TGS session Key
+    │   │   └── [L4] Ticket Granting Ticket (TGT)
+    │   ├── [L3] Lightweight Directory Access Protocol (LDAP)
+    │   ├── [L3] Linux Authentication
+    │   ├── [L3] NT LAN Manager (NTLM) Authentication
+    │   ├── [L3] Pluggable Authentication Module (PAM)
+    │   └── [L3] Single Sign-on (SSO)
+    └── [L2] Password Best Practices
+
+[L4] Authentication Header (AH)
+
+[L4] Authentication, Authorization, and Accounting (AAA)
+
+[L1] Authorization (AAA)
+    └── [L2] Access Control Models
+        ├── [L3] Attribute-based Access Control (ABAC)
+        ├── [L3] Discretionary Access Control (DAC)
+        ├── [L3] Least Privilege
+        ├── [L3] Mandatory Access Control (MAC)
+        ├── [L3] Role-based Access Control (RBAC)
+        └── [L3] Rule-based Access Control
+
+[L4] Automation and Orchestration Implementation
+
+[L4] Automation and Scripting
+
+[L1] Availability
+
+[L4] Backdoor
+
+[L4] Backdoors and Remote Access Trojans (RAT)
+
+[L4] Backout Plans (Change Management)
+
+[L1] Backup Power Generator
+
+[L4] Beacon
+
+[L4] Behavioral-based Detection
+
+[L4] Benchmarks
+
+[L4] Benchmarks and Secure Configuration Guides
+
+[L4] Birthday Attack
+
+[L4] Block List
+
+[L4] Blocked Content
+
+[L4] Bluejacking
+
+[L4] Bluesnarfing
+
+[L4] Bluetooth
+
+[L1] Bollards
+
+[L4] Botnet
+
+[L4] Bring Your Own Device (BYOD)
+
+[L4] Brute Force Attack (Physical)
+
+[L4] Brute Force Password Attack
+
+[L4] Buffer Overflow
+
+[L4] Bug Bounty
+
+[L4] Business Continuity
+
+[L4] Business Continuity Documentation
+
+[L4] Business Impact Analysis (BIA)
+
+[L4] Business Partnership Agreement (BPA)
+
+[L4] Cable Locks
+
+[L4] Call List
+
+[L4] Canonicalization Attack
+
+[L4] Capacity Planning
+
+[L4] Card Cloning (RFID)
+
+[L4] Cellular
+
+[L4] Centralized Computing Architecture
+
+[L4] Centralized Web Filtering
+
+[L4] Change Control
+
+[L4] Change Management
+
+[L4] Chaotic Motivation
+
+[L1] Chief Information Officer (CIO)
+
+[L1] Chief Security Officer (CSO)
+
+[L1] Chief Technology Officer (CTO)
+
+[L4] chmod
+
+[L4] Choose Your Own Device (CYOD)
+
+[L4] Cipher Suite
+
+[L4] Clean Desk Policy
+
+[L1] Client-Based Scanning
+
+[L4] Client-Side / Server- Side Validation
+
+[L4] Closed / Proprietary
+
+[L4] Cloud Access Security Brokers (CASB)
+
+[L4] Cloud Architecture Features
+
+[L4] Cloud Automation Technologies
+
+[L4] Cloud Computing
+
+[L4] Cloud Deployment Model
+
+[L4] Cloud Models Security
+
+[L4] Cloud Responsibility Matrix
+
+[L4] Cloud Responsiveness
+
+[L4] Cloud Security
+
+[L4] Cloud Service Customer Responsibility
+
+[L4] Cloud Service Model
+
+[L4] Cloud Service Provider (CSP)
+
+[L4] Cloud Service Provider Responsibility
+
+[L4] Cloud-based Application Attacks
+
+[L4] Clustering
+
+[L4] Code of Conduct
+
+[L4] Code Signing
+
+[L1] Cold Site
+
+[L4] Collision Attack
+
+[L4] Command and Control (C2 or C&C)
+
+[L4] Command Injection Attack
+
+[L4] Common Vulnerabilities and Exposures (CVE)
+
+[L4] Common Vulnerability Scoring System (CVSS)
+
+[L4] Community Cloud
+
+[L1] Compensating Security Control
+
+[L4] Compliance Monitoring
+
+[L1] Computer Incident Response Team (CIRT)
+
+[L4] Computer-based Training (CBT)
+
+[L4] Concurrent Session Usage
+
+[L4] Conduct Policies
+
+[L4] Confidential Data
+
+[L1] Confidentiality
+
+[L4] Configuration Baselines
+
+[L4] Configuration Management
+
+[L4] Conflict of Interest
+
+[L4] Containerization / Container Virtualization
+
+[L4] Continuity of Operations (COOP)
+
+[L4] Continuous Penetration Testing
+
+[L4] Cookies
+
+[L4] Corporate Owned, Business Only (COBO)
+
+[L4] Corporate Owned, Personally Enabled (COPE)
+
+[L1] Corrective Security Control
+
+[L4] Correlation
+
+[L4] Covert Channel
+
+[L4] Credential Dumping
+
+[L4] Credential Harvesting
+
+[L4] Credential Replay Attack
+
+[L4] Credentialed Scan
+
+[L4] Critical Elements for Security Awareness Training
+
+[L4] Cross-Site Request Forgery (CSRF)
+
+[L4] Cross-Site Scripting (XSS)
+
+[L4] Crypto-mining
+
+[L4] Crypto-Ransomware
+
+[L4] Cryptographic Attacks
+
+[L4] Cryptographic Vulnerabilities
+
+[L1] Cryptography
+    ├── [L2] Asymmetric Encryption
+    │   ├── [L3] Private Key
+    │   └── [L3] Public Key
+    ├── [L2] Encryption Fundamentals
+    │   ├── [L3] Ciphertext
+    │   ├── [L3] Cryptanalysis
+    │   ├── [L3] Cryptographic Algorithm
+    │   ├── [L3] Cryptographic Key
+    │   ├── [L3] Cryptographic Primitive
+    │   ├── [L3] Encryption
+    │   ├── [L3] Key Length
+    │   └── [L3] Plaintext / Cleartext
+    ├── [L2] Hashing
+    │   ├── [L3] Digital Signature
+    │   ├── [L3] Hash-based Message Authentication Code (HMAC)
+    │   ├── [L3] Message Digest Algorithm #5 (MD5)
+    │   └── [L3] Secure Hash Algorithm (SHA)
+    ├── [L2] Key Management System
+    │   ├── [L3] Blockchain
+    │   ├── [L3] Diffie-Hellman (D-H)
+    │   ├── [L3] Entropy
+    │   ├── [L3] Ephemeral Session Key
+    │   ├── [L3] Hardware Security Module (HSM)
+    │   ├── [L3] Key Escrow
+    │   ├── [L3] Key Exchange
+    │   ├── [L3] Key Stretching
+    │   ├── [L3] Open Public Ledger
+    │   ├── [L3] Perfect Forward Secrecy (PFS)
+    │   ├── [L3] Pseudo Random Number Generator (PRNG)
+    │   ├── [L3] Salting
+    │   ├── [L3] True Random Number Generator (TRNG)
+    │   └── [L3] Trusted Platform Module (TPM)
+    ├── [L2] Obfuscation
+    │   ├── [L3] Data Masking
+    │   ├── [L3] Steganography
+    │   └── [L3] Tokenization
+    ├── [L2] Public Key Infrastructure (PKI)
+    │   ├── [L3] Certificate Authority (CA)
+    │   ├── [L3] Certificate Chaining / Chain of Trust
+    │   ├── [L3] Certificate Revocation List (CRL)
+    │   ├── [L3] Certificate Signing Request (CSR)
+    │   ├── [L3] Common Name (CN)
+    │   ├── [L3] Digital Certificate
+    │   ├── [L3] Online Certificate Status Protocol (OCSP)
+    │   ├── [L3] Public Key Cryptography Standards (PKCS)
+    │   ├── [L3] Root Certificate
+    │   ├── [L3] Root of Trust
+    │   ├── [L3] Self-signed Certificate
+    │   ├── [L3] Single Certificate Authority (CA)
+    │   ├── [L3] Subject Alternative Name (SAN)
+    │   ├── [L3] Third Party Certificate Authority (CA)
+    │   └── [L3] Wildcard Domain
+    └── [L2] Symmetric Encryption / Algorithm
+
+[L4] Cryptojacking Malware
+
+[L4] Cyber Threat Intelligence (CTI)
+
+[L1] Cybersecurity Frameworks (CSF)
+    └── [L2] NIST Cybersecurity Framework
+
+[L4] Cybersecurity Incident
+
+[L4] Dark Net
+
+[L4] Dark Web
+
+[L4] Data / Privacy Breach
+
+[L4] Data at Rest
+
+[L4] Data Backup
+
+[L4] Data Classification
+
+[L4] Data Classifications
+
+[L4] Data Controller
+
+[L4] Data Custodian
+
+[L4] Data Destruction
+
+[L4] Data Exposure
+
+[L4] Data Governance Roles
+
+[L4] Data Historian
+
+[L4] Data in Transit / Motion
+
+[L4] Data in Use / Processing
+
+[L4] Data Inventories
+
+[L4] Data Loss Prevention (DLP)
+
+[L4] Data Owner
+
+[L4] Data Processor
+
+[L4] Data Protection
+
+[L4] Data Protection Methods
+
+[L4] Data Replication (Cloud)
+
+[L4] Data Retention
+
+[L4] Data Sanitization
+
+[L4] Data Sanitization / Destruction Certification
+
+[L4] Data Sources, Dashboards, and Reports
+
+[L4] Data Sovereignty
+
+[L4] Data Sovereignty and Geographical Considerations
+
+[L4] Data Subject
+
+[L4] Data Types
+
+[L4] Database Encryption
+
+[L4] dd command
+
+[L4] Decentralized Computing Architecture
+
+[L4] Deception Technologies
+
+[L4] Deep and Dark Web
+
+[L4] Deep Web
+
+[L4] Defense in Depth
+
+[L4] Defensive Penetration Testing
+
+[L4] Denial of service (DoS)
+
+[L4] Dependencies
+
+[L4] Deperimeterization
+
+[L4] Detection
+
+[L1] Detective Security Control
+
+[L1] Deterrent Security Control
+
+[L1] Development and operations (DevOps)
+
+[L4] Device Placement
+
+[L1] DevSecOps
+
+[L4] Dictionary Attack
+
+[L4] Digital Forensics
+
+[L4] Digital Forensics - Chain of Custody
+
+[L4] Digital Forensics - Data Acquisition
+
+[L4] Digital Forensics - Disk Image Acquisition
+
+[L4] Digital Forensics - Due Process
+
+[L4] Digital Forensics - Legal Hold
+
+[L4] Digital Forensics - Preservation
+
+[L4] Digital Forensics - Provenance
+
+[L4] Digital Forensics - Reporting
+
+[L4] Digital Forensics - System Memory Acquisition
+
+[L4] Digital Forensics - Timeline
+
+[L4] Digital Forensics - Write Blocker
+
+[L1] Directive Security Control
+
+[L4] Directory Traversal
+
+[L4] Directory Traversal Attack
+
+[L4] Disassociation Attack (Wireless DoS)
+
+[L4] Disaster Recovery
+
+[L4] Distributed Denial of Service (DDoS) Attacks
+
+[L4] Distributed DoS (DDoS)
+
+[L4] Distributed Reflected DoS (DRDoS)
+
+[L4] DNS Attack Indicators
+
+[L4] DNS Client Cache Poisoning
+
+[L4] DNS Filtering
+
+[L4] DNS Poisoning
+
+[L4] DNS Security Extensions (DNSSEC)
+
+[L4] DNS Server Cache Poisoning
+
+[L1] DNS Sinkhole
+
+[L4] DNS-Based On-Path Attacks
+
+[L4] Documentation and Version Control
+
+[L4] Domain Name System (DNS) Attacks
+
+[L4] Domain-based Message Authentication, Reporting & Conformance (DMARC)
+
+[L4] DomainKeys Identified Mail (DKIM)
+
+[L4] Downgrade Attack
+
+[L4] Due Diligence
+
+[L4] Dynamic Analysis
+
+[L4] E-discovery
+
+[L4] EAP over LAN (EAPoL)
+
+[L4] Email Data Loss Prevention
+
+[L4] Email Gateway
+
+[L4] Email Security
+
+[L4] Email Services
+
+[L4] Embedded Systems
+
+[L4] Encapsulating Security Payload (ESP)
+
+[L4] Endpoint Detection and Response (EDR)
+
+[L4] Endpoint Logs
+
+[L4] Enterprise Authentication
+
+[L4] Enterprise Risk Management (ERM)
+
+[L4] Environmental Attack
+
+[L4] Environmental Variables (Vulnerability Assessment)
+
+[L4] Error Handling
+
+[L4] Escalation (Incident Response)
+
+[L4] Evaluation Scope
+
+[L4] Event Viewer
+
+[L4] Evidence of Internal Audits (Vendor Assessment Method)
+
+[L4] Evil Twin
+
+[L4] Exercise Types (Penetration Testing)
+
+[L4] Explicit TLS (FTPES)
+
+[L4] Exposure Factor
+
+[L4] Extensible Authentication Protocol (EAP)
+
+[L4] Extensible Markup Language (XML)
+
+[L4] Extensible Markup Language (XML) Injection
+
+[L4] External Assessments (Governance & Compliance)
+
+[L4] Fail-Closed
+
+[L4] Fail-Open
+
+[L1] Failover
+
+[L4] Failover Tests
+
+[L1] Fake Telemetry
+
+[L4] False Negative
+
+[L4] False Positive
+
+[L4] False Positives, False Negatives, and Log Review
+
+[L1] Fault Tolerant
+
+[L1] Federation
+    ├── [L2] Identity Provider (IdP)
+    ├── [L2] Open Authorization (OAuth)
+    ├── [L2] Representational State Transfer (REST)
+    ├── [L2] Security Assertion Markup Language (SAML)
+    └── [L2] Simple Object Access Protocol (SOAP)
+
+[L4] Fencing
+
+[L4] File Integrity Monitoring (FIM)
+
+[L4] File Transfer Protocol (FTP)
+
+[L4] File Transfer Services
+
+[L4] Fileless Malware
+
+[L4] Financial Data
+
+[L4] Firewall Logs
+
+[L4] Firmware Vulnerabilities
+
+[L4] First Responder
+
+[L4] Forgery Attacks
+
+[L4] Forward Proxy Server
+
+[L4] Function as a Service (FaaS)
+
+[L1] Gap analysis
+
+[L4] Gateways and Locks
+
+[L4] General Data Protection Regulation (GDPR)
+
+[L4] Geofencing
+
+[L1] Geographic Dispersion
+
+[L4] Global Positioning System (GPS)
+
+[L4] Governance
+
+[L4] Governance and Accountability
+
+[L4] Governance Boards
+
+[L4] Governance Committees
+
+[L4] Government Entities and Groups
+
+[L4] GPS Tagging
+
+[L4] Guidelines
+
+[L4] Hardening
+
+[L4] Hashing Algorithm
+
+[L4] Health Insurance Portability and Accountability Act (HIPAA)
+
+[L4] Heat Map (Risk)
+
+[L4] Heat Map Risk Matrix
+
+[L4] Heuristics
+
+[L4] High Availability
+
+[L4] High Availability Across Zones (Cloud)
+
+[L1] Honeypots
+
+[L4] Host Operating System Logs
+
+[L4] Host-based Firewalls
+
+[L4] Host-based Intrusion Detection (HIDS)
+
+[L4] Host-based Intrusion Prevention (HIPS)
+
+[L1] Hot Site
+
+[L4] HTML5 VPN
+
+[L1] Human Vector
+
+[L4] Human-readable Data
+
+[L4] Human-Readable Data
+
+[L4] Hybrid Cloud
+
+[L4] Hybrid Password Attack
+
+[L1] Identification (IAM)
+
+[L1] Identity and Access Management (IAM)
+    ├── [L2] Account Management
+    │   ├── [L3] Account Policies
+    │   ├── [L3] Group Account
+    │   ├── [L3] Group Policy Objects (GPOs)
+    │   ├── [L3] Just-in-time (JIT) Permission
+    │   ├── [L3] M of N Control
+    │   ├── [L3] Privileged access management (PAM)
+    │   ├── [L3] Secure Administrative Workstation (SAW)
+    │   └── [L3] Security Identifier (SID)
+    ├── [L2] Account Restrictions
+    │   ├── [L3] Geolocation
+    │   └── [L3] Zero Standing Privileges (ZSP)
+    └── [L2] User Account Lifecycle
+        ├── [L3] User Account Deprovisioning
+        └── [L3] User Account Provisioning
+
+[L4] IDS and IPS Detection Methods
+
+[L4] Impact Analysis (Change Management)
+
+[L4] Implicit Deny
+
+[L4] Implicit TLS (FTPS)
+
+[L4] Impossible Travel
+
+[L4] In-Band Management
+
+[L4] Incident Response - Analysis
+
+[L4] Incident Response - Containment
+
+[L4] Incident Response - Detection
+
+[L4] Incident Response - Eradication and Recovery
+
+[L4] Incident Response - Lessons Learned
+
+[L4] Incident Response - Preparation
+
+[L4] Incident Response - Testing
+
+[L4] Incident Response - Training
+
+[L4] Incident Response Lifecycle
+
+[L4] Incident Response Plan (IRP)
+
+[L4] Incident Response Policy
+
+[L4] Independent Assessments (Vendor Assessment Method)
+
+[L4] Indicator of Compromise (IoC)
+
+[L4] Indoor Positioning System (IPS)
+
+[L1] Industrial Camouflage
+
+[L4] Industrial Control System (ICS)
+
+[L1] Information Security
+
+[L4] Information Security Policies
+
+[L4] Information Sharing and Analysis Centers (ISACs)
+
+[L1] Information Systems Security Officer (ISSO)
+
+[L4] Information-Sharing Organizations
+
+[L4] Infrastructure as a Service (IaaS)
+
+[L4] Infrastructure as Code (IaC)
+
+[L4] Inherent Risk
+
+[L4] Injection Attack
+
+[L4] Injection Attacks
+
+[L4] Inline Device
+
+[L4] Input Validation
+
+[L4] Integrated Penetration Testing
+
+[L1] Integrity
+
+[L4] Intelligence Fusion - Threat Hunting
+
+[L1] Intentional Threat
+
+[L4] Internal / External Compliance Reporting
+
+[L4] Internal Assessments (Governance & Compliance)
+
+[L4] Internet Header
+
+[L4] Internet Key Exchange (IKE)
+
+[L4] Internet Message Access Protocol (IMAP)
+
+[L4] Internet of Things (IoT)
+
+[L4] Internet Protocol Security (IPsec)
+
+[L4] Internet Relay Chat (IRC)
+
+[L4] Intrusion Detection and Prevention Systems
+
+[L4] Intrusion Detection System (IDS)
+
+[L4] Intrusion Prevention System (IPS)
+
+[L4] IP Flow Information Export (IPFIX)
+
+[L4] IPS/IDS Logs
+
+[L4] Isolation
+
+[L4] Jailbreaking
+
+[L4] Journaling
+
+[L4] Jump Server
+
+[L4] Key Encryption Key (KEK)
+
+[L4] Key Risk Indicators (KRIs)
+
+[L4] Keylogger
+
+[L4] Kill Chain
+
+[L4] Lateral Movement
+
+[L4] Layer 4 Firewall
+
+[L4] Layer 4 Load Balancer
+
+[L4] Layer 7 Firewall
+
+[L4] Layer 7 Load Balancer
+
+[L4] LDAP Secure (LDAPS)
+
+[L4] Legacy and End-of-Life (EOL) System Vulnerabilities
+
+[L4] Legal Agreements
+
+[L4] Legal Data
+
+[L4] Legal Environment
+
+[L4] Lessons Learned Report (LLR)
+
+[L1] Level of Sophistication / Capability
+
+[L1] Lighting
+
+[L4] Lightweight Directory Access Protocol (LDAP) Injection
+
+[L4] Linux Logs
+
+[L4] Listener / Collector
+
+[L4] Load Balancer
+
+[L4] Log Aggregation
+
+[L4] Log Data
+
+[L4] Logic Bomb
+
+[L4] Logs
+
+[L1] Lure-Based Vectors
+    ├── [L2] Document Files (Lure-Based Vector)
+    ├── [L2] Email (Message-Based Vector)
+    ├── [L2] Executable File (Lure-Based Vector)
+    ├── [L2] IM (Message-Based Vector)
+    ├── [L2] Image Files (Lure-Based Vector)
+    ├── [L2] Removable Device (Lure-Based Vector)
+    ├── [L2] SMS (Message-Based Vector)
+    ├── [L2] Web and Social Media (Message-Based Vector)
+    └── [L2] Zero-click (Message-Based Vector)
+
+[L4] MAC Filtering
+
+[L4] macOS Logs
+
+[L4] Maintenance Windows (Change Management)
+
+[L4] Malicious Activity Indicators
+
+[L4] Malicious Code Indicators
+
+[L4] Malicious Process
+
+[L4] Malicious Update
+
+[L4] Malware
+
+[L4] Malware Classification
+
+[L1] Managerial Security Control
+
+[L4] Maneuver - Threat Hunting
+
+[L4] Master Service Agreement (MSA)
+
+[L4] Maximum Tolerable Downtime (MTD)
+
+[L4] Mean Time Between Failures (MTBF)
+
+[L4] Mean Time To Repair (MTTR)
+
+[L4] Memorandum of Agreement (MOA)
+
+[L4] Memorandum of Understanding (MOU)
+
+[L4] Memory Dump
+
+[L4] Memory Injection
+
+[L4] Metadata
+
+[L4] Microservices
+
+[L4] Misconfiguration Vulnerabilities
+
+[L4] Missing Logs
+
+[L4] Mission Essential Functions (MEF)
+
+[L4] Monitoring Infrastructure
+
+[L4] Monitoring Systems and Applications
+
+[L1] Motivations of Threat Actors
+    ├── [L2] Blackmail
+    ├── [L2] Data exfiltration
+    ├── [L2] Disinformation
+    ├── [L2] Extortion
+    ├── [L2] Financial Motivation
+    ├── [L2] Fraud
+    ├── [L2] Political Motivation
+    └── [L2] Service Disruption
+
+[L4] Multi-cloud Architecture
+
+[L4] Multi-Cloud Strategy
+
+[L4] National Institute of Standards and Technology (NIST)
+
+[L4] Near-field Communication (NFC)
+
+[L4] NetFlow
+
+[L4] Network Access Control (NAC)
+
+[L4] Network Architecture
+
+[L4] Network Architecture Weaknesses
+
+[L4] Network Attack Surface
+
+[L4] Network Attacks
+
+[L4] Network Behavior and Anomaly Detection (NBAD)
+
+[L4] Network Data Sources
+
+[L4] Network Logs
+
+[L4] Network Monitor
+
+[L4] Next-Generation Firewall (NGFW)
+
+[L4] Non-Credentialed Scan
+
+[L4] Non-Human-Readable Data
+
+[L1] Non-repudiation
+
+[L4] Nondisclosure Agreement (NDA)
+
+[L4] Off-site Backup
+
+[L4] Offboarding
+
+[L4] Offensive Penetration Testing
+
+[L4] Offline Password Attack
+
+[L4] On-Path Attack / Man-in-the-Middle Attack (MiTM)
+
+[L4] On-premises Network
+
+[L4] On-site Backup
+
+[L4] Onboarding
+
+[L4] Online Password Attack
+
+[L4] Opal
+
+[L4] Open-Source Intelligence (OSINT)
+
+[L4] Operating System Vulnerabilities
+
+[L1] Operational Security Control
+
+[L4] Order of Volatility
+
+[L4] Out-of-Band Management
+
+[L4] Out-of-cycle Logging
+
+[L4] Package Monitoring
+
+[L4] Packet Analysis
+
+[L4] Packet Captures
+
+[L4] Packet Filtering Firewall
+
+[L4] Parallel Processing Test
+
+[L4] Passive Reconnaissance (Penetration Testing)
+
+[L4] Passive Security Control
+
+[L4] Password Attacks
+
+[L4] Password Spraying
+
+[L4] Patch
+
+[L4] Patch Management
+
+[L4] Payload
+
+[L4] Payment Card Industry Data Security Standard (PCI DSS)
+
+[L4] Penetration Testing (How)
+
+[L4] Penetration Testing (Why / Who)
+
+[L4] Percent Encoding (URL)
+
+[L4] Permissions
+
+[L4] Personal Area Networks (PANs)
+
+[L4] Physical Attacks
+
+[L4] Physical Penetration Testing
+
+[L4] Physical Security Control
+
+[L4] Pivoting
+
+[L4] Platform as a Service (PaaS)
+
+[L4] Platform Diversity
+
+[L4] Platform Diversity and Defense in Depth
+
+[L4] Playbook
+
+[L4] Point-to-Point Tunneling Protocol (PPTP)
+
+[L4] Policies
+
+[L4] Port Security
+
+[L4] Post Office Protocol v3 (POP3)
+
+[L4] Potentially Unwanted Programs (PUPs) / Potentially Unwanted Applications (PUAs)
+
+[L1] Power Distribution Unit (PDU)
+
+[L4] Power Redundancy
+
+[L4] Pre-shared Key (PSK)
+
+[L4] Preparation
+
+[L1] Preventive Security Control
+
+[L4] Privacy Data
+
+[L4] Private / Personal Data
+
+[L4] Private Cloud
+
+[L4] Privilege Escalation
+
+[L4] Procedures
+
+[L4] Proprietary Data
+
+[L4] Proprietary Information
+
+[L1] Proximity Reader
+
+[L4] Proxy Server
+
+[L4] Public (or Multi-tenant) Cloud
+
+[L4] Public /  Unclassified Data
+
+[L4] Qualitative Risk Analysis
+
+[L4] Quantitative Risk Analysis
+
+[L4] Questionnaires (Vendor Management)
+
+[L4] Race Condition and TOCTOU
+
+[L4] Radio Frequency ID (RFID)
+
+[L4] Ransomware
+
+[L4] Reaction Time
+
+[L4] Real-Time Operating Systems (RTOS)
+
+[L4] Recognizing Risky Behaviors
+
+[L4] Reconnaissance
+
+[L4] Recovery Point Objective (RPO)
+
+[L4] Recovery Time Objective (RTO)
+
+[L1] Redundancy
+
+[L4] Regulated Data
+
+[L4] Remote Access
+
+[L4] Remote Access Trojan (RAT)
+
+[L4] Remote Authentication Dial-In User Service (RADIUS)
+
+[L4] Remote Code Execution
+
+[L4] Remote Desktop Protocol (RDP)
+
+[L4] Replay Attack
+
+[L4] Replication
+
+[L4] Reporting
+
+[L4] Reputational Threat Intelligence
+
+[L4] Residual Risk
+
+[L4] Resilient Cloud Architecture
+
+[L4] Resource Consumption
+
+[L4] Resource Inaccessibility
+
+[L1] Resources / Funding
+
+[L4] Responsible Disclosure Programs
+
+[L4] Restarts, Dependencies, and Downtime
+
+[L4] Restricted Data
+
+[L4] Reverse Proxy Server
+
+[L4] RFID Cloning
+
+[L4] Right-to-Audit Clause (Vendor Assessment Method)
+
+[L1] Risk
+
+[L4] Risk Acceptance / Risk Tolerance
+
+[L4] Risk Analysis
+
+[L4] Risk Appetite
+
+[L4] Risk Assessment
+
+[L4] Risk Avoidance
+
+[L4] Risk Deterrence / Risk Reduction
+
+[L4] Risk Exception
+
+[L4] Risk Exemption
+
+[L4] Risk Identification
+
+[L4] Risk Impact
+
+[L4] Risk Likelihood
+
+[L4] Risk Management
+
+[L4] Risk Management Processes
+
+[L4] Risk Management Strategies
+
+[L4] Risk Mitigation / Risk Remediation
+
+[L4] Risk Owner
+
+[L4] Risk Probability
+
+[L4] Risk Register
+
+[L4] Risk Reporting
+
+[L4] Risk Threshold
+
+[L4] Risk Tolerance
+
+[L4] Risk Transference / Risk Sharing
+
+[L4] Rogue Access Point (AP) Attack
+
+[L4] Root Cause Analysis
+
+[L4] Rooting
+
+[L4] Rootkit
+
+[L4] Router Firewall
+
+[L4] Rules of Engagement (RoE)
+
+[L4] Sandbox Execution
+
+[L4] Sarbanes-Oxley Act (SOX)
+
+[L4] Scareware
+
+[L4] Screened Subnet
+
+[L4] Secret Data
+
+[L4] Secure Access Service Edge (SASE)
+
+[L4] Secure Baseline
+
+[L4] Secure Coding Techniques
+
+[L4] Secure Data Destruction
+
+[L4] Secure Directory Services
+
+[L4] Secure Enclave
+
+[L4] Secure File Transfer Protocol (SFTP)
+
+[L4] Secure IMAP (IMAPS)
+
+[L4] Secure POP (POP3S)
+
+[L4] Secure Protocols
+
+[L4] Secure Shell (SSH)
+
+[L4] Secure SMTP (SMTPS)
+
+[L4] Secure/Multipurpose Internet Mail Extensions (S/MIME)
+
+[L4] Security Awareness Training Lifecycle
+
+[L4] Security Compliance
+
+[L4] Security Content Automation Protocol (SCAP)
+
+[L1] Security Control
+
+[L4] Security Guards and Cameras
+
+[L4] Security Information and Event Management (SIEM)
+
+[L4] Security Logs
+
+[L1] Security Operations Center (SOC)
+
+[L4] Self-encrypting Drives (SED)
+
+[L4] SELinux
+
+[L4] Sender Policy Framework (SPF)
+
+[L4] Sensitive Data
+
+[L4] Server-Side Request Forgery (SSRF)
+
+[L4] Serverless Computing
+
+[L4] Service Set Identifier (SSID)
+
+[L4] Service-level Agreement (SLA)
+
+[L1] Shadow IT
+
+[L4] Shellcode
+
+[L4] Sideloading
+
+[L4] Sideloading, Rooting, and Jailbreaking
+
+[L4] Signature-Based Detection
+
+[L4] Simple Authentication and Security Layer (SASL)
+
+[L4] Simple Mail Transfer Protocol (SMTP)
+
+[L4] Simple Network Management Protocol Security
+
+[L4] Simulation Testing/Experiment
+
+[L4] Simultaneous Authentication of Equals (SAE)
+
+[L4] Single Loss Expectancy (SLE)
+
+[L4] Single Point of Failure
+
+[L4] Sinkhole
+
+[L4] Site Layout, Fencing, and Lighting
+
+[L4] Site Survey
+
+[L4] Skimming (RFID)
+
+[L4] Snapshot
+
+[L1] Social Engineering
+    ├── [L2] Brand Impersonation
+    ├── [L2] Business Email Compromise
+    ├── [L2] Impersonation
+    ├── [L2] Pharming
+    ├── [L2] Phishing
+    ├── [L2] Pretexting
+    ├── [L2] SMiShing
+    ├── [L2] Typosquatting
+    ├── [L2] Vishing
+    └── [L2] Watering Hole Attack
+
+[L4] Software as a Service (SaaS)
+
+[L4] Software Composition Analysis (SCA)
+
+[L4] Software Defined Networking (SDN)
+
+[L4] Software Development Life Cycle (SDLC)
+
+[L4] Software Sandboxing
+
+[L4] Software-Defined Wide Area Network (SD-WAN)
+
+[L4] SPAN (Switched Port Analyzer) / Mirror Port
+
+[L4] Spyware
+
+[L4] SQL Injection (SQLi)
+
+[L4] SSH FTP (SFTP) and FTP Over SSL (FTPS)
+
+[L4] SSL/TLS Versions
+
+[L4] Stakeholders
+
+[L4] Standard Configurations
+
+[L4] Standard Naming Convention
+
+[L4] Standard Operating Procedures (SOPs) (Change Management)
+
+[L4] Standards
+
+[L4] Stateful Firewall
+
+[L4] Stateless Firewall
+
+[L4] Statement of Work (SOW) / Work Order (WO)
+
+[L4] Static Analysis
+
+[L4] Static Code Analysis
+
+[L4] Structured Exception Handler (SEH)
+
+[L4] Substitution Algorithm
+
+[L4] Supercookie
+
+[L4] Supervisory Control and Data Acquisition (SCADA)
+
+[L1] Supply Chain
+    ├── [L2] Business Partner
+    ├── [L2] Managed Service Provider (MSP)
+    ├── [L2] Supplier
+    └── [L2] Vendor
+
+[L4] Supply Chain Analysis (Vendor Assessment Method)
+
+[L4] Supply Chain Attacks
+
+[L4] Symmetric Algorithm
+
+[L4] SYN Flood Attack
+
+[L4] Syslog
+
+[L4] System Monitor
+
+[L4] Tabletop Exercise
+
+[L4] Tactics, Techniques, and Procedures (TTPs)
+
+[L4] Technical Debt
+
+[L1] Technical Security Control
+
+[L4] Temporal Key Integrity Protocol (TKIP)
+
+[L4] Test Access Point (TAP)
+
+[L4] Test Results (Change Management)
+
+[L4] Testing Resiliency
+
+[L4] Tethering
+
+[L4] Third-Party Cloud Vendor
+
+[L1] Threat
+
+[L1] Threat Actor
+    ├── [L2] Authorized Hacker
+    ├── [L2] External Threat Actor
+    ├── [L2] Hacker
+    ├── [L2] Hacktivist
+    ├── [L2] Insider Threat / Internal Threat Actor
+    ├── [L2] Nation-state
+    ├── [L2] Organized crime
+    ├── [L2] Unauthorized Hacker
+    ├── [L2] Unintentional or Inadvertent Insider Threat
+    ├── [L2] Unskilled attacker
+    └── [L2] Whistleblower
+
+[L4] Threat Feeds
+
+[L4] Threat Hunting
+
+[L1] Threat Vector
+
+[L4] Top Secret Data
+
+[L4] Tracking Cookie
+
+[L4] Trade Secret
+
+[L4] Trade Secrets
+
+[L4] Training Topics and Techniques
+
+[L4] Transport Layer Security
+
+[L4] Transport Layer Security (TLS) VPN
+
+[L4] Transposition Algorithm
+
+[L4] Trend Analysis (IPS / IDS)
+
+[L4] Trojan
+
+[L4] True Negative
+
+[L4] True Positive
+
+[L1] Type-safe Programming Language
+
+[L4] Unified Threat Management (UTM)
+
+[L4] Uniform Resource Locator (URL)
+
+[L1] Unintentional Threat
+
+[L1] Uninterruptible Power Supply (UPS)
+
+[L1] Unsecure Network
+    ├── [L2] Bluetooth Network (Network Vector)
+    ├── [L2] Cloud Access (Network Vector)
+    ├── [L2] Default Credentials (Network Vector)
+    ├── [L2] Direct Access (Network Vector)
+    ├── [L2] Local Network Vector
+    ├── [L2] Open Service Port (Network Vector)
+    ├── [L2] Remote and Wireless Network (Network Vector)
+    ├── [L2] Remote Network Vector
+    └── [L2] Wired Network (Network Vector)
+
+[L1] Unsupported Systems / Applications
+
+[L4] URL Analysis
+
+[L4] User and Role-Based Training
+
+[L4] Vendor Assessment Methods
+
+[L4] Vendor Diversity
+
+[L4] Vendor Monitoring (Vendor Assessment Method)
+
+[L4] Vendor Selection
+
+[L4] Version Control
+
+[L4] Video Surveillance
+
+[L4] Virtual Network Computing (VNC)
+
+[L4] Virtual Private Cloud (VPC)
+
+[L4] Virtual Private Network (VPN)
+
+[L4] Virtualization
+
+[L4] Virtualization Vulnerabilities
+
+[L4] Virus
+
+[L1] Vulnerability
+
+[L4] Vulnerability Analysis
+
+[L4] Vulnerability Assessment Methods
+
+[L4] Vulnerability Feed
+
+[L4] Vulnerability Response and Remediation
+
+[L4] Vulnerability Scanning
+
+[L4] Vulnerability Types
+
+[L1] Vulnerable Software
+
+[L1] Warm Site
+
+[L4] Web Application Attacks
+
+[L4] Web Application Firewall (WAF)
+
+[L4] Web Filtering
+
+[L4] Web Server Logs
+
+[L4] Wi-Fi Authentication Methods
+
+[L4] Wi-Fi Protected Access (WPA)
+
+[L4] Wi-Fi Protected Access 3 (WPA3)
+
+[L4] Wi-Fi Protected Setup (WPS)
+
+[L4] WiFi Heat Map
+
+[L4] Windows Authentication
+
+[L4] Windows Logs
+
+[L4] Wired Equivalent Privacy (WEP)
+
+[L4] Wireless Attacks
+
+[L4] Wireless Denial of Service (DoS) Attack
+
+[L4] Wireless Encryption
+
+[L4] Wireless Network Installation Considerations
+
+[L4] Wireless Replay and Key Recovery Attack
+
+[L4] Work Recovery Time (WRT)
+
+[L4] Workforce Multiplier
+
+[L4] Worm
+
+[L4] WPA2 Pre-Shared Key Authentication
+
+[L4] WPA3 Personal Authentication
+
+[L4] Zero Trust Architecture (ZTA)
+
+[L4] Zero-Day Vulnerabilities
+
+======================================================================
+Total topics: 925
+  Level 1: 74
+  Level 2: 74
+  Level 3: 92
+  Level 4: 685
+======================================================================

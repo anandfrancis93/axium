@@ -1,0 +1,153 @@
+AI Artificial Intelligence
+AIS Automated Indicator Sharing
+AP Access Point
+API Application Programming Interface
+ASLR Address Space Layout Randomization
+ATT&CK Adversarial Tactics, Techniques, and Common Knowledge
+CAR Corrective Action Report
+CCMP Counter Mode/CBC-MAC Protocol
+CCTV Closed-circuit Television
+CERT Computer Emergency Response Team
+CFB Cipher Feedback
+CHAP Challenge Handshake Authentication Protocol
+CP Contingency Planning
+CSU Channel Service Unit
+CTM Counter Mode
+DBA Database Administrator
+DEP Data Execution Prevention
+DHCP Dynamic Host Configuration Protocol
+DHE Diffie-Hellman Ephemeral
+DLL Dynamic Link Library
+DNAT Destination Network Address Translation
+DNS Domain Name System
+DPO Data Privacy Officer
+DSL Digital Subscriber Line
+ECB Electronic Code Book
+ECDHE Elliptic Curve Diffie-Hellman Ephemeral
+EFS Encrypted File System
+ERP Enterprise Resource Planning
+ESN Electronic Serial Number
+FACL File System Access Control List
+FPGA Field Programmable Gate Array
+GPG Gnu Privacy Guard
+GPO Group Policy Object
+GPU Graphics Processing Unit
+GRE Generic Routing Encapsulation
+HDD Hard Disk Drive
+HOTP HMAC-based One-time Password
+HTML Hypertext Markup Language
+HTTP Hypertext Transfer Protocol
+HTTPS Hypertext Transfer Protocol Secure
+HVAC Heating, Ventilation Air Conditioning
+ICMP Internet Control Message Protocol
+IDF Intermediate Distribution Frame
+IEEE Institute of Electrical and Electronics Engineers
+IM Instant Messaging
+IP Internet Protocol
+IR Incident Response
+ISP Internet Service Provider
+IV Initialization Vector
+L2TP Layer 2 Tunneling Protocol
+LAN Local Area Network
+LEAP Lightweight Extensible Authentication Protocol
+MaaS Monitoring as a Service
+MAN Metropolitan Area Network
+MBR Master Boot Record
+MDF Main Distribution Frame
+MDM Mobile Device Management
+MFD Multifunction Device
+MFP Multifunction Printer
+ML Machine Learning
+MMS Multimedia Message Service
+MPLS Multi-protocol Label Switching
+MSCHAP Microsoft Challenge Handshake Authentication Protocol
+MSSP Managed Security Service Provider
+MTTF Mean Time to Failure
+MTU Maximum Transmission Unit
+NAT Network Address Translation
+NIPS Network-based Intrusion Prevention System
+NTFS New Technology File System
+NTLM New Technology LAN Manager
+NTP Network Time Protocol
+OID Object Identifier
+OS Operating System
+OSPF Open Shortest Path First
+OT Operational Technology
+OTA Over the Air
+P12 PKCS #12
+P2P Peer to Peer
+PAC Proxy Auto Configuration
+PAP Password Authentication Protocol
+PAT Port Address Translation
+PBKDF2 Password-based Key Derivation Function 2
+PBX Private Branch Exchange
+PCAP Packet Capture
+PCI DSS Payment Card Industry Data Security Standard
+PEAP Protected Extensible Authentication Protocol
+PED Personal Electronic Device
+PEM Privacy Enhanced Mail
+PGP Pretty Good Privacy
+PHI Personal Health Information
+PII Personally Identifiable Information
+PIV Personal Identity Verification
+POP Post Office Protocol
+POTS Plain Old Telephone Service
+PPP Point-to-Point Protocol
+PTZ Pan-tilt-zoom
+PUP Potentially Unwanted Program
+RA Recovery Agent
+RA Registration Authority
+RACE Research and Development in Advanced Communications Technologies in Europe
+RAD Rapid Application Development
+RAID Redundant Array of Inexpensive Disks
+RC4 Rivest Cipher version 4
+ROI Return on Investment
+RSA Rivest, Shamir, & Adleman
+RTBH Remotely Triggered Black Hole
+RTP Real-time Transport Protocol
+S/MIME Secure/Multipurpose Internet Mail Extensions
+SCEP Simple Certificate Enrollment Protocol
+SD-WAN Software-defined Wide Area Network
+SDK Software Development Kit
+SDLM Software Development Lifecycle Methodology
+SHTTP Secure Hypertext Transfer Protocol
+SIM Subscriber Identity Module
+SMS Short Message Service
+SNMP Simple Network Management Protocol
+SOAR Security Orchestration, Automation, Response
+SOW Statement of Work
+SPIM Spam over Internet Messaging
+SQL Structured Query Language
+SRTP Secure Real-Time Protocol
+SSD Solid State Drive
+SSL Secure Sockets Layer
+SWG Secure Web Gateway
+TACACS+ Terminal Access Controller Access Control System
+TAXII Trusted Automated eXchange of Indicator Information
+TCP/IP Transmission Control Protocol/Internet Protocol
+TOC Time-of-check
+TOTP Time-based One-time Password
+TOU Time-of-use
+TSIG Transaction Signature
+UAT User Acceptance Testing
+UAV Unmanned Aerial Vehicle
+UDP User Datagram Protocol
+UEFI Unified Extensible Firmware Interface
+UEM Unified Endpoint Management
+URI Uniform Resource Identifier
+USB Universal Serial Bus
+USB OTG USB On the Go
+UTP Unshielded Twisted Pair
+VBA Visual Basic
+VDE Virtual Desktop Environment
+VDI Virtual Desktop Infrastructure
+VLAN Virtual Local Area Network
+VLSM Variable Length Subnet Masking
+VM Virtual Machine
+VoIP Voice over IP
+VTC Video Teleconferencing
+WAP Wireless Access Point
+WIPS Wireless Intrusion Prevention System
+WTLS Wireless TLS
+XOR Exclusive Or
+XSRF Cross-site Request Forgery

@@ -1,83 +1,111 @@
-import { createClient } from '@supabase/supabase-js'
-import * as dotenv from 'dotenv'
 
-dotenv.config({ path: '.env.local' })
+import dotenv from 'dotenv';
+import path from 'path';
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
+
+import { createScriptClient } from '../lib/supabase/script-client';
 
 interface Topic {
-  id: string
-  name: string
-  parent_topic_id: string | null
-  hierarchy_level: number
+  id: string;
+  name: string;
+  parent_topic_id: string | null;
+  hierarchy_level: number;
+  children: Topic[];
 }
 
-async function main() {
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+async function showHierarchyTree() {
+  const supabase = createScriptClient();
+  const subjectId = 'c1f9b907-9f8e-41d8-aef4-0ea1e42f57e9';
 
-  // Fetch all topics
   const { data: topics, error } = await supabase
     .from('topics')
     .select('id, name, parent_topic_id, hierarchy_level')
-    .order('name')
+    .eq('subject_id', subjectId);
 
   if (error) {
-    console.error('Error:', error)
-    return
+    console.error("Fetch error:", error);
+    return;
   }
+
+  // Build a map of id -> topic
+  const topicMap = new Map<string, Topic>();
+  topics.forEach((t: any) => {
+    topicMap.set(t.id, { ...t, children: [] });
+  });
+
+  // Find topics that are part of a hierarchy (have parent OR have children)
+  const hasParent = new Set<string>();
+  const hasChildren = new Set<string>();
+
+  topics.forEach((t: any) => {
+    if (t.parent_topic_id) {
+      hasParent.add(t.id);
+      hasChildren.add(t.parent_topic_id);
+    }
+  });
+
+  // Topics in hierarchy = has parent OR has children
+  const inHierarchy = new Set([...hasParent, ...hasChildren]);
 
   // Build tree structure
-  const topicMap = new Map<string, Topic>(topics!.map(t => [t.id, t]))
-  const rootTopics = topics!.filter(t => t.parent_topic_id === null)
+  const roots: Topic[] = [];
 
-  console.log('='.repeat(70))
-  console.log('TOPIC HIERARCHY TREE')
-  console.log('='.repeat(70))
-  console.log('')
+  topics.forEach((t: any) => {
+    if (!inHierarchy.has(t.id)) return; // Skip orphans
 
-  // Recursive function to print tree with proper branch characters
-  function printTree(topic: Topic, indent: string = '', isLast: boolean = true) {
-    const levelTag = `[L${topic.hierarchy_level}]`
+    const topic = topicMap.get(t.id)!;
 
-    // Print current topic
-    if (indent === '') {
-      // Root level - no prefix
-      console.log(`${levelTag} ${topic.name}`)
-    } else {
-      // Use tree branch characters
-      const branch = isLast ? '└── ' : '├── '
-      console.log(`${indent}${branch}${levelTag} ${topic.name}`)
+    if (t.parent_topic_id && topicMap.has(t.parent_topic_id)) {
+      const parent = topicMap.get(t.parent_topic_id)!;
+      parent.children.push(topic);
+    } else if (!t.parent_topic_id || !topicMap.has(t.parent_topic_id)) {
+      // Root of a tree (or parent not in our set)
+      if (inHierarchy.has(t.id)) {
+        roots.push(topic);
+      }
     }
+  });
 
-    // Find children
-    const children = topics!.filter(t => t.parent_topic_id === topic.id)
-      .sort((a, b) => a.name.localeCompare(b.name))
+  // Sort children alphabetically
+  function sortChildren(topic: Topic) {
+    topic.children.sort((a, b) => a.name.localeCompare(b.name));
+    topic.children.forEach(sortChildren);
+  }
+  roots.sort((a, b) => a.name.localeCompare(b.name));
+  roots.forEach(sortChildren);
 
-    // Print each child
-    children.forEach((child, index) => {
-      const isLastChild = index === children.length - 1
-      const childIndent = indent + (isLast ? '    ' : '│   ')
-      printTree(child, childIndent, isLastChild)
-    })
+  // Render ASCII tree
+  function renderTree(topic: Topic, prefix: string = '', isLast: boolean = true): string {
+    const connector = isLast ? '└── ' : '├── ';
+    const extension = isLast ? '    ' : '│   ';
+
+    let result = prefix + connector + topic.name + '\n';
+
+    topic.children.forEach((child, index) => {
+      const childIsLast = index === topic.children.length - 1;
+      result += renderTree(child, prefix + extension, childIsLast);
+    });
+
+    return result;
   }
 
-  // Print all root topics
-  rootTopics.forEach((topic, index) => {
-    printTree(topic, '', true)
-    if (index < rootTopics.length - 1) {
-      console.log('')
-    }
-  })
+  console.log(`\n=== HIERARCHICAL TOPIC TREES (${inHierarchy.size} topics) ===\n`);
 
-  console.log('')
-  console.log('='.repeat(70))
-  console.log(`Total topics: ${topics!.length}`)
-  console.log(`  Level 1: ${topics!.filter(t => t.hierarchy_level === 1).length}`)
-  console.log(`  Level 2: ${topics!.filter(t => t.hierarchy_level === 2).length}`)
-  console.log(`  Level 3: ${topics!.filter(t => t.hierarchy_level === 3).length}`)
-  console.log(`  Level 4: ${topics!.filter(t => t.hierarchy_level === 4).length}`)
-  console.log('='.repeat(70))
+  roots.forEach((root, index) => {
+    // Count descendants
+    function countDescendants(t: Topic): number {
+      return t.children.reduce((sum, c) => sum + 1 + countDescendants(c), 0);
+    }
+    const descendants = countDescendants(root);
+
+    console.log(`${root.name} (${descendants} children)`);
+    root.children.forEach((child, i) => {
+      const isLast = i === root.children.length - 1;
+      process.stdout.write(renderTree(child, '', isLast));
+    });
+    console.log('');
+  });
 }
 
-main()
+showHierarchyTree();
