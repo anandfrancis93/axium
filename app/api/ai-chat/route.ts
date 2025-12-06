@@ -19,6 +19,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Rate limiting (per user)
+    const { rateLimiters, rateLimitResponse, isRateLimitEnabled } = await import('@/lib/ratelimit');
+
+    if (isRateLimitEnabled()) {
+      const { success, reset } = await rateLimiters.aiChat.limit(user.id);
+
+      if (!success) {
+        return rateLimitResponse(reset);
+      }
+    }
+
     const body = await request.json()
     const { message, sessionId, ephemeral } = body
 
@@ -37,7 +48,8 @@ export async function POST(request: NextRequest) {
         history: [],
         systemInstruction: {
           role: 'system',
-          parts: [{ text: `You are a helpful AI tutor for the Axium learning platform. You explain concepts using FIRST PRINCIPLES thinking.
+          parts: [{
+            text: `You are a helpful AI tutor for the Axium learning platform. You explain concepts using FIRST PRINCIPLES thinking.
 
 FIRST PRINCIPLES APPROACH:
 1. Break down the concept to its most fundamental truths
@@ -114,7 +126,7 @@ RESPONSE FORMAT:
 
     // Call Gemini
     const model = genAI.getGenerativeModel({ model: 'gemini-3-pro-preview' })
-    
+
     const chat = model.startChat({
       history: geminiHistory,
       // generationConfig: { maxOutputTokens: 8192 }, // Removed to use default max
@@ -154,8 +166,8 @@ RESPONSE FORMAT:
     if (error.hint) console.error('Error Hint:', error.hint)
 
     return NextResponse.json(
-      { 
-        error: 'Failed to process chat', 
+      {
+        error: 'Failed to process chat',
         details: error.message || 'Unknown error',
         code: error.code,
         dbDetails: error.details,

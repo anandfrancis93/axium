@@ -28,6 +28,18 @@ interface GraphLink {
 
 export async function GET(request: NextRequest) {
   try {
+    // Rate limiting
+    const { rateLimiters, getIdentifier, rateLimitResponse, isRateLimitEnabled } = await import('@/lib/ratelimit');
+
+    if (isRateLimitEnabled()) {
+      const identifier = getIdentifier(request);
+      const { success, reset } = await rateLimiters.semantic.limit(identifier);
+
+      if (!success) {
+        return rateLimitResponse(reset);
+      }
+    }
+
     const supabase = await createClient()
     const searchParams = request.nextUrl.searchParams
 

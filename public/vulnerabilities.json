@@ -1,43 +1,12 @@
 {
-  "generatedAt": "2025-12-06T08:18:34.402Z",
+  "generatedAt": "2025-12-06T08:47:58.529Z",
   "summary": {
-    "total": 5,
+    "total": 0,
     "critical": 0,
-    "high": 2,
-    "moderate": 3,
+    "high": 0,
+    "moderate": 0,
     "low": 0,
     "info": 0
   },
-  "packages": {
-    "glob": {
-      "severity": "high",
-      "title": "glob CLI: Command injection via -c/--cmd executes matches with shell:true",
-      "url": "https://github.com/advisories/GHSA-5j98-mcp5-4vw2",
-      "fixAvailable": true
-    },
-    "mdast-util-to-hast": {
-      "severity": "moderate",
-      "title": "mdast-util-to-hast has unsanitized class attribute",
-      "url": "https://github.com/advisories/GHSA-4fh9-h7wg-q85m",
-      "fixAvailable": true
-    },
-    "sharp-cli": {
-      "severity": "high",
-      "title": "Unknown vulnerability",
-      "url": "",
-      "fixAvailable": true
-    },
-    "supabase": {
-      "severity": "moderate",
-      "title": "Unknown vulnerability",
-      "url": "",
-      "fixAvailable": true
-    },
-    "tar": {
-      "severity": "moderate",
-      "title": "node-tar has a race condition leading to uninitialized memory exposure",
-      "url": "https://github.com/advisories/GHSA-29xp-372q-xqph",
-      "fixAvailable": true
-    }
-  }
+  "packages": {}
 }

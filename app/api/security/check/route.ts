@@ -79,6 +79,18 @@ function getSeverityFromScore(score: string): string {
 
 export async function POST(request: Request) {
     try {
+        // Rate limiting
+        const { rateLimiters, getIdentifier, rateLimitResponse, isRateLimitEnabled } = await import('@/lib/ratelimit');
+
+        if (isRateLimitEnabled()) {
+            const identifier = getIdentifier(request);
+            const { success, reset } = await rateLimiters.securityCheck.limit(identifier);
+
+            if (!success) {
+                return rateLimitResponse(reset);
+            }
+        }
+
         const { packages } = await request.json();
 
         if (!packages || !Array.isArray(packages)) {
