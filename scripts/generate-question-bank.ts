@@ -73,6 +73,8 @@ REQUIREMENTS:
 5. All answers must be derivable from the description
 6. Each question should test a DIFFERENT concept
 7. For true/false: aim for 50% true, 50% false distribution
+8. AVOID LENGTH BIAS: Correct answer must NOT be significantly longer than distractors. All options should be of similar length and grammatical structure.
+9. Distractors must be plausible.
 
 CRITICAL: mcq_single and fill_blank MUST have "options" array with exactly 4 choices!
 
