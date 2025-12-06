@@ -211,31 +211,10 @@ async function main() {
         outputLines.push('')
     })
 
-    // Read existing file and replace/append this topic
+    // Overwrite the file with just this topic (one topic at a time for review)
     const filePath = path.resolve(process.cwd(), 'generated-questions.txt')
-    let existingContent = ''
-    if (fs.existsSync(filePath)) {
-        existingContent = fs.readFileSync(filePath, 'utf-8')
-    }
-
-    // Check if topic already exists in file
-    const escapedName = topic.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-    const topicPattern = new RegExp(
-        `\\n?=+\\n${escapedName}\\n=+[\\s\\S]*?(?=\\n=+\\n|$)`,
-        'g'
-    )
-
-    if (existingContent.match(topicPattern)) {
-        // Replace existing topic section
-        existingContent = existingContent.replace(topicPattern, outputLines.join('\n'))
-        console.log(`\n📄 Replaced existing section in generated-questions.txt`)
-    } else {
-        // Append new topic
-        existingContent += outputLines.join('\n')
-        console.log(`\n📄 Appended to generated-questions.txt`)
-    }
-
-    fs.writeFileSync(filePath, existingContent, 'utf-8')
+    fs.writeFileSync(filePath, outputLines.join('\n'), 'utf-8')
+    console.log(`\n📄 Saved to generated-questions.txt (overwrites previous content)`)
 
     console.log(`\n✅ Done! ${questions.length} questions generated for "${topic.name}"`)
     console.log(`\n📋 Next steps:`)

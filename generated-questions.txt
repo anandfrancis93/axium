@@ -4,284 +4,147 @@
 ============================================================
 
 1. [mcq_single] [Bloom 2]
-   Q: What is the primary goal of 802.1X Port-based Network Access Control (PNAC)?
-   Options: To encrypt all network traffic. | To restrict network access based on MAC address. | To require authentication before granting full network access. | To improve network speed and performance.
+   Q: What is the main goal of 802.1X Port-based Network Access Control (PNAC)?
+   Options: To provide network access based on MAC address filtering. | To require authentication before granting full network access. | To encrypt all network traffic. | To prevent denial-of-service attacks.
    Answer: To require authentication before granting full network access.
 
-2. [fill_blank] [Bloom 1]
-   Q: In 802.1X architecture, the device requesting network access is known as the _________.
-   Options: Authenticator | Supplicant | Authentication Server | RADIUS client
-   Answer: Supplicant
-
-3. [true_false] [Bloom 2]
-   Q: The authenticator directly validates the authentication requests from the supplicant.
-   Answer: False
-
-4. [mcq_single] [Bloom 2]
-   Q: Which of the following best describes the role of the Authentication Server in 802.1X?
-   Options: To forward authentication requests to the authenticator. | To provide network connectivity to the supplicant. | To validate authentication requests and authorize access. | To encrypt network traffic between the supplicant and authenticator.
-   Answer: To validate authentication requests and authorize access.
-
-5. [fill_blank] [Bloom 1]
-   Q: EAP provides a framework for deploying multiple types of ________ methods.
-   Options: encryption | authentication | authorization | accounting
-   Answer: authentication
-
-6. [mcq_single] [Bloom 2]
-   Q: RADIUS is used for communication between which two 802.1X components?
-   Options: Supplicant and Authenticator | Authenticator and Authentication Server | Supplicant and Authentication Server | Supplicant and Network Switch
-   Answer: Authenticator and Authentication Server
-
-7. [true_false] [Bloom 2]
-   Q: When a host connects to an 802.1X-enabled switch port, the port is initially opened for all traffic.
-   Answer: False
-
-8. [mcq_single] [Bloom 1]
-   Q: Which of the following protocols is used for encapsulating EAP communications over a LAN?
-   Options: RADIUS | EAPoL | TCP/IP | HTTP
-   Answer: EAPoL
-
-9. [mcq_single] [Bloom 3]
-   Q: An organization wants to implement 802.1X to improve network security. Which of the following is NOT a key component they need to configure?
-   Options: A RADIUS server | 802.1X-enabled network switches | Supplicant software on user devices | A DNS server
-   Answer: A DNS server
-
-10. [true_false] [Bloom 3]
-   Q: In the 802.1X process, the switch can read the supplicant's credentials directly from the EAP packet.
-   Answer: False
-
-11. [mcq_single] [Bloom 3]
-   Q: Why is 802.1X considered a more secure approach to network access control compared to MAC address filtering?
-   Options: 802.1X is faster. | 802.1X is easier to configure. | MAC addresses are easily spoofed. | 802.1X uses less network bandwidth.
-   Answer: MAC addresses are easily spoofed.
-
-12. [fill_blank] [Bloom 2]
-   Q: The process of sending an EAP packet to the authentication server using the RADIUS protocol is initiated by the _________.
-   Options: Supplicant | Authenticator | Authentication Server | Administrator
-   Answer: Authenticator
-
-13. [mcq_single] [Bloom 4]
-   Q: Which of the following is a potential drawback of implementing 802.1X?
-   Options: Reduced network security. | Increased complexity in network configuration. | Incompatibility with modern operating systems. | Lower network speeds after authentication.
-   Answer: Increased complexity in network configuration.
-
-14. [true_false] [Bloom 2]
-   Q: 802.1X authentication must always use passwords for authentication.
-   Answer: False
-
-15. [mcq_single] [Bloom 3]
-   Q: Consider a scenario where a user is attempting to connect to a corporate network using 802.1X. The user's computer has the necessary supplicant software installed, but the RADIUS server is unavailable. What will likely happen?
-   Options: The user will be granted full network access immediately. | The user will be placed in a quarantine network. | The user will be unable to access the network. | The user will be prompted for a local administrator password.
-   Answer: The user will be unable to access the network.
-
-16. [fill_blank] [Bloom 1]
-   Q: EAP over WLAN is abbreviated as _________.
-   Options: EAPoL | EAPoW | RADIUS | PNAC
-   Answer: EAPoW
-
-17. [mcq_single] [Bloom 2]
-   Q: If the authentication server informs the switch that authentication is successful, what action does the switch take?
-   Options: Closes the port entirely for security reasons. | Redirects the user to an internal webpage. | Grants full network access to the host. | Requests the user to re-authenticate periodically.
-   Answer: Grants full network access to the host.
-
-18. [mcq_single] [Bloom 3]
-   Q: 802.1X primarily addresses which of the following security concerns?
-   Options: Data encryption in transit. | Denial-of-service attacks. | Unauthorized network access. | Malware propagation within the network.
-   Answer: Unauthorized network access.
-
-19. [mcq_single] [Bloom 3]
-   Q: An organization wants to use digital certificates for 802.1X authentication. Which EAP method is most suitable?
-   Options: EAP-TLS | EAP-MD5 | PEAP | LEAP
-   Answer: EAP-TLS
-
-20. [true_false] [Bloom 1]
-   Q: In an 802.1X environment, accounting of security events is typically handled by the RADIUS server.
-   Answer: True
-
-21. [fill_blank] [Bloom 2]
-   Q: Which component of 802.1X can be considered the 'gatekeeper' controlling access to the network port?
-   Options: Supplicant | Authenticator | Authentication Server | RADIUS
-   Answer: Authenticator
-
-22. [mcq_single] [Bloom 5]
-   Q: What is a potential security risk if the RADIUS server used in an 802.1X implementation is compromised?
-   Options: All network traffic will be unencrypted. | Attackers could gain unauthorized access to the network. | The network will become unavailable. | Client devices will be infected with malware.
-   Answer: Attackers could gain unauthorized access to the network.
-
-23. [fill_blank] [Bloom 1]
-   Q: Implementing 802.1X on a wireless network utilizes _________.
-   Options: EAPoL | EAPoW | RADIUS | VPN
-   Answer: EAPoW
-
-24. [mcq_single] [Bloom 6]
-   Q: An organization is designing a network security architecture. They want to ensure that only authorized devices can access the network, regardless of location within the building. Which of the following security measures would be MOST effective in conjunction with 802.1X?
-   Options: Firewall | Intrusion Detection System (IDS) | Multi-Factor Authentication (MFA) | Antivirus Software
-   Answer: Multi-Factor Authentication (MFA)
-
-25. [true_false] [Bloom 1]
-   Q: 802.1X is only applicable to wired networks and cannot be used on wireless networks.
-   Answer: False
-
-26. [mcq_single] [Bloom 2]
-   Q: What is the role of the supplicant software on a user's device when connecting to an 802.1X network?
-   Options: To encrypt all network traffic. | To communicate directly with the authentication server. | To initiate the authentication process and provide credentials. | To manage the device's firewall settings.
-   Answer: To initiate the authentication process and provide credentials.
-
-27. [mcq_single] [Bloom 5]
-   Q: If an 802.1X implementation is not properly configured, what is a potential consequence?
-   Options: Increased network bandwidth. | Simplified network management. | Denial of service for legitimate users. | Automatic software updates on client devices.
-   Answer: Denial of service for legitimate users.
-
-28. [fill_blank] [Bloom 1]
-   Q: The authentication server is also known as the _________ server.
-   Options: RADIUS | DHCP | DNS | TACACS+
-   Answer: RADIUS
-
-============================================================
-Acceptable Use Policy (AUP)
-============================================================
-
-1. [true_false] [Bloom 1]
-   Q: Installing unauthorized software on company equipment is a violation of an AUP.
-   Answer: True
-
-2. [fill_blank] [Bloom 1]
-   Q: The policy will forbid the use of equipment to _____, defame, or to obtain illegal material.
-   Options: validate | oversee | control | defraud
-   Answer: defraud
-
-3. [true_false] [Bloom 1]
-   Q: An Acceptable Use Policy (AUP) only applies to employees within an organization.
-   Answer: False
-
-4. [mcq_single] [Bloom 2]
-   Q: What is the primary goal of an Acceptable Use Policy (AUP)?
-   Options: To monitor employee break times | To ensure users do not harm the organization or its resources | To limit internet access to work-related duties only | To allow employees to download any software they desire
-   Answer: To ensure users do not harm the organization or its resources
-
-5. [fill_blank] [Bloom 2]
-   Q: An AUP can restrict internet use outside of ____ duties.
-   Options: family | personal | work-related | entertainment
-   Answer: work-related
-
-6. [mcq_single] [Bloom 2]
-   Q: Which of the following is typically addressed within an Acceptable Use Policy (AUP)?
-   Options: Employee salary negotiations | Appropriate content | Company stock options | Vacation request procedures
-   Answer: Appropriate content
-
-7. [true_false] [Bloom 2]
-   Q: An AUP generally does not address the handling of sensitive information.
-   Answer: False
-
-8. [mcq_single] [Bloom 3]
-   Q: Which of the following activities is typically prohibited by an Acceptable Use Policy (AUP)?
-   Options: Accessing work-related resources | Using company equipment for personal email | Attempting to access confidential data without authorization | Participating in online training courses
-   Answer: Attempting to access confidential data without authorization
-
-9. [mcq_single] [Bloom 3]
-   Q: What is a crucial step in ensuring employee compliance with an AUP?
-   Options: Offering bonus incentives for compliance | Requiring employees to acknowledge their comprehension of the policy via signature | Providing free company merchandise | Hosting a company-wide party
-   Answer: Requiring employees to acknowledge their comprehension of the policy via signature
-
-10. [true_false] [Bloom 3]
-   Q: An AUP should interfere with employees' fundamental job duties.
-   Answer: False
-
-11. [fill_blank] [Bloom 4]
-   Q: An AUP can dictate the consequences of not following policy, including details of how ____ is monitored.
-   Options: usage | compliance | productivity | performance
-   Answer: compliance
-
-12. [mcq_single] [Bloom 4]
-   Q: Why is enforcing an AUP important?
-   Options: To increase employee morale | To protect the organization from security and legal implications | To monitor employees' personal lives | To reduce operational costs
-   Answer: To protect the organization from security and legal implications
-
-13. [mcq_single] [Bloom 5]
-   Q: Explain how an AUP can balance an organization's need for security with an employee's right to privacy.
-   Options: By allowing unlimited personal use of company devices | By monitoring all employee communications, both personal and work-related | By establishing clear guidelines for acceptable use that are reasonable and do not unduly restrict personal activities | By completely forbidding any personal use of company resources
-   Answer: By establishing clear guidelines for acceptable use that are reasonable and do not unduly restrict personal activities
-
-14. [true_false] [Bloom 5]
-   Q: Organizations should develop an AUP that addresses all possible scenarios regarding computer use and internet access to ensure complete legal protection.
-   Answer: False
-
-15. [mcq_single] [Bloom 6]
-   Q: What is one potential legal consequence for an organization if its employees violate the AUP by obtaining illegal material using company equipment?
-   Options: Increased employee bonuses | Legal liability and potential lawsuits | Improved public image | Higher employee retention rates
-   Answer: Legal liability and potential lawsuits
-
-============================================================
-Access Badges
-============================================================
-
-1. [mcq_single] [Bloom 1]
-   Q: Besides controlling access, what other function do access badges typically serve?
-   Options: Time tracking | Employee evaluation | Identification | Inventory management
-   Answer: Identification
-
 2. [true_false] [Bloom 1]
-   Q: A Physical Access Control System (PACS) operates using only hardware components.
+   Q: True or False: 802.1X authentication occurs *after* a host has been granted full network access.
    Answer: False
 
 3. [fill_blank] [Bloom 1]
-   Q: What essential component is needed to verify the authenticity of an access badge at an entry point?
-   Options: Card reader | Magnetic lock | Network cable | Security guard
-   Answer: Card reader
+   Q: In the context of 802.1X, the device requesting network access is referred to as the ________.
+   Options: Authenticator | Supplicant | Authentication Server | RADIUS Client
+   Answer: Supplicant
 
 4. [mcq_single] [Bloom 1]
-   Q: Which technology is commonly used in access badges for wireless communication?
-   Options: Bluetooth | Wi-Fi | RFID | Infrared
-   Answer: RFID
+   Q: Which device validates authentication requests, issues authorizations, and performs accounting of security events in an 802.1X architecture?
+   Options: Supplicant | Authenticator | Authentication Server | Network Switch
+   Answer: Authentication Server
 
-5. [mcq_single] [Bloom 1]
-   Q: What type of information is typically displayed on an access badge for identification purposes?
-   Options: Salary information | Medical history | Name, title, and photograph | Emergency contact details
-   Answer: Name, title, and photograph
-
-6. [fill_blank] [Bloom 2]
-   Q: Which of the following technologies is NOT explicitly mentioned as being used in access badges?
-   Options: Magnetic strips | Radio frequency identification (RFID) | Near-field communication (NFC) | Biometrics
-   Answer: Biometrics
-
-7. [mcq_single] [Bloom 2]
-   Q: What is the primary purpose of access badges in physical security?
-   Options: Employee identification | Granting access to authorized individuals | Tracking employee attendance | Monitoring visitor activity
-   Answer: Granting access to authorized individuals
-
-8. [mcq_single] [Bloom 3]
-   Q: What is an advantage of using access badges over traditional physical keys?
-   Options: Lower cost | Simplified key management | Enhanced security auditing capabilities | Guaranteed operation during power outages
-   Answer: Enhanced security auditing capabilities
-
-9. [true_false] [Bloom 3]
-   Q: Access badges always require a physical key backup in case of power failure.
+5. [true_false] [Bloom 2]
+   Q: True or False: The authenticator directly validates the authentication requests from the supplicant.
    Answer: False
 
-10. [fill_blank] [Bloom 3]
-   Q: The logging of access badge activity within a PACS can be valuable for investigating _________.
-   Options: Security breaches | Employee birthdays | Lunch preferences | Vacation schedules
-   Answer: Security breaches
+6. [mcq_single] [Bloom 2]
+   Q: The Extensible Authentication Protocol (EAP) provides which functionality in 802.1X?
+   Options: A framework for deploying multiple types of authentication methods. | Encryption of all network traffic. | Firewall services. | Intrusion Detection.
+   Answer: A framework for deploying multiple types of authentication methods.
 
-11. [true_false] [Bloom 4]
-   Q: Access badges can provide useful data for planning emergency evacuation strategies. 
+7. [fill_blank] [Bloom 1]
+   Q: ________ allows the authenticator and authentication server to communicate authentication and authorization decisions.
+   Options: SNMP | RADIUS | TCP/IP | EAPoL
+   Answer: RADIUS
+
+8. [true_false] [Bloom 2]
+   Q: True or False: The switch is able to decrypt the EAP packet containing the supplicant's credentials before forwarding it to the authentication server.
+   Answer: False
+
+9. [mcq_single] [Bloom 3]
+   Q: Why is 802.1X considered a more secure solution compared to restricting access based solely on MAC addresses?
+   Options: MAC addresses are easier to manage. | MAC addresses are static and cannot be changed. | MAC addresses are prone to spoofing. | 802.1X does not require any configuration.
+   Answer: MAC addresses are prone to spoofing.
+
+10. [mcq_single] [Bloom 1]
+   Q: Which protocol is used to encapsulate EAP communications over a LAN?
+   Options: RADIUS | EAPoL | SNMP | TACACS+
+   Answer: EAPoL
+
+11. [true_false] [Bloom 1]
+   Q: True or False: 802.1X can be implemented on both wired (LAN) and wireless (WLAN) networks.
    Answer: True
 
-12. [mcq_single] [Bloom 4]
-   Q: Consider a scenario where an employee's access badge is used to enter a restricted area after hours. How would the PACS system help in investigating this incident?
-   Options: By providing a visual recording of the employee | By immediately alerting the employee's manager | By logging the time, location, and identity associated with the access event | By automatically deactivating the employee's badge
-   Answer: By logging the time, location, and identity associated with the access event
+12. [mcq_single] [Bloom 3]
+   Q: What happens to a host's network access when it first connects to an 802.1X-enabled switch port?
+   Options: Full network access is immediately granted. | Only EAPoL traffic is allowed. | All network traffic is blocked. | The port is disabled.
+   Answer: Only EAPoL traffic is allowed.
 
-13. [true_false] [Bloom 4]
-   Q: The network communications used by a PACS system are completely immune to hacking.
+13. [mcq_single] [Bloom 4]
+   Q: Consider a scenario where a user's laptop is attempting to connect to a corporate network using 802.1X. The authentication server is unavailable. What is the likely outcome?
+   Options: The laptop will be granted full network access regardless. | The laptop will be denied network access. | The laptop will bypass 802.1X and connect directly. | The switch will automatically reboot.
+   Answer: The laptop will be denied network access.
+
+14. [true_false] [Bloom 5]
+   Q: True or False: Disabling 802.1X on a switch port will generally improve network security.
    Answer: False
 
-14. [mcq_single] [Bloom 5]
-   Q: If a company aims to improve physical security, what should be prioritized when implementing an access badge system?
-   Options: Badge design aesthetics | Ease of badge distribution | Robustness of the access control system and logging capabilities | The cheapest available card reader technology
-   Answer: Robustness of the access control system and logging capabilities
+15. [mcq_single] [Bloom 1]
+   Q: Which of the following is NOT a typical role involved in an 802.1X authentication process?
+   Options: Supplicant | Authenticator | Authentication Server | DHCP Server
+   Answer: DHCP Server
 
-15. [mcq_single] [Bloom 6]
-   Q: How could an organization leverage access badge data to improve overall security posture beyond just access control?
-   Options: Optimizing HVAC system performance | Predicting employee turnover rates | Identifying unusual movement patterns that could indicate insider threats or vulnerabilities | Automating payroll processing
-   Answer: Identifying unusual movement patterns that could indicate insider threats or vulnerabilities
+16. [mcq_single] [Bloom 4]
+   Q: What is the relationship between EAP and RADIUS in an 802.1X implementation?
+   Options: EAP encapsulates RADIUS. | RADIUS encapsulates EAP. | EAP is used for communication between the authenticator and authentication server, while RADIUS defines the authentication methods. | RADIUS is used for communication between the authenticator and authentication server, carrying the EAP data.
+   Answer: RADIUS is used for communication between the authenticator and authentication server, carrying the EAP data.
+
+17. [true_false] [Bloom 3]
+   Q: True or False: If the supplicant fails the authentication process, the authenticator will grant limited network access, allowing only access to resources needed for remediation (e.g., a captive portal).
+   Answer: True
+
+18. [mcq_single] [Bloom 4]
+   Q: In a network using 802.1X, how can you ensure that only authorized devices are allowed on the network, even if a user plugs in a different device?
+   Options: By using MAC address filtering. | By requiring user authentication credentials for each device. | By disabling unused switch ports. | By enabling port security.
+   Answer: By requiring user authentication credentials for each device.
+
+19. [fill_blank] [Bloom 2]
+   Q: Which term describes the protocol used to perform smart-card authentication without a password within an 802.1X framework?
+   Options: EAP-TLS | PAP | CHAP | MS-CHAP
+   Answer: EAP-TLS
+
+20. [true_false] [Bloom 2]
+   Q: True or False: 802.1X only provides authentication and does not provide any authorization or accounting functionalities.
+   Answer: False
+
+21. [mcq_single] [Bloom 5]
+   Q: What is a potential vulnerability associated with solely relying on 802.1X for network security, and how might you mitigate it?
+   Options: Weak password policies; enforce strong password policies and multi-factor authentication. | Denial-of-service attacks; implement rate limiting and traffic filtering. | MAC address spoofing; use static IP addressing. | Unencrypted traffic; deploy IPsec or TLS for encryption.
+   Answer: Weak password policies; enforce strong password policies and multi-factor authentication.
+
+22. [mcq_single] [Bloom 2]
+   Q: Which of the following best describes the role of the authenticator in an 802.1X exchange?
+   Options: To generate encryption keys for secure communication. | To validate the user's credentials against a local database. | To act as an intermediary, relaying authentication information between the supplicant and the authentication server. | To assign IP addresses to devices on the network.
+   Answer: To act as an intermediary, relaying authentication information between the supplicant and the authentication server.
+
+23. [fill_blank] [Bloom 1]
+   Q: ________ is used to describe EAP communications specifically on a WLAN.
+   Options: EAPoL | EAPoW | RADIUS | TCP
+   Answer: EAPoW
+
+24. [true_false] [Bloom 1]
+   Q: True or False: In 802.1X, the supplicant must be a hardware device; software alone cannot act as a supplicant.
+   Answer: False
+
+25. [mcq_single] [Bloom 3]
+   Q: How can an administrator ensure that only devices compliant with company security policies are granted network access using 802.1X?
+   Options: By manually inspecting each device before connection. | By implementing Network Access Control (NAC) with posture assessment. | By relying solely on MAC address filtering. | By disabling 802.1X to allow easier access for all devices.
+   Answer: By implementing Network Access Control (NAC) with posture assessment.
+
+26. [mcq_single] [Bloom 2]
+   Q: Which of the following best describes the function of accounting within the 802.1X AAA architecture?
+   Options: Verifying the user's identity. | Defining the level of access granted to a user. | Tracking network usage and activity for auditing and reporting purposes. | Encrypting network traffic to ensure confidentiality.
+   Answer: Tracking network usage and activity for auditing and reporting purposes.
+
+27. [mcq_single] [Bloom 5]
+   Q: What is the potential impact of a compromised Authentication Server on a network secured by 802.1X?
+   Options: Limited impact, as the switch can still enforce basic security policies. | Complete network compromise, as attackers could gain unauthorized access to any device. | No impact, as 802.1X relies solely on the switch for security. | The network will automatically switch to MAC address filtering as a fallback.
+   Answer: Complete network compromise, as attackers could gain unauthorized access to any device.
+
+28. [mcq_single] [Bloom 3]
+   Q: A company wants to implement 802.1X using digital certificates for authentication. Which EAP method would be most appropriate?
+   Options: EAP-MD5 | EAP-TLS | PEAP | LEAP
+   Answer: EAP-TLS
+
+29. [true_false] [Bloom 5]
+   Q: True or False: Using a pre-shared key (PSK) for Wi-Fi authentication provides the same level of security as 802.1X with a strong EAP method.
+   Answer: False
+
+30. [fill_blank] [Bloom 6]
+   Q: What steps would you take to troubleshoot an 802.1X authentication failure on a client device?
+   Options: Check the client's 802.1X configuration, verify network connectivity, examine authentication server logs, and test with different credentials. | Reinstall the operating system, replace the network card, physically inspect all network cables, and contact the ISP. | Disable the firewall, turn off antivirus software, configure the client for a static IP, and set the DNS server to 8.8.8.8. | Defragment the hard drive, run a memory test, check the CPU temperature, and scan for malware.
+   Answer: Check the client's 802.1X configuration, verify network connectivity, examine authentication server logs, and test with different credentials.
+
+31. [mcq_single] [Bloom 4]
+   Q: To enhance the security of an 802.1X implementation, what measures can be taken to protect the RADIUS communication between the authenticator and the authentication server?
+   Options: Disabling all network logging. | Using IPsec to encrypt the RADIUS traffic. | Implementing MAC address filtering on the switch. | Reducing the RADIUS shared secret length to improve performance.
+   Answer: Using IPsec to encrypt the RADIUS traffic.
