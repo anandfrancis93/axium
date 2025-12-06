@@ -393,9 +393,10 @@ export default function TopicQuizPage() {
                         <div className="neuro-card p-6">
                             <h3 className="text-lg font-semibold text-gray-200 mb-4">How did you arrive at your answer?</h3>
                             <RecognitionMethodSelector
-                                methods={getAvailableRecognitionMethods(currentQ.question_type as QuestionFormat)}
-                                onSelect={handleRecognitionSelect}
+                                questionFormat={currentQ.question_type as QuestionFormat}
+                                onChange={handleRecognitionSelect}
                                 disabled={submitting}
+                                value={recognitionMethod || 'memory'}
                             />
                             {submitting && (
                                 <div className="mt-4 text-center">
