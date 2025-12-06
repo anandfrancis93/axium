@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { ShieldIcon, SearchIcon, TrashIcon, EditIcon, CheckIcon, XIcon, PlusIcon } from '@/components/icons'
 import Image from 'next/image'
 import HamburgerMenu from '@/components/HamburgerMenu'
@@ -29,6 +30,7 @@ interface Topic {
 
 
 export default function CybersecurityPage() {
+  const router = useRouter()
   const [topicsProgress, setTopicsProgress] = useState<TopicProgress[]>([])
 
   const [searchQuery, setSearchQuery] = useState('')
