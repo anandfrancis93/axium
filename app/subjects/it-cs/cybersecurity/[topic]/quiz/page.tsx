@@ -343,7 +343,7 @@ export default function TopicQuizPage() {
 
                         <div className="neuro-card p-6">
                             <h3 className="text-lg font-semibold text-gray-200 mb-4">How confident are you?</h3>
-                            <ConfidenceSlider onSelect={handleConfidenceSelect} />
+                            <ConfidenceSlider onChange={handleConfidenceSelect} value={confidence || 1} />
                         </div>
                     </>
                 )}
