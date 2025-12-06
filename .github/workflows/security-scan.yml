@@ -6,8 +6,8 @@ on:
   pull_request:
     branches: [main]
   schedule:
-    # Run weekly on Monday at 9am UTC
-    - cron: '0 9 * * 1'
+    # Run daily at 9am UTC
+    - cron: '0 9 * * *'
 
 jobs:
   trivy-sbom-scan:
