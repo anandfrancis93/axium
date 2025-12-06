@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run sbom && next build",
+    "build": "npm run sbom && npm run audit:json && next build",
     "sbom": "cyclonedx-npm --output-file public/sbom.json",
+    "audit:json": "tsx scripts/generate-vulnerabilities.ts",
     "start": "next start",
     "lint": "next lint",
     "seed:test": "tsx scripts/seed-test-data.ts",

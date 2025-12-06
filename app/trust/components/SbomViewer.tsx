@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Package, ShieldCheck, ExternalLink, Info } from 'lucide-react';
+import { Search, Package, ShieldCheck, ExternalLink, Info, RefreshCw, AlertTriangle, CheckCircle } from 'lucide-react';
 
 interface Component {
     name: string;
@@ -12,24 +12,95 @@ interface Component {
     externalReferences?: { url: string; type: string }[];
 }
 
+interface VulnerabilityData {
+    generatedAt: string;
+    summary: {
+        total: number;
+        critical: number;
+        high: number;
+        moderate: number;
+        low: number;
+        info: number;
+    };
+    packages: Record<string, {
+        severity: string;
+        title: string;
+        url: string;
+        fixAvailable: boolean;
+    }>;
+}
+
 interface SbomViewerProps {
     components: Component[];
     lastUpdated: string;
     totalComponents: number;
+    vulnerabilities: VulnerabilityData | null;
 }
 
-export default function SbomViewer({ components, lastUpdated, totalComponents }: SbomViewerProps) {
+export default function SbomViewer({ components, lastUpdated, totalComponents, vulnerabilities }: SbomViewerProps) {
     const [search, setSearch] = useState('');
+    const [isChecking, setIsChecking] = useState(false);
+    const [liveVulns, setLiveVulns] = useState<Record<string, { safe: boolean }>>({});
+    const [lastLiveCheck, setLastLiveCheck] = useState<string | null>(null);
 
     const filteredComponents = components.filter((c) =>
         c.name.toLowerCase().includes(search.toLowerCase()) ||
         c.description?.toLowerCase().includes(search.toLowerCase())
     );
 
+    const vulnCount = vulnerabilities?.summary?.total || 0;
+    const criticalCount = (vulnerabilities?.summary?.critical || 0) + (vulnerabilities?.summary?.high || 0);
+
+    const getVulnStatus = (pkgName: string) => {
+        // Check live data first
+        if (liveVulns[pkgName] !== undefined) {
+            return liveVulns[pkgName].safe ? 'safe' : 'vulnerable';
+        }
+        // Fall back to build-time data
+        if (vulnerabilities?.packages?.[pkgName]) {
+            return 'vulnerable';
+        }
+        return 'safe';
+    };
+
+    const handleCheckForUpdates = async () => {
+        setIsChecking(true);
+        try {
+            // Check first 50 packages
+            const packagesToCheck = components.slice(0, 50).map(c => ({
+                name: c.name,
+                version: c.version
+            }));
+
+            const response = await fetch('/api/security/check', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ packages: packagesToCheck })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const newVulns: Record<string, { safe: boolean }> = {};
+
+                for (const [key, value] of Object.entries(data.results)) {
+                    const pkgName = key.split('@')[0];
+                    newVulns[pkgName] = value as { safe: boolean };
+                }
+
+                setLiveVulns(newVulns);
+                setLastLiveCheck(new Date().toLocaleTimeString());
+            }
+        } catch (error) {
+            console.error('Failed to check for updates:', error);
+        } finally {
+            setIsChecking(false);
+        }
+    };
+
     return (
         <div className="w-full max-w-6xl mx-auto p-6 space-y-8">
             {/* Header Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-xl flex items-center space-x-4">
                     <div className="p-3 bg-blue-500/10 rounded-lg">
                         <Package className="w-6 h-6 text-blue-500" />
@@ -40,13 +111,19 @@ export default function SbomViewer({ components, lastUpdated, totalComponents }:
                     </div>
                 </div>
 
-                <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-xl flex items-center space-x-4">
-                    <div className="p-3 bg-green-500/10 rounded-lg">
-                        <ShieldCheck className="w-6 h-6 text-green-500" />
+                <div className={`bg-zinc-900 border p-6 rounded-xl flex items-center space-x-4 ${vulnCount > 0 ? 'border-red-800' : 'border-zinc-800'}`}>
+                    <div className={`p-3 rounded-lg ${vulnCount > 0 ? 'bg-red-500/10' : 'bg-green-500/10'}`}>
+                        {vulnCount > 0 ? (
+                            <AlertTriangle className="w-6 h-6 text-red-500" />
+                        ) : (
+                            <ShieldCheck className="w-6 h-6 text-green-500" />
+                        )}
                     </div>
                     <div>
                         <p className="text-zinc-400 text-sm">Security Status</p>
-                        <p className="text-2xl font-bold text-zinc-100">Monitored</p>
+                        <p className={`text-2xl font-bold ${vulnCount > 0 ? 'text-red-400' : 'text-green-400'}`}>
+                            {vulnCount > 0 ? `${vulnCount} Issues` : 'Secure'}
+                        </p>
                     </div>
                 </div>
 
@@ -61,7 +138,33 @@ export default function SbomViewer({ components, lastUpdated, totalComponents }:
                         </p>
                     </div>
                 </div>
+
+                <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-xl">
+                    <button
+                        onClick={handleCheckForUpdates}
+                        disabled={isChecking}
+                        className="w-full h-full flex flex-col items-center justify-center space-y-2 text-zinc-400 hover:text-zinc-100 transition-colors disabled:opacity-50"
+                    >
+                        <RefreshCw className={`w-6 h-6 ${isChecking ? 'animate-spin' : ''}`} />
+                        <span className="text-sm font-medium">
+                            {isChecking ? 'Checking...' : 'Check for Updates'}
+                        </span>
+                        {lastLiveCheck && (
+                            <span className="text-xs text-zinc-500">Last: {lastLiveCheck}</span>
+                        )}
+                    </button>
+                </div>
             </div>
+
+            {/* Critical Warning Banner */}
+            {criticalCount > 0 && (
+                <div className="bg-red-950 border border-red-800 rounded-xl p-4 flex items-center space-x-3">
+                    <AlertTriangle className="w-5 h-5 text-red-400" />
+                    <p className="text-red-200">
+                        <strong>{criticalCount} critical/high severity</strong> vulnerabilities found. Consider updating affected packages.
+                    </p>
+                </div>
+            )}
 
             {/* Search Bar */}
             <div className="relative">
@@ -85,59 +188,81 @@ export default function SbomViewer({ components, lastUpdated, totalComponents }:
                             <tr>
                                 <th className="px-6 py-4">Component</th>
                                 <th className="px-6 py-4">Version</th>
+                                <th className="px-6 py-4">Status</th>
                                 <th className="px-6 py-4">License</th>
-                                <th className="px-6 py-4">External Links</th>
+                                <th className="px-6 py-4">Links</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-zinc-800">
                             {filteredComponents.length > 0 ? (
-                                filteredComponents.map((component, idx) => (
-                                    <tr key={`${component.name}-${idx}`} className="hover:bg-zinc-800/50 transition-colors">
-                                        <td className="px-6 py-4">
-                                            <div className="font-medium text-zinc-200">{component.name}</div>
-                                            {component.description && (
-                                                <div className="text-xs text-zinc-500 mt-1 truncate max-w-xs">
-                                                    {component.description}
-                                                </div>
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-4 font-mono text-xs">{component.version}</td>
-                                        <td className="px-6 py-4">
-                                            {component.licenses && component.licenses.length > 0 && component.licenses[0].license ? (
-                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-800 text-zinc-300 border border-zinc-700">
-                                                    {component.licenses[0].license.id || component.licenses[0].license.name || 'Custom'}
-                                                </span>
-                                            ) : (
-                                                <span className="text-zinc-600 italic">Unknown</span>
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            {(() => {
-                                                const websiteRef = component.externalReferences?.find(ref => ref.type === 'website');
-                                                const anyRef = component.externalReferences?.[0];
-                                                const ref = websiteRef || anyRef;
+                                filteredComponents.map((component, idx) => {
+                                    const status = getVulnStatus(component.name);
+                                    const vulnInfo = vulnerabilities?.packages?.[component.name];
 
-                                                if (ref) {
-                                                    return (
-                                                        <a
-                                                            href={ref.url}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="text-blue-400 hover:text-blue-300 hover:underline flex items-center space-x-1"
-                                                        >
-                                                            <span>View</span>
-                                                            <ExternalLink className="w-3 h-3" />
-                                                        </a>
-                                                    );
-                                                }
-                                                return null;
-                                            })()}
-                                        </td>
-                                    </tr>
-                                ))
+                                    return (
+                                        <tr key={`${component.name}-${idx}`} className="hover:bg-zinc-800/50 transition-colors">
+                                            <td className="px-6 py-4">
+                                                <div className="font-medium text-zinc-200">{component.name}</div>
+                                                {component.description && (
+                                                    <div className="text-xs text-zinc-500 mt-1 truncate max-w-xs">
+                                                        {component.description}
+                                                    </div>
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-4 font-mono text-xs">{component.version}</td>
+                                            <td className="px-6 py-4">
+                                                {status === 'safe' ? (
+                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-900/50 text-green-300 border border-green-700">
+                                                        <CheckCircle className="w-3 h-3 mr-1" />
+                                                        Safe
+                                                    </span>
+                                                ) : (
+                                                    <span
+                                                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-900/50 text-red-300 border border-red-700 cursor-help"
+                                                        title={vulnInfo?.title || 'Vulnerability detected'}
+                                                    >
+                                                        <AlertTriangle className="w-3 h-3 mr-1" />
+                                                        {vulnInfo?.severity || 'Vulnerable'}
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                {component.licenses && component.licenses.length > 0 && component.licenses[0].license ? (
+                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-800 text-zinc-300 border border-zinc-700">
+                                                        {component.licenses[0].license.id || component.licenses[0].license.name || 'Custom'}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-zinc-600 italic">Unknown</span>
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                {(() => {
+                                                    const websiteRef = component.externalReferences?.find(ref => ref.type === 'website');
+                                                    const anyRef = component.externalReferences?.[0];
+                                                    const ref = websiteRef || anyRef;
+
+                                                    if (ref) {
+                                                        return (
+                                                            <a
+                                                                href={ref.url}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="text-blue-400 hover:text-blue-300 hover:underline flex items-center space-x-1"
+                                                            >
+                                                                <span>View</span>
+                                                                <ExternalLink className="w-3 h-3" />
+                                                            </a>
+                                                        );
+                                                    }
+                                                    return null;
+                                                })()}
+                                            </td>
+                                        </tr>
+                                    );
+                                })
                             ) : (
                                 <tr>
-                                    <td colSpan={4} className="px-6 py-12 text-center text-zinc-500">
+                                    <td colSpan={5} className="px-6 py-12 text-center text-zinc-500">
                                         No components found matching "{search}"
                                     </td>
                                 </tr>

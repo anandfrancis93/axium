@@ -14,8 +14,21 @@ async function getSbomData() {
     }
 }
 
+async function getVulnerabilityData() {
+    const filePath = path.join(process.cwd(), 'public', 'vulnerabilities.json');
+    try {
+        const fileContents = await fs.readFile(filePath, 'utf8');
+        const data = JSON.parse(fileContents);
+        return data;
+    } catch {
+        // Vulnerabilities file may not exist yet
+        return null;
+    }
+}
+
 export default async function TrustPage() {
     const sbomData = await getSbomData();
+    const vulnData = await getVulnerabilityData();
 
     if (!sbomData) {
         return (
@@ -45,6 +58,7 @@ export default async function TrustPage() {
                     components={components || []}
                     lastUpdated={metadata?.timestamp || new Date().toISOString()}
                     totalComponents={components?.length || 0}
+                    vulnerabilities={vulnData}
                 />
             </div>
         </div>
