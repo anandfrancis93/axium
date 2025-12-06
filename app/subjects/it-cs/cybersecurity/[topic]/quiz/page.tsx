@@ -96,17 +96,26 @@ export default function TopicQuizPage() {
             if (!topicQuestions || topicQuestions.length === 0) {
                 setQuestions([])
             } else {
-                const mappedQuestions = topicQuestions.map(q => ({
-                    id: q.id,
-                    question_text: q.question_text,
-                    question_type: q.question_format,
-                    options: q.options ? (Array.isArray(q.options) ? q.options : JSON.parse(JSON.stringify(q.options))) : null,
-                    correct_answer: q.correct_answer,
-                    explanation: q.explanation || '',
-                    bloom_level: q.bloom_level,
-                    hierarchy: { topic: topic.name },
-                    cognitive_dimension: q.cognitive_dimension
-                }))
+                const mappedQuestions = topicQuestions.map(q => {
+                    // Fix: Force true_false type if text starts with "True or False" (handles data inconsistencies)
+                    let questionType = q.question_format
+                    if (q.question_text.toLowerCase().trim().startsWith('true or false') ||
+                        q.question_text.toLowerCase().trim().startsWith('true/false')) {
+                        questionType = 'true_false'
+                    }
+
+                    return {
+                        id: q.id,
+                        question_text: q.question_text,
+                        question_type: questionType,
+                        options: q.options ? (Array.isArray(q.options) ? q.options : JSON.parse(JSON.stringify(q.options))) : null,
+                        correct_answer: q.correct_answer,
+                        explanation: q.explanation || '',
+                        bloom_level: q.bloom_level,
+                        hierarchy: { topic: topic.name },
+                        cognitive_dimension: q.cognitive_dimension
+                    }
+                })
 
                 const shuffled = [...mappedQuestions].sort(() => Math.random() - 0.5)
                 setQuestions(shuffled)
