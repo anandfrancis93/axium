@@ -74,8 +74,7 @@ export default function TopicDetailPage() {
   const [bloomLevels, setBloomLevels] = useState<BloomLevelDetail[]>([])
   const [spacedRepQuestions, setSpacedRepQuestions] = useState<SpacedRepetitionQuestion[]>([])
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'bloom' | 'spaced_repetition'>('bloom')
-  const [expandedBloomLevel, setExpandedBloomLevel] = useState<number | null>(null)
+
   const [questionCount, setQuestionCount] = useState<number>(0)
 
   useEffect(() => {
@@ -402,163 +401,12 @@ export default function TopicDetailPage() {
 
 
 
-        {/* Tab Navigation */}
-        {topicDetail.total_attempts > 0 && (
-          <div className="flex gap-2 overflow-x-auto">
-            <button
-              onClick={() => setActiveTab('bloom')}
-              className={`neuro-btn px-6 py-3 whitespace-nowrap ${activeTab === 'bloom' ? 'text-blue-400' : 'text-gray-400'
-                }`}
-            >
-              Bloom Level Breakdown
-            </button>
-            <button
-              onClick={() => setActiveTab('spaced_repetition')}
-              className={`neuro-btn px-6 py-3 whitespace-nowrap ${activeTab === 'spaced_repetition' ? 'text-blue-400' : 'text-gray-400'
-                }`}
-            >
-              Spaced Repetition
-            </button>
-          </div>
-        )}
 
-        {/* Bloom Level Breakdown */}
-        {activeTab === 'bloom' && (
-          <div className="neuro-card">
-            <div className="p-6 border-b border-gray-800">
-              <h2 className="text-xl font-semibold text-gray-200">Bloom Level Breakdown</h2>
-              <p className="text-sm text-gray-500 mt-1">Your performance across cognitive complexity levels</p>
-            </div>
 
-            <div className="p-6 space-y-4">
-              {bloomLevels.map((bl) => {
-                const coveredDimensions = getCoverageForLevel(topicDetail.dimension_coverage, bl.level)
-                const allDimensions = Object.values(CognitiveDimension)
-                const coveragePercentage = Math.round((coveredDimensions.length / 6) * 100)
-                const isExpanded = expandedBloomLevel === bl.level
 
-                return (
-                  <div key={bl.level} className="neuro-inset rounded-lg">
-                    {/* Clickable Header */}
-                    <button
-                      type="button"
-                      onClick={() => setExpandedBloomLevel(isExpanded ? null : bl.level)}
-                      className="w-full p-4 text-left"
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                          <div className="neuro-raised w-10 h-10 rounded-lg flex items-center justify-center">
-                            <span className="text-sm font-bold text-blue-400">{bl.level}</span>
-                          </div>
-                          <div>
-                            <div className="font-semibold text-gray-200">{bl.name}</div>
-                            <div className="text-xs text-gray-500">
-                              {BLOOM_LEVELS[bl.level - 1].description}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <div className="text-right">
-                            <div className={`text-2xl font-bold ${bl.mastery >= 80 ? 'text-green-400' :
-                              bl.mastery >= 60 ? 'text-yellow-400' :
-                                bl.mastery > 0 ? 'text-red-400' :
-                                  'text-gray-600'
-                              }`}>
-                              {bl.mastery}%
-                            </div>
-                            <div className="text-xs text-gray-500">mastery</div>
-                          </div>
-                          <div className={`neuro-inset w-8 h-8 rounded-lg flex items-center justify-center transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-300">
-                              <polyline points="6 9 12 15 18 9" />
-                            </svg>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Progress Bar */}
-                      <div className="relative h-3 neuro-inset rounded-full overflow-hidden bg-gray-900/50">
-                        <div
-                          className={`absolute top-0 left-0 bottom-0 rounded-full transition-all ${bl.mastery >= 80 ? 'bg-green-400' :
-                            bl.mastery >= 60 ? 'bg-yellow-400' :
-                              bl.mastery > 0 ? 'bg-red-400' :
-                                'bg-gray-700'
-                            }`}
-                          style={{ width: `${bl.mastery}%` }}
-                        />
-                      </div>
-
-                      {/* Stats Row */}
-                      <div className="flex items-center justify-between mt-3 text-sm">
-                        <div className="text-gray-400">
-                          <span className="font-medium text-gray-300">{bl.attempts}</span> attempts
-                        </div>
-                        <div className="text-gray-400">
-                          <span className="font-medium text-gray-300">{bl.correct}</span> correct
-                        </div>
-                        <div className={`font-medium ${bl.accuracy >= 80 ? 'text-green-400' :
-                          bl.accuracy >= 60 ? 'text-yellow-400' :
-                            bl.accuracy > 0 ? 'text-red-400' :
-                              'text-gray-600'
-                          }`}>
-                          {bl.accuracy}% accuracy
-                        </div>
-                      </div>
-                    </button>
-
-                    {/* Expanded: Cognitive Dimension Coverage */}
-                    {isExpanded && bl.attempts > 0 && (
-                      <div className="px-4 pb-4 pt-2 border-t border-gray-800">
-                        <h4 className="text-sm font-semibold text-gray-300 mb-3">
-                          Cognitive Dimension Coverage
-                        </h4>
-
-                        {/* Dimension Grid */}
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
-                          {allDimensions.map(dim => {
-                            const isCovered = coveredDimensions.includes(dim)
-                            const dimInfo = COGNITIVE_DIMENSIONS[dim]
-                            const dimStats = bl.dimensionStats[dim]
-
-                            return (
-                              <div
-                                key={`${bl.level}-${dim}`}
-                                className="neuro-inset p-3 rounded-lg cursor-help"
-                                title={dimInfo.description}
-                              >
-                                <div className="flex items-center justify-between mb-1">
-                                  <div className={`text-sm font-semibold ${isCovered ? 'text-green-400' : 'text-gray-500'
-                                    }`}>
-                                    {dimInfo.name} {dimStats && `(${dimStats.attempts})`}
-                                  </div>
-                                  {dimStats && (
-                                    <div className={`text-xs font-bold ${dimStats.accuracy >= 80 ? 'text-green-400' :
-                                      dimStats.accuracy >= 60 ? 'text-yellow-400' :
-                                        'text-red-400'
-                                      }`}>
-                                      {dimStats.accuracy}%
-                                    </div>
-                                  )}
-                                </div>
-                                <div className="text-xs text-gray-600 truncate">
-                                  {dimInfo.description.split(',')[0]}
-                                </div>
-                              </div>
-                            )
-                          })}
-                        </div>
-
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        )}
 
         {/* Spaced Repetition */}
-        {activeTab === 'spaced_repetition' && topicDetail.total_attempts > 0 && (
+        {topicDetail.total_attempts > 0 && (
           <div className="neuro-card p-6">
             <h3 className="text-lg font-semibold text-gray-200 mb-4">Spaced Repetition Schedule</h3>
             <p className="text-sm text-gray-500 mb-6">
