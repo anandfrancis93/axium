@@ -97,7 +97,7 @@ QUESTION FORMAT MIX:
 - 40% multiple choice single answer (mcq_single) - MUST have exactly 4 options, 1 correct
 - 25% true/false - correct_answer must be exactly "True" or "False"
 - 15% fill in the blank (fill_blank) - MUST have exactly 4 options
-- 20% multiple choice multi-select (mcq_multi) - MUST have exactly 4 options, can have 2 or 3 correct answers. Use this for Bloom levels 4-6 (Analyze, Evaluate, Create)
+- 20% multiple choice multi-select (mcq_multi) - MUST have exactly 4 options. The 4th option MUST ALWAYS be "None of the above". First 3 options can have 1, 2, or 3 correct answers. If ALL of the first 3 options are incorrect, then "None of the above" is the only correct answer. Use this for Bloom levels 4-6 (Analyze, Evaluate, Create)
 
 BLOOM'S TAXONOMY DISTRIBUTION:
 - Level 1 (Remember): ~20% - Recall basic facts and definitions - use mcq_single, true_false, fill_blank
@@ -149,14 +149,13 @@ OUTPUT FORMAT (JSON array):
   {
     "question_text": "Which of the following are valid components of a Zero Trust architecture? (Select all that apply)",
     "question_format": "mcq_multi",
-    "options": ["Policy Engine", "Policy Administrator", "Firewall only", "Policy Enforcement Point", "None of the above"],
-    "correct_answer": ["Policy Engine", "Policy Administrator", "Policy Enforcement Point"],
+    "options": ["Policy Engine", "Policy Administrator", "Firewall only", "None of the above"],
+    "correct_answer": ["Policy Engine", "Policy Administrator"],
     "explanation": {
       "Policy Engine": "CORRECT: The Policy Engine makes dynamic authentication and authorization decisions.",
       "Policy Administrator": "CORRECT: The Policy Administrator manages access tokens and sessions.",
       "Firewall only": "INCORRECT: A firewall alone is not a Zero Trust component; it's traditional perimeter security.",
-      "Policy Enforcement Point": "CORRECT: The PEP mediates access requests in the data plane.",
-      "None of the above": "INCORRECT: Three of the options above are valid components."
+      "None of the above": "INCORRECT: Two of the options above are valid components."
     },
     "bloom_level": 4,
     "cognitive_dimension": "conceptual"
