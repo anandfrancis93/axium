@@ -112,17 +112,26 @@ export default function SbomViewer({ components, lastUpdated, totalComponents }:
                                             )}
                                         </td>
                                         <td className="px-6 py-4">
-                                            {component.externalReferences && component.externalReferences.length > 0 && (
-                                                <a
-                                                    href={component.externalReferences[0].url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-blue-400 hover:text-blue-300 hover:underline flex items-center space-x-1"
-                                                >
-                                                    <span>View</span>
-                                                    <ExternalLink className="w-3 h-3" />
-                                                </a>
-                                            )}
+                                            {(() => {
+                                                const websiteRef = component.externalReferences?.find(ref => ref.type === 'website');
+                                                const anyRef = component.externalReferences?.[0];
+                                                const ref = websiteRef || anyRef;
+
+                                                if (ref) {
+                                                    return (
+                                                        <a
+                                                            href={ref.url}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="text-blue-400 hover:text-blue-300 hover:underline flex items-center space-x-1"
+                                                        >
+                                                            <span>View</span>
+                                                            <ExternalLink className="w-3 h-3" />
+                                                        </a>
+                                                    );
+                                                }
+                                                return null;
+                                            })()}
                                         </td>
                                     </tr>
                                 ))
