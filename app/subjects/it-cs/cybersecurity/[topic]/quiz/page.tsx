@@ -183,9 +183,19 @@ export default function TopicQuizPage() {
             // Optimistic check
             let correct = false
             if (currentQ.question_type === 'true_false') {
-                correct = userAnswer === currentQ.correct_answer
+                correct = String(userAnswer).toLowerCase().trim() === String(currentQ.correct_answer).toLowerCase().trim()
             } else if (currentQ.question_type === 'mcq_single' || currentQ.question_type === 'fill_blank') {
-                correct = userAnswer === currentQ.correct_answer
+                const userVal = String(userAnswer).toLowerCase().trim()
+                const correctVal = String(currentQ.correct_answer).toLowerCase().trim()
+
+                // Handle "A. Option" format matching if needed
+                const userLetter = userVal.match(/^([a-z])\./)?.[1]
+                const correctLetter = correctVal.match(/^([a-z])\./)?.[1]
+
+                correct = userVal === correctVal ||
+                    (userLetter && correctLetter && userLetter === correctLetter) ||
+                    userVal.includes(correctVal) || // Lenient checks
+                    correctVal.includes(userVal)
             } else if (currentQ.question_type === 'mcq_multi') {
                 const userAnswers = Array.isArray(userAnswer) ? userAnswer : [userAnswer]
                 const correctAnswers = Array.isArray(currentQ.correct_answer)
