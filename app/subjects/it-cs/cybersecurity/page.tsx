@@ -80,6 +80,7 @@ export default function CybersecurityPage() {
         .select('id, name, description')
         .eq('subject_id', 'c1f9b907-9f8e-41d8-aef4-0ea1e42f57e9') // Cybersecurity subject
         .order('name', { ascending: true })
+        .limit(5000) // Ensure we get all topics (Supabase default is 1000)
 
       if (error) {
         console.error('Error fetching topics:', error)
@@ -428,10 +429,10 @@ export default function CybersecurityPage() {
     // Topics with more attempts are more reliable indicators of true ability
     const weightedMasteryVariance = totalAttempts > 0
       ? topics.reduce((sum, t) => {
-          const weight = t.total_attempts / totalAttempts
-          const topicMastery = calculateOverallMastery(t.mastery_scores)
-          return sum + weight * Math.pow(topicMastery - avgMastery * 100, 2)
-        }, 0)
+        const weight = t.total_attempts / totalAttempts
+        const topicMastery = calculateOverallMastery(t.mastery_scores)
+        return sum + weight * Math.pow(topicMastery - avgMastery * 100, 2)
+      }, 0)
       : 0
     const masteryStdDev = Math.sqrt(weightedMasteryVariance)
 
@@ -702,7 +703,7 @@ export default function CybersecurityPage() {
                               const normalized = normalizeCalibration(topic.calibration_mean)
                               return (
                                 <div className={`text-lg font-bold ${normalized >= 0.67 ? 'text-green-400' :
-                                    normalized >= 0.33 ? 'text-yellow-400' : 'text-red-400'
+                                  normalized >= 0.33 ? 'text-yellow-400' : 'text-red-400'
                                   }`}>
                                   {normalized.toFixed(2)}
                                 </div>
@@ -751,7 +752,7 @@ export default function CybersecurityPage() {
                           const normalized = normalizeCalibration(avgCalibration)
                           return (
                             <div className={`text-lg font-bold ${normalized >= 0.67 ? 'text-green-400' :
-                                normalized >= 0.33 ? 'text-yellow-400' : 'text-red-400'
+                              normalized >= 0.33 ? 'text-yellow-400' : 'text-red-400'
                               }`}>
                               {normalized.toFixed(2)}
                             </div>
@@ -970,11 +971,10 @@ export default function CybersecurityPage() {
 
                   {/* Pass/Fail Indicator */}
                   <div className="text-center">
-                    <div className={`inline-block px-4 py-2 rounded-lg ${
-                      isLikelyPass ? 'bg-green-500/20 text-green-400' :
-                      isPossiblePass ? 'bg-yellow-500/20 text-yellow-400' :
-                      'bg-red-500/20 text-red-400'
-                    }`}>
+                    <div className={`inline-block px-4 py-2 rounded-lg ${isLikelyPass ? 'bg-green-500/20 text-green-400' :
+                        isPossiblePass ? 'bg-yellow-500/20 text-yellow-400' :
+                          'bg-red-500/20 text-red-400'
+                      }`}>
                       {isLikelyPass && 'Likely to Pass'}
                       {isPossiblePass && 'Borderline - Keep Practicing'}
                       {isLikelyFail && 'More Practice Needed'}
