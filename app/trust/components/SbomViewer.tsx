@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Package, ShieldCheck, ExternalLink, Info, RefreshCw, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Search, Package, ShieldCheck, ExternalLink, Info, RefreshCw, AlertTriangle, CheckCircle, X } from 'lucide-react';
 
 interface Component {
     name: string;
@@ -30,6 +30,18 @@ interface VulnerabilityData {
     }>;
 }
 
+interface LiveVulnData {
+    safe: boolean;
+    vulnerabilities: Array<{
+        cveId: string;
+        summary: string;
+        cvssScore: string;
+        cvssVector: string;
+        severity: string;
+        url: string;
+    }>;
+}
+
 interface SbomViewerProps {
     components: Component[];
     lastUpdated: string;
@@ -40,8 +52,9 @@ interface SbomViewerProps {
 export default function SbomViewer({ components, lastUpdated, totalComponents, vulnerabilities }: SbomViewerProps) {
     const [search, setSearch] = useState('');
     const [isChecking, setIsChecking] = useState(false);
-    const [liveVulns, setLiveVulns] = useState<Record<string, { safe: boolean }>>({});
+    const [liveVulns, setLiveVulns] = useState<Record<string, LiveVulnData>>({});
     const [lastLiveCheck, setLastLiveCheck] = useState<string | null>(null);
+    const [selectedVuln, setSelectedVuln] = useState<{ name: string; data: LiveVulnData } | null>(null);
 
     const filteredComponents = components.filter((c) =>
         c.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -53,14 +66,33 @@ export default function SbomViewer({ components, lastUpdated, totalComponents, v
 
     const getVulnStatus = (pkgName: string) => {
         // Check live data first
-        if (liveVulns[pkgName] !== undefined) {
-            return liveVulns[pkgName].safe ? 'safe' : 'vulnerable';
+        const liveData = liveVulns[pkgName];
+        if (liveData !== undefined) {
+            return {
+                status: liveData.safe ? 'safe' : 'vulnerable',
+                liveData
+            };
         }
         // Fall back to build-time data
         if (vulnerabilities?.packages?.[pkgName]) {
-            return 'vulnerable';
+            return {
+                status: 'vulnerable',
+                liveData: null
+            };
         }
-        return 'safe';
+        return {
+            status: 'safe',
+            liveData: null
+        };
+    };
+
+    const getCVSSColor = (score: string) => {
+        const numScore = parseFloat(score);
+        if (isNaN(numScore)) return 'text-zinc-400';
+        if (numScore >= 9.0) return 'text-red-400';
+        if (numScore >= 7.0) return 'text-orange-400';
+        if (numScore >= 4.0) return 'text-yellow-400';
+        return 'text-green-400';
     };
 
     const handleCheckForUpdates = async () => {
@@ -80,11 +112,11 @@ export default function SbomViewer({ components, lastUpdated, totalComponents, v
 
             if (response.ok) {
                 const data = await response.json();
-                const newVulns: Record<string, { safe: boolean }> = {};
+                const newVulns: Record<string, LiveVulnData> = {};
 
                 for (const [key, value] of Object.entries(data.results)) {
                     const pkgName = key.split('@')[0];
-                    newVulns[pkgName] = value as { safe: boolean };
+                    newVulns[pkgName] = value as LiveVulnData;
                 }
 
                 setLiveVulns(newVulns);
@@ -189,6 +221,7 @@ export default function SbomViewer({ components, lastUpdated, totalComponents, v
                                 <th className="px-6 py-4">Component</th>
                                 <th className="px-6 py-4">Version</th>
                                 <th className="px-6 py-4">Status</th>
+                                <th className="px-6 py-4">CVE / CVSS</th>
                                 <th className="px-6 py-4">License</th>
                                 <th className="px-6 py-4">Links</th>
                             </tr>
@@ -196,8 +229,9 @@ export default function SbomViewer({ components, lastUpdated, totalComponents, v
                         <tbody className="divide-y divide-zinc-800">
                             {filteredComponents.length > 0 ? (
                                 filteredComponents.map((component, idx) => {
-                                    const status = getVulnStatus(component.name);
+                                    const { status, liveData } = getVulnStatus(component.name);
                                     const vulnInfo = vulnerabilities?.packages?.[component.name];
+                                    const hasLiveDetails = liveData && liveData.vulnerabilities.length > 0;
 
                                     return (
                                         <tr key={`${component.name}-${idx}`} className="hover:bg-zinc-800/50 transition-colors">
@@ -217,13 +251,49 @@ export default function SbomViewer({ components, lastUpdated, totalComponents, v
                                                         Safe
                                                     </span>
                                                 ) : (
-                                                    <span
-                                                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-900/50 text-red-300 border border-red-700 cursor-help"
+                                                    <button
+                                                        onClick={() => hasLiveDetails ? setSelectedVuln({ name: component.name, data: liveData! }) : null}
+                                                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-900/50 text-red-300 border border-red-700 ${hasLiveDetails ? 'cursor-pointer hover:bg-red-800/50' : 'cursor-help'}`}
                                                         title={vulnInfo?.title || 'Vulnerability detected'}
                                                     >
                                                         <AlertTriangle className="w-3 h-3 mr-1" />
                                                         {vulnInfo?.severity || 'Vulnerable'}
-                                                    </span>
+                                                    </button>
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                {hasLiveDetails ? (
+                                                    <div className="space-y-1">
+                                                        {liveData.vulnerabilities.slice(0, 2).map((v, i) => (
+                                                            <div key={i} className="flex items-center space-x-2">
+                                                                <a
+                                                                    href={v.url}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="text-blue-400 hover:text-blue-300 text-xs font-mono"
+                                                                >
+                                                                    {v.cveId}
+                                                                </a>
+                                                                <span className={`text-xs font-bold ${getCVSSColor(v.cvssScore)}`}>
+                                                                    {v.cvssScore !== 'N/A' ? `${v.cvssScore}` : ''}
+                                                                </span>
+                                                            </div>
+                                                        ))}
+                                                        {liveData.vulnerabilities.length > 2 && (
+                                                            <span className="text-xs text-zinc-500">+{liveData.vulnerabilities.length - 2} more</span>
+                                                        )}
+                                                    </div>
+                                                ) : status === 'vulnerable' && vulnInfo?.url ? (
+                                                    <a
+                                                        href={vulnInfo.url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-blue-400 hover:text-blue-300 text-xs"
+                                                    >
+                                                        View Advisory
+                                                    </a>
+                                                ) : (
+                                                    <span className="text-zinc-600 text-xs">—</span>
                                                 )}
                                             </td>
                                             <td className="px-6 py-4">
@@ -262,7 +332,7 @@ export default function SbomViewer({ components, lastUpdated, totalComponents, v
                                 })
                             ) : (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-12 text-center text-zinc-500">
+                                    <td colSpan={6} className="px-6 py-12 text-center text-zinc-500">
                                         No components found matching "{search}"
                                     </td>
                                 </tr>
@@ -271,6 +341,57 @@ export default function SbomViewer({ components, lastUpdated, totalComponents, v
                     </table>
                 </div>
             </div>
+
+            {/* Vulnerability Details Modal */}
+            {selectedVuln && (
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+                    <div className="bg-zinc-900 border border-zinc-700 rounded-xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+                        <div className="flex items-center justify-between p-4 border-b border-zinc-700">
+                            <h3 className="text-lg font-bold text-zinc-100">
+                                Vulnerabilities in {selectedVuln.name}
+                            </h3>
+                            <button
+                                onClick={() => setSelectedVuln(null)}
+                                className="text-zinc-400 hover:text-zinc-100"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <div className="p-4 overflow-y-auto max-h-[60vh] space-y-4">
+                            {selectedVuln.data.vulnerabilities.map((vuln, i) => (
+                                <div key={i} className="bg-zinc-800 rounded-lg p-4 space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <a
+                                            href={vuln.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-400 hover:text-blue-300 font-mono font-bold"
+                                        >
+                                            {vuln.cveId}
+                                        </a>
+                                        <div className="flex items-center space-x-2">
+                                            <span className={`text-sm font-bold ${getCVSSColor(vuln.cvssScore)}`}>
+                                                CVSS: {vuln.cvssScore}
+                                            </span>
+                                            <span className={`px-2 py-0.5 rounded text-xs font-medium uppercase ${vuln.severity === 'critical' ? 'bg-red-900 text-red-200' :
+                                                    vuln.severity === 'high' ? 'bg-orange-900 text-orange-200' :
+                                                        vuln.severity === 'moderate' ? 'bg-yellow-900 text-yellow-200' :
+                                                            'bg-green-900 text-green-200'
+                                                }`}>
+                                                {vuln.severity}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <p className="text-sm text-zinc-300">{vuln.summary}</p>
+                                    {vuln.cvssVector && (
+                                        <p className="text-xs text-zinc-500 font-mono">{vuln.cvssVector}</p>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
