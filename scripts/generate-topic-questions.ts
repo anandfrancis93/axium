@@ -59,6 +59,40 @@ CRITICAL INSTRUCTIONS:
    - Edge cases and exceptions
    - Security implications
 
+QUALITY CONTROL - ANTI-TELL-TALE RULES:
+❌ NEVER use these patterns (they give away answers):
+- "All of the above" or "None of the above" as only correct answer for mcq_single
+- One option significantly longer or shorter than others (±30% length difference = RED FLAG)
+- Repeating exact keywords from question stem in only the correct answer
+- Combined options like "Both A and B" or "A and C but not B" for mcq_single
+- Absolute terms ONLY in distractors ("always", "never", "only", "all", "none")
+- Grammatical inconsistency (e.g., question says "Which is AN..." but option starts with consonant)
+- Technical jargon ONLY in the correct answer (all options must match complexity level)
+- If question asks about FUNCTION/PURPOSE, options must describe functions (not acronym expansions)
+- If question asks what something STANDS FOR, options must be acronym expansions
+- Grouping correct answers together in mcq_multi (e.g., A,B,C correct, D,E wrong)
+
+LENGTH BALANCE RULE (MANDATORY):
+- ALL options MUST be within ±30% character length of each other
+- Calculate: (longest - shortest) / shortest ≤ 0.30
+- If one answer is obviously longer/shorter, students can guess without knowledge
+- BAD: Option A (20 chars), Option B (95 chars - correct), Option C (22 chars)
+- GOOD: Option A (45 chars), Option B (48 chars - correct), Option C (46 chars)
+
+DISTRACTOR QUALITY (critically important):
+- ALL options must be from the SAME DOMAIN/TOPIC AREA
+- DO NOT use vague/generic wrong answers ("a temporary solution", "a basic approach")
+- DO use specific definitions/characteristics of RELATED topics that could be confused
+- Each distractor should sound like it COULD be correct if you don't know the precise definition
+- Student must know the SPECIFIC definition to answer correctly
+- Distractors should be definitions of actual related topics from the same domain
+
+PLAUSIBILITY CHECK (before finalizing):
+- Read each distractor - does it sound like a real definition of a related topic?
+- REJECT: "a basic method", "a simple approach", "improves efficiency"
+- REQUIRE: specific definitions of actual related topics from the same domain
+- Ask: "If I didn't know the precise definition, could I genuinely believe this distractor?"
+
 QUESTION FORMAT MIX:
 - 40% multiple choice single answer (mcq_single) - MUST have exactly 4 options, 1 correct
 - 25% true/false - correct_answer must be exactly "True" or "False"
