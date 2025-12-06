@@ -127,11 +127,9 @@
     color: var(--text-tertiary);
   }
 
-  /* Neumorphic Container */
+  /* Neumorphic Container - for page backgrounds */
   .neuro-container {
     background: var(--surface);
-    border-radius: 1.5rem;
-    box-shadow: var(--elevation-2);
     padding: 2rem;
   }
 
