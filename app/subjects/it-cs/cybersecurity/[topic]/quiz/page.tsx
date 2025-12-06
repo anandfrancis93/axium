@@ -57,63 +57,22 @@ export default function TopicQuizPage() {
     const [answerResult, setAnswerResult] = useState<AnswerResult | null>(null)
     const [showExitModal, setShowExitModal] = useState(false)
 
-    // Session storage key
-    const STORAGE_KEY = `axium_topic_quiz_${topicName}`
-
     useEffect(() => {
-        // Try to load from session storage first
-        const savedState = sessionStorage.getItem(STORAGE_KEY)
-        if (savedState) {
-            try {
-                const parsed = JSON.parse(savedState)
-                setQuestions(parsed.questions || [])
-                setCurrentIndex(parsed.currentIndex || 0)
-                setCurrentStep(parsed.currentStep || 'confidence')
-                setUserAnswer(parsed.userAnswer || '')
-                setConfidence(parsed.confidence)
-                setRecognitionMethod(parsed.recognitionMethod)
-                setCorrectCount(parsed.correctCount || 0)
-                setIsCorrect(parsed.isCorrect)
-                setTopicId(parsed.topicId)
-                setAnswerResult(parsed.answerResult)
-                setLoading(false)
-
-                // If we have questions, we don't need to fetch
-                if (parsed.questions && parsed.questions.length > 0) {
-                    return
-                }
-            } catch (e) {
-                console.error('Error parsing saved state', e)
-                sessionStorage.removeItem(STORAGE_KEY)
-            }
-        }
-
         loadQuestions()
     }, [])
-
-    // Save state whenever it changes
-    useEffect(() => {
-        if (questions.length > 0) {
-            const state = {
-                questions,
-                currentIndex,
-                currentStep,
-                userAnswer,
-                confidence,
-                recognitionMethod,
-                correctCount,
-                isCorrect,
-                topicId,
-                answerResult
-            }
-            sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state))
-        }
-    }, [questions, currentIndex, currentStep, userAnswer, confidence, recognitionMethod, correctCount, isCorrect, topicId, answerResult])
 
     async function loadQuestions() {
         try {
             setLoading(true)
             const supabase = createClient()
+
+            // Get current user
+            const { data: { user } } = await supabase.auth.getUser()
+
+            if (!user) {
+                console.error('User not logged in')
+                return
+            }
 
             // Get topic
             const { data: topic, error: topicError } = await supabase
@@ -142,10 +101,31 @@ export default function TopicQuizPage() {
                 return
             }
 
+            // Get user's review status for these questions
+            const { data: reviews, error: reviewsError } = await supabase
+                .from('user_question_reviews')
+                .select('question_id, next_review_date')
+                .eq('user_id', user.id)
+                .in('question_id', topicQuestions?.map(q => q.id) || [])
+
+            if (reviewsError) {
+                console.error('Error loading reviews:', reviewsError)
+            }
+
+            // Helper to check if question is due
+            const isDue = (questionId: string) => {
+                const review = reviews?.find(r => r.question_id === questionId)
+                if (!review) return true // Never reviewed, so it's due
+                return new Date(review.next_review_date) <= new Date() // Due if review date is past
+            }
+
             if (!topicQuestions || topicQuestions.length === 0) {
                 setQuestions([])
             } else {
-                const mappedQuestions = topicQuestions.map(q => {
+                // Filter questions to only show those that are due (or new)
+                const dueQuestions = topicQuestions.filter(q => isDue(q.id))
+
+                const mappedQuestions = dueQuestions.map(q => {
                     // Fix: Force true_false type if text starts with "True or False" (handles data inconsistencies)
                     let questionType = q.question_format
                     if (q.question_text.toLowerCase().trim().startsWith('true or false') ||
@@ -288,10 +268,7 @@ export default function TopicQuizPage() {
     if (loading) {
         return (
             <div className="min-h-screen neuro-container flex items-center justify-center">
-                <div className="text-center">
-                    <Loader2 className="animate-spin text-blue-400 mx-auto mb-4" size={48} />
-                    <p className="text-gray-400">Loading quiz...</p>
-                </div>
+                <Loader2 className="animate-spin text-blue-400" size={48} />
             </div>
         )
     }
@@ -352,10 +329,7 @@ export default function TopicQuizPage() {
                                 Try Again
                             </button>
                             <button
-                                onClick={() => {
-                                    sessionStorage.removeItem(STORAGE_KEY)
-                                    router.back()
-                                }}
+                                onClick={() => router.back()}
                                 className="neuro-btn text-gray-400 px-6 py-3"
                             >
                                 Back to Topic
@@ -522,7 +496,6 @@ export default function TopicQuizPage() {
                                 {currentQuestion.question_text}
                             </h2>
 
-                            {/* Options visualization logic (same as before) */}
                             {/* Answer Options with Result */}
                             {(currentQuestion.question_format === 'mcq_single' || currentQuestion.question_format === 'mcq_multi' || currentQuestion.question_format === 'fill_blank') && currentQuestion.options && (
                                 <div className="space-y-3">
@@ -817,10 +790,7 @@ export default function TopicQuizPage() {
                         },
                         {
                             label: 'Exit',
-                            onClick: () => {
-                                sessionStorage.removeItem(STORAGE_KEY)
-                                router.back()
-                            },
+                            onClick: () => router.back(),
                             variant: 'primary'
                         }
                     ]}
