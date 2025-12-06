@@ -97,7 +97,7 @@ QUESTION FORMAT MIX:
 - 40% multiple choice single answer (mcq_single) - MUST have exactly 4 options, 1 correct
 - 25% true/false - correct_answer must be exactly "True" or "False"
 - 15% fill in the blank (fill_blank) - MUST have exactly 4 options
-- 20% multiple choice multi-select (mcq_multi) - MUST have exactly 5 options, can have 2, 3, or 4 correct answers. ALWAYS include "None of the above" as the last option - if all other options are incorrect, "None of the above" is the only correct answer. Use this for Bloom levels 4-6 (Analyze, Evaluate, Create)
+- 20% multiple choice multi-select (mcq_multi) - MUST have exactly 4 options, can have 2 or 3 correct answers. Use this for Bloom levels 4-6 (Analyze, Evaluate, Create)
 
 BLOOM'S TAXONOMY DISTRIBUTION:
 - Level 1 (Remember): ~20% - Recall basic facts and definitions - use mcq_single, true_false, fill_blank

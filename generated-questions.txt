@@ -3,166 +3,183 @@
 802.1X / Port-based Network Access Control (PNAC)
 ============================================================
 
-1. [mcq_single] [Bloom 2]
-   Q: What is the primary function of the 802.1X standard?
-   Options: To encrypt all network traffic on a LAN. | To provide port-based network access control. | To prevent denial-of-service attacks. | To manage IP address allocation.
+1. [mcq_single] [Bloom 1]
+   Q: What is the primary purpose of the IEEE 802.1X standard?
+   Options: To provide port-based network access control. | To encrypt all network traffic at the physical layer. | To implement a firewall on a network switch. | To manage IP address assignments on a network.
    Answer: To provide port-based network access control.
-   Explanation: {"To encrypt all network traffic on a LAN.":"INCORRECT: While encryption can be used in conjunction with 802.1X, it is not the primary function.","To provide port-based network access control.":"CORRECT: 802.1X's main function is to control network access based on the port to which a device is connected.","To prevent denial-of-service attacks.":"INCORRECT: 802.1X can indirectly help prevent DoS attacks by controlling access, but that's not its core function.","To manage IP address allocation.":"INCORRECT: IP address allocation is handled by protocols like DHCP, not 802.1X."}
+   Explanation: {"To provide port-based network access control.":"CORRECT: 802.1X's core function is to control network access based on the port to which a device is connected.","To encrypt all network traffic at the physical layer.":"INCORRECT: While security is enhanced, 802.1X primarily focuses on authentication, not encryption of all traffic.","To implement a firewall on a network switch.":"INCORRECT: 802.1X works alongside firewalls, but is not itself a firewall implementation.","To manage IP address assignments on a network.":"INCORRECT: DHCP is used for IP address assignment; 802.1X focuses on access control."}
 
-2. [mcq_single] [Bloom 1]
-   Q: Which of the following is NOT a core component in the 802.1X architecture?
-   Options: Supplicant | Authenticator | Authentication Server | Firewall
-   Answer: Firewall
-   Explanation: {"Supplicant":"INCORRECT: The supplicant is the device requesting network access.","Authenticator":"INCORRECT: The authenticator (e.g., switch) controls network access based on authentication.","Authentication Server":"INCORRECT: The authentication server validates the supplicant's credentials.","Firewall":"CORRECT: A firewall is not a core component of the 802.1X architecture itself, although it may exist on the network."}
+2. [mcq_single] [Bloom 2]
+   Q: Which of the following is a limitation of relying solely on MAC address filtering for network access control, that 802.1X aims to address?
+   Options: MAC addresses are difficult to manage and prone to spoofing. | MAC addresses do not provide any security benefits. | MAC addresses cannot be used on wireless networks. | MAC addresses are only assigned to servers, not client devices.
+   Answer: MAC addresses are difficult to manage and prone to spoofing.
+   Explanation: {"MAC addresses are difficult to manage and prone to spoofing.":"CORRECT: MAC address filtering is cumbersome to manage and easily bypassed by MAC address spoofing.","MAC addresses do not provide any security benefits.":"INCORRECT: They provide a small amount of security by obscurity, but it is weak.","MAC addresses cannot be used on wireless networks.":"INCORRECT: MAC addresses are fundamental to Ethernet and Wi-Fi networks.","MAC addresses are only assigned to servers, not client devices.":"INCORRECT: All network-connected devices have a MAC address."}
 
-3. [true_false] [Bloom 2]
-   Q: The authenticator in 802.1X acts as a conduit for authentication data between the supplicant and the authentication server.
-   Answer: True
-   Explanation: This is true. The authenticator relays authentication information but doesn't typically validate it itself.
+3. [mcq_single] [Bloom 1]
+   Q: The 'supplicant' in an 802.1X architecture is typically:
+   Options: A network switch or router. | A RADIUS server. | The device requesting access to the network (e.g., a laptop). | A network administrator.
+   Answer: The device requesting access to the network (e.g., a laptop).
+   Explanation: {"A network switch or router.":"INCORRECT: The switch or router acts as the authenticator.","A RADIUS server.":"INCORRECT: The RADIUS server is the authentication server.","The device requesting access to the network (e.g., a laptop).":"CORRECT: The supplicant is the entity requesting network access.","A network administrator.":"INCORRECT: The network administrator manages the system, but is not part of the 802.1X flow itself."}
 
 4. [mcq_single] [Bloom 2]
-   Q: What is the primary purpose of the Extensible Authentication Protocol (EAP) in the context of 802.1X?
-   Options: To encrypt all data transmitted over the network. | To provide a framework for various authentication methods. | To manage IP address assignments. | To prevent MAC address spoofing.
-   Answer: To provide a framework for various authentication methods.
-   Explanation: {"To encrypt all data transmitted over the network.":"INCORRECT: Encryption is not the primary function of EAP, although some EAP methods may use encryption.","To provide a framework for various authentication methods.":"CORRECT: EAP provides the framework to support multiple authentication mechanisms within the 802.1X standard.","To manage IP address assignments.":"INCORRECT: DHCP manages IP address assignments.","To prevent MAC address spoofing.":"INCORRECT: While 802.1X mitigates MAC spoofing risks, EAP's purpose isn't solely to prevent it."}
+   Q: What role does the 'authenticator' play in 802.1X?
+   Options: It validates authentication requests directly. | It acts as a conduit for authentication data between the supplicant and authentication server. | It assigns IP addresses to supplicants. | It encrypts all network traffic.
+   Answer: It acts as a conduit for authentication data between the supplicant and authentication server.
+   Explanation: {"It validates authentication requests directly.":"INCORRECT: The authenticator forwards the request; validation is done by the authentication server.","It acts as a conduit for authentication data between the supplicant and authentication server.":"CORRECT: The authenticator's role is to pass authentication data to the authentication server.","It assigns IP addresses to supplicants.":"INCORRECT: IP address assignment is typically handled by DHCP.","It encrypts all network traffic.":"INCORRECT: While it might support encryption, that's not its primary function in the 802.1X process."}
 
-5. [mcq_single] [Bloom 1]
-   Q: Which protocol is commonly used by the authenticator to communicate with the authentication server in an 802.1X environment?
-   Options: TCP/IP | RADIUS | DHCP | SNMP
-   Answer: RADIUS
-   Explanation: {"TCP/IP":"INCORRECT: TCP/IP is a suite of networking protocols, not specifically for AAA communication.","RADIUS":"CORRECT: RADIUS (Remote Authentication Dial-In User Service) is commonly used for AAA in 802.1X.","DHCP":"INCORRECT: DHCP is used for IP address assignment.","SNMP":"INCORRECT: SNMP is used for network management and monitoring."}
+5. [mcq_single] [Bloom 2]
+   Q: The authentication server in 802.1X is responsible for:
+   Options: Forwarding authentication requests to the authenticator. | Validating authentication requests, issuing authorizations, and performing accounting. | Providing network connectivity to the supplicant. | Managing the physical network infrastructure.
+   Answer: Validating authentication requests, issuing authorizations, and performing accounting.
+   Explanation: {"Forwarding authentication requests to the authenticator.":"INCORRECT: This is the role of the authenticator.","Validating authentication requests, issuing authorizations, and performing accounting.":"CORRECT: The authentication server performs the core security functions of 802.1X.","Providing network connectivity to the supplicant.":"INCORRECT: The authenticator controls network access based on the authentication server's decision.","Managing the physical network infrastructure.":"INCORRECT: This is the role of network management systems and administrators."}
 
-6. [mcq_single] [Bloom 2]
-   Q: Upon successful authentication in an 802.1X environment, what action does the authenticator typically take?
-   Options: Blocks all network traffic to and from the supplicant. | Grants the supplicant full network access. | Assigns a static IP address to the supplicant. | Sends an alert to the network administrator.
-   Answer: Grants the supplicant full network access.
-   Explanation: {"Blocks all network traffic to and from the supplicant.":"INCORRECT: This would happen if authentication failed.","Grants the supplicant full network access.":"CORRECT: Successful authentication leads to the granting of network access.","Assigns a static IP address to the supplicant.":"INCORRECT: IP address assignment is a separate process, often using DHCP.","Sends an alert to the network administrator.":"INCORRECT: While logging might occur, granting access is the primary action."}
+6. [true_false] [Bloom 1]
+   Q: True or False: The 802.1X standard is implemented using only one protocol: RADIUS.
+   Answer: False
+   Explanation: This is false because 802.1X relies on both EAP and RADIUS.
 
-7. [fill_blank] [Bloom 1]
-   Q: In 802.1X, EAPoL stands for Extensible Authentication Protocol over ______.
-   Options: LAN | WAN | Bluetooth | the Internet
-   Answer: LAN
-   Explanation: {"LAN":"CORRECT: EAPoL stands for Extensible Authentication Protocol over LAN.","WAN":"INCORRECT: EAPoL is specifically designed for LANs.","Bluetooth":"INCORRECT: Bluetooth uses different authentication mechanisms.","the Internet":"INCORRECT: EAPoL is designed for local networks."}
+7. [mcq_single] [Bloom 2]
+   Q: What is the role of EAP (Extensible Authentication Protocol) in 802.1X?
+   Options: To provide a framework for deploying multiple types of authentication methods. | To manage IP address assignments. | To encrypt all network traffic. | To control the flow of data packets on the network.
+   Answer: To provide a framework for deploying multiple types of authentication methods.
+   Explanation: {"To provide a framework for deploying multiple types of authentication methods.":"CORRECT: EAP enables different authentication methods to be used with 802.1X.","To manage IP address assignments.":"INCORRECT: DHCP handles IP address assignment.","To encrypt all network traffic.":"INCORRECT: Encryption is a separate function, often used within EAP methods.","To control the flow of data packets on the network.":"INCORRECT: That's more related to Quality of Service (QoS) and network routing."}
 
-8. [mcq_single] [Bloom 2]
-   Q: Why is 802.1X considered a more secure alternative to MAC address filtering for network access control?
-   Options: 802.1X is easier to configure and manage. | MAC addresses are easily spoofed, while 802.1X requires authentication. | 802.1X does not use encryption, making it faster. | MAC address filtering provides stronger encryption than 802.1X.
-   Answer: MAC addresses are easily spoofed, while 802.1X requires authentication.
-   Explanation: {"802.1X is easier to configure and manage.":"INCORRECT: 802.1X can be more complex to configure initially.","MAC addresses are easily spoofed, while 802.1X requires authentication.":"CORRECT: MAC address spoofing is a major weakness, addressed by 802.1X's authentication requirement.","802.1X does not use encryption, making it faster.":"INCORRECT: 802.1X commonly uses encryption within the EAP framework.","MAC address filtering provides stronger encryption than 802.1X.":"INCORRECT: MAC address filtering provides no encryption."}
+8. [fill_blank] [Bloom 2]
+   Q: RADIUS is used in 802.1X to facilitate communication between the __________ and the __________.
+   Options: supplicant, client | authenticator, authentication server | supplicant, authenticator | authentication server, supplicant
+   Answer: authenticator, authentication server
+   Explanation: {"supplicant, client":"INCORRECT: A 'client' is too general; the specific components matter.","authenticator, authentication server":"CORRECT: RADIUS enables the authenticator and authentication server to communicate.","supplicant, authenticator":"INCORRECT: EAP is used between these components, then RADIUS transfers to the authentication server.","authentication server, supplicant":"INCORRECT: The communication primarily flows from authenticator to authentication server using RADIUS."}
 
-9. [mcq_single] [Bloom 2]
-   Q: Which of the following best describes the role of the authentication server in 802.1X?
-   Options: To forward network traffic to the appropriate destination. | To validate the supplicant's credentials and authorize network access. | To assign IP addresses to devices on the network. | To monitor network performance and identify security threats.
-   Answer: To validate the supplicant's credentials and authorize network access.
-   Explanation: {"To forward network traffic to the appropriate destination.":"INCORRECT: This is the role of a router or switch.","To validate the supplicant's credentials and authorize network access.":"CORRECT: The authentication server is responsible for verifying credentials and authorizing access.","To assign IP addresses to devices on the network.":"INCORRECT: This is the role of a DHCP server.","To monitor network performance and identify security threats.":"INCORRECT: This is the role of network monitoring and security tools."}
+9. [mcq_single] [Bloom 1]
+   Q: What protocol is used to encapsulate EAP communications over a LAN?
+   Options: IPsec | EAPoL | RADIUS | DHCP
+   Answer: EAPoL
+   Explanation: {"IPsec":"INCORRECT: IPsec provides IP-layer security, not EAP encapsulation.","EAPoL":"CORRECT: EAPoL stands for EAP over LAN.","RADIUS":"INCORRECT: RADIUS is used for authentication, not encapsulation.","DHCP":"INCORRECT: DHCP is used for IP address assignment."}
 
-10. [true_false] [Bloom 3]
-   Q: An attacker spoofs the MAC address of an authorized device and connects to an 802.1X protected network. Will 802.1X prevent network access in this scenario?
-   Answer: True
-   Explanation: This is true. While the attacker has a valid MAC, the 802.1X authentication process will still require valid credentials, preventing unauthorized access even with a spoofed MAC address.
+10. [mcq_single] [Bloom 2]
+   Q: When a host connects to an 802.1X-enabled switch port, what is the initial state of the port?
+   Options: The port is fully open, allowing all traffic. | The port is blocked, allowing only EAPoL traffic. | The port allows only HTTP traffic. | The port is configured as a mirrored port.
+   Answer: The port is blocked, allowing only EAPoL traffic.
+   Explanation: {"The port is fully open, allowing all traffic.":"INCORRECT: The port is initially restricted until authentication occurs.","The port is blocked, allowing only EAPoL traffic.":"CORRECT: Only EAPoL traffic for authentication is initially permitted.","The port allows only HTTP traffic.":"INCORRECT: HTTP access is not granted until after successful authentication.","The port is configured as a mirrored port.":"INCORRECT: Port mirroring is for network analysis, not the initial state."}
 
-11. [mcq_multi] [Bloom 4]
-   Q: Which of the following are potential benefits of implementing 802.1X in a network environment? (Select all that apply)
-   Options: Enhanced security through authentication | Centralized access control management | Simplified network configuration | Improved network performance | None of the above
-   Answer: ["Enhanced security through authentication","Centralized access control management"]
-   Explanation: {"Enhanced security through authentication":"CORRECT: 802.1X provides stronger security compared to MAC filtering.","Centralized access control management":"CORRECT: RADIUS allows for centralized user management and policy enforcement.","Simplified network configuration":"INCORRECT: 802.1X can add complexity to the initial network configuration.","Improved network performance":"INCORRECT: 802.1X's primary focus is security, not network performance.","None of the above":"INCORRECT: Enhanced security and centralized management are benefits."}
+11. [true_false] [Bloom 1]
+   Q: True or False: The switch can read the supplicant's credentials directly from the EAP packet.
+   Answer: False
+   Explanation: This is false because the credentials within the EAP packet are encrypted.
 
-12. [mcq_single] [Bloom 1]
-   Q: Which of the following EAP methods is known for its strong security and use of digital certificates?
-   Options: EAP-MD5 | EAP-TLS | EAP-TTLS | PEAP
-   Answer: EAP-TLS
-   Explanation: {"EAP-MD5":"INCORRECT: EAP-MD5 is an older, less secure method.","EAP-TLS":"CORRECT: EAP-TLS (Transport Layer Security) uses digital certificates for strong mutual authentication.","EAP-TTLS":"INCORRECT: EAP-TTLS uses a TLS tunnel, but typically only authenticates the server.","PEAP":"INCORRECT: PEAP (Protected EAP) also uses a TLS tunnel, but focuses on server authentication."}
+12. [mcq_multi] [Bloom 2]
+   Q: Which of the following are benefits of using 802.1X for network access control? (Select all that apply)
+   Options: Improved security compared to MAC address filtering. | Centralized authentication and authorization. | Simplified network management. | Guaranteed network performance.
+   Answer: ["Improved security compared to MAC address filtering.","Centralized authentication and authorization."]
+   Explanation: {"Improved security compared to MAC address filtering.":"CORRECT: 802.1X provides stronger authentication than MAC filtering.","Centralized authentication and authorization.":"CORRECT: RADIUS allows centralized management of user credentials and access policies.","Simplified network management.":"INCORRECT: While it offers benefits, initial setup can be complex.","Guaranteed network performance.":"INCORRECT: 802.1X focuses on access control, not performance guarantees."}
 
 13. [mcq_single] [Bloom 1]
-   Q: What is the purpose of EAPoW?
-   Options: Extensible Authentication Protocol over WAN | Extensible Authentication Protocol over Wired | Extensible Authentication Protocol over Wireless | Enhanced Authentication Protocol over Wired
-   Answer: Extensible Authentication Protocol over Wireless
-   Explanation: {"Extensible Authentication Protocol over WAN":"INCORRECT: EAPoW is not for WAN connections.","Extensible Authentication Protocol over Wired":"INCORRECT: EAPoL is for wired connections.","Extensible Authentication Protocol over Wireless":"CORRECT: EAPoW provides the EAP framework for wireless networks.","Enhanced Authentication Protocol over Wired":"INCORRECT: EAPoW stands for Extensible, not Enhanced."}
+   Q: Which of the following is an example of an EAP method that can be used with 802.1X?
+   Options: TCP | UDP | EAP-TLS | IPsec
+   Answer: EAP-TLS
+   Explanation: {"TCP":"INCORRECT: TCP is a transport protocol, not an EAP method.","UDP":"INCORRECT: UDP is a transport protocol, not an EAP method.","EAP-TLS":"CORRECT: EAP-TLS is a common EAP method using digital certificates.","IPsec":"INCORRECT: IPsec provides IP-layer security, but is not an EAP method."}
 
-14. [mcq_single] [Bloom 3]
-   Q: In an 802.1X setup, if the RADIUS server is unavailable, what is the typical behavior of the authenticator?
-   Options: Grants all supplicants full network access. | Denies all supplicants network access. | Continues to operate using cached credentials. | Automatically switches to MAC address filtering.
-   Answer: Denies all supplicants network access.
-   Explanation: {"Grants all supplicants full network access.":"INCORRECT: This would be a major security risk.","Denies all supplicants network access.":"CORRECT: If the RADIUS server is unavailable, the authenticator typically denies access.","Continues to operate using cached credentials.":"INCORRECT: While some systems may cache credentials, it's not the typical default behavior in a RADIUS failure scenario.","Automatically switches to MAC address filtering.":"INCORRECT: Switching to MAC address filtering is not a typical automatic failover."}
+14. [mcq_single] [Bloom 2]
+   Q: If the authentication server informs the switch that authentication has failed, what happens?
+   Options: The switch grants full network access anyway. | The switch keeps the port blocked, preventing full network access. | The switch forwards the authentication request to another authentication server. | The switch reboots the supplicant's device.
+   Answer: The switch keeps the port blocked, preventing full network access.
+   Explanation: {"The switch grants full network access anyway.":"INCORRECT: This would defeat the purpose of 802.1X.","The switch keeps the port blocked, preventing full network access.":"CORRECT: Failed authentication results in continued denial of network access.","The switch forwards the authentication request to another authentication server.":"INCORRECT: This could happen in a redundant setup but isn't the standard behavior on a single failure.","The switch reboots the supplicant's device.":"INCORRECT: The switch doesn't have the ability/authority to reboot the client."}
 
 15. [mcq_single] [Bloom 1]
-   Q: The supplicant initiates the 802.1X authentication process by sending what type of packet?
-   Options: DHCP Request | EAPOL-Start | RADIUS Access-Request | ARP Request
-   Answer: EAPOL-Start
-   Explanation: {"DHCP Request":"INCORRECT: DHCP is for IP address assignment.","EAPOL-Start":"CORRECT: The supplicant initiates authentication with an EAPOL-Start packet.","RADIUS Access-Request":"INCORRECT: The authenticator sends the RADIUS Access-Request.","ARP Request":"INCORRECT: ARP is for MAC address resolution."}
+   Q: What type of architecture does 802.1X utilize?
+   Options: AAA (Authentication, Authorization, and Accounting) | TCP/IP | OSI | Stateful Firewall
+   Answer: AAA (Authentication, Authorization, and Accounting)
+   Explanation: {"AAA (Authentication, Authorization, and Accounting)":"CORRECT: 802.1X leverages AAA for its functionality.","TCP/IP":"INCORRECT: TCP/IP is the underlying networking protocol suite, not an architecture specific to 802.1X.","OSI":"INCORRECT: OSI is a general networking model, not an architecture specific to 802.1X.","Stateful Firewall":"INCORRECT: A Stateful Firewall is a security device and not the architecture for 802.1X."}
 
-16. [true_false] [Bloom 2]
-   Q: True or False: 802.1X provides both authentication and authorization capabilities.
-   Answer: True
-   Explanation: This is true. 802.1X, through its interaction with RADIUS, handles both authenticating the user/device and authorizing their level of access to the network.
+16. [true_false] [Bloom 1]
+   Q: True or False: 802.1X can only be implemented on wired networks.
+   Answer: False
+   Explanation: This is false because 802.1X can be implemented on both wired (EAPoL) and wireless (EAPoW) networks.
 
-17. [mcq_multi] [Bloom 5]
-   Q: Which of the following are key considerations when implementing 802.1X in a large network environment? (Select all that apply)
-   Options: Scalability of the RADIUS server | Complexity of configuring switches and access points | User training and support | Compatibility with existing network infrastructure | None of the above
-   Answer: ["Scalability of the RADIUS server","Complexity of configuring switches and access points","User training and support","Compatibility with existing network infrastructure"]
-   Explanation: {"Scalability of the RADIUS server":"CORRECT: The RADIUS server needs to handle a large number of authentication requests.","Complexity of configuring switches and access points":"CORRECT: Configuring 802.1X on network devices can be complex.","User training and support":"CORRECT: Users need to understand how to authenticate properly.","Compatibility with existing network infrastructure":"CORRECT: Existing devices must support 802.1X.","None of the above":"INCORRECT: The other options are relevant considerations."}
+17. [mcq_single] [Bloom 2]
+   Q: Which component of 802.1X would typically consult a user directory (like Active Directory or LDAP) to validate credentials?
+   Options: The Supplicant | The Authenticator | The Authentication Server | The Network Administrator's workstation
+   Answer: The Authentication Server
+   Explanation: {"The Supplicant":"INCORRECT: The supplicant provides credentials, but doesn't validate them itself.","The Authenticator":"INCORRECT: The authenticator only relays the credentials to the authentication server.","The Authentication Server":"CORRECT: The authentication server is responsible for validating credentials against a user directory.","The Network Administrator's workstation":"INCORRECT: The administrator configures the systems, but isn't directly involved in each authentication event."}
 
 18. [mcq_single] [Bloom 2]
-   Q: What security vulnerability is mitigated by using 802.1X?
-   Options: SQL injection | Man-in-the-middle attacks | Unauthorized network access | Cross-site scripting (XSS)
-   Answer: Unauthorized network access
-   Explanation: {"SQL injection":"INCORRECT: SQL injection targets databases.","Man-in-the-middle attacks":"INCORRECT: While 802.1x can use encryption to mitigate MITM, its main function is access control.","Unauthorized network access":"CORRECT: 802.1X is designed to prevent unauthorized devices/users from accessing the network.","Cross-site scripting (XSS)":"INCORRECT: XSS targets web applications."}
+   Q: In a scenario where a device is successfully authenticated via 802.1X, what happens next?
+   Options: The device's MAC address is permanently added to an allow list. | The switch port is opened to allow full network access for the device. | The device is required to re-authenticate every 5 minutes. | All network traffic from the device is automatically encrypted using IPsec.
+   Answer: The switch port is opened to allow full network access for the device.
+   Explanation: {"The device's MAC address is permanently added to an allow list.":"INCORRECT: MAC address lists are not part of 802.1X operation.","The switch port is opened to allow full network access for the device.":"CORRECT: Successful authentication results in the port being opened.","The device is required to re-authenticate every 5 minutes.":"INCORRECT: Re-authentication intervals are configurable but not mandatory at 5 minutes.","All network traffic from the device is automatically encrypted using IPsec.":"INCORRECT: Encryption is not a guaranteed function of 802.1X itself."}
 
-19. [fill_blank] [Bloom 1]
-   Q: In 802.1X, accounting of security events is typically handled by the _______ server.
-   Options: DHCP | RADIUS | DNS | LDAP
-   Answer: RADIUS
-   Explanation: {"DHCP":"INCORRECT: DHCP assigns IP addresses.","RADIUS":"CORRECT: RADIUS handles accounting for security events, in addition to authentication and authorization.","DNS":"INCORRECT: DNS resolves domain names to IP addresses.","LDAP":"INCORRECT: LDAP is a directory service protocol."}
+19. [mcq_single] [Bloom 1]
+   Q: Which of the following EAP types requires a digital certificate on both the client and the server?
+   Options: EAP-MD5 | PEAP | EAP-TLS | EAP-TTLS
+   Answer: EAP-TLS
+   Explanation: {"EAP-MD5":"INCORRECT: EAP-MD5 is a less secure method that doesn't use certificates.","PEAP":"INCORRECT: PEAP typically only requires a certificate on the server.","EAP-TLS":"CORRECT: EAP-TLS uses certificates for mutual authentication.","EAP-TTLS":"INCORRECT: EAP-TTLS only requires a certificate on the server side."}
 
-20. [mcq_single] [Bloom 2]
-   Q: If a device fails the 802.1X authentication process, what typically happens to network access for that device?
-   Options: It is granted limited access to a guest network. | It is assigned a static IP address. | Network access is completely blocked. | It is automatically re-authenticated after a short delay.
-   Answer: Network access is completely blocked.
-   Explanation: {"It is granted limited access to a guest network.":"INCORRECT: While a guest network may exist, it's a separate configuration.","It is assigned a static IP address.":"INCORRECT: IP assignment is independent of authentication.","Network access is completely blocked.":"CORRECT: Failure to authenticate typically results in blocked access.","It is automatically re-authenticated after a short delay.":"INCORRECT: Re-authentication requires user intervention or a pre-configured retry mechanism."}
+20. [mcq_single] [Bloom 3]
+   Q: Which of the following is a reason to choose 802.1X over simply using a pre-shared key (PSK) for Wi-Fi authentication?
+   Options: PSK provides stronger encryption. | PSK is easier to manage for a large number of users. | 802.1X provides individual user authentication and accountability. | 802.1X is less complex to configure.
+   Answer: 802.1X provides individual user authentication and accountability.
+   Explanation: {"PSK provides stronger encryption.":"INCORRECT: The encryption strength depends on the encryption protocol (e.g., AES), not the authentication method.","PSK is easier to manage for a large number of users.":"INCORRECT: PSK becomes difficult to manage with many users.","802.1X provides individual user authentication and accountability.":"CORRECT: 802.1X provides individual access control and tracking.","802.1X is less complex to configure.":"INCORRECT: 802.1X is generally more complex to configure than PSK."}
 
-21. [true_false] [Bloom 1]
-   Q: True or False: 802.1X can only be implemented on wired Ethernet networks.
+21. [true_false] [Bloom 3]
+   Q: True or False: If a supplicant fails 802.1X authentication, it will be completely unable to communicate on the network.
    Answer: False
-   Explanation: This is false. 802.1X can be implemented on both wired (EAPoL) and wireless (EAPoW) networks.
+   Explanation: This is false. A captive portal might allow limited access for remediation, depending on network configuration.
 
-22. [mcq_multi] [Bloom 3]
-   Q: An organization wants to implement 802.1X for both wired and wireless networks. Which of the following components are essential for a successful deployment? (Select all that apply)
-   Options: 802.1X-enabled switches and access points | A RADIUS server | A DHCP server | Client devices with 802.1X supplicant software | None of the above
-   Answer: ["802.1X-enabled switches and access points","A RADIUS server","Client devices with 802.1X supplicant software"]
-   Explanation: {"802.1X-enabled switches and access points":"CORRECT: These devices act as the authenticators.","A RADIUS server":"CORRECT: The RADIUS server provides authentication, authorization, and accounting.","A DHCP server":"INCORRECT: DHCP is for IP address assignment, not 802.1X authentication.","Client devices with 802.1X supplicant software":"CORRECT: The client devices need to initiate the authentication process.","None of the above":"INCORRECT: Several of the other options are required."}
+22. [mcq_multi] [Bloom 4]
+   Q: Select all the components that are directly involved in the EAPoL process during 802.1X authentication.
+   Options: Supplicant | Authenticator | DHCP Server | Authentication Server
+   Answer: ["Supplicant","Authenticator","Authentication Server"]
+   Explanation: {"Supplicant":"CORRECT: The supplicant initiates the EAPoL process.","Authenticator":"CORRECT: The authenticator relays EAPoL frames.","DHCP Server":"INCORRECT: While DHCP might be used, it's not directly involved in the EAPoL authentication.","Authentication Server":"CORRECT: The Authentication Server validates credentials based on EAP."}
 
 23. [mcq_single] [Bloom 2]
-   Q: Which of the following is a potential drawback of using 802.1X?
-   Options: Increased network bandwidth consumption. | Reduced security compared to MAC address filtering. | Increased complexity in network configuration and management. | Incompatibility with modern operating systems.
-   Answer: Increased complexity in network configuration and management.
-   Explanation: {"Increased network bandwidth consumption.":"INCORRECT: 802.1X does not significantly increase bandwidth consumption.","Reduced security compared to MAC address filtering.":"INCORRECT: 802.1X provides stronger security.","Increased complexity in network configuration and management.":"CORRECT: Setting up and maintaining 802.1X can be more complex than simpler access control methods.","Incompatibility with modern operating systems.":"INCORRECT: Modern operating systems have built-in 802.1X support."}
+   Q: What security vulnerability is 802.1X primarily designed to mitigate?
+   Options: Denial-of-service attacks | Unauthorized network access | Man-in-the-middle attacks | SQL injection
+   Answer: Unauthorized network access
+   Explanation: {"Denial-of-service attacks":"INCORRECT: While it can help, DoS mitigation isn't the primary goal.","Unauthorized network access":"CORRECT: 802.1X's main goal is to prevent unauthorized devices from accessing the network.","Man-in-the-middle attacks":"INCORRECT: Encryption protocols within EAP help with this, but it is not the main focus of 802.1X","SQL injection":"INCORRECT: SQL injection is a web application vulnerability, not related to network access control."}
 
-24. [mcq_single] [Bloom 1]
-   Q: Which of the following EAP types transmits credentials inside of an encrypted tunnel?
-   Options: EAP-MD5 | EAP-FAST | LEAP | EAP-PSK
-   Answer: EAP-FAST
-   Explanation: {"EAP-MD5":"INCORRECT: EAP-MD5 does not use a tunnel","EAP-FAST":"CORRECT: EAP-FAST uses a tunnel protected by TLS.","LEAP":"INCORRECT: LEAP is deprecated and not generally recommended.","EAP-PSK":"INCORRECT: EAP-PSK is a pre-shared key method."}
+24. [mcq_single] [Bloom 3]
+   Q: In which scenario would you MOST likely implement 802.1X?
+   Options: A small home network with a few trusted devices. | A large corporate network with many users and devices requiring controlled access. | A network that only serves public web pages. | A network that only uses static IP addresses.
+   Answer: A large corporate network with many users and devices requiring controlled access.
+   Explanation: {"A small home network with a few trusted devices.":"INCORRECT: 802.1X is overkill for small, trusted networks.","A large corporate network with many users and devices requiring controlled access.":"CORRECT: 802.1X is ideal for enterprise environments needing strict access control.","A network that only serves public web pages.":"INCORRECT: Web servers need different security measures.","A network that only uses static IP addresses.":"INCORRECT: Static IPs don't negate the need for access control."}
 
-25. [mcq_multi] [Bloom 4]
-   Q: A network administrator notices an increased number of failed authentication attempts on the RADIUS server. Which of the following could be potential causes? (Select all that apply)
-   Options: Incorrect user credentials | A misconfigured 802.1X client | A compromised RADIUS server | Network connectivity issues between the authenticator and the RADIUS server | None of the above
-   Answer: ["Incorrect user credentials","A misconfigured 802.1X client","A compromised RADIUS server","Network connectivity issues between the authenticator and the RADIUS server"]
-   Explanation: {"Incorrect user credentials":"CORRECT: Users may be entering the wrong passwords or usernames.","A misconfigured 802.1X client":"CORRECT: Incorrect client settings can lead to authentication failures.","A compromised RADIUS server":"CORRECT: A compromised server may be unable to properly authenticate users.","Network connectivity issues between the authenticator and the RADIUS server":"CORRECT: Communication problems can prevent successful authentication.","None of the above":"INCORRECT: The above options are all potential causes."}
+25. [mcq_single] [Bloom 2]
+   Q: Which of the following best describes the role of 'accounting' within the 802.1X AAA framework?
+   Options: Verifying the identity of the user. | Determining the user's level of access to network resources. | Tracking network usage and security events for auditing and reporting. | Encrypting network traffic to protect user data.
+   Answer: Tracking network usage and security events for auditing and reporting.
+   Explanation: {"Verifying the identity of the user.":"INCORRECT: This is the role of Authentication.","Determining the user's level of access to network resources.":"INCORRECT: This is the role of Authorization.","Tracking network usage and security events for auditing and reporting.":"CORRECT: Accounting tracks resource usage and security events.","Encrypting network traffic to protect user data.":"INCORRECT: Encryption is separate from AAA, though it can be used in conjunction."}
 
-26. [mcq_single] [Bloom 3]
-   Q: Which of the following scenarios would be MOST suitable for implementing 802.1X?
-   Options: A small home network with a single wireless router. | A public Wi-Fi hotspot with open access. | A corporate network requiring strong authentication and access control. | A network with only legacy devices that do not support 802.1X.
-   Answer: A corporate network requiring strong authentication and access control.
-   Explanation: {"A small home network with a single wireless router.":"INCORRECT: 802.1X might be overkill for a simple home network.","A public Wi-Fi hotspot with open access.":"INCORRECT: Public hotspots often prioritize ease of access over strict security.","A corporate network requiring strong authentication and access control.":"CORRECT: 802.1X is well-suited for corporate environments with high security needs.","A network with only legacy devices that do not support 802.1X.":"INCORRECT: 802.1X cannot be implemented if the devices don't support it."}
+26. [fill_blank] [Bloom 1]
+   Q: Fill in the blank: 802.1X uses ___________ to send the EAP packet to the authentication server.
+   Options: TCP | UDP | IPsec | RADIUS
+   Answer: RADIUS
+   Explanation: {"TCP":"INCORRECT: TCP is a transport protocol but not the one used for sending the EAP packet to the authentication server.","UDP":"INCORRECT: UDP is a transport protocol but not the one used for sending the EAP packet to the authentication server.","IPsec":"INCORRECT: IPsec provides IP-layer security, not for transporting the EAP packet.","RADIUS":"CORRECT: The authenticator uses RADIUS to forward the EAP packet to the authentication server."}
 
-27. [mcq_single] [Bloom 1]
-   Q: In 802.1X, what is the role of the 'supplicant'?
-   Options: The network switch that forwards authentication requests. | The user's computer or device requesting network access. | The server that validates user credentials. | The software used to encrypt network traffic.
-   Answer: The user's computer or device requesting network access.
-   Explanation: {"The network switch that forwards authentication requests.":"INCORRECT: This describes the authenticator.","The user's computer or device requesting network access.":"CORRECT: The supplicant is the client requesting access.","The server that validates user credentials.":"INCORRECT: This describes the authentication server.","The software used to encrypt network traffic.":"INCORRECT: While encryption can be involved, it's not the supplicant's primary role."}
+27. [mcq_single] [Bloom 3]
+   Q: Which of the following scenarios presents a challenge for 802.1X deployment?
+   Options: Devices that do not support 802.1X natively. | Networks with a high volume of guest users. | Networks with strong physical security. | Networks with a centralized directory service.
+   Answer: Devices that do not support 802.1X natively.
+   Explanation: {"Devices that do not support 802.1X natively.":"CORRECT: Legacy devices or devices without 802.1X support require workarounds.","Networks with a high volume of guest users.":"INCORRECT: Guest networks can be managed with specific 802.1X configurations.","Networks with strong physical security.":"INCORRECT: Strong physical security complements 802.1X.","Networks with a centralized directory service.":"INCORRECT: Centralized directory services simplify 802.1X deployment."}
 
-28. [fill_blank] [Bloom 1]
-   Q: The 802.1X standard relies on which AAA architecture?
-   Options: Authorization, Auditing, Authentication | Authorization, Authentication, Accounting | Authentication, Authorization, Access | Accounting, Auditing, Authentication
-   Answer: Authentication, Authorization, Accounting
-   Explanation: {"Authorization, Auditing, Authentication":"INCORRECT: Auditing is not part of the AAA architecture.","Authorization, Authentication, Accounting":"INCORRECT: Order is not correct.","Authentication, Authorization, Accounting":"CORRECT: 802.1X uses the Authentication, Authorization, and Accounting AAA architecture.","Accounting, Auditing, Authentication":"INCORRECT: These are not part of the AAA architecture."}
+28. [mcq_multi] [Bloom 5]
+   Q: Select all the statements that are true regarding the benefits of implementing 802.1X with EAP-TLS.
+   Options: It provides strong mutual authentication using digital certificates. | It is resistant to password-based attacks. | It is simple to configure and manage. | It eliminates the need for a RADIUS server.
+   Answer: ["It provides strong mutual authentication using digital certificates.","It is resistant to password-based attacks."]
+   Explanation: {"It provides strong mutual authentication using digital certificates.":"CORRECT: EAP-TLS provides mutual authentication using certificates.","It is resistant to password-based attacks.":"CORRECT: Certificate-based authentication avoids password vulnerabilities.","It is simple to configure and manage.":"INCORRECT: Certificate management can be complex.","It eliminates the need for a RADIUS server.":"INCORRECT: RADIUS is still required for communication between authenticator and authentication server."}
+
+29. [true_false] [Bloom 1]
+   Q: True or False: The primary advantage of 802.1X is increased network speed compared to networks without it.
+   Answer: False
+   Explanation: This is false because 802.1X focuses on security, not speed. It may slightly decrease speed due to authentication overhead.
+
+30. [mcq_single] [Bloom 3]
+   Q: An attacker intercepts an EAP packet between a supplicant and an authenticator. What information can they directly obtain from this packet?
+   Options: The supplicant's username and password in plaintext. | The supplicant's MAC address. | The encryption key used for network traffic. | Nothing, as the packet is fully encrypted and unreadable.
+   Answer: The supplicant's MAC address.
+   Explanation: {"The supplicant's username and password in plaintext.":"INCORRECT: The credentials are encrypted within the EAP packet.","The supplicant's MAC address.":"CORRECT: The MAC address is needed for network communication and is typically unencrypted.","The encryption key used for network traffic.":"INCORRECT: The encryption key is negotiated securely and not transmitted in the EAP packet.","Nothing, as the packet is fully encrypted and unreadable.":"INCORRECT: While the credentials are encrypted, header information like MAC addresses are visible."}
+
+31. [mcq_multi] [Bloom 4]
+   Q: Which of the following are potential drawbacks or complexities associated with implementing 802.1X? (Select all that apply)
+   Options: Increased network latency due to authentication overhead. | Compatibility issues with older devices lacking 802.1X support. | Complexity of configuring and managing certificates (especially with EAP-TLS). | Reduced network security compared to using only a pre-shared key.
+   Answer: ["Increased network latency due to authentication overhead.","Compatibility issues with older devices lacking 802.1X support.","Complexity of configuring and managing certificates (especially with EAP-TLS)."]
+   Explanation: {"Increased network latency due to authentication overhead.":"CORRECT: The authentication process adds some latency.","Compatibility issues with older devices lacking 802.1X support.":"CORRECT: Legacy devices require special handling or may be incompatible.","Complexity of configuring and managing certificates (especially with EAP-TLS).":"CORRECT: Certificate management can be a significant overhead.","Reduced network security compared to using only a pre-shared key.":"INCORRECT: 802.1X offers significantly *greater* security than a PSK."}
