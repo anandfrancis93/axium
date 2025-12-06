@@ -103,9 +103,9 @@ export default function SbomViewer({ components, lastUpdated, totalComponents }:
                                         </td>
                                         <td className="px-6 py-4 font-mono text-xs">{component.version}</td>
                                         <td className="px-6 py-4">
-                                            {component.licenses && component.licenses.length > 0 ? (
+                                            {component.licenses && component.licenses.length > 0 && component.licenses[0].license ? (
                                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-800 text-zinc-300 border border-zinc-700">
-                                                    {component.licenses[0].license.id || 'Custom'}
+                                                    {component.licenses[0].license.id || component.licenses[0].license.name || 'Custom'}
                                                 </span>
                                             ) : (
                                                 <span className="text-zinc-600 italic">Unknown</span>
