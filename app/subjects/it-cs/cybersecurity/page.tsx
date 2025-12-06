@@ -1197,8 +1197,9 @@ export default function CybersecurityPage() {
                               />
                             ) : (
                               <button
+                                type="button"
                                 onClick={() => router.push(`/subjects/it-cs/cybersecurity/${encodeURIComponent(topic.name)}`)}
-                                className="font-medium text-gray-200 hover:text-blue-400 text-left transition-colors cursor-pointer"
+                                className="font-medium text-blue-400 hover:text-blue-300 hover:underline text-left transition-colors cursor-pointer"
                               >
                                 {topic.name}
                               </button>
