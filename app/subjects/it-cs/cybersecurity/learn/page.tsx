@@ -551,8 +551,8 @@ function LearnPageContent() {
                       <div
                         key={idx}
                         className={`transition-all p-4 ${isUserAnswer
-                            ? 'neuro-raised'
-                            : 'neuro-inset'
+                          ? 'neuro-raised'
+                          : 'neuro-inset'
                           }`}
                       >
                         <div className="flex items-start gap-3">
@@ -561,24 +561,24 @@ function LearnPageContent() {
                               <Square
                                 size={20}
                                 className={`${isUserAnswer
-                                    ? isCorrectAnswer
-                                      ? 'fill-current text-green-400'
-                                      : 'fill-current text-red-400'
-                                    : isCorrectAnswer
-                                      ? 'text-green-400'
-                                      : 'text-gray-300'
+                                  ? isCorrectAnswer
+                                    ? 'fill-current text-green-400'
+                                    : 'fill-current text-red-400'
+                                  : isCorrectAnswer
+                                    ? 'text-green-400'
+                                    : 'text-gray-300'
                                   }`}
                               />
                             ) : (
                               <Circle
                                 size={20}
                                 className={`${isUserAnswer
-                                    ? isCorrectAnswer
-                                      ? 'fill-current text-green-400'
-                                      : 'fill-current text-red-400'
-                                    : isCorrectAnswer
-                                      ? 'text-green-400'
-                                      : 'text-gray-300'
+                                  ? isCorrectAnswer
+                                    ? 'fill-current text-green-400'
+                                    : 'fill-current text-red-400'
+                                  : isCorrectAnswer
+                                    ? 'text-green-400'
+                                    : 'text-gray-300'
                                   }`}
                               />
                             )}
@@ -613,15 +613,13 @@ function LearnPageContent() {
                       return (
                         <div
                           key={option}
-                          className={`flex-1 py-4 px-6 text-center text-lg font-semibold transition-all ${
-                            isUserAnswer ? 'neuro-raised' : 'neuro-inset'
-                          }`}
+                          className={`flex-1 py-4 px-6 text-center text-lg font-semibold transition-all ${isUserAnswer ? 'neuro-raised' : 'neuro-inset'
+                            }`}
                         >
-                          <div className={`${
-                            isCorrectAnswer ? 'text-green-400' :
-                            isUserAnswer && !isCorrectAnswer ? 'text-red-400' :
-                            'text-gray-300'
-                          }`}>
+                          <div className={`${isCorrectAnswer ? 'text-green-400' :
+                              isUserAnswer && !isCorrectAnswer ? 'text-red-400' :
+                                'text-gray-300'
+                            }`}>
                             {option}
                             {isUserAnswer && !isCorrectAnswer && (
                               <span className="ml-2 text-sm">(Your answer)</span>
@@ -728,17 +726,15 @@ function LearnPageContent() {
                       const text = explanation[letter]
 
                       return (
-                        <div key={letter} className={`p-3 rounded-lg ${
-                          isCorrect
+                        <div key={letter} className={`p-3 rounded-lg ${isCorrect
                             ? 'bg-green-500/10 border border-green-500/20'
                             : isUserChoice
                               ? 'bg-red-500/10 border border-red-500/20'
                               : 'bg-gray-800/30'
-                        }`}>
+                          }`}>
                           {(isCorrect || isUserChoice) && (
-                            <span className={`text-sm font-medium block mb-1 ${
-                              isCorrect ? 'text-green-400' : 'text-red-400'
-                            }`}>
+                            <span className={`text-sm font-medium block mb-1 ${isCorrect ? 'text-green-400' : 'text-red-400'
+                              }`}>
                               {isCorrect ? 'Correct Answer' : 'Your Answer'}
                             </span>
                           )}
@@ -764,13 +760,6 @@ function LearnPageContent() {
               {currentQuestion.hierarchy && (
                 <div className="p-4 neuro-inset rounded-lg">
                   <div className="space-y-3">
-                    {/* Domain Level */}
-                    {currentQuestion.hierarchy.subject && (
-                      <div>
-                        <div className="text-xs text-gray-500">Domain</div>
-                        <div className="text-sm font-semibold text-white">{currentQuestion.hierarchy.subject}</div>
-                      </div>
-                    )}
 
                     {/* Learning Objective */}
                     {(currentQuestion.hierarchy as any).learningObjective && (
@@ -817,9 +806,9 @@ function LearnPageContent() {
                     <span className="font-semibold text-sm text-white">
                       {currentQuestion.question_format === 'true_false' ? 'True/False' :
                         currentQuestion.question_format === 'mcq_single' ? 'Multiple Choice' :
-                        currentQuestion.question_format === 'mcq_multi' ? 'Multiple Select' :
-                          currentQuestion.question_format === 'fill_blank' ? 'Fill in the Blank' :
-                            currentQuestion.question_format === 'open_ended' ? 'Open Ended' : 'Question'}
+                          currentQuestion.question_format === 'mcq_multi' ? 'Multiple Select' :
+                            currentQuestion.question_format === 'fill_blank' ? 'Fill in the Blank' :
+                              currentQuestion.question_format === 'open_ended' ? 'Open Ended' : 'Question'}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -831,8 +820,8 @@ function LearnPageContent() {
                   <div className="flex items-center justify-between">
                     <span className="text-white text-sm font-semibold">Confidence:</span>
                     <span className={`font-semibold text-sm ${confidence === 3 ? 'text-green-400' :
-                        confidence === 2 ? 'text-yellow-400' :
-                          'text-red-400'
+                      confidence === 2 ? 'text-yellow-400' :
+                        'text-red-400'
                       }`}>
                       {confidence === 3 ? 'High' : confidence === 2 ? 'Medium' : 'Low'}
                     </span>
@@ -840,9 +829,9 @@ function LearnPageContent() {
                   <div className="flex items-center justify-between">
                     <span className="text-white text-sm font-semibold">Method:</span>
                     <span className={`font-semibold text-sm ${recognitionMethod === 'memory' ? 'text-green-400' :
-                        recognitionMethod === 'recognition' ? 'text-yellow-400' :
-                          recognitionMethod === 'educated_guess' ? 'text-yellow-400' :
-                            'text-red-400'
+                      recognitionMethod === 'recognition' ? 'text-yellow-400' :
+                        recognitionMethod === 'educated_guess' ? 'text-yellow-400' :
+                          'text-red-400'
                       }`}>
                       {recognitionMethod === 'memory' && 'Memory'}
                       {recognitionMethod === 'recognition' && 'Recognition'}
@@ -856,7 +845,7 @@ function LearnPageContent() {
                       const normalized = normalizeCalibration(answerResult.calibrationScore)
                       return (
                         <span className={`font-semibold text-sm ${normalized >= 0.67 ? 'text-green-400' :
-                            normalized >= 0.33 ? 'text-yellow-400' : 'text-red-400'
+                          normalized >= 0.33 ? 'text-yellow-400' : 'text-red-400'
                           }`}>
                           {normalized.toFixed(2)}
                         </span>
