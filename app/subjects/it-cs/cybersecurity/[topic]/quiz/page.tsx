@@ -659,32 +659,7 @@ export default function TopicQuizPage() {
                             </div>
                         </div>
 
-                        {/* Section 3: Topic Details */}
-                        <div className="neuro-card p-6">
-                            <h3 className="text-xl font-semibold text-gray-200 mb-4">Topic Details</h3>
-                            {currentQuestion.hierarchy && (
-                                <div className="p-4 neuro-inset rounded-lg">
-                                    <div className="space-y-3">
-                                        {(currentQuestion.hierarchy as any).learningObjective && (
-                                            <div>
-                                                <div className="text-xs text-gray-500">Learning Objective</div>
-                                                <div className="text-sm font-semibold text-white">{(currentQuestion.hierarchy as any).learningObjective}</div>
-                                            </div>
-                                        )}
-                                        <div>
-                                            <div className="text-xs text-gray-500">Topic</div>
-                                            <div className="text-sm font-semibold text-white">{currentQuestion.hierarchy.topic}</div>
-                                        </div>
-                                        {currentQuestion.cognitive_dimension && (
-                                            <div>
-                                                <div className="text-xs text-gray-500">Cognitive Dimension</div>
-                                                <div className="text-sm font-semibold text-white">{currentQuestion.cognitive_dimension}</div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
+
 
                         {/* Section 4: Your Performance */}
                         <div className="neuro-card p-6">
