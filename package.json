@@ -36,6 +36,7 @@
     "@google/generative-ai": "^0.24.1",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.79.0",
+    "@tailwindcss/postcss": "^4.1.17",
     "@tailwindcss/typography": "^0.5.19",
     "dotenv": "^17.2.3",
     "lucide-react": "^0.462.0",
