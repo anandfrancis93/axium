@@ -19,11 +19,12 @@ const supabase = createClient(
 
 interface ParsedQuestion {
     questionNumber: number
-    questionFormat: 'mcq_single' | 'true_false' | 'fill_blank'
+    questionFormat: 'mcq_single' | 'true_false' | 'fill_blank' | 'mcq_multi'
     bloomLevel: number
     questionText: string
     options?: string[]
-    correctAnswer: string
+    correctAnswer: string | string[]  // Can be array for mcq_multi
+    explanation?: string
 }
 
 interface TopicQuestions {
@@ -99,9 +100,25 @@ function parseGeneratedQuestionsFile(filePath: string): TopicQuestions[] {
             continue
         }
 
-        // Parse answer: "Answer: ..."
+        // Parse answer: "Answer: ..." or "Answer: ["Option1", "Option2"]" for mcq_multi
         if (line.startsWith('Answer:') && currentQuestion) {
-            currentQuestion.correctAnswer = line.substring(7).trim()
+            const answerStr = line.substring(7).trim()
+            // Check if it's a JSON array (for mcq_multi)
+            if (answerStr.startsWith('[')) {
+                try {
+                    currentQuestion.correctAnswer = JSON.parse(answerStr)
+                } catch {
+                    currentQuestion.correctAnswer = answerStr
+                }
+            } else {
+                currentQuestion.correctAnswer = answerStr
+            }
+            continue
+        }
+
+        // Parse explanation: "Explanation: ..."
+        if (line.startsWith('Explanation:') && currentQuestion) {
+            currentQuestion.explanation = line.substring(12).trim()
             continue
         }
     }
@@ -158,8 +175,9 @@ async function insertQuestions(topicId: string, questions: ParsedQuestion[]): Pr
         question_text: q.questionText,
         question_format: q.questionFormat,
         options: q.options || null,
-        correct_answer: q.correctAnswer,
-        explanation: '', // Not stored in text file
+        // Convert array to JSON string for mcq_multi, otherwise use as-is
+        correct_answer: Array.isArray(q.correctAnswer) ? JSON.stringify(q.correctAnswer) : q.correctAnswer,
+        explanation: q.explanation || '',
         bloom_level: q.bloomLevel
     }))
 
