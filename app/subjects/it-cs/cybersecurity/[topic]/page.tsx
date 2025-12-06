@@ -406,7 +406,7 @@ export default function TopicDetailPage() {
 
 
         {/* Spaced Repetition */}
-        {topicDetail.total_attempts > 0 && (
+        {(
           <div className="neuro-card p-6">
             <h3 className="text-lg font-semibold text-gray-200 mb-4">Spaced Repetition Schedule</h3>
             <p className="text-sm text-gray-500 mb-6">
