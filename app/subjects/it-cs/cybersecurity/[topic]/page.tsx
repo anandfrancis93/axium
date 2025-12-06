@@ -76,11 +76,34 @@ export default function TopicDetailPage() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'bloom' | 'spaced_repetition'>('bloom')
   const [expandedBloomLevel, setExpandedBloomLevel] = useState<number | null>(null)
+  const [questionCount, setQuestionCount] = useState<number>(0)
 
   useEffect(() => {
     fetchTopicDetail()
     fetchSpacedRepetitionQuestions()
+    fetchQuestionCount()
   }, [])
+
+  async function fetchQuestionCount() {
+    try {
+      const supabase = createClient()
+      const { data: topic } = await supabase
+        .from('topics')
+        .select('id')
+        .eq('name', topicName)
+        .single()
+
+      if (topic) {
+        const { count } = await supabase
+          .from('questions')
+          .select('*', { count: 'exact', head: true })
+          .eq('topic_id', topic.id)
+        setQuestionCount(count || 0)
+      }
+    } catch (error) {
+      console.error('Error fetching question count:', error)
+    }
+  }
 
   async function fetchTopicDetail() {
     try {
@@ -361,6 +384,15 @@ export default function TopicDetailPage() {
                 </p>
               )}
             </div>
+            {questionCount > 0 && (
+              <button
+                onClick={() => router.push(`/subjects/it-cs/cybersecurity/${encodeURIComponent(topicName)}/quiz`)}
+                className="neuro-btn-primary px-6 py-3 flex items-center gap-2"
+              >
+                Start Quiz
+                <span className="text-sm opacity-80">({questionCount} questions)</span>
+              </button>
+            )}
           </div>
         </div>
       </header>

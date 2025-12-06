@@ -1,0 +1,224 @@
+
+============================================================
+802.1X / Port-based Network Access Control (PNAC)
+============================================================
+
+1. [true_false] [Bloom 1]
+   Q: The authentication server accesses a directory of user accounts to validate credentials.
+   Answer: True
+
+2. [mcq_single] [Bloom 1]
+   Q: Which of the following protocols provides a framework for multiple authentication methods?
+   Options: RADIUS | EAP | IPSec | SSH
+   Answer: EAP
+
+3. [true_false] [Bloom 1]
+   Q: The supplicant is the device requesting access to the network.
+   Answer: True
+
+4. [mcq_single] [Bloom 1]
+   Q: What protocol encapsulates EAP communications over a LAN?
+   Options: IPSec | EAPoL | TLS | PPTP
+   Answer: EAPoL
+
+5. [true_false] [Bloom 1]
+   Q: The authenticator directly validates authentication requests.
+   Answer: False
+
+6. [mcq_single] [Bloom 1]
+   Q: Which protocol allows the authenticator and authentication server to communicate?
+   Options: SNMP | RADIUS | DHCP | DNS
+   Answer: RADIUS
+
+7. [mcq_single] [Bloom 1]
+   Q: Which of the following is NOT a component of the 802.1X AAA architecture?
+   Options: Supplicant | Authenticator | Authentication Server | DHCP Server
+   Answer: DHCP Server
+
+8. [mcq_single] [Bloom 2]
+   Q: What is the primary function of 802.1X?
+   Options: To encrypt network traffic | To implement port-based authentication | To prevent ARP spoofing | To manage IP addresses
+   Answer: To implement port-based authentication
+
+9. [mcq_single] [Bloom 2]
+   Q: What happens to a port on an 802.1X-enabled switch when a host first connects?
+   Options: It is immediately opened for all traffic. | It is blocked until authentication. | It is opened only for EAPoL traffic. | It is configured with a specific VLAN.
+   Answer: It is opened only for EAPoL traffic.
+
+10. [fill_blank] [Bloom 2]
+   Q: 802.1X is implemented by what two protocols?
+   Options: EAP and RADIUS | TCP and UDP | IP and ARP | HTTP and HTTPS
+   Answer: EAP and RADIUS
+
+11. [true_false] [Bloom 2]
+   Q: True or False: 802.1X only authenticates users, not devices.
+   Answer: False
+
+12. [mcq_single] [Bloom 3]
+   Q: Why is 802.1X a better security solution than restricting access by MAC address?
+   Options: It's faster | It's cheaper | MAC addresses are prone to spoofing | It uses less bandwidth
+   Answer: MAC addresses are prone to spoofing
+
+13. [mcq_single] [Bloom 4]
+   Q: An attacker intercepts an EAP packet containing a user's credentials being sent from the supplicant to the authenticator. What prevents the attacker from reading these credentials?
+   Options: The switch encrypts the packet. | The credentials are not encrypted. | The EAP packet is encrypted. | The attacker cannot intercept the traffic
+   Answer: The EAP packet is encrypted.
+
+14. [fill_blank] [Bloom 4]
+   Q: What type of network object directory is accessed by the Authentication Server?
+   Options: LDAP | DNS | MAC | IP
+   Answer: LDAP
+
+15. [fill_blank] [Bloom 6]
+   Q: Evaluate the effectiveness of implementing 802.1X in a network environment with a high turnover of guest users, considering administrative overhead and security benefits. What are the trade-offs?
+   Options: Increased security, complex management | Decreased security, complex management | Increased security, simple management | Decreased security, simple management
+   Answer: Increased security, complex management
+
+============================================================
+Acceptable Use Policy (AUP)
+============================================================
+
+1. [true_false] [Bloom 1]
+   Q: Installing unauthorized software on company equipment is a violation of an AUP.
+   Answer: True
+
+2. [fill_blank] [Bloom 1]
+   Q: The policy will forbid the use of equipment to _____, defame, or to obtain illegal material.
+   Options: validate | oversee | control | defraud
+   Answer: defraud
+
+3. [true_false] [Bloom 1]
+   Q: An Acceptable Use Policy (AUP) only applies to employees within an organization.
+   Answer: False
+
+4. [mcq_single] [Bloom 2]
+   Q: What is the primary goal of an Acceptable Use Policy (AUP)?
+   Options: To monitor employee break times | To ensure users do not harm the organization or its resources | To limit internet access to work-related duties only | To allow employees to download any software they desire
+   Answer: To ensure users do not harm the organization or its resources
+
+5. [fill_blank] [Bloom 2]
+   Q: An AUP can restrict internet use outside of ____ duties.
+   Options: family | personal | work-related | entertainment
+   Answer: work-related
+
+6. [mcq_single] [Bloom 2]
+   Q: Which of the following is typically addressed within an Acceptable Use Policy (AUP)?
+   Options: Employee salary negotiations | Appropriate content | Company stock options | Vacation request procedures
+   Answer: Appropriate content
+
+7. [true_false] [Bloom 2]
+   Q: An AUP generally does not address the handling of sensitive information.
+   Answer: False
+
+8. [mcq_single] [Bloom 3]
+   Q: Which of the following activities is typically prohibited by an Acceptable Use Policy (AUP)?
+   Options: Accessing work-related resources | Using company equipment for personal email | Attempting to access confidential data without authorization | Participating in online training courses
+   Answer: Attempting to access confidential data without authorization
+
+9. [mcq_single] [Bloom 3]
+   Q: What is a crucial step in ensuring employee compliance with an AUP?
+   Options: Offering bonus incentives for compliance | Requiring employees to acknowledge their comprehension of the policy via signature | Providing free company merchandise | Hosting a company-wide party
+   Answer: Requiring employees to acknowledge their comprehension of the policy via signature
+
+10. [true_false] [Bloom 3]
+   Q: An AUP should interfere with employees' fundamental job duties.
+   Answer: False
+
+11. [fill_blank] [Bloom 4]
+   Q: An AUP can dictate the consequences of not following policy, including details of how ____ is monitored.
+   Options: usage | compliance | productivity | performance
+   Answer: compliance
+
+12. [mcq_single] [Bloom 4]
+   Q: Why is enforcing an AUP important?
+   Options: To increase employee morale | To protect the organization from security and legal implications | To monitor employees' personal lives | To reduce operational costs
+   Answer: To protect the organization from security and legal implications
+
+13. [mcq_single] [Bloom 5]
+   Q: Explain how an AUP can balance an organization's need for security with an employee's right to privacy.
+   Options: By allowing unlimited personal use of company devices | By monitoring all employee communications, both personal and work-related | By establishing clear guidelines for acceptable use that are reasonable and do not unduly restrict personal activities | By completely forbidding any personal use of company resources
+   Answer: By establishing clear guidelines for acceptable use that are reasonable and do not unduly restrict personal activities
+
+14. [true_false] [Bloom 5]
+   Q: Organizations should develop an AUP that addresses all possible scenarios regarding computer use and internet access to ensure complete legal protection.
+   Answer: False
+
+15. [mcq_single] [Bloom 6]
+   Q: What is one potential legal consequence for an organization if its employees violate the AUP by obtaining illegal material using company equipment?
+   Options: Increased employee bonuses | Legal liability and potential lawsuits | Improved public image | Higher employee retention rates
+   Answer: Legal liability and potential lawsuits
+
+============================================================
+Access Badges
+============================================================
+
+1. [mcq_single] [Bloom 1]
+   Q: Besides controlling access, what other function do access badges typically serve?
+   Options: Time tracking | Employee evaluation | Identification | Inventory management
+   Answer: Identification
+
+2. [true_false] [Bloom 1]
+   Q: A Physical Access Control System (PACS) operates using only hardware components.
+   Answer: False
+
+3. [fill_blank] [Bloom 1]
+   Q: What essential component is needed to verify the authenticity of an access badge at an entry point?
+   Options: Card reader | Magnetic lock | Network cable | Security guard
+   Answer: Card reader
+
+4. [mcq_single] [Bloom 1]
+   Q: Which technology is commonly used in access badges for wireless communication?
+   Options: Bluetooth | Wi-Fi | RFID | Infrared
+   Answer: RFID
+
+5. [mcq_single] [Bloom 1]
+   Q: What type of information is typically displayed on an access badge for identification purposes?
+   Options: Salary information | Medical history | Name, title, and photograph | Emergency contact details
+   Answer: Name, title, and photograph
+
+6. [fill_blank] [Bloom 2]
+   Q: Which of the following technologies is NOT explicitly mentioned as being used in access badges?
+   Options: Magnetic strips | Radio frequency identification (RFID) | Near-field communication (NFC) | Biometrics
+   Answer: Biometrics
+
+7. [mcq_single] [Bloom 2]
+   Q: What is the primary purpose of access badges in physical security?
+   Options: Employee identification | Granting access to authorized individuals | Tracking employee attendance | Monitoring visitor activity
+   Answer: Granting access to authorized individuals
+
+8. [mcq_single] [Bloom 3]
+   Q: What is an advantage of using access badges over traditional physical keys?
+   Options: Lower cost | Simplified key management | Enhanced security auditing capabilities | Guaranteed operation during power outages
+   Answer: Enhanced security auditing capabilities
+
+9. [true_false] [Bloom 3]
+   Q: Access badges always require a physical key backup in case of power failure.
+   Answer: False
+
+10. [fill_blank] [Bloom 3]
+   Q: The logging of access badge activity within a PACS can be valuable for investigating _________.
+   Options: Security breaches | Employee birthdays | Lunch preferences | Vacation schedules
+   Answer: Security breaches
+
+11. [true_false] [Bloom 4]
+   Q: Access badges can provide useful data for planning emergency evacuation strategies. 
+   Answer: True
+
+12. [mcq_single] [Bloom 4]
+   Q: Consider a scenario where an employee's access badge is used to enter a restricted area after hours. How would the PACS system help in investigating this incident?
+   Options: By providing a visual recording of the employee | By immediately alerting the employee's manager | By logging the time, location, and identity associated with the access event | By automatically deactivating the employee's badge
+   Answer: By logging the time, location, and identity associated with the access event
+
+13. [true_false] [Bloom 4]
+   Q: The network communications used by a PACS system are completely immune to hacking.
+   Answer: False
+
+14. [mcq_single] [Bloom 5]
+   Q: If a company aims to improve physical security, what should be prioritized when implementing an access badge system?
+   Options: Badge design aesthetics | Ease of badge distribution | Robustness of the access control system and logging capabilities | The cheapest available card reader technology
+   Answer: Robustness of the access control system and logging capabilities
+
+15. [mcq_single] [Bloom 6]
+   Q: How could an organization leverage access badge data to improve overall security posture beyond just access control?
+   Options: Optimizing HVAC system performance | Predicting employee turnover rates | Identifying unusual movement patterns that could indicate insider threats or vulnerabilities | Automating payroll processing
+   Answer: Identifying unusual movement patterns that could indicate insider threats or vulnerabilities
