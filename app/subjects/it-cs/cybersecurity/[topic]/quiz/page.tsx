@@ -2,6 +2,7 @@
  * Topic Quiz Page
  * 
  * Quiz for a specific topic - cycles through all questions for that topic
+ * UI/UX mirrors app/subjects/it-cs/cybersecurity/learn/page.tsx EXACTLY
  */
 
 'use client'
@@ -9,10 +10,10 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { ArrowLeft, Check, X, Loader2, Square, Circle } from 'lucide-react'
+import { Loader2, Square, Circle } from 'lucide-react'
 import { QuestionCard } from '@/components/quiz/QuestionCard'
-import { ConfidenceSlider } from '@/components/quiz/ConfidenceSlider'
-import { RecognitionMethodSelector } from '@/components/quiz/RecognitionMethodSelector'
+import { TextSelectionChat } from '@/components/quiz/TextSelectionChat'
+import Modal from '@/components/Modal'
 import { getAvailableRecognitionMethods } from '@/lib/utils/recognition-method'
 import { QuestionFormat, AnswerResult, RecognitionMethod } from '@/lib/types/quiz'
 import { normalizeCalibration } from '@/lib/utils/calibration'
@@ -54,6 +55,7 @@ export default function TopicQuizPage() {
     const [isCorrect, setIsCorrect] = useState<boolean | null>(null)
     const [topicId, setTopicId] = useState<string | null>(null)
     const [answerResult, setAnswerResult] = useState<AnswerResult | null>(null)
+    const [showExitModal, setShowExitModal] = useState(false)
 
     useEffect(() => {
         loadQuestions()
@@ -92,23 +94,20 @@ export default function TopicQuizPage() {
             }
 
             if (!topicQuestions || topicQuestions.length === 0) {
-                // No questions - show message
                 setQuestions([])
             } else {
-                // Map DB questions to TopicQuestion interface
                 const mappedQuestions = topicQuestions.map(q => ({
                     id: q.id,
                     question_text: q.question_text,
-                    question_type: q.question_format, // Map format to type
+                    question_type: q.question_format,
                     options: q.options ? (Array.isArray(q.options) ? q.options : JSON.parse(JSON.stringify(q.options))) : null,
                     correct_answer: q.correct_answer,
                     explanation: q.explanation || '',
                     bloom_level: q.bloom_level,
-                    hierarchy: { topic: topic.name }, // Basic hierarchy since we only have topic
+                    hierarchy: { topic: topic.name },
                     cognitive_dimension: q.cognitive_dimension
                 }))
 
-                // Shuffle questions for variety
                 const shuffled = [...mappedQuestions].sort(() => Math.random() - 0.5)
                 setQuestions(shuffled)
             }
@@ -140,13 +139,12 @@ export default function TopicQuizPage() {
         try {
             const currentQ = questions[currentIndex]
 
-            // Check if answer is correct (client-side check for immediate UI update if needed, but we rely on API mostly)
+            // Optimistic check
             let correct = false
             if (currentQ.question_type === 'true_false') {
                 correct = userAnswer === currentQ.correct_answer
             } else if (currentQ.question_type === 'mcq_single' || currentQ.question_type === 'fill_blank') {
-                correct = userAnswer === currentQ.correct_answer ||
-                    (typeof userAnswer === 'string' && typeof currentQ.correct_answer === 'string' && userAnswer.includes(currentQ.correct_answer))
+                correct = userAnswer === currentQ.correct_answer
             } else if (currentQ.question_type === 'mcq_multi') {
                 const userAnswers = Array.isArray(userAnswer) ? userAnswer : [userAnswer]
                 const correctAnswers = Array.isArray(currentQ.correct_answer)
@@ -161,7 +159,6 @@ export default function TopicQuizPage() {
                 setCorrectCount(prev => prev + 1)
             }
 
-            // Submit to API for tracking and detailed result
             const response = await fetch('/api/quiz/submit', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -181,7 +178,7 @@ export default function TopicQuizPage() {
                     answer: userAnswer,
                     confidence,
                     recognitionMethod: method,
-                    timeTaken: 30, // Approximate
+                    timeTaken: 30,
                     topicId
                 })
             })
@@ -201,7 +198,6 @@ export default function TopicQuizPage() {
 
     function handleNextQuestion() {
         if (currentIndex + 1 >= questions.length) {
-            // Quiz complete
             setCurrentStep('summary')
         } else {
             setCurrentIndex(prev => prev + 1)
@@ -216,9 +212,24 @@ export default function TopicQuizPage() {
 
     const currentQ = questions[currentIndex]
 
+    // Map currentQ to the shape expected by QuestionCard and other components
+    const currentQuestion = currentQ ? {
+        id: currentQ.id,
+        topic_id: topicId || '',
+        topic_name: topicName,
+        bloom_level: currentQ.bloom_level,
+        question_format: currentQ.question_type as QuestionFormat,
+        question_text: currentQ.question_text,
+        options: currentQ.options || [],
+        correct_answer: currentQ.correct_answer,
+        explanation: currentQ.explanation,
+        hierarchy: currentQ.hierarchy,
+        cognitive_dimension: currentQ.cognitive_dimension
+    } : null
+
     if (loading) {
         return (
-            <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+            <div className="min-h-screen neuro-container flex items-center justify-center">
                 <div className="text-center">
                     <Loader2 className="animate-spin text-blue-400 mx-auto mb-4" size={48} />
                     <p className="text-gray-400">Loading quiz...</p>
@@ -229,7 +240,7 @@ export default function TopicQuizPage() {
 
     if (questions.length === 0) {
         return (
-            <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+            <div className="min-h-screen neuro-container flex items-center justify-center">
                 <div className="neuro-card p-8 text-center max-w-md">
                     <p className="text-gray-400 mb-4">No questions available for this topic yet.</p>
                     <button
@@ -243,11 +254,10 @@ export default function TopicQuizPage() {
         )
     }
 
-    // Summary screen (Final Score)
     if (currentStep === 'summary') {
         const percentage = Math.round((correctCount / questions.length) * 100)
         return (
-            <div className="min-h-screen bg-[#0a0a0a] py-8">
+            <div className="min-h-screen neuro-container py-8">
                 <div className="max-w-2xl mx-auto px-4">
                     <div className="neuro-card p-8 text-center">
                         <h2 className="text-2xl font-bold text-gray-200 mb-6">Quiz Complete!</h2>
@@ -275,6 +285,8 @@ export default function TopicQuizPage() {
                                     setCorrectCount(0)
                                     setUserAnswer('')
                                     setConfidence(null)
+                                    setIsCorrect(null)
+                                    setAnswerResult(null)
                                     setQuestions(prev => [...prev].sort(() => Math.random() - 0.5))
                                 }}
                                 className="neuro-btn text-blue-400 px-6 py-3"
@@ -294,121 +306,153 @@ export default function TopicQuizPage() {
         )
     }
 
-    const currentQuestion = currentQ // Alias for compatibility with learn page code
-
     return (
-        <div className="min-h-screen bg-[#0a0a0a] py-8">
-            <div className="max-w-4xl mx-auto px-4 space-y-6">
+        <div className="min-h-screen neuro-container py-8">
+            <div className="max-w-4xl mx-auto space-y-6">
                 {/* Header */}
                 <div className="neuro-card p-6">
                     <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <button
-                                onClick={() => router.back()}
-                                className="neuro-btn p-2 text-gray-400 hover:text-gray-200"
-                            >
-                                <ArrowLeft size={20} />
-                            </button>
-                            <div>
-                                <h1 className="text-xl font-bold text-gray-200">{topicName}</h1>
-                                <p className="text-sm text-gray-500">Question {currentIndex + 1} of {questions.length}</p>
-                            </div>
+                        <div>
+                            <h1 className="text-2xl font-bold text-gray-200">{topicName}</h1>
+                            <p className="text-sm text-gray-500 mt-1">Question {currentIndex + 1} of {questions.length}</p>
                         </div>
                         <div className="flex items-center gap-4">
                             <div className="text-center">
                                 <div className="text-2xl font-bold text-green-400">{correctCount}</div>
                                 <div className="text-xs text-gray-500">Correct</div>
                             </div>
+                            <div className="text-center">
+                                <div className="text-2xl font-bold text-gray-300">{currentIndex + 1}</div>
+                                <div className="text-xs text-gray-500">Current</div>
+                            </div>
                         </div>
-                    </div>
-
-                    {/* Progress bar */}
-                    <div className="mt-4 h-2 bg-gray-800 rounded-full overflow-hidden">
-                        <div
-                            className="h-full bg-blue-500 transition-all duration-300"
-                            style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
-                        />
                     </div>
                 </div>
 
-                {/* Confidence Selection */}
-                {currentStep === 'confidence' && currentQ && (
+                {/* Step 1: Confidence Selection */}
+                {currentStep === 'confidence' && currentQuestion && (
                     <>
+                        {/* Question Text */}
                         <div className="neuro-card p-6">
-                            <p className="text-sm text-gray-500 mb-2">Bloom Level {currentQ.bloom_level} ({BLOOM_LEVEL_NAMES[currentQ.bloom_level as BloomLevel]})</p>
                             <h2 className="text-xl font-semibold text-gray-200">
-                                {currentQ.question_text}
+                                {currentQuestion.question_text}
                             </h2>
                         </div>
 
+                        {/* Confidence Buttons */}
                         <div className="neuro-card p-6">
                             <h3 className="text-lg font-semibold text-gray-200 mb-4">How confident are you?</h3>
-                            <ConfidenceSlider onChange={handleConfidenceSelect} value={confidence || 1} />
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <button
+                                    onClick={() => handleConfidenceSelect(1)}
+                                    className="neuro-btn text-red-400 p-6 text-center"
+                                >
+                                    <div className="text-2xl font-bold mb-2">Low</div>
+                                    <div className="text-sm text-gray-400">Not very confident</div>
+                                </button>
+                                <button
+                                    onClick={() => handleConfidenceSelect(2)}
+                                    className="neuro-btn text-yellow-400 p-6 text-center"
+                                >
+                                    <div className="text-2xl font-bold mb-2">Medium</div>
+                                    <div className="text-sm text-gray-400">Somewhat confident</div>
+                                </button>
+                                <button
+                                    onClick={() => handleConfidenceSelect(3)}
+                                    className="neuro-btn text-green-400 p-6 text-center"
+                                >
+                                    <div className="text-2xl font-bold mb-2">High</div>
+                                    <div className="text-sm text-gray-400">Very confident</div>
+                                </button>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-4 text-center">
+                                Tip: Being honest about your confidence helps the system personalize your learning
+                            </p>
                         </div>
                     </>
                 )}
 
-                {/* Answer Selection */}
-                {currentStep === 'answer' && currentQ && (
-                    <QuestionCard
-                        question={{
-                            id: currentQ.id,
-                            topic_id: topicId || '',
-                            topic_name: topicName,
-                            bloom_level: currentQ.bloom_level,
-                            question_format: currentQ.question_type as QuestionFormat, // Cast as QuestionFormat
-                            question_text: currentQ.question_text,
-                            options: currentQ.options || [],
-                            correct_answer: currentQ.correct_answer,
-                            explanation: currentQ.explanation
-                        }}
-                        onAnswerChange={setUserAnswer}
-                    />
-                )}
-
-                {/* Confirm Answer / Recognition */}
-                {currentStep === 'answer' && userAnswer && (
-                    <div className="flex justify-end">
+                {/* Step 2: Answer Selection */}
+                {currentStep === 'answer' && currentQuestion && (
+                    <>
+                        <QuestionCard
+                            question={currentQuestion as any}
+                            onAnswerChange={setUserAnswer}
+                            disabled={submitting}
+                        />
                         <button
                             onClick={handleAnswerSubmit}
-                            className="neuro-btn text-blue-400 px-8 py-3 text-lg font-semibold"
+                            disabled={submitting || !userAnswer || (Array.isArray(userAnswer) && userAnswer.length === 0)}
+                            className="neuro-btn text-blue-400 w-full py-4 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            Confirm Answer
+                            {submitting ? (
+                                <span className="flex items-center justify-center gap-2">
+                                    <Loader2 className="animate-spin" size={20} />
+                                    Checking...
+                                </span>
+                            ) : (
+                                'Submit Answer'
+                            )}
                         </button>
+                    </>
+                )}
+
+                {/* Step 3: Recognition Method Selection */}
+                {currentStep === 'recognition' && currentQuestion && (
+                    <div className="neuro-card p-6">
+                        <h3 className="text-lg font-semibold text-gray-200 mb-4">How did you arrive at your answer?</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {getAvailableRecognitionMethods(currentQuestion.question_format).includes('memory') && (
+                                <button
+                                    onClick={() => handleRecognitionSelect('memory')}
+                                    disabled={submitting}
+                                    className="neuro-btn text-green-400 p-6 text-left disabled:opacity-50"
+                                >
+                                    <div className="text-lg font-bold mb-1">Recalled from Memory</div>
+                                    <div className="text-sm text-gray-400">I remembered this from studying</div>
+                                </button>
+                            )}
+                            {getAvailableRecognitionMethods(currentQuestion.question_format).includes('recognition') && (
+                                <button
+                                    onClick={() => handleRecognitionSelect('recognition')}
+                                    disabled={submitting}
+                                    className="neuro-btn text-yellow-400 p-6 text-left disabled:opacity-50"
+                                >
+                                    <div className="text-lg font-bold mb-1">Recognized from Options</div>
+                                    <div className="text-sm text-gray-400">I recognized the correct answer when I saw it</div>
+                                </button>
+                            )}
+                            {getAvailableRecognitionMethods(currentQuestion.question_format).includes('educated_guess') && (
+                                <button
+                                    onClick={() => handleRecognitionSelect('educated_guess')}
+                                    disabled={submitting}
+                                    className="neuro-btn text-yellow-400 p-6 text-left disabled:opacity-50"
+                                >
+                                    <div className="text-lg font-bold mb-1">Made an Educated Guess</div>
+                                    <div className="text-sm text-gray-400">I used logic/reasoning to narrow it down</div>
+                                </button>
+                            )}
+                            {getAvailableRecognitionMethods(currentQuestion.question_format).includes('random_guess') && (
+                                <button
+                                    onClick={() => handleRecognitionSelect('random_guess')}
+                                    disabled={submitting}
+                                    className="neuro-btn text-red-400 p-6 text-left disabled:opacity-50"
+                                >
+                                    <div className="text-lg font-bold mb-1">Made a Random Guess</div>
+                                    <div className="text-sm text-gray-400">I had no idea and guessed randomly</div>
+                                </button>
+                            )}
+                        </div>
+                        {submitting && (
+                            <div className="mt-4 text-center">
+                                <Loader2 className="animate-spin text-blue-400 mx-auto" size={24} />
+                                <p className="text-gray-400 text-sm mt-2">Submitting your answer...</p>
+                            </div>
+                        )}
                     </div>
                 )}
 
-                {/* Recognition Method Selection */}
-                {currentStep === 'recognition' && currentQ && (
-                    <>
-                        <div className="neuro-card p-6 opacity-50 pointer-events-none">
-                            <h2 className="text-xl font-semibold text-gray-200 mb-4">
-                                {currentQ.question_text}
-                            </h2>
-                            <div className="text-gray-400">
-                                Answer selected: <span className="text-white font-medium">{Array.isArray(userAnswer) ? userAnswer.join(', ') : userAnswer}</span>
-                            </div>
-                        </div>
-
-                        <div className="neuro-card p-6">
-                            <h3 className="text-lg font-semibold text-gray-200 mb-4">How did you arrive at your answer?</h3>
-                            <RecognitionMethodSelector
-                                questionFormat={currentQ.question_type as QuestionFormat}
-                                onChange={handleRecognitionSelect}
-                                disabled={submitting}
-                                value={recognitionMethod || 'memory'}
-                            />
-                            {submitting && (
-                                <div className="mt-4 text-center">
-                                    <Loader2 className="animate-spin text-blue-400 mx-auto" size={24} />
-                                    <p className="text-gray-400 text-sm mt-2">Submitting your answer...</p>
-                                </div>
-                            )}
-                        </div>
-                    </>
-                )}
-
-                {/* Step 4: Results with all sections (Adapted from learn/page.tsx) */}
+                {/* Step 4: Results */}
                 {currentStep === 'results' && answerResult && recognitionMethod && currentQuestion && (
                     <>
                         {/* Section 1: Question and Options with Results */}
@@ -417,13 +461,13 @@ export default function TopicQuizPage() {
                                 {currentQuestion.question_text}
                             </h2>
 
+                            {/* Options visualization logic (same as before) */}
                             {/* Answer Options with Result */}
-                            {(currentQuestion.question_type === 'mcq_single' || currentQuestion.question_type === 'mcq_multi' || currentQuestion.question_type === 'fill_blank') && currentQuestion.options && (
+                            {(currentQuestion.question_format === 'mcq_single' || currentQuestion.question_format === 'mcq_multi' || currentQuestion.question_format === 'fill_blank') && currentQuestion.options && (
                                 <div className="space-y-3">
                                     {currentQuestion.options.map((option, idx) => {
-                                        const optionLetter = String.fromCharCode(65 + idx) // A, B, C, D...
-                                        // For fill_blank, don't add letter prefix
-                                        const optionWithLetter = currentQuestion.question_type === 'fill_blank'
+                                        const optionLetter = String.fromCharCode(65 + idx)
+                                        const optionWithLetter = currentQuestion.question_format === 'fill_blank'
                                             ? option
                                             : `${optionLetter}. ${option}`
 
@@ -431,10 +475,8 @@ export default function TopicQuizPage() {
                                             ? userAnswer.includes(optionWithLetter)
                                             : userAnswer === optionWithLetter
 
-                                        // Convert letter-based correct answers (A, B, C) to actual option text
                                         let correctOptionText = answerResult.correctAnswer
 
-                                        // Handle array of letters for mcq_multi (e.g., ["A", "B", "C"])
                                         if (Array.isArray(correctOptionText) && currentQuestion.options) {
                                             correctOptionText = correctOptionText.map(ans => {
                                                 if (typeof ans === 'string' && ans.length === 1 && /^[A-Z]$/.test(ans)) {
@@ -444,7 +486,6 @@ export default function TopicQuizPage() {
                                                 return ans
                                             })
                                         } else if (typeof correctOptionText === 'string' && correctOptionText.length === 1 && /^[A-Z]$/.test(correctOptionText) && currentQuestion.options) {
-                                            // Single letter (A, B, C, D), convert to index
                                             const correctIdx = correctOptionText.charCodeAt(0) - 65
                                             correctOptionText = currentQuestion.options[correctIdx]
                                         }
@@ -463,7 +504,7 @@ export default function TopicQuizPage() {
                                             >
                                                 <div className="flex items-start gap-3">
                                                     <div className="flex-shrink-0 w-5 h-5 mt-0.5">
-                                                        {currentQuestion.question_type === 'mcq_multi' ? (
+                                                        {currentQuestion.question_format === 'mcq_multi' ? (
                                                             <Square
                                                                 size={20}
                                                                 className={`${isUserAnswer
@@ -508,8 +549,8 @@ export default function TopicQuizPage() {
                                 </div>
                             )}
 
-                            {/* True/False Answer with Result */}
-                            {currentQuestion.question_type === 'true_false' && (
+                            {/* True/False */}
+                            {currentQuestion.question_format === 'true_false' && (
                                 <div className="space-y-4">
                                     <div className="flex gap-4">
                                         {['True', 'False'].map((option) => {
@@ -541,8 +582,8 @@ export default function TopicQuizPage() {
                                 </div>
                             )}
 
-                            {/* Open Ended Answer with Result */}
-                            {currentQuestion.question_type === 'open_ended' && (
+                            {/* Open Ended */}
+                            {currentQuestion.question_format === 'open_ended' && (
                                 <div className="space-y-4">
                                     <div className="neuro-inset p-4 rounded-lg">
                                         <div className="text-sm text-gray-500 mb-2">Your answer:</div>
@@ -555,10 +596,7 @@ export default function TopicQuizPage() {
                                         <div className="neuro-inset p-4 rounded-lg">
                                             <div className="text-sm text-gray-500 mb-2">Correct answer:</div>
                                             <div className="text-green-400 font-medium">
-                                                {/* Handle array or string correct answer */}
-                                                {Array.isArray(answerResult.correctAnswer)
-                                                    ? answerResult.correctAnswer.join(', ')
-                                                    : answerResult.correctAnswer}
+                                                {Array.isArray(answerResult.correctAnswer) ? answerResult.correctAnswer.join(', ') : answerResult.correctAnswer}
                                             </div>
                                         </div>
                                     )}
@@ -567,83 +605,46 @@ export default function TopicQuizPage() {
                         </div>
 
                         {/* Section 2: Answer Explanation */}
+                        {/* (Copy logic directly from learn/page.tsx or previous implementation) */}
                         <div className="neuro-card p-6">
                             <h3 className="text-xl font-semibold text-gray-200 mb-4">
                                 Answer Explanation
                             </h3>
-
                             <div className="prose prose-invert max-w-none space-y-4">
                                 {(() => {
                                     const explanation = answerResult.explanation
-
-                                    // Check if explanation is structured (object) or string
                                     if (typeof explanation === 'object' && explanation !== null) {
-                                        // Helper to convert answer to letter (handles both letter and text formats)
                                         const answerToLetter = (answer: string | string[] | undefined, options: string[] | null | undefined): string => {
                                             if (!answer) return ''
-
-                                            // Handle array (mcq_multi)
                                             const singleAnswer = Array.isArray(answer) ? answer[0] : answer
                                             if (!singleAnswer) return ''
-
-                                            // If it's already a single letter A-Z, return it
-                                            if (singleAnswer.length === 1 && singleAnswer >= 'A' && singleAnswer <= 'Z') {
-                                                return singleAnswer
-                                            }
-
-                                            // Otherwise it's text (fill_blank) - find its index in options
+                                            if (singleAnswer.length === 1 && singleAnswer >= 'A' && singleAnswer <= 'Z') return singleAnswer
                                             if (options) {
                                                 const idx = options.findIndex(opt => opt === singleAnswer)
-                                                if (idx !== -1) {
-                                                    return String.fromCharCode(65 + idx) // Convert 0->A, 1->B, etc.
-                                                }
+                                                if (idx !== -1) return String.fromCharCode(65 + idx)
                                             }
-
                                             return ''
                                         }
 
-                                        // Get correct answer letter
                                         const correctLetter = answerToLetter(answerResult.correctAnswer, currentQuestion?.options)
-
-                                        // Get user's answer letter
                                         const userLetter = answerToLetter(userAnswer, currentQuestion?.options)
-
-                                        // Build ordered list of option letters
                                         const allLetters = Object.keys(explanation).sort()
                                         const orderedLetters: string[] = []
 
-                                        // 1. Correct answer first
-                                        if (correctLetter && explanation[correctLetter as keyof typeof explanation]) {
-                                            orderedLetters.push(correctLetter)
-                                        }
-
-                                        // 2. User's choice second (if wrong and different from correct)
-                                        if (userLetter && userLetter !== correctLetter && explanation[userLetter as keyof typeof explanation]) {
-                                            orderedLetters.push(userLetter)
-                                        }
-
-                                        // 3. Remaining letters in alphabetical order
+                                        if (correctLetter && explanation[correctLetter as keyof typeof explanation]) orderedLetters.push(correctLetter)
+                                        if (userLetter && userLetter !== correctLetter && explanation[userLetter as keyof typeof explanation]) orderedLetters.push(userLetter)
                                         allLetters.forEach(letter => {
-                                            if (!orderedLetters.includes(letter)) {
-                                                orderedLetters.push(letter)
-                                            }
+                                            if (!orderedLetters.includes(letter)) orderedLetters.push(letter)
                                         })
 
-                                        return orderedLetters.map((letter, idx) => {
+                                        return orderedLetters.map((letter) => {
                                             const isCorrect = letter === correctLetter
                                             const isUserChoice = letter === userLetter
                                             const text = explanation[letter as keyof typeof explanation]
-
                                             return (
-                                                <div key={letter} className={`p-3 rounded-lg ${isCorrect
-                                                    ? 'bg-green-500/10 border border-green-500/20'
-                                                    : isUserChoice
-                                                        ? 'bg-red-500/10 border border-red-500/20'
-                                                        : 'bg-gray-800/30'
-                                                    }`}>
+                                                <div key={letter} className={`p-3 rounded-lg ${isCorrect ? 'bg-green-500/10 border border-green-500/20' : isUserChoice ? 'bg-red-500/10 border border-red-500/20' : 'bg-gray-800/30'}`}>
                                                     {(isCorrect || isUserChoice) && (
-                                                        <span className={`text-sm font-medium block mb-1 ${isCorrect ? 'text-green-400' : 'text-red-400'
-                                                            }`}>
+                                                        <span className={`text-sm font-medium block mb-1 ${isCorrect ? 'text-green-400' : 'text-red-400'}`}>
                                                             {isCorrect ? 'Correct Answer' : 'Your Answer'}
                                                         </span>
                                                     )}
@@ -652,7 +653,6 @@ export default function TopicQuizPage() {
                                             )
                                         })
                                     } else {
-                                        // Fallback for string format (backwards compatibility)
                                         return <p className="text-gray-300 leading-relaxed whitespace-pre-line">{explanation}</p>
                                     }
                                 })()}
@@ -661,30 +661,20 @@ export default function TopicQuizPage() {
 
                         {/* Section 3: Topic Details */}
                         <div className="neuro-card p-6">
-                            <h3 className="text-xl font-semibold text-gray-200 mb-4">
-                                Topic Details
-                            </h3>
-
-                            {/* Hierarchical Tree */}
+                            <h3 className="text-xl font-semibold text-gray-200 mb-4">Topic Details</h3>
                             {currentQuestion.hierarchy && (
                                 <div className="p-4 neuro-inset rounded-lg">
                                     <div className="space-y-3">
-
-                                        {/* Learning Objective */}
                                         {(currentQuestion.hierarchy as any).learningObjective && (
                                             <div>
                                                 <div className="text-xs text-gray-500">Learning Objective</div>
                                                 <div className="text-sm font-semibold text-white">{(currentQuestion.hierarchy as any).learningObjective}</div>
                                             </div>
                                         )}
-
-                                        {/* Topic Level */}
                                         <div>
                                             <div className="text-xs text-gray-500">Topic</div>
                                             <div className="text-sm font-semibold text-white">{currentQuestion.hierarchy.topic}</div>
                                         </div>
-
-                                        {/* Cognitive Dimension */}
                                         {currentQuestion.cognitive_dimension && (
                                             <div>
                                                 <div className="text-xs text-gray-500">Cognitive Dimension</div>
@@ -696,28 +686,23 @@ export default function TopicQuizPage() {
                             )}
                         </div>
 
-                        {/* Section 4: Your Performance (Summary) */}
+                        {/* Section 4: Your Performance */}
                         <div className="neuro-card p-6">
-                            <h3 className="text-xl font-semibold text-gray-200 mb-4">
-                                Summary
-                            </h3>
-
+                            <h3 className="text-xl font-semibold text-gray-200 mb-4">Summary</h3>
                             <div className="p-4 neuro-inset rounded-lg">
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between">
                                         <span className="text-white text-sm font-semibold">Bloom Level:</span>
-                                        <span className="font-semibold text-sm text-white">
-                                            {currentQuestion.bloom_level} ({BLOOM_LEVEL_NAMES[currentQuestion.bloom_level as BloomLevel]})
-                                        </span>
+                                        <span className="font-semibold text-sm text-white">{currentQuestion.bloom_level} ({BLOOM_LEVEL_NAMES[currentQuestion.bloom_level as BloomLevel]})</span>
                                     </div>
                                     <div className="flex items-center justify-between">
                                         <span className="text-white text-sm font-semibold">Question Type:</span>
                                         <span className="font-semibold text-sm text-white">
-                                            {currentQuestion.question_type === 'true_false' ? 'True/False' :
-                                                currentQuestion.question_type === 'mcq_single' ? 'Multiple Choice' :
-                                                    currentQuestion.question_type === 'mcq_multi' ? 'Multiple Select' :
-                                                        currentQuestion.question_type === 'fill_blank' ? 'Fill in the Blank' :
-                                                            currentQuestion.question_type === 'open_ended' ? 'Open Ended' : 'Question'}
+                                            {currentQuestion.question_format === 'true_false' ? 'True/False' :
+                                                currentQuestion.question_format === 'mcq_single' ? 'Multiple Choice' :
+                                                    currentQuestion.question_format === 'mcq_multi' ? 'Multiple Select' :
+                                                        currentQuestion.question_format === 'fill_blank' ? 'Fill in the Blank' :
+                                                            currentQuestion.question_format === 'open_ended' ? 'Open Ended' : 'Question'}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between">
@@ -728,20 +713,13 @@ export default function TopicQuizPage() {
                                     </div>
                                     <div className="flex items-center justify-between">
                                         <span className="text-white text-sm font-semibold">Confidence:</span>
-                                        <span className={`font-semibold text-sm ${confidence === 3 ? 'text-green-400' :
-                                            confidence === 2 ? 'text-yellow-400' :
-                                                'text-red-400'
-                                            }`}>
+                                        <span className={`font-semibold text-sm ${confidence === 3 ? 'text-green-400' : confidence === 2 ? 'text-yellow-400' : 'text-red-400'}`}>
                                             {confidence === 3 ? 'High' : confidence === 2 ? 'Medium' : 'Low'}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between">
                                         <span className="text-white text-sm font-semibold">Method:</span>
-                                        <span className={`font-semibold text-sm ${recognitionMethod === 'memory' ? 'text-green-400' :
-                                            recognitionMethod === 'recognition' ? 'text-yellow-400' :
-                                                recognitionMethod === 'educated_guess' ? 'text-yellow-400' :
-                                                    'text-red-400'
-                                            }`}>
+                                        <span className={`font-semibold text-sm ${recognitionMethod === 'memory' ? 'text-green-400' : recognitionMethod === 'recognition' ? 'text-yellow-400' : recognitionMethod === 'educated_guess' ? 'text-yellow-400' : 'text-red-400'}`}>
                                             {recognitionMethod === 'memory' && 'Memory'}
                                             {recognitionMethod === 'recognition' && 'Recognition'}
                                             {recognitionMethod === 'educated_guess' && 'Educated Guess'}
@@ -753,9 +731,7 @@ export default function TopicQuizPage() {
                                         {(() => {
                                             const normalized = normalizeCalibration(answerResult.calibrationScore)
                                             return (
-                                                <span className={`font-semibold text-sm ${normalized >= 0.67 ? 'text-green-400' :
-                                                    normalized >= 0.33 ? 'text-yellow-400' : 'text-red-400'
-                                                    }`}>
+                                                <span className={`font-semibold text-sm ${normalized >= 0.67 ? 'text-green-400' : normalized >= 0.33 ? 'text-yellow-400' : 'text-red-400'}`}>
                                                     {normalized.toFixed(2)}
                                                 </span>
                                             )
@@ -764,8 +740,8 @@ export default function TopicQuizPage() {
                                     {answerResult.nextReviewDate && (
                                         <div className="flex items-center justify-between">
                                             <span className="text-white text-sm font-semibold">Next Review:</span>
-                                            <span className="font-semibold text-sm text-gray-400">
-                                                {formatTimeUntilReview(new Date(answerResult.nextReviewDate))}
+                                            <span className="font-semibold text-sm text-white">
+                                                {formatTimeUntilReview(answerResult.nextReviewDate)}
                                             </span>
                                         </div>
                                     )}
@@ -773,16 +749,58 @@ export default function TopicQuizPage() {
                             </div>
                         </div>
 
-                        <div className="flex justify-end gap-4">
+                        {/* Action Buttons */}
+                        <div className="flex gap-4">
+                            <button
+                                onClick={() => setShowExitModal(true)}
+                                className="neuro-btn text-gray-300 flex-1 py-4 text-lg font-semibold"
+                            >
+                                Done
+                            </button>
                             <button
                                 onClick={handleNextQuestion}
-                                className="neuro-btn text-blue-400 px-8 py-3 text-lg font-semibold"
+                                className="neuro-btn text-blue-400 flex-1 py-4 text-lg font-semibold"
                             >
-                                {currentIndex + 1 >= questions.length ? 'Finish Quiz' : 'Next Question'}
+                                Next Question
                             </button>
                         </div>
                     </>
                 )}
+
+                {/* Exit Confirmation Modal */}
+                <Modal
+                    isOpen={showExitModal}
+                    onClose={() => setShowExitModal(false)}
+                    title="End Quiz?"
+                    type="warning"
+                    actions={[
+                        {
+                            label: 'Cancel',
+                            onClick: () => setShowExitModal(false),
+                            variant: 'secondary'
+                        },
+                        {
+                            label: 'Exit',
+                            onClick: () => router.back(),
+                            variant: 'primary'
+                        }
+                    ]}
+                >
+                    <p className="text-center">
+                        Are you sure you want to end this quiz? Your progress will be saved.
+                    </p>
+                </Modal>
+
+                {/* Text Selection Chat */}
+                <TextSelectionChat
+                    enabled={currentStep === 'results' && !!answerResult}
+                    context={{
+                        topicName: currentQuestion?.hierarchy?.topic || topicName,
+                        bloomLevel: currentQuestion?.bloom_level,
+                        questionText: currentQuestion?.question_text,
+                        explanation: answerResult?.explanation
+                    }}
+                />
             </div>
         </div>
     )
