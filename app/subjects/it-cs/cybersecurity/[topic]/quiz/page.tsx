@@ -125,7 +125,10 @@ export default function TopicQuizPage() {
                 // Filter questions to only show those that are due (or new)
                 const dueQuestions = topicQuestions.filter(q => isDue(q.id))
 
-                const mappedQuestions = dueQuestions.map(q => {
+                // If no questions are due, allow practicing all questions
+                const questionsToUse = dueQuestions.length > 0 ? dueQuestions : topicQuestions
+
+                const mappedQuestions = questionsToUse.map(q => {
                     // Fix: Force true_false type if text starts with "True or False" (handles data inconsistencies)
                     let questionType = q.question_format
                     const cleanText = q.question_text.toLowerCase().replace(/[^a-z]/g, '')
