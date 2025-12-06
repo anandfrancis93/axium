@@ -4,6 +4,11 @@
  * Generates questions that naturally cover ALL aspects of a topic description
  * without any artificial limit on question count.
  * 
+ * WORKFLOW:
+ * 1. Run without --import to generate and save to generated-questions.txt
+ * 2. Review the questions in the txt file
+ * 3. Use import-questions-from-txt.ts to import approved questions to database
+ * 
  * Usage: npx tsx scripts/generate-topic-questions.ts "Topic Name"
  */
 
@@ -132,10 +137,14 @@ IMPORTANT:
 }
 
 async function main() {
-    const topicName = process.argv[2]
+    const args = process.argv.slice(2)
+    const topicName = args.find(a => !a.startsWith('--'))
 
     if (!topicName) {
         console.error('Usage: npx tsx scripts/generate-topic-questions.ts "Topic Name"')
+        console.error('')
+        console.error('This script generates questions and saves them to generated-questions.txt.')
+        console.error('Review the questions, then use import-questions-from-txt.ts to import to database.')
         process.exit(1)
     }
 
@@ -183,41 +192,7 @@ async function main() {
     console.log('   Formats:', formats)
     console.log('   Bloom Levels:', bloomLevels)
 
-    // Delete existing questions for this topic
-    const { count: existingCount } = await supabase
-        .from('questions')
-        .select('*', { count: 'exact', head: true })
-        .eq('topic_id', topic.id)
-
-    if (existingCount && existingCount > 0) {
-        console.log(`\n🗑️ Deleting ${existingCount} existing questions...`)
-        await supabase.from('questions').delete().eq('topic_id', topic.id)
-    }
-
-    // Insert new questions
-    console.log(`\n📥 Inserting ${questions.length} questions...`)
-
-    const questionsToInsert = questions.map(q => ({
-        topic_id: topic.id,
-        question_text: q.question_text,
-        question_format: q.question_format,
-        options: q.options || null,
-        correct_answer: q.correct_answer,
-        explanation: typeof q.explanation === 'object' ? JSON.stringify(q.explanation) : q.explanation,
-        bloom_level: q.bloom_level,
-        cognitive_dimension: q.cognitive_dimension || null
-    }))
-
-    const { error: insertError } = await supabase
-        .from('questions')
-        .insert(questionsToInsert)
-
-    if (insertError) {
-        console.error('❌ Error inserting questions:', insertError)
-        process.exit(1)
-    }
-
-    // Also append to generated-questions.txt for backup
+    // Build output for text file
     const outputLines: string[] = [
         '',
         '============================================================',
@@ -244,23 +219,29 @@ async function main() {
     }
 
     // Check if topic already exists in file
+    const escapedName = topic.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
     const topicPattern = new RegExp(
-        `\\n?=+\\n${topic.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\n=+[\\s\\S]*?(?=\\n=+\\n|$)`,
+        `\\n?=+\\n${escapedName}\\n=+[\\s\\S]*?(?=\\n=+\\n|$)`,
         'g'
     )
 
     if (existingContent.match(topicPattern)) {
         // Replace existing topic section
         existingContent = existingContent.replace(topicPattern, outputLines.join('\n'))
+        console.log(`\n📄 Replaced existing section in generated-questions.txt`)
     } else {
         // Append new topic
         existingContent += outputLines.join('\n')
+        console.log(`\n📄 Appended to generated-questions.txt`)
     }
 
     fs.writeFileSync(filePath, existingContent, 'utf-8')
-    console.log(`\n📄 Updated generated-questions.txt`)
 
     console.log(`\n✅ Done! ${questions.length} questions generated for "${topic.name}"`)
+    console.log(`\n📋 Next steps:`)
+    console.log(`   1. Review the questions in generated-questions.txt`)
+    console.log(`   2. Make any necessary edits`)
+    console.log(`   3. Run: npx tsx scripts/import-questions-from-txt.ts --topic="${topic.name}" --force`)
 }
 
 main().catch(console.error)
