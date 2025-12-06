@@ -41,13 +41,12 @@ export async function updateSession(request: NextRequest) {
     const isProtectedRoute = request.nextUrl.pathname.startsWith('/subjects')
     const isLoginPage = request.nextUrl.pathname.startsWith('/login')
 
-    // TEMPORARILY DISABLED FOR SECURITY AUDIT - RE-ENABLE AFTER ANALYSIS
     // Redirect unauthenticated users to login page if trying to access protected routes
-    // if (!user && isProtectedRoute) {
-    //     const url = request.nextUrl.clone()
-    //     url.pathname = '/login'
-    //     return NextResponse.redirect(url)
-    // }
+    if (!user && isProtectedRoute) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/login'
+        return NextResponse.redirect(url)
+    }
 
     // Redirect authenticated users to subjects page if trying to access login page
     if (user && isLoginPage) {
