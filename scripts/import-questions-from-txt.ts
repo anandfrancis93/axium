@@ -33,7 +33,8 @@ interface TopicQuestions {
 
 function parseGeneratedQuestionsFile(filePath: string): TopicQuestions[] {
     const content = fs.readFileSync(filePath, 'utf-8')
-    const lines = content.split('\n')
+    // Handle both Windows (CRLF) and Unix (LF) line endings
+    const lines = content.replace(/\r\n/g, '\n').split('\n')
 
     const result: TopicQuestions[] = []
     let currentTopic: TopicQuestions | null = null
@@ -51,6 +52,10 @@ function parseGeneratedQuestionsFile(filePath: string): TopicQuestions[] {
             const nextLine = lines[i + 1]?.trim() || ''
 
             if (prevLine.match(/^=+$/) && nextLine.match(/^=+$/)) {
+                // Save previous question if exists
+                if (currentQuestion && currentQuestion.questionText && currentQuestion.correctAnswer && currentTopic) {
+                    currentTopic.questions.push(currentQuestion as ParsedQuestion)
+                }
                 // Save previous topic if exists
                 if (currentTopic && currentTopic.questions.length > 0) {
                     result.push(currentTopic)
@@ -67,9 +72,9 @@ function parseGeneratedQuestionsFile(filePath: string): TopicQuestions[] {
 
         // Parse question line: "1. [true_false] [Bloom 1]"
         const questionHeaderMatch = line.match(/^(\d+)\.\s+\[(\w+)\]\s+\[Bloom\s+(\d+)\]/)
-        if (questionHeaderMatch) {
-            // Save previous question if exists
-            if (currentQuestion && currentQuestion.questionText && currentTopic) {
+        if (questionHeaderMatch && currentTopic) {
+            // Save previous question if it's complete
+            if (currentQuestion && currentQuestion.questionText && currentQuestion.correctAnswer) {
                 currentTopic.questions.push(currentQuestion as ParsedQuestion)
             }
 
@@ -102,7 +107,7 @@ function parseGeneratedQuestionsFile(filePath: string): TopicQuestions[] {
     }
 
     // Save last question and topic
-    if (currentQuestion && currentQuestion.questionText && currentTopic) {
+    if (currentQuestion && currentQuestion.questionText && currentQuestion.correctAnswer && currentTopic) {
         currentTopic.questions.push(currentQuestion as ParsedQuestion)
     }
     if (currentTopic && currentTopic.questions.length > 0) {
@@ -132,6 +137,19 @@ async function checkExistingQuestions(topicId: string): Promise<number> {
         .eq('topic_id', topicId)
 
     return count || 0
+}
+
+async function deleteExistingQuestions(topicId: string): Promise<boolean> {
+    const { error } = await supabase
+        .from('questions')
+        .delete()
+        .eq('topic_id', topicId)
+
+    if (error) {
+        console.error(`Error deleting existing questions:`, error)
+        return false
+    }
+    return true
 }
 
 async function insertQuestions(topicId: string, questions: ParsedQuestion[]): Promise<boolean> {
@@ -211,6 +229,12 @@ async function main() {
             topicsProcessed++
             totalImported += topic.questions.length
             continue
+        }
+
+        // If force overwrite and there are existing questions, delete them first
+        if (existingCount > 0 && forceOverwrite) {
+            console.log(`   🗑️ Deleting ${existingCount} existing questions...`)
+            await deleteExistingQuestions(topicId)
         }
 
         const success = await insertQuestions(topicId, topic.questions)
