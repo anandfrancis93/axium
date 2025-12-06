@@ -87,7 +87,6 @@ export async function POST(request: NextRequest) {
     const BATCH_SIZE = 100
     let progressCount = 0
     let responsesCount = 0
-    let questionsCount = 0
     let reviewsCount = 0
 
     // Batch count for user_progress
@@ -110,16 +109,6 @@ export async function POST(request: NextRequest) {
         .eq('user_id', user.id)
         .in('topic_id', batch)
       if (!error && count) responsesCount += count
-    }
-
-    // Batch count for questions
-    for (let i = 0; i < topicIds.length; i += BATCH_SIZE) {
-      const batch = topicIds.slice(i, i + BATCH_SIZE)
-      const { count, error } = await supabase
-        .from('questions')
-        .select('*', { count: 'exact', head: true })
-        .in('topic_id', batch)
-      if (!error && count) questionsCount += count
     }
 
     // Get all question IDs for counting user_question_reviews (also batched)
@@ -146,7 +135,7 @@ export async function POST(request: NextRequest) {
       if (!error && count) reviewsCount += count
     }
 
-    console.log(`Found ${progressCount} progress records, ${responsesCount} response records, ${reviewsCount} review records, and ${questionsCount} questions to delete`)
+    console.log(`Found ${progressCount} progress records, ${responsesCount} response records, and ${reviewsCount} review records to delete`)
 
     // Batch delete (using same BATCH_SIZE defined above)
     let totalProgressDeleted = 0
@@ -211,16 +200,8 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // Delete questions for this batch (not user-specific)
-      const { error: deleteQuestionsError } = await supabase
-        .from('questions')
-        .delete()
-        .in('topic_id', batch)
-
-      if (deleteQuestionsError) {
-        console.error(`Error deleting questions batch ${i}-${i + batch.length}:`, deleteQuestionsError)
-        // Continue anyway
-      }
+      // NOTE: We do NOT delete from the 'questions' table - that's the shared question bank!
+      // Only user-specific data is deleted (user_progress, user_responses, user_question_reviews)
     }
 
     console.log(`Successfully deleted all records in ${Math.ceil(topicIds.length / BATCH_SIZE)} batches`)
@@ -241,7 +222,7 @@ export async function POST(request: NextRequest) {
       console.log('Successfully reset global question position to 1')
     }
 
-    const totalDeleted = (progressCount || 0) + (responsesCount || 0) + reviewsCount + (questionsCount || 0)
+    const totalDeleted = (progressCount || 0) + (responsesCount || 0) + reviewsCount
 
     // ============================================================
     // RECALCULATE GLOBAL PROGRESS
@@ -311,7 +292,6 @@ export async function POST(request: NextRequest) {
       progressRecords: progressCount || 0,
       responseRecords: responsesCount || 0,
       reviewRecords: reviewsCount,
-      questionsRecords: questionsCount || 0,
       message: `Successfully deleted ${totalDeleted} records for ${subject}`
     })
 
