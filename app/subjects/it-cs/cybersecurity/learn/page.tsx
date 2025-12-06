@@ -617,8 +617,8 @@ function LearnPageContent() {
                             }`}
                         >
                           <div className={`${isCorrectAnswer ? 'text-green-400' :
-                              isUserAnswer && !isCorrectAnswer ? 'text-red-400' :
-                                'text-gray-300'
+                            isUserAnswer && !isCorrectAnswer ? 'text-red-400' :
+                              'text-gray-300'
                             }`}>
                             {option}
                             {isUserAnswer && !isCorrectAnswer && (
@@ -665,87 +665,78 @@ function LearnPageContent() {
 
               <div className="prose prose-invert max-w-none space-y-4">
                 {(() => {
-                  const explanation = answerResult.explanation
+                  let explanation = answerResult.explanation
 
-                  // Check if explanation is structured (object) or string
+                  // Handle string explanations (for true/false or simple text)
+                  if (typeof explanation === 'string') {
+                    // Check if it's a JSON string that needs parsing
+                    if (explanation.startsWith('{') && explanation.endsWith('}')) {
+                      try {
+                        explanation = JSON.parse(explanation)
+                      } catch {
+                        // If parsing fails, just display as text
+                        return <p className="text-gray-300 leading-relaxed whitespace-pre-line">{explanation}</p>
+                      }
+                    } else {
+                      return <p className="text-gray-300 leading-relaxed whitespace-pre-line">{explanation}</p>
+                    }
+                  }
+
+                  // Handle object explanations (for MCQ)
                   if (typeof explanation === 'object' && explanation !== null) {
-                    // Helper to convert answer to letter (handles both letter and text formats)
-                    const answerToLetter = (answer: string | string[] | undefined, options: string[] | undefined): string => {
-                      if (!answer) return ''
+                    const options = currentQuestion?.options || []
+                    const correctAnswer = answerResult.correctAnswer
+                    const userAnswerStr = Array.isArray(userAnswer) ? userAnswer[0] : userAnswer
 
-                      // Handle array (mcq_multi)
-                      const singleAnswer = Array.isArray(answer) ? answer[0] : answer
-                      if (!singleAnswer) return ''
+                    // Get all option keys and order them: correct first, then user's answer, then others
+                    const allKeys = Object.keys(explanation)
+                    const orderedKeys: string[] = []
 
-                      // If it's already a single letter A-Z, return it
-                      if (singleAnswer.length === 1 && singleAnswer >= 'A' && singleAnswer <= 'Z') {
-                        return singleAnswer
-                      }
+                    // Add correct answer first
+                    const correctKey = allKeys.find(k =>
+                      k === correctAnswer ||
+                      (options.indexOf(k) !== -1 && options[options.indexOf(k)] === correctAnswer)
+                    )
+                    if (correctKey) orderedKeys.push(correctKey)
 
-                      // Otherwise it's text (fill_blank) - find its index in options
-                      if (options) {
-                        const idx = options.findIndex(opt => opt === singleAnswer)
-                        if (idx !== -1) {
-                          return String.fromCharCode(65 + idx) // Convert 0->A, 1->B, etc.
-                        }
-                      }
+                    // Add user's answer if different
+                    const userKey = allKeys.find(k =>
+                      k === userAnswerStr ||
+                      (options.indexOf(k) !== -1 && options[options.indexOf(k)] === userAnswerStr)
+                    )
+                    if (userKey && !orderedKeys.includes(userKey)) orderedKeys.push(userKey)
 
-                      return ''
-                    }
-
-                    // Get correct answer letter
-                    const correctLetter = answerToLetter(answerResult.correctAnswer, currentQuestion?.options)
-
-                    // Get user's answer letter
-                    const userLetter = answerToLetter(userAnswer, currentQuestion?.options)
-
-                    // Build ordered list of option letters
-                    const allLetters = Object.keys(explanation).sort()
-                    const orderedLetters: string[] = []
-
-                    // 1. Correct answer first
-                    if (correctLetter && explanation[correctLetter]) {
-                      orderedLetters.push(correctLetter)
-                    }
-
-                    // 2. User's choice second (if wrong and different from correct)
-                    if (userLetter && userLetter !== correctLetter && explanation[userLetter]) {
-                      orderedLetters.push(userLetter)
-                    }
-
-                    // 3. Remaining letters in alphabetical order
-                    allLetters.forEach(letter => {
-                      if (!orderedLetters.includes(letter)) {
-                        orderedLetters.push(letter)
-                      }
+                    // Add remaining keys
+                    allKeys.forEach(key => {
+                      if (!orderedKeys.includes(key)) orderedKeys.push(key)
                     })
 
-                    return orderedLetters.map((letter, idx) => {
-                      const isCorrect = letter === correctLetter
-                      const isUserChoice = letter === userLetter
-                      const text = explanation[letter]
+                    return orderedKeys.map((optionKey) => {
+                      const text = (explanation as Record<string, string>)[optionKey]
+                      const isCorrect = text?.startsWith('CORRECT:') || optionKey === correctAnswer
+                      const isUserChoice = optionKey === userAnswerStr
+
+                      // Get letter for display (A, B, C, D)
+                      const optionIndex = options.findIndex((opt: string) => opt === optionKey)
+                      const letter = optionIndex !== -1 ? String.fromCharCode(65 + optionIndex) : ''
 
                       return (
-                        <div key={letter} className={`p-3 rounded-lg ${isCorrect
-                            ? 'bg-green-500/10 border border-green-500/20'
-                            : isUserChoice
-                              ? 'bg-red-500/10 border border-red-500/20'
-                              : 'bg-gray-800/30'
-                          }`}>
-                          {(isCorrect || isUserChoice) && (
-                            <span className={`text-sm font-medium block mb-1 ${isCorrect ? 'text-green-400' : 'text-red-400'
-                              }`}>
-                              {isCorrect ? 'Correct Answer' : 'Your Answer'}
-                            </span>
-                          )}
-                          <p className="text-gray-300 leading-relaxed">{text}</p>
+                        <div key={optionKey} className={`p-3 rounded-lg ${isCorrect ? 'bg-green-500/10 border border-green-500/20' : isUserChoice ? 'bg-red-500/10 border border-red-500/20' : 'bg-gray-800/30'}`}>
+                          <div className="flex items-start gap-2">
+                            {letter && <span className={`font-bold ${isCorrect ? 'text-green-400' : isUserChoice ? 'text-red-400' : 'text-gray-400'}`}>{letter}.</span>}
+                            <div className="flex-1">
+                              <span className={`font-medium ${isCorrect ? 'text-green-300' : isUserChoice ? 'text-red-300' : 'text-gray-300'}`}>
+                                {optionKey}
+                              </span>
+                              <p className="text-gray-400 text-sm mt-1">{text}</p>
+                            </div>
+                          </div>
                         </div>
                       )
                     })
-                  } else {
-                    // Fallback for string format (backwards compatibility)
-                    return <p className="text-gray-300 leading-relaxed whitespace-pre-line">{explanation}</p>
                   }
+
+                  return null
                 })()}
               </div>
             </div>
