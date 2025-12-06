@@ -383,15 +383,15 @@ export default function TopicDetailPage() {
                 </p>
               )}
             </div>
-            {questionCount > 0 && (
-              <button
-                onClick={() => router.push(`/subjects/it-cs/cybersecurity/${encodeURIComponent(topicName)}/quiz`)}
-                className="neuro-btn-primary px-6 py-3 flex items-center gap-2"
-              >
-                Start Quiz
+            <button
+              onClick={() => router.push(`/subjects/it-cs/cybersecurity/${encodeURIComponent(topicName)}/quiz`)}
+              className="neuro-btn-primary px-6 py-3 flex items-center gap-2"
+            >
+              Start Quiz
+              {questionCount > 0 && (
                 <span className="text-sm opacity-80">({questionCount} questions)</span>
-              </button>
-            )}
+              )}
+            </button>
           </div>
         </div>
       </header>
