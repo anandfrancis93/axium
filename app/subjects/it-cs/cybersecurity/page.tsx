@@ -972,8 +972,8 @@ export default function CybersecurityPage() {
                   {/* Pass/Fail Indicator */}
                   <div className="text-center">
                     <div className={`inline-block px-4 py-2 rounded-lg ${isLikelyPass ? 'bg-green-500/20 text-green-400' :
-                        isPossiblePass ? 'bg-yellow-500/20 text-yellow-400' :
-                          'bg-red-500/20 text-red-400'
+                      isPossiblePass ? 'bg-yellow-500/20 text-yellow-400' :
+                        'bg-red-500/20 text-red-400'
                       }`}>
                       {isLikelyPass && 'Likely to Pass'}
                       {isPossiblePass && 'Borderline - Keep Practicing'}
@@ -1196,7 +1196,12 @@ export default function CybersecurityPage() {
                                 autoFocus
                               />
                             ) : (
-                              <span className="font-medium text-gray-200">{topic.name}</span>
+                              <button
+                                onClick={() => router.push(`/subjects/it-cs/cybersecurity/${encodeURIComponent(topic.name)}`)}
+                                className="font-medium text-gray-200 hover:text-blue-400 text-left transition-colors cursor-pointer"
+                              >
+                                {topic.name}
+                              </button>
                             )}
                           </td>
                           <td className="p-4 align-top">
