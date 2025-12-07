@@ -113,8 +113,6 @@ export async function POST(request: NextRequest) {
     // Store the response (use topicId from submission for on-the-fly questions)
     const responseTopicId = topicId || question.topic_id
 
-
-
     const { data: insertData, error: insertError } = await supabase
       .from('user_responses')
       .insert({
@@ -143,7 +141,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Save question and user-specific review date for spaced repetition
-    const nextReviewDate = await saveQuestionForSpacedRepetition(
+    await saveQuestionForSpacedRepetition(
       supabase,
       user.id,
       questionId,
@@ -165,6 +163,9 @@ export async function POST(request: NextRequest) {
       question.cognitive_dimension || null,
       isCorrect
     )
+
+    // Calculate next review date for response (even in test mode)
+    const nextReviewDate = calculateNextReviewDate(calibrationScore)
 
     // ============================================================
     // UPDATE FORMAT ROTATION (DEFERRED)
@@ -310,10 +311,20 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Parse correct_answer if it's stored as JSON string (for mcq_multi)
+    let parsedCorrectAnswer = question.correct_answer
+    if (typeof parsedCorrectAnswer === 'string' && parsedCorrectAnswer.startsWith('[')) {
+      try {
+        parsedCorrectAnswer = JSON.parse(parsedCorrectAnswer)
+      } catch {
+        // Keep as-is if parsing fails
+      }
+    }
+
     // Expand correct answer if it's just a letter (A, B, C, D) to full option text
-    let expandedCorrectAnswer = question.correct_answer
+    let expandedCorrectAnswer = parsedCorrectAnswer
     if (question.options && (question.question_format === 'mcq_single' || question.question_format === 'mcq_multi')) {
-      expandedCorrectAnswer = expandCorrectAnswer(question.correct_answer, question.options)
+      expandedCorrectAnswer = expandCorrectAnswer(parsedCorrectAnswer, question.options)
     }
 
     // Build result
@@ -393,7 +404,20 @@ function checkAnswer(
   if (questionFormat === 'mcq_multi') {
     // Multiple select - must match all correct answers
     const userAnswers = Array.isArray(userAnswer) ? userAnswer : [userAnswer]
-    const correctAnswers = Array.isArray(correctAnswer) ? correctAnswer : [correctAnswer]
+
+    // Handle correct_answer that may be stored as JSON string in database
+    let correctAnswers: string[]
+    if (Array.isArray(correctAnswer)) {
+      correctAnswers = correctAnswer
+    } else if (typeof correctAnswer === 'string' && correctAnswer.startsWith('[')) {
+      try {
+        correctAnswers = JSON.parse(correctAnswer)
+      } catch {
+        correctAnswers = [correctAnswer]
+      }
+    } else {
+      correctAnswers = [correctAnswer]
+    }
 
     // Check if correct answers are just letters (A, B, C) or full text
     const correctAreLetters = correctAnswers.every(ans => /^[A-Z]$/.test(ans.trim()))
@@ -414,9 +438,17 @@ function checkAnswer(
       const userSet = new Set(userAnswers.map(normalizeAnswer))
       const correctSet = new Set(correctAnswers.map(normalizeAnswer))
 
+      // DEBUG: Log comparison values
+      console.log('[MCQ_MULTI DEBUG] userAnswers:', userAnswers)
+      console.log('[MCQ_MULTI DEBUG] correctAnswers:', correctAnswers)
+      console.log('[MCQ_MULTI DEBUG] userSet:', [...userSet])
+      console.log('[MCQ_MULTI DEBUG] correctSet:', [...correctSet])
+      console.log('[MCQ_MULTI DEBUG] sizes match:', userSet.size === correctSet.size)
+
       if (userSet.size !== correctSet.size) return false
 
       for (const ans of correctSet) {
+        console.log('[MCQ_MULTI DEBUG] checking if userSet has:', ans, '=', userSet.has(ans))
         if (!userSet.has(ans)) return false
       }
       return true

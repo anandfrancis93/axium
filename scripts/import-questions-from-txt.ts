@@ -175,8 +175,8 @@ async function insertQuestions(topicId: string, questions: ParsedQuestion[]): Pr
         question_text: q.questionText,
         question_format: q.questionFormat,
         options: q.options || null,
-        // Convert array to JSON string for mcq_multi, otherwise use as-is
-        correct_answer: Array.isArray(q.correctAnswer) ? JSON.stringify(q.correctAnswer) : q.correctAnswer,
+        // Store arrays directly for mcq_multi (Supabase handles PostgreSQL array conversion)
+        correct_answer: q.correctAnswer,
         explanation: q.explanation || '',
         bloom_level: q.bloomLevel
     }))

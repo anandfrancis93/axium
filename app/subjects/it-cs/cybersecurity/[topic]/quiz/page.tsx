@@ -268,9 +268,21 @@ export default function TopicQuizPage() {
                     correctVal.includes(userVal)
             } else if (currentQ.question_type === 'mcq_multi') {
                 const userAnswers = Array.isArray(userAnswer) ? userAnswer : [userAnswer]
-                const correctAnswers = Array.isArray(currentQ.correct_answer)
-                    ? currentQ.correct_answer
-                    : [currentQ.correct_answer]
+
+                // Handle correct_answer that may be stored as JSON string in database
+                let correctAnswers: string[]
+                if (Array.isArray(currentQ.correct_answer)) {
+                    correctAnswers = currentQ.correct_answer
+                } else if (typeof currentQ.correct_answer === 'string' && currentQ.correct_answer.startsWith('[')) {
+                    try {
+                        correctAnswers = JSON.parse(currentQ.correct_answer)
+                    } catch {
+                        correctAnswers = [currentQ.correct_answer]
+                    }
+                } else {
+                    correctAnswers = [currentQ.correct_answer as string]
+                }
+
                 correct = userAnswers.length === correctAnswers.length &&
                     userAnswers.every(a => correctAnswers.some(c => a.includes(c)))
             }
