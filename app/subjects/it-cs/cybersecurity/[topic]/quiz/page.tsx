@@ -86,6 +86,12 @@ export default function TopicQuizPage() {
     }
 
     useEffect(() => {
+        // Clear any stale session state on fresh page load
+        try {
+            sessionStorage.removeItem(STORAGE_KEY)
+        } catch (e) {
+            console.error('Failed to clear session storage:', e)
+        }
         loadQuestions()
     }, [])
 
