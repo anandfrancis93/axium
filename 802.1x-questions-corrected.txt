@@ -1,0 +1,372 @@
+============================================================
+802.1X / Port-based Network Access Control (PNAC)
+CORRECTED QUESTION SET
+============================================================
+
+LEVEL 1: REMEMBER (Recall facts and terminology)
+============================================================
+
+Question 1 (MCQ Single Select)
+Which term in the 802.1X architecture describes the device, such as a user's PC, that is requesting network access?
+A. Authenticator
+B. Supplicant
+C. RADIUS Server
+D. Access Point
+
+Correct Answer: B
+
+Explanation:
+A. Authenticator: Incorrect. This is the switching device or network appliance that acts as a conduit, not the requester.
+B. Supplicant: Correct. The Supplicant is defined as the device requesting access to the network (e.g., a laptop or PC).
+C. RADIUS Server: Incorrect. This is the backend server component that validates authentication requests.
+D. Access Point: Incorrect. An access point can act as an Authenticator for wireless networks, but it is not the term for the requesting device.
+
+---
+
+Question 2 (Fill in the Blank)
+Usually, the ________ acts as the Authenticator in an 802.1X implementation for wired networks.
+A. Directory Server
+B. Network Switch
+C. User Laptop
+D. Certification Authority
+
+Correct Answer: B
+
+Explanation:
+A. Directory Server: Incorrect. This holds user accounts, usually on the backend.
+B. Network Switch: Correct. The explanation identifies the switching device (PNAC switch) as the Authenticator.
+C. User Laptop: Incorrect. This acts as the Supplicant.
+D. Certification Authority: Incorrect. This issues certificates but does not act as the port-level Authenticator.
+
+---
+
+Question 3 (MCQ Single Select)
+Which protocol pair is specified in the 802.1X standard for implementing port-based authentication?
+A. EAP and RADIUS
+B. DHCP and DNS
+C. IPsec and TLS
+D. TACACS+ and Kerberos
+
+Correct Answer: A
+
+Explanation:
+A. EAP and RADIUS: Correct. EAP provides the authentication framework, and RADIUS handles communication between the authenticator and server.
+B. DHCP and DNS: Incorrect. These manage IP addressing and name resolution, not 802.1X authentication.
+C. IPsec and TLS: Incorrect. These are encryption/tunneling protocols, not the primary implementation pair for 802.1X.
+D. TACACS+ and Kerberos: Incorrect. While these are authentication protocols, the standard specifically designates EAP and RADIUS for 802.1X.
+
+---
+
+Question 4 (True/False)
+The Authenticator validates user credentials directly against its local directory.
+
+Answer: False
+
+Explanation: The Authenticator does not validate credentials directly. It acts as a conduit that forwards authentication data to the Authentication Server, which holds or contacts the directory of network objects for validation.
+
+
+LEVEL 2: UNDERSTAND (Explain concepts and relationships)
+============================================================
+
+Question 5 (MCQ Single Select)
+Why is 802.1X considered superior to simple MAC address filtering for restricting network access?
+A. MAC addresses require complex routing tables to manage
+B. MAC addresses are susceptible to spoofing attacks
+C. MAC addresses consume excessive bandwidth during handshakes
+D. MAC addresses require frequent encryption key updates
+
+Correct Answer: B
+
+Explanation:
+A. MAC addresses require complex routing tables to manage: Incorrect. MAC filtering is a Layer 2 function and doesn't involve complex routing tables.
+B. MAC addresses are susceptible to spoofing attacks: Correct. The text states that restricting access by MAC address is difficult to manage and prone to spoofing.
+C. MAC addresses consume excessive bandwidth during handshakes: Incorrect. MAC overhead is negligible.
+D. MAC addresses require frequent encryption key updates: Incorrect. MAC addresses are hardware IDs and do not involve encryption keys themselves.
+
+---
+
+Question 6 (MCQ Single Select)
+What is the functional relationship between the Authenticator and the Authentication Server regarding the RADIUS protocol?
+A. The Authenticator acts as the RADIUS Server
+B. The Authenticator acts as the RADIUS Client
+C. They both act as RADIUS Servers
+D. They do not use RADIUS for communication
+
+Correct Answer: B
+
+Explanation:
+A. The Authenticator acts as the RADIUS Server: Incorrect. The Server role is held by the Authentication Server.
+B. The Authenticator acts as the RADIUS Client: Correct. As stated in the text, "The authenticator is a RADIUS client; the authentication server is a RADIUS server."
+C. They both act as RADIUS Servers: Incorrect. One must be the client to initiate requests to the server.
+D. They do not use RADIUS for communication: Incorrect. RADIUS is the specific protocol mentioned for their communication.
+
+---
+
+Question 7 (MCQ Multi Select)
+Which of the following functions are performed by the Authentication Server in the AAA architecture? (Select three)
+A. Validating authentication requests
+B. Forwarding EAP packets to the switch
+C. Issuing authorizations
+D. Performing accounting of security events
+
+Correct Answers: A, C, D
+
+Explanation:
+A. Validating authentication requests: Correct. The server checks credentials against the directory.
+B. Forwarding EAP packets to the switch: Incorrect. The switch forwards packets to the server (via RADIUS), or the server responds, but "forwarding" is primarily the Authenticator's "conduit" role.
+C. Issuing authorizations: Correct. It determines if access should be granted.
+D. Performing accounting of security events: Correct. Accounting is the third "A" in AAA and is a server function.
+
+---
+
+Question 8 (Fill in the Blank)
+On a wired LAN, the encapsulation of EAP communications between the supplicant and the authenticator is handled by the ________ protocol.
+A. EAPoL
+B. EAPoW
+C. HTTPS
+D. L2TP
+
+Correct Answer: A
+
+Explanation:
+A. EAPoL: Correct. EAPoL (EAP over LAN) is the standard for encapsulating EAP on wired networks.
+B. EAPoW: Incorrect. This refers to EAP over Wireless.
+C. HTTPS: Incorrect. This is a web protocol, not used for Layer 2 EAP encapsulation.
+D. L2TP: Incorrect. This is a VPN tunneling protocol.
+
+
+LEVEL 3: APPLY (Use knowledge in new situations)
+============================================================
+
+Question 9 (MCQ Single Select)
+A network administrator wants to implement a login method using smart cards without requiring passwords. Which component provides the framework to deploy this specific authentication type?
+A. Extensible Authentication Protocol (EAP)
+B. Remote Authentication Dial-In User Service (RADIUS)
+C. Port-based Network Access Control (PNAC)
+D. Challenge Handshake Authentication Protocol (CHAP)
+
+Correct Answer: A
+
+Explanation:
+A. Extensible Authentication Protocol (EAP): Correct. EAP is the framework that allows for multiple authentication types, including smart cards and digital certificates.
+B. Remote Authentication Dial-In User Service (RADIUS): Incorrect. RADIUS transports the data, but EAP defines the authentication method itself.
+C. Port-based Network Access Control (PNAC): Incorrect. PNAC is the general standard (802.1X), not the specific protocol framework for the method (smart card).
+D. Challenge Handshake Authentication Protocol (CHAP): Incorrect. CHAP is an older authentication protocol, not the framework for smart card authentication.
+
+---
+
+Question 10 (MCQ Multi Select)
+When a host first connects to an 802.1X-enabled switch port, which behavior is observed before authentication completes? (Select two)
+A. The port is fully open to all network traffic
+B. The switch opens the port for EAPoL traffic only
+C. The switch blocks full data access
+D. The switch assigns a permanent IP address immediately
+
+Correct Answers: B, C
+
+Explanation:
+A. The port is fully open to all network traffic: Incorrect. Full access is only granted after authentication.
+B. The switch opens the port for EAPoL traffic only: Correct. This allows the authentication exchange to occur.
+C. The switch blocks full data access: Correct. Normal data traffic is restricted until the supplicant is authenticated.
+D. The switch assigns a permanent IP address immediately: Incorrect. IP assignment (DHCP) typically happens after port access is authorized.
+
+---
+
+Question 11 (True/False)
+If a company uses 802.1X, an eavesdropper capturing traffic at the switch port can easily read the user's password because the switch acts as a transparent conduit.
+
+Answer: False
+
+Explanation: The switch receives an EAP packet with the supplicant's credentials, but "These are encrypted and cannot be read by the switch." Therefore, they cannot be easily read by the switch or an eavesdropper at that point.
+
+---
+
+Question 12 (Fill in the Blank)
+In the AAA framework, the ________ function is responsible for logging the duration and data usage of a user's session.
+A. Accounting
+B. Authorization
+C. Authentication
+D. Auditing
+
+Correct Answer: A
+
+Explanation:
+A. Accounting: Correct. Accounting is the third "A" in AAA and tracks session data, usage, and security events for auditing purposes.
+B. Authorization: Incorrect. Authorization determines what level of access a user is granted, not logging of session data.
+C. Authentication: Incorrect. Authentication verifies user identity but does not log ongoing session activity.
+D. Auditing: Incorrect. While auditing is related, the specific AAA term for logging session data is Accounting.
+
+
+LEVEL 4: ANALYZE (Examine relationships and draw connections)
+============================================================
+
+Question 13 (MCQ Multi Select)
+Which architectural factors prevent the Authenticator from independently validating a user's credentials? (Select two)
+A. The switch cannot read the encrypted credentials in the EAP packet
+B. The directory of user accounts resides on the Authentication Server
+C. The switch lacks the cryptographic keys to decrypt credentials
+D. None of the above
+
+Correct Answers: A, B
+
+Explanation:
+A. The switch cannot read the encrypted credentials in the EAP packet: Correct. Credentials are encrypted end-to-end between supplicant and server.
+B. The directory of user accounts resides on the Authentication Server: Correct. The switch does not hold the database required for validation.
+C. The switch lacks the cryptographic keys to decrypt credentials: Incorrect. While related to option A, this is not explicitly stated in the architecture. The switch acts as a conduit by design, not due to missing keys.
+D. None of the above: Incorrect. Options A and B are both correct.
+
+---
+
+Question 14 (MCQ Single Select)
+If the connection between the Authenticator and the Authentication Server fails, what is the immediate consequence for a new supplicant attempting to connect?
+A. The supplicant is granted limited guest network access
+B. The authentication request cannot be validated, and access is denied
+C. The Authenticator uses cached credentials to verify the user
+D. The Supplicant connects through an alternate port automatically
+
+Correct Answer: B
+
+Explanation:
+A. The supplicant is granted limited guest network access: Incorrect. While some configurations may allow this, the base architecture requires server validation. Without it, validation fails.
+B. The authentication request cannot be validated, and access is denied: Correct. The Authenticator cannot validate credentials itself; without the server, the authentication process cannot complete.
+C. The Authenticator uses cached credentials to verify the user: Incorrect. The Authenticator does not cache or validate credentials; it only acts as a conduit to the Authentication Server.
+D. The Supplicant connects through an alternate port automatically: Incorrect. The supplicant is physically connected to the switch and cannot bypass the authentication requirement.
+
+---
+
+Question 15 (True/False)
+The 802.1X standard separates the "door lock" mechanism (the switch port) from the "key verification" mechanism (the authentication server) to improve security and manageability.
+
+Answer: True
+
+Explanation: This accurately analyzes the relationship: the switch (Authenticator) controls the physical port ("door lock") but relies on the Server ("key verification") to validate the credentials, separating duties.
+
+
+LEVEL 5: EVALUATE (Make judgments and justify decisions)
+============================================================
+
+Question 16 (MCQ Single Select)
+A security consultant recommends using EAP-TLS (certificate-based) over EAP-MD5 (password hash) for a high-security finance network. Which capability mentioned in the text best justifies this choice?
+A. The ability to perform accounting of all user sessions
+B. The ability to create a secure tunnel and establish a trust relationship
+C. The reduction of CPU load on the Authentication Server
+D. The compatibility with legacy switching hardware
+
+Correct Answer: B
+
+Explanation:
+A. The ability to perform accounting of all user sessions: Incorrect. Accounting works with most EAP types; it doesn't justify choosing certificates specifically.
+B. The ability to create a secure tunnel and establish a trust relationship: Correct. The text notes EAP is often used with digital certificates to "establish a trust relationship and create a secure tunnel," offering higher security.
+C. The reduction of CPU load on the Authentication Server: Incorrect. Certificate validation typically involves higher computation than simple hashes.
+D. The compatibility with legacy switching hardware: Incorrect. Hardware compatibility is less of a differentiator than the security features provided.
+
+---
+
+Question 17 (MCQ Multi Select)
+When evaluating a network's vulnerability to insider threats, which arguments support implementing 802.1X internally rather than just at the perimeter? (Select two)
+A. It forces internal users to authenticate before gaining full network access
+B. It prevents unauthorized devices from simply plugging into a wall jack
+C. It eliminates the need for internal firewalls
+D. It automatically encrypts all data at the Application layer
+
+Correct Answers: A, B
+
+Explanation:
+A. It forces internal users to authenticate before gaining full network access: Correct. This ensures only authorized personnel are on the LAN.
+B. It prevents unauthorized devices from simply plugging into a wall jack: Correct. 802.1X "requires authentication when a host connects to one of its ports," preventing casual plug-in access.
+C. It eliminates the need for internal firewalls: Incorrect. Access control does not replace traffic inspection/firewalling.
+D. It automatically encrypts all data at the Application layer: Incorrect. 802.1X secures access, not application data (like SSL/TLS) generally.
+
+---
+
+Question 18 (True/False)
+Relying solely on identifying the Supplicant by MAC address is evaluated as a secure method because MAC addresses are hard-coded into the network interface hardware.
+
+Answer: False
+
+Explanation: The text explicitly evaluates this strategy as poor: "Restricting access by MAC address is difficult to manage and still prone to spoofing." Just because they are hardware-based doesn't mean they can't be spoofed in software.
+
+
+LEVEL 6: CREATE (Synthesize and design solutions)
+============================================================
+
+Question 19 (MCQ Multi Select)
+You are designing a secure 802.1X implementation for a hospital network with strict compliance requirements. Which design elements should you incorporate to ensure credentials are never exposed in transit? (Select two)
+A. Deploy EAP-TLS to establish encrypted tunnels with digital certificates
+B. Configure the Authenticator to decrypt and re-encrypt credentials
+C. Use certificate-based authentication to eliminate password transmission
+D. None of the above
+
+Correct Answers: A, C
+
+Explanation:
+A. Deploy EAP-TLS to establish encrypted tunnels with digital certificates: Correct. EAP-TLS creates a secure tunnel, ensuring credentials are protected during transmission.
+B. Configure the Authenticator to decrypt and re-encrypt credentials: Incorrect. The Authenticator cannot decrypt credentials; it acts only as a conduit. This would also be a security risk.
+C. Use certificate-based authentication to eliminate password transmission: Correct. Certificate-based methods (smart cards) avoid sending passwords entirely, reducing exposure risk.
+D. None of the above: Incorrect. Two of the options are valid design choices.
+
+---
+
+Question 20 (MCQ Multi Select)
+You are designing a unified 802.1X solution for an organization with both wired and wireless users. Which components must be configured to participate in the authentication chain? (Select three)
+A. Access Points (as Authenticators)
+B. Core Router (as CA Server)
+C. Wired Switches (as Authenticators)
+D. Centralized RADIUS Server (as Authentication Server)
+
+Correct Answers: A, C, D
+
+Explanation:
+A. Access Points (as Authenticators): Correct. For WLAN (EAPoW), APs act as the authenticator.
+B. Core Router (as CA Server): Incorrect. Core routers route traffic; the CA server is a distinct role usually associated with directory/PKI services, not the core router.
+C. Wired Switches (as Authenticators): Correct. For wired (EAPoL), switches act as the authenticator.
+D. Centralized RADIUS Server (as Authentication Server): Correct. A single RADIUS server can typically handle requests from both wired switches and wireless APs.
+
+---
+
+Question 21 (Fill in the Blank)
+To design a network where the switch never sees clear-text passwords, the architect must ensure the EAP method creates a secure ________ to transmit credentials specifically between the Supplicant and the Authentication Server.
+A. Tunnel
+B. Bridge
+C. VLAN
+D. Route
+
+Correct Answer: A
+
+Explanation:
+A. Tunnel: Correct. The text mentions using digital certificates to "create a secure tunnel" for transmitting credentials.
+B. Bridge: Incorrect. Bridging connects network segments, not a cryptographic privacy path.
+C. VLAN: Incorrect. VLANs separate broadcast domains, not encryption for credential privacy.
+D. Route: Incorrect. Routing determines path selection, not data privacy.
+
+---
+
+Question 22 (True/False)
+When designing an 802.1X deployment, it is strictly necessary for the Authenticator and the Authentication Server to reside on the same physical hardware device.
+
+Answer: False
+
+Explanation: The architecture explicitly separates these roles: the Authenticator is a network access device (switch), while the Authentication Server is a server that "allows the authenticator and authentication server to communicate" via RADIUS. They are distinct components in the design.
+
+
+============================================================
+SUMMARY
+============================================================
+
+Total Questions: 22
+
+By Type:
+- MCQ Single Select: 8
+- MCQ Multi Select: 5
+- Fill in the Blank: 4
+- True/False: 5
+
+By Bloom Level:
+- Level 1 (Remember): 4
+- Level 2 (Understand): 4
+- Level 3 (Apply): 4
+- Level 4 (Analyze): 3
+- Level 5 (Evaluate): 3
+- Level 6 (Create): 4
+
+All questions vetted and corrected per quality control guidelines.

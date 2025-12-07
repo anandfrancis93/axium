@@ -93,19 +93,24 @@ PLAUSIBILITY CHECK (before finalizing):
 - REQUIRE: specific definitions of actual related topics from the same domain
 - Ask: "If I didn't know the precise definition, could I genuinely believe this distractor?"
 
-QUESTION FORMAT MIX:
-- 40% multiple choice single answer (mcq_single) - MUST have exactly 4 options, 1 correct
-- 25% true/false - correct_answer must be exactly "True" or "False"
-- 15% fill in the blank (fill_blank) - MUST have exactly 4 options
-- 20% multiple choice multi-select (mcq_multi) - MUST have exactly 4 options. The 4th option MUST ALWAYS be "None of the above". First 3 options can have 1, 2, or 3 correct answers. If ALL of the first 3 options are incorrect, then "None of the above" is the only correct answer. Use this for Bloom levels 4-6 (Analyze, Evaluate, Create)
+QUESTION FORMAT MIX (MANDATORY MINIMUMS - YOU MUST MEET THESE):
+- mcq_single: EXACTLY 6 questions minimum - MUST have exactly 4 options, 1 correct
+- true_false: EXACTLY 4 questions minimum - correct_answer must be exactly "True" or "False"
+- fill_blank: EXACTLY 4 questions minimum - MUST have exactly 4 options to choose from
+- mcq_multi: EXACTLY 4 questions minimum - MUST have exactly 4 options. The 4th option MUST ALWAYS be "None of the above". First 3 options can have 1, 2, or 3 correct answers. If ALL of the first 3 options are incorrect, then "None of the above" is the only correct answer.
 
-BLOOM'S TAXONOMY DISTRIBUTION:
-- Level 1 (Remember): ~20% - Recall basic facts and definitions - use mcq_single, true_false, fill_blank
-- Level 2 (Understand): ~25% - Explain concepts and relationships - use mcq_single, true_false
-- Level 3 (Apply): ~20% - Use knowledge in new situations - use mcq_single, fill_blank
-- Level 4 (Analyze): ~15% - Break down and examine relationships - use mcq_multi (select all that apply)
-- Level 5 (Evaluate): ~15% - Make judgments and assess - use mcq_multi (select all that apply)
-- Level 6 (Create): ~5% - Synthesize and design solutions - use mcq_multi (select all that apply)
+BLOOM'S TAXONOMY DISTRIBUTION (MANDATORY MINIMUMS - YOU MUST MEET THESE):
+- Level 1 (Remember): EXACTLY 3 questions minimum - Recall basic facts and definitions - use mcq_single, true_false, fill_blank
+- Level 2 (Understand): EXACTLY 4 questions minimum - Explain concepts and relationships - use mcq_single, true_false
+- Level 3 (Apply): EXACTLY 4 questions minimum - Use knowledge in new situations - use mcq_single, fill_blank
+- Level 4 (Analyze): EXACTLY 3 questions minimum - Break down and examine relationships - use mcq_multi (select all that apply)
+- Level 5 (Evaluate): EXACTLY 3 questions minimum - Make judgments and assess - use mcq_multi (select all that apply)
+- Level 6 (Create): EXACTLY 2 questions minimum - Synthesize and design solutions - use mcq_multi (select all that apply)
+
+BALANCE CHECK (BEFORE OUTPUTTING):
+- Count your questions by format: Do you have at least 6 mcq_single, 4 true_false, 4 fill_blank, 4 mcq_multi?
+- Count your questions by Bloom level: Do you have at least 3 at L1, 4 at L2, 4 at L3, 3 at L4, 3 at L5, 2 at L6?
+- If any count is below the minimum, ADD MORE QUESTIONS of that type before outputting
 
 COGNITIVE DIMENSIONS (include one per question):
 - factual: Basic facts and terminology
@@ -164,7 +169,9 @@ OUTPUT FORMAT (JSON array):
 
 IMPORTANT: 
 - Return ONLY valid JSON, no markdown code blocks
-- Generate AT LEAST 25-40 questions to thoroughly cover the topic
+- Generate AT LEAST 20 questions to meet all mandatory minimums
+- You MUST have: 6+ mcq_single, 4+ true_false, 4+ fill_blank, 4+ mcq_multi
+- You MUST have: 3+ Bloom L1, 4+ Bloom L2, 4+ Bloom L3, 3+ Bloom L4, 3+ Bloom L5, 2+ Bloom L6
 - Quality over quantity, but don't skip any important concepts
 - For mcq_multi, correct_answer MUST be an array of strings matching the correct options`
 
