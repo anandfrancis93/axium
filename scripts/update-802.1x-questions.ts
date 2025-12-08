@@ -1,6 +1,6 @@
 /**
  * Update 802.1X Questions in Database
- * Replaces existing questions with the corrected, vetted question set
+ * Replaces existing questions with the new vetted question set
  */
 
 import * as dotenv from 'dotenv'
@@ -17,284 +17,212 @@ const supabase = createClient(
 interface Question {
     question_text: string
     question_type: 'mcq_single' | 'mcq_multi' | 'fill_blank' | 'true_false'
-    options: string[] | null
+    options: string[]
     correct_answer: string | string[]
     explanation: string
     bloom_level: number
 }
 
-const correctedQuestions: Question[] = [
-    // LEVEL 1: REMEMBER
+const questions: Question[] = [
+    // Q1 - mcq_single, Bloom 1
     {
         bloom_level: 1,
         question_type: 'mcq_single',
-        question_text: 'Which term in the 802.1X architecture describes the device, such as a user\'s PC, that is requesting network access?',
-        options: ['Authenticator', 'Supplicant', 'RADIUS Server', 'Access Point'],
-        correct_answer: 'Supplicant',
-        explanation: JSON.stringify({
-            'Authenticator': 'INCORRECT: This is the switching device or network appliance that acts as a conduit, not the requester.',
-            'Supplicant': 'CORRECT: The Supplicant is defined as the device requesting access to the network (e.g., a laptop or PC).',
-            'RADIUS Server': 'INCORRECT: This is the backend server component that validates authentication requests.',
-            'Access Point': 'INCORRECT: An access point can act as an Authenticator for wireless networks, but it is not the term for the requesting device.'
-        })
-    },
-    {
-        bloom_level: 1,
-        question_type: 'fill_blank',
-        question_text: 'Usually, the ________ acts as the Authenticator in an 802.1X implementation for wired networks.',
-        options: ['Directory Server', 'Network Switch', 'User Laptop', 'Certification Authority'],
-        correct_answer: 'Network Switch',
-        explanation: JSON.stringify({
-            'Directory Server': 'INCORRECT: This holds user accounts, usually on the backend.',
-            'Network Switch': 'CORRECT: The switching device (PNAC switch) is identified as the Authenticator.',
-            'User Laptop': 'INCORRECT: This acts as the Supplicant.',
-            'Certification Authority': 'INCORRECT: This issues certificates but does not act as the port-level Authenticator.'
-        })
-    },
-    {
-        bloom_level: 1,
-        question_type: 'mcq_single',
-        question_text: 'Which protocol pair is specified in the 802.1X standard for implementing port-based authentication?',
-        options: ['EAP and RADIUS', 'DHCP and DNS', 'IPsec and TLS', 'TACACS+ and Kerberos'],
-        correct_answer: 'EAP and RADIUS',
-        explanation: JSON.stringify({
-            'EAP and RADIUS': 'CORRECT: EAP provides the authentication framework, and RADIUS handles communication between the authenticator and server.',
-            'DHCP and DNS': 'INCORRECT: These manage IP addressing and name resolution, not 802.1X authentication.',
-            'IPsec and TLS': 'INCORRECT: These are encryption/tunneling protocols, not the primary implementation pair for 802.1X.',
-            'TACACS+ and Kerberos': 'INCORRECT: While these are authentication protocols, the standard specifically designates EAP and RADIUS for 802.1X.'
-        })
-    },
-    {
-        bloom_level: 1,
-        question_type: 'true_false',
-        question_text: 'The Authenticator validates user credentials directly against its local directory.',
-        options: null,
-        correct_answer: 'False',
-        explanation: 'The Authenticator does not validate credentials directly. It acts as a conduit that forwards authentication data to the Authentication Server, which holds or contacts the directory of network objects for validation.'
-    },
-
-    // LEVEL 2: UNDERSTAND
-    {
-        bloom_level: 2,
-        question_type: 'mcq_single',
-        question_text: 'Why is 802.1X considered superior to simple MAC address filtering for restricting network access?',
-        options: ['MAC addresses require complex routing tables to manage', 'MAC addresses are susceptible to spoofing attacks', 'MAC addresses consume excessive bandwidth during handshakes', 'MAC addresses require frequent encryption key updates'],
-        correct_answer: 'MAC addresses are susceptible to spoofing attacks',
-        explanation: JSON.stringify({
-            'MAC addresses require complex routing tables to manage': 'INCORRECT: MAC filtering is a Layer 2 function and doesn\'t involve complex routing tables.',
-            'MAC addresses are susceptible to spoofing attacks': 'CORRECT: Restricting access by MAC address is difficult to manage and prone to spoofing.',
-            'MAC addresses consume excessive bandwidth during handshakes': 'INCORRECT: MAC overhead is negligible.',
-            'MAC addresses require frequent encryption key updates': 'INCORRECT: MAC addresses are hardware IDs and do not involve encryption keys themselves.'
-        })
-    },
-    {
-        bloom_level: 2,
-        question_type: 'mcq_single',
-        question_text: 'What is the functional relationship between the Authenticator and the Authentication Server regarding the RADIUS protocol?',
-        options: ['The Authenticator acts as the RADIUS Server', 'The Authenticator acts as the RADIUS Client', 'They both act as RADIUS Servers', 'They do not use RADIUS for communication'],
-        correct_answer: 'The Authenticator acts as the RADIUS Client',
-        explanation: JSON.stringify({
-            'The Authenticator acts as the RADIUS Server': 'INCORRECT: The Server role is held by the Authentication Server.',
-            'The Authenticator acts as the RADIUS Client': 'CORRECT: The authenticator is a RADIUS client; the authentication server is a RADIUS server.',
-            'They both act as RADIUS Servers': 'INCORRECT: One must be the client to initiate requests to the server.',
-            'They do not use RADIUS for communication': 'INCORRECT: RADIUS is the specific protocol mentioned for their communication.'
-        })
-    },
-    {
-        bloom_level: 2,
-        question_type: 'mcq_multi',
-        question_text: 'Which of the following functions are performed by the Authentication Server in the AAA architecture? (Select three)',
-        options: ['Validating authentication requests', 'Forwarding EAP packets to the switch', 'Issuing authorizations', 'Performing accounting of security events'],
-        correct_answer: JSON.stringify(['Validating authentication requests', 'Issuing authorizations', 'Performing accounting of security events']),
-        explanation: JSON.stringify({
-            'Validating authentication requests': 'CORRECT: The server checks credentials against the directory.',
-            'Forwarding EAP packets to the switch': 'INCORRECT: Forwarding is primarily the Authenticator\'s conduit role.',
-            'Issuing authorizations': 'CORRECT: It determines if access should be granted.',
-            'Performing accounting of security events': 'CORRECT: Accounting is the third A in AAA and is a server function.'
-        })
-    },
-    {
-        bloom_level: 2,
-        question_type: 'fill_blank',
-        question_text: 'On a wired LAN, the encapsulation of EAP communications between the supplicant and the authenticator is handled by the ________ protocol.',
-        options: ['EAPoL', 'EAPoW', 'HTTPS', 'L2TP'],
+        question_text: 'The IEEE 802.1X standard implements Port-based Network Access Control (PNAC) by encapsulating EAP communications over a wired LAN, a process known as ____________.',
+        options: ['EAPoL', 'EAPoW', 'RADIUS', 'WLAN'],
         correct_answer: 'EAPoL',
         explanation: JSON.stringify({
-            'EAPoL': 'CORRECT: EAPoL (EAP over LAN) is the standard for encapsulating EAP on wired networks.',
-            'EAPoW': 'INCORRECT: This refers to EAP over Wireless.',
-            'HTTPS': 'INCORRECT: This is a web protocol, not used for Layer 2 EAP encapsulation.',
-            'L2TP': 'INCORRECT: This is a VPN tunneling protocol.'
+            'EAPoL': 'CORRECT: The text explicitly identifies "encapsulating EAP communications over a LAN" as EAPoL.',
+            'EAPoW': 'INCORRECT: EAPoW refers to EAP over WLAN (Wireless), not a wired LAN.',
+            'RADIUS': 'INCORRECT: RADIUS is the communication protocol between the authenticator and server, not the encapsulation method over the LAN.',
+            'WLAN': 'INCORRECT: WLAN is a network type (Wireless LAN), not the specific encapsulation protocol name.'
         })
     },
-
-    // LEVEL 3: APPLY
+    // Q2 - mcq_single, Bloom 2
     {
-        bloom_level: 3,
+        bloom_level: 2,
         question_type: 'mcq_single',
-        question_text: 'A network administrator wants to implement a login method using smart cards without requiring passwords. Which component provides the framework to deploy this specific authentication type?',
-        options: ['Extensible Authentication Protocol (EAP)', 'Remote Authentication Dial-In User Service (RADIUS)', 'Port-based Network Access Control (PNAC)', 'Challenge Handshake Authentication Protocol (CHAP)'],
-        correct_answer: 'Extensible Authentication Protocol (EAP)',
+        question_text: 'Which statement accurately describes the function of the Authenticator within the 802.1X architecture?',
+        options: ['It validates the user credentials directly against a specific local directory.', 'It acts as a conduit to pass authentication data to the server.', 'It serves as the primary device requesting access to the network.', 'It issues digital certificates to establish a secure trust relationship.'],
+        correct_answer: 'It acts as a conduit to pass authentication data to the server.',
         explanation: JSON.stringify({
-            'Extensible Authentication Protocol (EAP)': 'CORRECT: EAP is the framework that allows for multiple authentication types, including smart cards and digital certificates.',
-            'Remote Authentication Dial-In User Service (RADIUS)': 'INCORRECT: RADIUS transports the data, but EAP defines the authentication method itself.',
-            'Port-based Network Access Control (PNAC)': 'INCORRECT: PNAC is the general standard (802.1X), not the specific protocol framework for smart cards.',
-            'Challenge Handshake Authentication Protocol (CHAP)': 'INCORRECT: CHAP is an older authentication protocol, not the framework for smart card authentication.'
+            'It validates the user credentials directly against a specific local directory.': 'INCORRECT: This describes the Authentication Server, which validates requests; the text states the authenticator does not validate directly.',
+            'It acts as a conduit to pass authentication data to the server.': 'CORRECT: The text defines the Authenticator (switching device) as a device that "does not validate authentication requests directly but acts as a conduit for authentication data."',
+            'It serves as the primary device requesting access to the network.': 'INCORRECT: This describes the Supplicant, which is the device requesting access.',
+            'It issues digital certificates to establish a secure trust relationship.': 'INCORRECT: Issuing certificates is associated with the authentication framework/server side, not the switch\'s role as a conduit.'
         })
     },
+    // Q3 - mcq_multi, Bloom 4
     {
-        bloom_level: 3,
+        bloom_level: 4,
         question_type: 'mcq_multi',
-        question_text: 'When a host first connects to an 802.1X-enabled switch port, which behavior is observed before authentication completes? (Select two)',
-        options: ['The port is fully open to all network traffic', 'The switch opens the port for EAPoL traffic only', 'The switch blocks full data access', 'The switch assigns a permanent IP address immediately'],
-        correct_answer: JSON.stringify(['The switch opens the port for EAPoL traffic only', 'The switch blocks full data access']),
+        question_text: 'According to the text, what are the primary security drawbacks of restricting network access solely by MAC address?',
+        options: ['Logic is prone to spoofing', 'Management is difficult', 'Packet encryption is weak', 'Port speed is reduced'],
+        correct_answer: JSON.stringify(['Logic is prone to spoofing', 'Management is difficult']),
         explanation: JSON.stringify({
-            'The port is fully open to all network traffic': 'INCORRECT: Full access is only granted after authentication.',
-            'The switch opens the port for EAPoL traffic only': 'CORRECT: This allows the authentication exchange to occur.',
-            'The switch blocks full data access': 'CORRECT: Normal data traffic is restricted until the supplicant is authenticated.',
-            'The switch assigns a permanent IP address immediately': 'INCORRECT: IP assignment (DHCP) typically happens after port access is authorized.'
+            'Logic is prone to spoofing': 'CORRECT: Spoofing is explicitly cited as a vulnerability of MAC address restriction.',
+            'Management is difficult': 'CORRECT: Management difficulty is explicitly cited as a drawback.',
+            'Packet encryption is weak': 'INCORRECT: Weak packet encryption is not mentioned as a drawback of MAC restriction in the text.',
+            'Port speed is reduced': 'INCORRECT: Reduced port speed is not mentioned as a drawback of MAC restriction.'
         })
     },
+    // Q4 - fill_blank, Bloom 1
     {
-        bloom_level: 3,
-        question_type: 'true_false',
-        question_text: 'If a company uses 802.1X, an eavesdropper capturing traffic at the switch port can easily read the user\'s password because the switch acts as a transparent conduit.',
-        options: null,
-        correct_answer: 'False',
-        explanation: 'The switch receives an EAP packet with the supplicant\'s credentials, but these are encrypted and cannot be read by the switch. Therefore, they cannot be easily read by an eavesdropper at that point.'
-    },
-    {
-        bloom_level: 3,
+        bloom_level: 1,
         question_type: 'fill_blank',
-        question_text: 'In the AAA framework, the ________ function is responsible for logging the duration and data usage of a user\'s session.',
-        options: ['Accounting', 'Authorization', 'Authentication', 'Auditing'],
-        correct_answer: 'Accounting',
+        question_text: 'In the AAA architecture used by 802.1X, the device requesting network access, such as a user\'s laptop, is defined as the ____________.',
+        options: ['Supplicant', 'Authenticator', 'Proxy', 'Controller'],
+        correct_answer: 'Supplicant',
         explanation: JSON.stringify({
-            'Accounting': 'CORRECT: Accounting is the third A in AAA and tracks session data, usage, and security events for auditing purposes.',
-            'Authorization': 'INCORRECT: Authorization determines what level of access a user is granted, not logging of session data.',
-            'Authentication': 'INCORRECT: Authentication verifies user identity but does not log ongoing session activity.',
-            'Auditing': 'INCORRECT: While auditing is related, the specific AAA term for logging session data is Accounting.'
+            'Supplicant': 'CORRECT: The text defines the Supplicant as "It is the device requesting access such as a user\'s PC or laptop."',
+            'Authenticator': 'INCORRECT: The Authenticator is the switching device, not the requesting device.',
+            'Proxy': 'INCORRECT: Proxy is not defined as a role in the provided text.',
+            'Controller': 'INCORRECT: Controller is not defined as a role in the provided text.'
         })
     },
-
-    // LEVEL 4: ANALYZE
+    // Q5 - true_false, Bloom 2
     {
-        bloom_level: 4,
-        question_type: 'mcq_multi',
-        question_text: 'Which architectural factors prevent the Authenticator from independently validating a user\'s credentials? (Select two)',
-        options: ['The switch cannot read the encrypted credentials in the EAP packet', 'The directory of user accounts resides on the Authentication Server', 'The switch lacks the cryptographic keys to decrypt credentials', 'None of the above'],
-        correct_answer: JSON.stringify(['The switch cannot read the encrypted credentials in the EAP packet', 'The directory of user accounts resides on the Authentication Server']),
-        explanation: JSON.stringify({
-            'The switch cannot read the encrypted credentials in the EAP packet': 'CORRECT: Credentials are encrypted end-to-end between supplicant and server.',
-            'The directory of user accounts resides on the Authentication Server': 'CORRECT: The switch does not hold the database required for validation.',
-            'The switch lacks the cryptographic keys to decrypt credentials': 'INCORRECT: While related, this is not explicitly stated in the architecture. The switch acts as a conduit by design.',
-            'None of the above': 'INCORRECT: Two of the options are correct.'
-        })
-    },
-    {
-        bloom_level: 4,
-        question_type: 'mcq_single',
-        question_text: 'If the connection between the Authenticator and the Authentication Server fails, what is the immediate consequence for a new supplicant attempting to connect?',
-        options: ['The supplicant is granted limited guest network access', 'The authentication request cannot be validated, and access is denied', 'The Authenticator uses cached credentials to verify the user', 'The Supplicant connects through an alternate port automatically'],
-        correct_answer: 'The authentication request cannot be validated, and access is denied',
-        explanation: JSON.stringify({
-            'The supplicant is granted limited guest network access': 'INCORRECT: The base architecture requires server validation. Without it, validation fails.',
-            'The authentication request cannot be validated, and access is denied': 'CORRECT: The Authenticator cannot validate credentials itself; without the server, the authentication process cannot complete.',
-            'The Authenticator uses cached credentials to verify the user': 'INCORRECT: The Authenticator does not cache or validate credentials; it only acts as a conduit.',
-            'The Supplicant connects through an alternate port automatically': 'INCORRECT: The supplicant is physically connected to the switch and cannot bypass the authentication requirement.'
-        })
-    },
-    {
-        bloom_level: 4,
+        bloom_level: 2,
         question_type: 'true_false',
-        question_text: 'The 802.1X standard separates the "door lock" mechanism (the switch port) from the "key verification" mechanism (the authentication server) to improve security and manageability.',
-        options: null,
-        correct_answer: 'True',
-        explanation: 'This accurately analyzes the relationship: the switch (Authenticator) controls the physical port ("door lock") but relies on the Server ("key verification") to validate the credentials, separating duties.'
-    },
-
-    // LEVEL 5: EVALUATE
-    {
-        bloom_level: 5,
-        question_type: 'mcq_single',
-        question_text: 'A security consultant recommends using EAP-TLS (certificate-based) over EAP-MD5 (password hash) for a high-security finance network. Which capability best justifies this choice?',
-        options: ['The ability to perform accounting of all user sessions', 'The ability to create a secure tunnel and establish a trust relationship', 'The reduction of CPU load on the Authentication Server', 'The compatibility with legacy switching hardware'],
-        correct_answer: 'The ability to create a secure tunnel and establish a trust relationship',
-        explanation: JSON.stringify({
-            'The ability to perform accounting of all user sessions': 'INCORRECT: Accounting works with most EAP types; it doesn\'t justify choosing certificates specifically.',
-            'The ability to create a secure tunnel and establish a trust relationship': 'CORRECT: EAP is often used with digital certificates to establish a trust relationship and create a secure tunnel, offering higher security.',
-            'The reduction of CPU load on the Authentication Server': 'INCORRECT: Certificate validation typically involves higher computation than simple hashes.',
-            'The compatibility with legacy switching hardware': 'INCORRECT: Hardware compatibility is less of a differentiator than the security features provided.'
-        })
-    },
-    {
-        bloom_level: 5,
-        question_type: 'mcq_multi',
-        question_text: 'When evaluating a network\'s vulnerability to insider threats, which arguments support implementing 802.1X internally rather than just at the perimeter? (Select two)',
-        options: ['It forces internal users to authenticate before gaining full network access', 'It prevents unauthorized devices from simply plugging into a wall jack', 'It eliminates the need for internal firewalls', 'It automatically encrypts all data at the Application layer'],
-        correct_answer: JSON.stringify(['It forces internal users to authenticate before gaining full network access', 'It prevents unauthorized devices from simply plugging into a wall jack']),
-        explanation: JSON.stringify({
-            'It forces internal users to authenticate before gaining full network access': 'CORRECT: This ensures only authorized personnel are on the LAN.',
-            'It prevents unauthorized devices from simply plugging into a wall jack': 'CORRECT: 802.1X requires authentication when a host connects to one of its ports, preventing casual plug-in access.',
-            'It eliminates the need for internal firewalls': 'INCORRECT: Access control does not replace traffic inspection/firewalling.',
-            'It automatically encrypts all data at the Application layer': 'INCORRECT: 802.1X secures access, not application data.'
-        })
-    },
-    {
-        bloom_level: 5,
-        question_type: 'true_false',
-        question_text: 'Relying solely on identifying the Supplicant by MAC address is evaluated as a secure method because MAC addresses are hard-coded into the network interface hardware.',
-        options: null,
+        question_text: 'When a host connects to an 802.1X-enabled switch port, the switch immediately decrypts the supplicant\'s credentials to verify them before contacting the server.',
+        options: ['True', 'False'],
         correct_answer: 'False',
-        explanation: 'Restricting access by MAC address is difficult to manage and still prone to spoofing. Just because they are hardware-based doesn\'t mean they can\'t be spoofed in software.'
+        explanation: 'The text strictly states regarding the supplicant\'s credentials: "These are encrypted and cannot be read by the switch." Validation is done by the Authentication Server, not the switch.'
     },
-
-    // LEVEL 6: CREATE
+    // Q6 - mcq_single, Bloom 5
     {
-        bloom_level: 6,
-        question_type: 'mcq_multi',
-        question_text: 'You are designing a secure 802.1X implementation for a hospital network with strict compliance requirements. Which design elements should you incorporate to ensure credentials are never exposed in transit? (Select two)',
-        options: ['Deploy EAP-TLS to establish encrypted tunnels with digital certificates', 'Configure the Authenticator to decrypt and re-encrypt credentials', 'Use certificate-based authentication to eliminate password transmission', 'None of the above'],
-        correct_answer: JSON.stringify(['Deploy EAP-TLS to establish encrypted tunnels with digital certificates', 'Use certificate-based authentication to eliminate password transmission']),
+        bloom_level: 5,
+        question_type: 'mcq_single',
+        question_text: 'An administrator needs to implement a solution using digital certificates to create a secure tunnel. Which 802.1X protocol component provides the necessary framework for this configuration?',
+        options: ['EAP', 'MAC', 'PNAC', 'AAA'],
+        correct_answer: 'EAP',
         explanation: JSON.stringify({
-            'Deploy EAP-TLS to establish encrypted tunnels with digital certificates': 'CORRECT: EAP-TLS creates a secure tunnel, ensuring credentials are protected during transmission.',
-            'Configure the Authenticator to decrypt and re-encrypt credentials': 'INCORRECT: The Authenticator cannot decrypt credentials; it acts only as a conduit. This would also be a security risk.',
-            'Use certificate-based authentication to eliminate password transmission': 'CORRECT: Certificate-based methods avoid sending passwords entirely, reducing exposure risk.',
-            'None of the above': 'INCORRECT: Two of the options are valid design choices.'
+            'EAP': 'CORRECT: The text states, regarding EAP: "It provides a framework... It is often used with digital certificates to establish a trust relationship and create a secure tunnel..."',
+            'MAC': 'INCORRECT: MAC refers to the address/filtering method or distinct layer, not the validation framework.',
+            'PNAC': 'INCORRECT: PNAC is the name of the standard (802.1X) or the switch type, but EAP is the protocol framework used within it.',
+            'AAA': 'INCORRECT: AAA is the architecture type, not the specific protocol framework handling the certificates.'
         })
     },
+    // Q7 - mcq_single, Bloom 3
     {
-        bloom_level: 6,
-        question_type: 'mcq_multi',
-        question_text: 'You are designing a unified 802.1X solution for an organization with both wired and wireless users. Which components must be configured to participate in the authentication chain? (Select three)',
-        options: ['Access Points (as Authenticators)', 'Core Router (as CA Server)', 'Wired Switches (as Authenticators)', 'Centralized RADIUS Server (as Authentication Server)'],
-        correct_answer: JSON.stringify(['Access Points (as Authenticators)', 'Wired Switches (as Authenticators)', 'Centralized RADIUS Server (as Authentication Server)']),
+        bloom_level: 3,
+        question_type: 'mcq_single',
+        question_text: 'When a host connects to an 802.1X switch port, what is the specific state of that port prior to successful authentication?',
+        options: ['Open for EAPoL traffic only', 'Open for all standard data', 'Closed to all traffic types', 'Open for Web traffic only'],
+        correct_answer: 'Open for EAPoL traffic only',
         explanation: JSON.stringify({
-            'Access Points (as Authenticators)': 'CORRECT: For WLAN (EAPoW), APs act as the authenticator.',
-            'Core Router (as CA Server)': 'INCORRECT: Core routers route traffic; the CA server is a distinct role associated with directory/PKI services.',
-            'Wired Switches (as Authenticators)': 'CORRECT: For wired (EAPoL), switches act as the authenticator.',
-            'Centralized RADIUS Server (as Authentication Server)': 'CORRECT: A single RADIUS server can handle requests from both wired switches and wireless APs.'
+            'Open for EAPoL traffic only': 'CORRECT: The text states: "When a host connects... the switch opens the port for the EAP over LAN (EAPoL) protocol only."',
+            'Open for all standard data': 'INCORRECT: The port only allows full data access after authentication.',
+            'Closed to all traffic types': 'INCORRECT: The port must be open to EAPoL traffic to allow the authentication exchange to occur.',
+            'Open for Web traffic only': 'INCORRECT: Web traffic (HTTP) is "full data access," which is blocked until authentication is complete.'
         })
     },
+    // Q8 - mcq_multi, Bloom 2
+    {
+        bloom_level: 2,
+        question_type: 'mcq_multi',
+        question_text: 'Which specific functions are performed by the Authentication Server in an 802.1X deployment?',
+        options: ['Validating authentication requests', 'Performing accounting of events', 'Opening the EAPoL port', 'Issuing access authorizations'],
+        correct_answer: JSON.stringify(['Validating authentication requests', 'Performing accounting of events', 'Issuing access authorizations']),
+        explanation: JSON.stringify({
+            'Validating authentication requests': 'CORRECT: Explicitly listed as a server function.',
+            'Performing accounting of events': 'CORRECT: Explicitly listed as a server function.',
+            'Opening the EAPoL port': 'INCORRECT: The switch (Authenticator) opens the port for EAPoL when the host connects, not the server.',
+            'Issuing access authorizations': 'CORRECT: Explicitly listed as a server function.'
+        })
+    },
+    // Q9 - mcq_single, Bloom 4
+    {
+        bloom_level: 4,
+        question_type: 'mcq_single',
+        question_text: 'During the 802.1X authentication process, the switch functions as which client type when communicating with the directory-holding server?',
+        options: ['RADIUS Client', 'EAPoL Client', 'Access Client', 'Tunnel Client'],
+        correct_answer: 'RADIUS Client',
+        explanation: JSON.stringify({
+            'RADIUS Client': 'CORRECT: The text explicitly states: "The authenticator is a RADIUS client; the authentication server is a RADIUS server."',
+            'EAPoL Client': 'INCORRECT: EAPoL is the protocol used on the LAN side (Supplicant to Switch); the switch isn\'t an "EAPoL client" to the server.',
+            'Access Client': 'INCORRECT: Generic filler term not used in the text.',
+            'Tunnel Client': 'INCORRECT: Use of tunnels is associated with EAP/Methods, not the role of the switch itself.'
+        })
+    },
+    // Q10 - mcq_single, Bloom 6
     {
         bloom_level: 6,
+        question_type: 'mcq_single',
+        question_text: 'You are designing a secure network access solution. Based on the text, which method should you select to best ensure a trust relationship and eliminate the need for passwords?',
+        options: ['EAP with Smart Cards', 'Standard EAP with passwords', 'MAC address filtering', 'Port-based open access'],
+        correct_answer: 'EAP with Smart Cards',
+        explanation: JSON.stringify({
+            'EAP with Smart Cards': 'CORRECT: The text mentions EAP is used to "perform smart-card authentication without a password" and establish trust.',
+            'Standard EAP with passwords': 'INCORRECT: The text discusses eliminating passwords using smart cards/certs; standard passwords don\'t meet the "eliminate" criteria.',
+            'MAC address filtering': 'INCORRECT: MAC filtering is described as prone to spoofing and difficult to manage.',
+            'Port-based open access': 'INCORRECT: Open access contradicts the goal of "secure network access."'
+        })
+    },
+    // Q11 - fill_blank, Bloom 1
+    {
+        bloom_level: 1,
         question_type: 'fill_blank',
-        question_text: 'To design a network where the switch never sees clear-text passwords, the architect must ensure the EAP method creates a secure ________ to transmit credentials between the Supplicant and the Authentication Server.',
-        options: ['Tunnel', 'Bridge', 'VLAN', 'Route'],
-        correct_answer: 'Tunnel',
+        question_text: 'The protocol that allows the authenticator and authentication server to communicate authentication and authorization decisions is known as ____________.',
+        options: ['RADIUS', 'EAPoL', 'EAPoW', 'PNAC'],
+        correct_answer: 'RADIUS',
         explanation: JSON.stringify({
-            'Tunnel': 'CORRECT: Digital certificates can be used to create a secure tunnel for transmitting credentials.',
-            'Bridge': 'INCORRECT: Bridging connects network segments, not a cryptographic privacy path.',
-            'VLAN': 'INCORRECT: VLANs separate broadcast domains, not encryption for credential privacy.',
-            'Route': 'INCORRECT: Routing determines path selection, not data privacy.'
+            'RADIUS': 'CORRECT: The text defines RADIUS as: "It allows the authenticator and authentication server to communicate authentication and authorization decisions."',
+            'EAPoL': 'INCORRECT: EAPoL is for encapsulation over LAN between Supplicant and Switch.',
+            'EAPoW': 'INCORRECT: EAPoW is for encapsulation over WLAN.',
+            'PNAC': 'INCORRECT: PNAC is the type of access control, not the communication protocol between the switch and server.'
         })
     },
+    // Q12 - true_false, Bloom 3
     {
-        bloom_level: 6,
+        bloom_level: 3,
         question_type: 'true_false',
-        question_text: 'When designing an 802.1X deployment, it is strictly necessary for the Authenticator and the Authentication Server to reside on the same physical hardware device.',
-        options: null,
+        question_text: 'In an 802.1X exchange, the Supplicant sends credentials directly to the Authentication Server without passing them through the Authenticator (Switch).',
+        options: ['True', 'False'],
         correct_answer: 'False',
-        explanation: 'The architecture explicitly separates these roles: the Authenticator is a network access device (switch), while the Authentication Server is a server that communicates via RADIUS. They are distinct components in the design.'
+        explanation: 'The text states the Authenticator (Switch) "acts as a conduit for authentication data" and "passes a supplicant\'s authentication data to an authenticating server." The data must pass through the switch.'
+    },
+    // Q13 - mcq_multi, Bloom 2
+    {
+        bloom_level: 2,
+        question_type: 'mcq_multi',
+        question_text: 'Which of the following components are explicitly part of the 802.1X AAA architecture described in the text?',
+        options: ['Authenticator', 'Supplicant', 'Internet Router', 'Authentication Server'],
+        correct_answer: JSON.stringify(['Authenticator', 'Supplicant', 'Authentication Server']),
+        explanation: JSON.stringify({
+            'Authenticator': 'CORRECT: Explicitly listed as part of the AAA architecture.',
+            'Supplicant': 'CORRECT: Explicitly listed as part of the AAA architecture.',
+            'Internet Router': 'INCORRECT: An "Internet Router" is not listed as a specific role in the 802.1X AAA architecture text.',
+            'Authentication Server': 'CORRECT: Explicitly listed as part of the AAA architecture.'
+        })
+    },
+    // Q14 - mcq_single, Bloom 3
+    {
+        bloom_level: 3,
+        question_type: 'mcq_single',
+        question_text: 'A switch receives an EAP packet containing a user\'s credentials. According to the text, what prevents the switch from reading these credentials?',
+        options: ['They are encrypted', 'They are encoded', 'They are hashed', 'They are compressed'],
+        correct_answer: 'They are encrypted',
+        explanation: JSON.stringify({
+            'They are encrypted': 'CORRECT: The text states: "The switch receives an EAP packet with the supplicant\'s credentials. These are encrypted and cannot be read by the switch."',
+            'They are encoded': 'INCORRECT: "Encoded" implies they could be decoded easily; text specifies "encrypted."',
+            'They are hashed': 'INCORRECT: Hashing is not mentioned; text specifies "encrypted."',
+            'They are compressed': 'INCORRECT: Compression is not mentioned; text specifies "encrypted."'
+        })
+    },
+    // Q15 - mcq_single, Bloom 1
+    {
+        bloom_level: 1,
+        question_type: 'mcq_single',
+        question_text: 'Determining whether "encapsulating EAP communications over a WLAN" is occurring corresponds to which acronym?',
+        options: ['EAPoW', 'EAPoL', 'RADIUS', 'PNAC'],
+        correct_answer: 'EAPoW',
+        explanation: JSON.stringify({
+            'EAPoW': 'CORRECT: The text explicitly mentions "encapsulating EAP communications over a... WLAN (EAPoW)."',
+            'EAPoL': 'INCORRECT: EAPoL is for wired networks.',
+            'RADIUS': 'INCORRECT: RADIUS is the backend protocol.',
+            'PNAC': 'INCORRECT: PNAC is the access control standard.'
+        })
     }
 ]
 
@@ -314,7 +242,7 @@ async function updateQuestions() {
     console.log(`Found topic: ${topic.name} (${topic.id})`)
 
     // Delete existing questions for this topic
-    const { error: deleteError, count } = await supabase
+    const { error: deleteError } = await supabase
         .from('questions')
         .delete()
         .eq('topic_id', topic.id)
@@ -327,13 +255,13 @@ async function updateQuestions() {
     console.log(`Deleted existing questions`)
 
     // Insert new questions
-    const questionsToInsert = correctedQuestions.map(q => ({
+    const questionsToInsert = questions.map(q => ({
         topic_id: topic.id,
         bloom_level: q.bloom_level,
         question_text: q.question_text,
         question_format: q.question_type,  // UI reads from question_format column
         options: q.options,
-        correct_answer: typeof q.correct_answer === 'string' ? q.correct_answer : JSON.stringify(q.correct_answer),
+        correct_answer: typeof q.correct_answer === 'string' ? q.correct_answer : q.correct_answer,
         explanation: q.explanation
     }))
 
@@ -353,7 +281,7 @@ async function updateQuestions() {
     const formats: Record<string, number> = {}
     const blooms: Record<number, number> = {}
 
-    correctedQuestions.forEach(q => {
+    questions.forEach(q => {
         formats[q.question_type] = (formats[q.question_type] || 0) + 1
         blooms[q.bloom_level] = (blooms[q.bloom_level] || 0) + 1
     })
